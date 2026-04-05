@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This schema was created by staff of the U.S. Securities and Exchange Commission. -->
+<!-- Data and content created by government employees within the scope of their employment -->
+<!-- are not subject to domestic copyright protection. 17 U.S.C. 105. -->
+<xs:schema
+xmlns:country-doc="http://xbrl.sec.gov/country-doc/2025"
+xmlns:link="http://www.xbrl.org/2003/linkbase"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://xbrl.sec.gov/country-doc/2025"
+elementFormDefault="qualified">
+<xs:annotation>
+<xs:appinfo>
+<link:linkbase id="lnk">
+<link:labelLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+<link:loc xlink:type="locator" xlink:href="country-2025.xsd#country_AllCountriesDomain" xlink:label="loc_AllCountriesDomain"/>
+<link:label xlink:type="resource" xlink:label="lab_AllCountriesDomain" xlink:role="http://www.xbrl.org/2003/role/documentation" xml:lang="en-US">ISO 3166-1 alpha-2. A geopolitical area recognized by governments of the world as a country.</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AllCountriesDomain" xlink:to="lab_AllCountriesDomain" order="1.0" priority="10"/>
+</link:labelLink>
+</link:linkbase>
+</xs:appinfo>
+</xs:annotation>
+</xs:schema>

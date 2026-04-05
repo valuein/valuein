@@ -1,0 +1,1299 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This schema was created by staff of the U.S. Securities and Exchange Commission. -->
+<!-- Data and content created by government employees within the scope of their employment -->
+<!-- are not subject to domestic copyright protection. 17 U.S.C. 105. -->
+<xs:schema
+xmlns:currency-entire="http://xbrl.sec.gov/currency-entire/2025"
+xmlns:link="http://www.xbrl.org/2003/linkbase"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+targetNamespace="http://xbrl.sec.gov/currency-entire/2025"
+elementFormDefault="qualified">
+<xs:annotation>
+<xs:appinfo>
+<link:linkbase id="lnk">
+<link:arcroleRef arcroleURI="http://xbrl.org/int/dim/arcrole/domain-member" xlink:type="simple" xlink:href="http://www.xbrl.org/2005/xbrldt-2005.xsd#domain-member"/>
+<link:roleRef roleURI="http://xbrl.sec.gov/role/document/Currency" xlink:type="simple" xlink:href="currency-2025.xsd#currency"/>
+<link:presentationLink xlink:type="extended" xlink:role="http://xbrl.sec.gov/role/document/Currency">
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AllCurrenciesDomain" xlink:label="loc_AllCurrenciesDomain"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AED" xlink:label="loc_AED"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AED" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AFN" xlink:label="loc_AFN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AFN" order="2.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ALL" xlink:label="loc_ALL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ALL" order="3.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AMD" xlink:label="loc_AMD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AMD" order="4.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ANG" xlink:label="loc_ANG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ANG" order="5.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AOA" xlink:label="loc_AOA"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AOA" order="6.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ARS" xlink:label="loc_ARS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ARS" order="7.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AUD" xlink:label="loc_AUD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AUD" order="8.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AWG" xlink:label="loc_AWG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AWG" order="9.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AZN" xlink:label="loc_AZN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AZN" order="10.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BAM" xlink:label="loc_BAM"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BAM" order="11.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BBD" xlink:label="loc_BBD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BBD" order="12.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BDT" xlink:label="loc_BDT"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BDT" order="13.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BGN" xlink:label="loc_BGN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BGN" order="14.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BHD" xlink:label="loc_BHD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BHD" order="15.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BIF" xlink:label="loc_BIF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BIF" order="16.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BMD" xlink:label="loc_BMD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BMD" order="17.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BND" xlink:label="loc_BND"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BND" order="18.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BOB" xlink:label="loc_BOB"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BOB" order="19.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BOV" xlink:label="loc_BOV"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BOV" order="20.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BRL" xlink:label="loc_BRL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BRL" order="21.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BSD" xlink:label="loc_BSD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BSD" order="22.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BTN" xlink:label="loc_BTN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BTN" order="23.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BWP" xlink:label="loc_BWP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BWP" order="24.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BZD" xlink:label="loc_BZD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BZD" order="26.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CAD" xlink:label="loc_CAD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CAD" order="27.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CDF" xlink:label="loc_CDF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CDF" order="28.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHE" xlink:label="loc_CHE"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CHE" order="29.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHF" xlink:label="loc_CHF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CHF" order="30.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHW" xlink:label="loc_CHW"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CHW" order="31.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CLF" xlink:label="loc_CLF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CLF" order="32.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CLP" xlink:label="loc_CLP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CLP" order="33.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CNY" xlink:label="loc_CNY"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CNY" order="34.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_COP" xlink:label="loc_COP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_COP" order="35.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_COU" xlink:label="loc_COU"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_COU" order="36.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CRC" xlink:label="loc_CRC"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CRC" order="37.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CUC" xlink:label="loc_CUC"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CUC" order="38.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CUP" xlink:label="loc_CUP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CUP" order="39.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CVE" xlink:label="loc_CVE"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CVE" order="40.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CZK" xlink:label="loc_CZK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CZK" order="41.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DJF" xlink:label="loc_DJF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DJF" order="42.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DKK" xlink:label="loc_DKK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DKK" order="43.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DOP" xlink:label="loc_DOP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DOP" order="44.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DZD" xlink:label="loc_DZD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DZD" order="45.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_EGP" xlink:label="loc_EGP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_EGP" order="46.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ERN" xlink:label="loc_ERN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ERN" order="47.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ETB" xlink:label="loc_ETB"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ETB" order="48.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_EUR" xlink:label="loc_EUR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_EUR" order="49.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_FJD" xlink:label="loc_FJD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_FJD" order="50.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_FKP" xlink:label="loc_FKP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_FKP" order="51.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GBP" xlink:label="loc_GBP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GBP" order="52.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GEL" xlink:label="loc_GEL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GEL" order="53.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GHS" xlink:label="loc_GHS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GHS" order="54.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GIP" xlink:label="loc_GIP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GIP" order="55.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GMD" xlink:label="loc_GMD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GMD" order="56.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GNF" xlink:label="loc_GNF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GNF" order="57.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GTQ" xlink:label="loc_GTQ"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GTQ" order="58.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GYD" xlink:label="loc_GYD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GYD" order="59.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HKD" xlink:label="loc_HKD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HKD" order="60.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HNL" xlink:label="loc_HNL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HNL" order="61.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HTG" xlink:label="loc_HTG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HTG" order="63.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HUF" xlink:label="loc_HUF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HUF" order="64.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IDR" xlink:label="loc_IDR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_IDR" order="65.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ILS" xlink:label="loc_ILS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ILS" order="66.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_INR" xlink:label="loc_INR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_INR" order="67.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IQD" xlink:label="loc_IQD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_IQD" order="68.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IRR" xlink:label="loc_IRR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_IRR" order="69.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ISK" xlink:label="loc_ISK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ISK" order="70.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JMD" xlink:label="loc_JMD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_JMD" order="71.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JOD" xlink:label="loc_JOD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_JOD" order="72.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JPY" xlink:label="loc_JPY"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_JPY" order="73.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KES" xlink:label="loc_KES"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KES" order="74.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KGS" xlink:label="loc_KGS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KGS" order="75.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KHR" xlink:label="loc_KHR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KHR" order="76.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KMF" xlink:label="loc_KMF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KMF" order="77.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KPW" xlink:label="loc_KPW"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KPW" order="78.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KRW" xlink:label="loc_KRW"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KRW" order="79.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KWD" xlink:label="loc_KWD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KWD" order="80.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KYD" xlink:label="loc_KYD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KYD" order="81.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KZT" xlink:label="loc_KZT"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KZT" order="82.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LAK" xlink:label="loc_LAK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LAK" order="83.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LBP" xlink:label="loc_LBP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LBP" order="84.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LKR" xlink:label="loc_LKR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LKR" order="85.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LRD" xlink:label="loc_LRD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LRD" order="86.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LSL" xlink:label="loc_LSL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LSL" order="87.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LYD" xlink:label="loc_LYD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LYD" order="88.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MAD" xlink:label="loc_MAD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MAD" order="89.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MDL" xlink:label="loc_MDL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MDL" order="90.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MGA" xlink:label="loc_MGA"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MGA" order="91.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MKD" xlink:label="loc_MKD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MKD" order="92.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MMK" xlink:label="loc_MMK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MMK" order="93.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MNT" xlink:label="loc_MNT"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MNT" order="94.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MOP" xlink:label="loc_MOP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MOP" order="95.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MUR" xlink:label="loc_MUR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MUR" order="97.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MVR" xlink:label="loc_MVR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MVR" order="98.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MWK" xlink:label="loc_MWK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MWK" order="99.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MXN" xlink:label="loc_MXN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MXN" order="100.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MXV" xlink:label="loc_MXV"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MXV" order="101.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MYR" xlink:label="loc_MYR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MYR" order="102.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MZN" xlink:label="loc_MZN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MZN" order="103.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NAD" xlink:label="loc_NAD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NAD" order="104.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NGN" xlink:label="loc_NGN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NGN" order="105.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NIO" xlink:label="loc_NIO"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NIO" order="106.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NOK" xlink:label="loc_NOK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NOK" order="107.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NPR" xlink:label="loc_NPR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NPR" order="108.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NZD" xlink:label="loc_NZD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NZD" order="109.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_OMR" xlink:label="loc_OMR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_OMR" order="110.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PAB" xlink:label="loc_PAB"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PAB" order="111.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PEN" xlink:label="loc_PEN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PEN" order="112.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PGK" xlink:label="loc_PGK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PGK" order="113.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PHP" xlink:label="loc_PHP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PHP" order="114.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PKR" xlink:label="loc_PKR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PKR" order="115.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PLN" xlink:label="loc_PLN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PLN" order="116.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PYG" xlink:label="loc_PYG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PYG" order="117.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_QAR" xlink:label="loc_QAR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_QAR" order="118.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RON" xlink:label="loc_RON"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RON" order="119.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RSD" xlink:label="loc_RSD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RSD" order="120.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RUB" xlink:label="loc_RUB"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RUB" order="121.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RWF" xlink:label="loc_RWF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RWF" order="122.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SAR" xlink:label="loc_SAR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SAR" order="123.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SBD" xlink:label="loc_SBD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SBD" order="124.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SCR" xlink:label="loc_SCR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SCR" order="125.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SDG" xlink:label="loc_SDG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SDG" order="126.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SEK" xlink:label="loc_SEK"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SEK" order="127.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SGD" xlink:label="loc_SGD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SGD" order="128.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SHP" xlink:label="loc_SHP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SHP" order="129.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SLE" xlink:label="loc_SLE"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SLE" order="130.5" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SOS" xlink:label="loc_SOS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SOS" order="131.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SRD" xlink:label="loc_SRD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SRD" order="133.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SYP" xlink:label="loc_SYP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SYP" order="136.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SZL" xlink:label="loc_SZL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SZL" order="137.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_THB" xlink:label="loc_THB"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_THB" order="138.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TJS" xlink:label="loc_TJS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TJS" order="139.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TMT" xlink:label="loc_TMT"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TMT" order="140.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TND" xlink:label="loc_TND"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TND" order="141.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TOP" xlink:label="loc_TOP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TOP" order="142.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TRY" xlink:label="loc_TRY"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TRY" order="143.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TTD" xlink:label="loc_TTD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TTD" order="144.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TWD" xlink:label="loc_TWD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TWD" order="145.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TZS" xlink:label="loc_TZS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TZS" order="146.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UAH" xlink:label="loc_UAH"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UAH" order="147.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UGX" xlink:label="loc_UGX"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UGX" order="148.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_USD" xlink:label="loc_USD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_USD" order="149.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_USN" xlink:label="loc_USN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_USN" order="150.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYU" xlink:label="loc_UYU"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UYU" order="152.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UZS" xlink:label="loc_UZS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UZS" order="154.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VND" xlink:label="loc_VND"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_VND" order="156.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VUV" xlink:label="loc_VUV"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_VUV" order="157.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_WST" xlink:label="loc_WST"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_WST" order="158.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAF" xlink:label="loc_XAF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XAF" order="159.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAG" xlink:label="loc_XAG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XAG" order="160.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAU" xlink:label="loc_XAU"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XAU" order="161.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBA" xlink:label="loc_XBA"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBA" order="162.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBB" xlink:label="loc_XBB"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBB" order="163.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBC" xlink:label="loc_XBC"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBC" order="164.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBD" xlink:label="loc_XBD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBD" order="165.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XCD" xlink:label="loc_XCD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XCD" order="166.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XDR" xlink:label="loc_XDR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XDR" order="167.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XOF" xlink:label="loc_XOF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XOF" order="168.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPD" xlink:label="loc_XPD"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XPD" order="169.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPF" xlink:label="loc_XPF"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XPF" order="170.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPT" xlink:label="loc_XPT"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XPT" order="171.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XTS" xlink:label="loc_XTS"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XTS" order="173.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XXX" xlink:label="loc_XXX"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XXX" order="175.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_YER" xlink:label="loc_YER"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_YER" order="176.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZAR" xlink:label="loc_ZAR"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ZAR" order="177.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZMW" xlink:label="loc_ZMW"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ZMW" order="178.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZWL" xlink:label="loc_ZWL"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ZWL" order="179.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SSP" xlink:label="loc_SSP"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SSP" order="132.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYI" xlink:label="loc_UYI"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UYI" order="151.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XSU" xlink:label="loc_XSU"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XSU" order="172.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XUA" xlink:label="loc_XUA"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XUA" order="174.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BYN" xlink:label="loc_BYN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BYN" order="25.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_STN" xlink:label="STN"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="STN" order="134.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VES" xlink:label="VES"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="VES" order="155.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYW" xlink:label="loc_UYW"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UYW" order="153.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SVC" xlink:label="SVC"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="SVC" order="135.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MRU" xlink:label="MRU"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="MRU" order="96.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VED" xlink:label="VED"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="VED" order="155.5" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZWG" xlink:label="ZWG"/>
+<link:presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="loc_AllCurrenciesDomain" xlink:to="ZWG" order="180.0" priority="10"/>
+</link:presentationLink>
+<link:definitionLink xlink:type="extended" xlink:role="http://xbrl.sec.gov/role/document/Currency">
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AllCurrenciesDomain" xlink:label="loc_AllCurrenciesDomain"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AED" xlink:label="loc_AED"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AED" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AFN" xlink:label="loc_AFN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AFN" order="2.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ALL" xlink:label="loc_ALL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ALL" order="3.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AMD" xlink:label="loc_AMD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AMD" order="4.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ANG" xlink:label="loc_ANG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ANG" order="5.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AOA" xlink:label="loc_AOA"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AOA" order="6.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ARS" xlink:label="loc_ARS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ARS" order="7.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AUD" xlink:label="loc_AUD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AUD" order="8.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AWG" xlink:label="loc_AWG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AWG" order="9.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AZN" xlink:label="loc_AZN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_AZN" order="10.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BAM" xlink:label="loc_BAM"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BAM" order="11.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BBD" xlink:label="loc_BBD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BBD" order="12.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BDT" xlink:label="loc_BDT"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BDT" order="13.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BGN" xlink:label="loc_BGN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BGN" order="14.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BHD" xlink:label="loc_BHD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BHD" order="15.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BIF" xlink:label="loc_BIF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BIF" order="16.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BMD" xlink:label="loc_BMD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BMD" order="17.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BND" xlink:label="loc_BND"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BND" order="18.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BOB" xlink:label="loc_BOB"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BOB" order="19.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BOV" xlink:label="loc_BOV"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BOV" order="20.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BRL" xlink:label="loc_BRL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BRL" order="21.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BSD" xlink:label="loc_BSD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BSD" order="22.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BTN" xlink:label="loc_BTN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BTN" order="23.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BWP" xlink:label="loc_BWP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BWP" order="24.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BZD" xlink:label="loc_BZD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BZD" order="26.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CAD" xlink:label="loc_CAD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CAD" order="27.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CDF" xlink:label="loc_CDF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CDF" order="28.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHE" xlink:label="loc_CHE"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CHE" order="29.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHF" xlink:label="loc_CHF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CHF" order="30.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHW" xlink:label="loc_CHW"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CHW" order="31.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CLF" xlink:label="loc_CLF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CLF" order="32.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CLP" xlink:label="loc_CLP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CLP" order="33.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CNY" xlink:label="loc_CNY"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CNY" order="34.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_COP" xlink:label="loc_COP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_COP" order="35.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_COU" xlink:label="loc_COU"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_COU" order="36.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CRC" xlink:label="loc_CRC"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CRC" order="37.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CUC" xlink:label="loc_CUC"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CUC" order="38.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CUP" xlink:label="loc_CUP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CUP" order="39.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CVE" xlink:label="loc_CVE"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CVE" order="40.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CZK" xlink:label="loc_CZK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_CZK" order="41.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DJF" xlink:label="loc_DJF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DJF" order="42.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DKK" xlink:label="loc_DKK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DKK" order="43.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DOP" xlink:label="loc_DOP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DOP" order="44.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DZD" xlink:label="loc_DZD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_DZD" order="45.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_EGP" xlink:label="loc_EGP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_EGP" order="46.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ERN" xlink:label="loc_ERN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ERN" order="47.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ETB" xlink:label="loc_ETB"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ETB" order="48.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_EUR" xlink:label="loc_EUR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_EUR" order="49.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_FJD" xlink:label="loc_FJD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_FJD" order="50.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_FKP" xlink:label="loc_FKP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_FKP" order="51.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GBP" xlink:label="loc_GBP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GBP" order="52.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GEL" xlink:label="loc_GEL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GEL" order="53.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GHS" xlink:label="loc_GHS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GHS" order="54.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GIP" xlink:label="loc_GIP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GIP" order="55.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GMD" xlink:label="loc_GMD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GMD" order="56.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GNF" xlink:label="loc_GNF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GNF" order="57.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GTQ" xlink:label="loc_GTQ"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GTQ" order="58.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GYD" xlink:label="loc_GYD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_GYD" order="59.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HKD" xlink:label="loc_HKD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HKD" order="60.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HNL" xlink:label="loc_HNL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HNL" order="61.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HTG" xlink:label="loc_HTG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HTG" order="63.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HUF" xlink:label="loc_HUF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_HUF" order="64.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IDR" xlink:label="loc_IDR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_IDR" order="65.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ILS" xlink:label="loc_ILS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ILS" order="66.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_INR" xlink:label="loc_INR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_INR" order="67.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IQD" xlink:label="loc_IQD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_IQD" order="68.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IRR" xlink:label="loc_IRR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_IRR" order="69.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ISK" xlink:label="loc_ISK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ISK" order="70.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JMD" xlink:label="loc_JMD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_JMD" order="71.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JOD" xlink:label="loc_JOD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_JOD" order="72.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JPY" xlink:label="loc_JPY"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_JPY" order="73.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KES" xlink:label="loc_KES"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KES" order="74.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KGS" xlink:label="loc_KGS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KGS" order="75.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KHR" xlink:label="loc_KHR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KHR" order="76.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KMF" xlink:label="loc_KMF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KMF" order="77.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KPW" xlink:label="loc_KPW"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KPW" order="78.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KRW" xlink:label="loc_KRW"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KRW" order="79.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KWD" xlink:label="loc_KWD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KWD" order="80.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KYD" xlink:label="loc_KYD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KYD" order="81.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KZT" xlink:label="loc_KZT"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_KZT" order="82.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LAK" xlink:label="loc_LAK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LAK" order="83.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LBP" xlink:label="loc_LBP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LBP" order="84.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LKR" xlink:label="loc_LKR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LKR" order="85.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LRD" xlink:label="loc_LRD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LRD" order="86.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LSL" xlink:label="loc_LSL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LSL" order="87.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LYD" xlink:label="loc_LYD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_LYD" order="88.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MAD" xlink:label="loc_MAD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MAD" order="89.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MDL" xlink:label="loc_MDL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MDL" order="90.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MGA" xlink:label="loc_MGA"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MGA" order="91.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MKD" xlink:label="loc_MKD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MKD" order="92.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MMK" xlink:label="loc_MMK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MMK" order="93.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MNT" xlink:label="loc_MNT"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MNT" order="94.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MOP" xlink:label="loc_MOP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MOP" order="95.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MUR" xlink:label="loc_MUR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MUR" order="97.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MVR" xlink:label="loc_MVR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MVR" order="98.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MWK" xlink:label="loc_MWK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MWK" order="99.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MXN" xlink:label="loc_MXN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MXN" order="100.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MXV" xlink:label="loc_MXV"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MXV" order="101.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MYR" xlink:label="loc_MYR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MYR" order="102.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MZN" xlink:label="loc_MZN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_MZN" order="103.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NAD" xlink:label="loc_NAD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NAD" order="104.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NGN" xlink:label="loc_NGN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NGN" order="105.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NIO" xlink:label="loc_NIO"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NIO" order="106.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NOK" xlink:label="loc_NOK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NOK" order="107.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NPR" xlink:label="loc_NPR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NPR" order="108.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NZD" xlink:label="loc_NZD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_NZD" order="109.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_OMR" xlink:label="loc_OMR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_OMR" order="110.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PAB" xlink:label="loc_PAB"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PAB" order="111.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PEN" xlink:label="loc_PEN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PEN" order="112.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PGK" xlink:label="loc_PGK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PGK" order="113.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PHP" xlink:label="loc_PHP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PHP" order="114.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PKR" xlink:label="loc_PKR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PKR" order="115.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PLN" xlink:label="loc_PLN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PLN" order="116.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PYG" xlink:label="loc_PYG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_PYG" order="117.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_QAR" xlink:label="loc_QAR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_QAR" order="118.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RON" xlink:label="loc_RON"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RON" order="119.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RSD" xlink:label="loc_RSD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RSD" order="120.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RUB" xlink:label="loc_RUB"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RUB" order="121.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RWF" xlink:label="loc_RWF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_RWF" order="122.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SAR" xlink:label="loc_SAR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SAR" order="123.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SBD" xlink:label="loc_SBD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SBD" order="124.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SCR" xlink:label="loc_SCR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SCR" order="125.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SDG" xlink:label="loc_SDG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SDG" order="126.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SEK" xlink:label="loc_SEK"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SEK" order="127.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SGD" xlink:label="loc_SGD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SGD" order="128.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SHP" xlink:label="loc_SHP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SHP" order="129.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SLE" xlink:label="loc_SLE"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SLE" order="130.5" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SOS" xlink:label="loc_SOS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SOS" order="131.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SRD" xlink:label="loc_SRD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SRD" order="133.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SYP" xlink:label="loc_SYP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SYP" order="136.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SZL" xlink:label="loc_SZL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SZL" order="137.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_THB" xlink:label="loc_THB"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_THB" order="138.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TJS" xlink:label="loc_TJS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TJS" order="139.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TMT" xlink:label="loc_TMT"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TMT" order="140.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TND" xlink:label="loc_TND"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TND" order="141.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TOP" xlink:label="loc_TOP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TOP" order="142.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TRY" xlink:label="loc_TRY"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TRY" order="143.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TTD" xlink:label="loc_TTD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TTD" order="144.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TWD" xlink:label="loc_TWD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TWD" order="145.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TZS" xlink:label="loc_TZS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_TZS" order="146.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UAH" xlink:label="loc_UAH"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UAH" order="147.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UGX" xlink:label="loc_UGX"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UGX" order="148.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_USD" xlink:label="loc_USD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_USD" order="149.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_USN" xlink:label="loc_USN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_USN" order="150.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYU" xlink:label="loc_UYU"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UYU" order="152.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYW" xlink:label="loc_UYW"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UYW" order="153.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UZS" xlink:label="loc_UZS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UZS" order="154.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VND" xlink:label="loc_VND"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_VND" order="156.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VUV" xlink:label="loc_VUV"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_VUV" order="157.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_WST" xlink:label="loc_WST"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_WST" order="158.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAF" xlink:label="loc_XAF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XAF" order="159.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAG" xlink:label="loc_XAG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XAG" order="160.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAU" xlink:label="loc_XAU"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XAU" order="161.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBA" xlink:label="loc_XBA"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBA" order="162.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBB" xlink:label="loc_XBB"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBB" order="163.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBC" xlink:label="loc_XBC"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBC" order="164.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBD" xlink:label="loc_XBD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XBD" order="165.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XCD" xlink:label="loc_XCD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XCD" order="166.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XDR" xlink:label="loc_XDR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XDR" order="167.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XOF" xlink:label="loc_XOF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XOF" order="168.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPD" xlink:label="loc_XPD"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XPD" order="169.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPF" xlink:label="loc_XPF"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XPF" order="170.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPT" xlink:label="loc_XPT"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XPT" order="171.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XTS" xlink:label="loc_XTS"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XTS" order="173.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XXX" xlink:label="loc_XXX"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XXX" order="175.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_YER" xlink:label="loc_YER"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_YER" order="176.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZAR" xlink:label="loc_ZAR"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ZAR" order="177.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZMW" xlink:label="loc_ZMW"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ZMW" order="178.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZWL" xlink:label="loc_ZWL"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_ZWL" order="179.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SSP" xlink:label="loc_SSP"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_SSP" order="132.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYI" xlink:label="loc_UYI"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_UYI" order="151.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XSU" xlink:label="loc_XSU"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XSU" order="172.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XUA" xlink:label="loc_XUA"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_XUA" order="174.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BYN" xlink:label="loc_BYN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="loc_BYN" order="25.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_STN" xlink:label="STN"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="STN" order="134.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VES" xlink:label="VES"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="VES" order="155.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MRU" xlink:label="MRU"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="MRU" order="96.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SVC" xlink:label="SVC"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="SVC" order="135.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VED" xlink:label="VED"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="VED" order="155.5" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZWG" xlink:label="ZWG"/>
+<link:definitionArc xlink:type="arc" xlink:arcrole="http://xbrl.org/int/dim/arcrole/domain-member" xlink:from="loc_AllCurrenciesDomain" xlink:to="ZWG" order="180.0" priority="10"/>
+</link:definitionLink>
+<link:labelLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AllCurrenciesDomain" xlink:label="loc_AllCurrenciesDomain"/>
+<link:label xlink:type="resource" xlink:label="lab_AllCurrenciesDomain" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">All Currencies [Domain]</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AllCurrenciesDomain" xlink:to="lab_AllCurrenciesDomain" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AED" xlink:label="loc_AED"/>
+<link:label xlink:type="resource" xlink:label="lab_AED" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">United Arab Emirates, Dirhams</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AED" xlink:to="lab_AED" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AFN" xlink:label="loc_AFN"/>
+<link:label xlink:type="resource" xlink:label="lab_AFN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Afghanistan, Afghanis</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AFN" xlink:to="lab_AFN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ALL" xlink:label="loc_ALL"/>
+<link:label xlink:type="resource" xlink:label="lab_ALL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Albania, Leke</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ALL" xlink:to="lab_ALL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AMD" xlink:label="loc_AMD"/>
+<link:label xlink:type="resource" xlink:label="lab_AMD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Armenia, Drams</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AMD" xlink:to="lab_AMD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ANG" xlink:label="loc_ANG"/>
+<link:label xlink:type="resource" xlink:label="lab_ANG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Netherlands Antilles, Guilders (also called Florins)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ANG" xlink:to="lab_ANG" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AOA" xlink:label="loc_AOA"/>
+<link:label xlink:type="resource" xlink:label="lab_AOA" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Angola, Kwanza</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AOA" xlink:to="lab_AOA" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ARS" xlink:label="loc_ARS"/>
+<link:label xlink:type="resource" xlink:label="lab_ARS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Argentina, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ARS" xlink:to="lab_ARS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AUD" xlink:label="loc_AUD"/>
+<link:label xlink:type="resource" xlink:label="lab_AUD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Australia, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AUD" xlink:to="lab_AUD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AWG" xlink:label="loc_AWG"/>
+<link:label xlink:type="resource" xlink:label="lab_AWG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Aruba, Guilders (also called Florins)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AWG" xlink:to="lab_AWG" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AZN" xlink:label="loc_AZN"/>
+<link:label xlink:type="resource" xlink:label="lab_AZN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Azerbaijan, Manats</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AZN" xlink:to="lab_AZN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BAM" xlink:label="loc_BAM"/>
+<link:label xlink:type="resource" xlink:label="lab_BAM" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bosnia and Herzegovina, Convertible Marka</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BAM" xlink:to="lab_BAM" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BBD" xlink:label="loc_BBD"/>
+<link:label xlink:type="resource" xlink:label="lab_BBD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Barbados, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BBD" xlink:to="lab_BBD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BDT" xlink:label="loc_BDT"/>
+<link:label xlink:type="resource" xlink:label="lab_BDT" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bangladesh, Taka</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BDT" xlink:to="lab_BDT" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BGN" xlink:label="loc_BGN"/>
+<link:label xlink:type="resource" xlink:label="lab_BGN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bulgaria, Leva</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BGN" xlink:to="lab_BGN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BHD" xlink:label="loc_BHD"/>
+<link:label xlink:type="resource" xlink:label="lab_BHD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bahrain, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BHD" xlink:to="lab_BHD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BIF" xlink:label="loc_BIF"/>
+<link:label xlink:type="resource" xlink:label="lab_BIF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Burundi, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BIF" xlink:to="lab_BIF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BMD" xlink:label="loc_BMD"/>
+<link:label xlink:type="resource" xlink:label="lab_BMD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bermuda, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BMD" xlink:to="lab_BMD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BND" xlink:label="loc_BND"/>
+<link:label xlink:type="resource" xlink:label="lab_BND" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Brunei Darussalam, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BND" xlink:to="lab_BND" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BOB" xlink:label="loc_BOB"/>
+<link:label xlink:type="resource" xlink:label="lab_BOB" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bolivia, Bolivianos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BOB" xlink:to="lab_BOB" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BRL" xlink:label="loc_BRL"/>
+<link:label xlink:type="resource" xlink:label="lab_BRL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Brazil, Brazil Real</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BRL" xlink:to="lab_BRL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BSD" xlink:label="loc_BSD"/>
+<link:label xlink:type="resource" xlink:label="lab_BSD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bahamas, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BSD" xlink:to="lab_BSD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BTN" xlink:label="loc_BTN"/>
+<link:label xlink:type="resource" xlink:label="lab_BTN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bhutan, Ngultrum</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BTN" xlink:to="lab_BTN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BWP" xlink:label="loc_BWP"/>
+<link:label xlink:type="resource" xlink:label="lab_BWP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Botswana, Pulas</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BWP" xlink:to="lab_BWP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BZD" xlink:label="loc_BZD"/>
+<link:label xlink:type="resource" xlink:label="lab_BZD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Belize, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BZD" xlink:to="lab_BZD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CAD" xlink:label="loc_CAD"/>
+<link:label xlink:type="resource" xlink:label="lab_CAD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Canada, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CAD" xlink:to="lab_CAD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CDF" xlink:label="loc_CDF"/>
+<link:label xlink:type="resource" xlink:label="lab_CDF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Congo/Kinshasa, Congolese Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CDF" xlink:to="lab_CDF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHF" xlink:label="loc_CHF"/>
+<link:label xlink:type="resource" xlink:label="lab_CHF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Switzerland, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CHF" xlink:to="lab_CHF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CLP" xlink:label="loc_CLP"/>
+<link:label xlink:type="resource" xlink:label="lab_CLP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Chile, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CLP" xlink:to="lab_CLP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CNY" xlink:label="loc_CNY"/>
+<link:label xlink:type="resource" xlink:label="lab_CNY" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">China, Yuan Renminbi</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CNY" xlink:to="lab_CNY" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_COP" xlink:label="loc_COP"/>
+<link:label xlink:type="resource" xlink:label="lab_COP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Colombia, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_COP" xlink:to="lab_COP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CRC" xlink:label="loc_CRC"/>
+<link:label xlink:type="resource" xlink:label="lab_CRC" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Costa Rica, Colones</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CRC" xlink:to="lab_CRC" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CUP" xlink:label="loc_CUP"/>
+<link:label xlink:type="resource" xlink:label="lab_CUP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Cuba, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CUP" xlink:to="lab_CUP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CVE" xlink:label="loc_CVE"/>
+<link:label xlink:type="resource" xlink:label="lab_CVE" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Cape Verde, Escudos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CVE" xlink:to="lab_CVE" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CZK" xlink:label="loc_CZK"/>
+<link:label xlink:type="resource" xlink:label="lab_CZK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Czech Republic, Koruny</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CZK" xlink:to="lab_CZK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DJF" xlink:label="loc_DJF"/>
+<link:label xlink:type="resource" xlink:label="lab_DJF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Djibouti, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_DJF" xlink:to="lab_DJF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DKK" xlink:label="loc_DKK"/>
+<link:label xlink:type="resource" xlink:label="lab_DKK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Denmark, Kroner</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_DKK" xlink:to="lab_DKK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DOP" xlink:label="loc_DOP"/>
+<link:label xlink:type="resource" xlink:label="lab_DOP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Dominican Republic, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_DOP" xlink:to="lab_DOP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DZD" xlink:label="loc_DZD"/>
+<link:label xlink:type="resource" xlink:label="lab_DZD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Algeria, Algeria Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_DZD" xlink:to="lab_DZD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_EGP" xlink:label="loc_EGP"/>
+<link:label xlink:type="resource" xlink:label="lab_EGP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Egypt, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_EGP" xlink:to="lab_EGP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ERN" xlink:label="loc_ERN"/>
+<link:label xlink:type="resource" xlink:label="lab_ERN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Eritrea, Nakfa</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ERN" xlink:to="lab_ERN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ETB" xlink:label="loc_ETB"/>
+<link:label xlink:type="resource" xlink:label="lab_ETB" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Ethiopia, Birr</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ETB" xlink:to="lab_ETB" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_EUR" xlink:label="loc_EUR"/>
+<link:label xlink:type="resource" xlink:label="lab_EUR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Euro Member Countries, Euro</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_EUR" xlink:to="lab_EUR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_FJD" xlink:label="loc_FJD"/>
+<link:label xlink:type="resource" xlink:label="lab_FJD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Fiji, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_FJD" xlink:to="lab_FJD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_FKP" xlink:label="loc_FKP"/>
+<link:label xlink:type="resource" xlink:label="lab_FKP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Falkland Islands (Malvinas), Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_FKP" xlink:to="lab_FKP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GBP" xlink:label="loc_GBP"/>
+<link:label xlink:type="resource" xlink:label="lab_GBP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">United Kingdom, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GBP" xlink:to="lab_GBP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GEL" xlink:label="loc_GEL"/>
+<link:label xlink:type="resource" xlink:label="lab_GEL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Georgia, Lari</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GEL" xlink:to="lab_GEL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GIP" xlink:label="loc_GIP"/>
+<link:label xlink:type="resource" xlink:label="lab_GIP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Gibraltar, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GIP" xlink:to="lab_GIP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GMD" xlink:label="loc_GMD"/>
+<link:label xlink:type="resource" xlink:label="lab_GMD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Gambia, Dalasi</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GMD" xlink:to="lab_GMD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GNF" xlink:label="loc_GNF"/>
+<link:label xlink:type="resource" xlink:label="lab_GNF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Guinea, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GNF" xlink:to="lab_GNF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GTQ" xlink:label="loc_GTQ"/>
+<link:label xlink:type="resource" xlink:label="lab_GTQ" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Guatemala, Quetzales</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GTQ" xlink:to="lab_GTQ" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GYD" xlink:label="loc_GYD"/>
+<link:label xlink:type="resource" xlink:label="lab_GYD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Guyana, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GYD" xlink:to="lab_GYD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HKD" xlink:label="loc_HKD"/>
+<link:label xlink:type="resource" xlink:label="lab_HKD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Hong Kong, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_HKD" xlink:to="lab_HKD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HNL" xlink:label="loc_HNL"/>
+<link:label xlink:type="resource" xlink:label="lab_HNL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Honduras, Lempiras</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_HNL" xlink:to="lab_HNL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HTG" xlink:label="loc_HTG"/>
+<link:label xlink:type="resource" xlink:label="lab_HTG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Haiti, Gourdes</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_HTG" xlink:to="lab_HTG" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_HUF" xlink:label="loc_HUF"/>
+<link:label xlink:type="resource" xlink:label="lab_HUF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Hungary, Forint</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_HUF" xlink:to="lab_HUF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IDR" xlink:label="loc_IDR"/>
+<link:label xlink:type="resource" xlink:label="lab_IDR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Indonesia, Rupiahs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_IDR" xlink:to="lab_IDR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ILS" xlink:label="loc_ILS"/>
+<link:label xlink:type="resource" xlink:label="lab_ILS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Israel, New Shekels</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ILS" xlink:to="lab_ILS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_INR" xlink:label="loc_INR"/>
+<link:label xlink:type="resource" xlink:label="lab_INR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">India, Rupees</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_INR" xlink:to="lab_INR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IQD" xlink:label="loc_IQD"/>
+<link:label xlink:type="resource" xlink:label="lab_IQD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Iraq, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_IQD" xlink:to="lab_IQD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_IRR" xlink:label="loc_IRR"/>
+<link:label xlink:type="resource" xlink:label="lab_IRR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Iran, Rials</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_IRR" xlink:to="lab_IRR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ISK" xlink:label="loc_ISK"/>
+<link:label xlink:type="resource" xlink:label="lab_ISK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Iceland, Kronur</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ISK" xlink:to="lab_ISK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JMD" xlink:label="loc_JMD"/>
+<link:label xlink:type="resource" xlink:label="lab_JMD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Jamaica, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_JMD" xlink:to="lab_JMD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JOD" xlink:label="loc_JOD"/>
+<link:label xlink:type="resource" xlink:label="lab_JOD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Jordan, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_JOD" xlink:to="lab_JOD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_JPY" xlink:label="loc_JPY"/>
+<link:label xlink:type="resource" xlink:label="lab_JPY" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Japan, Yen</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_JPY" xlink:to="lab_JPY" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KES" xlink:label="loc_KES"/>
+<link:label xlink:type="resource" xlink:label="lab_KES" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Kenya, Shillings</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KES" xlink:to="lab_KES" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KGS" xlink:label="loc_KGS"/>
+<link:label xlink:type="resource" xlink:label="lab_KGS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Kyrgyzstan, Soms</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KGS" xlink:to="lab_KGS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KHR" xlink:label="loc_KHR"/>
+<link:label xlink:type="resource" xlink:label="lab_KHR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Cambodia, Riels</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KHR" xlink:to="lab_KHR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KMF" xlink:label="loc_KMF"/>
+<link:label xlink:type="resource" xlink:label="lab_KMF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Comoros, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KMF" xlink:to="lab_KMF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KPW" xlink:label="loc_KPW"/>
+<link:label xlink:type="resource" xlink:label="lab_KPW" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Korea (North), Won</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KPW" xlink:to="lab_KPW" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KRW" xlink:label="loc_KRW"/>
+<link:label xlink:type="resource" xlink:label="lab_KRW" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Korea (South), Won</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KRW" xlink:to="lab_KRW" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KWD" xlink:label="loc_KWD"/>
+<link:label xlink:type="resource" xlink:label="lab_KWD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Kuwait, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KWD" xlink:to="lab_KWD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KYD" xlink:label="loc_KYD"/>
+<link:label xlink:type="resource" xlink:label="lab_KYD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Cayman Islands, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KYD" xlink:to="lab_KYD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_KZT" xlink:label="loc_KZT"/>
+<link:label xlink:type="resource" xlink:label="lab_KZT" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Kazakhstan, Tenge</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_KZT" xlink:to="lab_KZT" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LAK" xlink:label="loc_LAK"/>
+<link:label xlink:type="resource" xlink:label="lab_LAK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Laos, Kips</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_LAK" xlink:to="lab_LAK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LBP" xlink:label="loc_LBP"/>
+<link:label xlink:type="resource" xlink:label="lab_LBP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Lebanon, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_LBP" xlink:to="lab_LBP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LKR" xlink:label="loc_LKR"/>
+<link:label xlink:type="resource" xlink:label="lab_LKR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Sri Lanka, Rupees</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_LKR" xlink:to="lab_LKR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LRD" xlink:label="loc_LRD"/>
+<link:label xlink:type="resource" xlink:label="lab_LRD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Liberia, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_LRD" xlink:to="lab_LRD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LSL" xlink:label="loc_LSL"/>
+<link:label xlink:type="resource" xlink:label="lab_LSL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Lesotho, Maloti</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_LSL" xlink:to="lab_LSL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_LYD" xlink:label="loc_LYD"/>
+<link:label xlink:type="resource" xlink:label="lab_LYD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Libya, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_LYD" xlink:to="lab_LYD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MAD" xlink:label="loc_MAD"/>
+<link:label xlink:type="resource" xlink:label="lab_MAD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Morocco, Dirhams</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MAD" xlink:to="lab_MAD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MDL" xlink:label="loc_MDL"/>
+<link:label xlink:type="resource" xlink:label="lab_MDL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Moldova, Lei</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MDL" xlink:to="lab_MDL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MGA" xlink:label="loc_MGA"/>
+<link:label xlink:type="resource" xlink:label="lab_MGA" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Madagascar, Ariary</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MGA" xlink:to="lab_MGA" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MKD" xlink:label="loc_MKD"/>
+<link:label xlink:type="resource" xlink:label="lab_MKD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Macedonia, Denars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MKD" xlink:to="lab_MKD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MMK" xlink:label="loc_MMK"/>
+<link:label xlink:type="resource" xlink:label="lab_MMK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Myanmar (Burma), Kyats</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MMK" xlink:to="lab_MMK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MNT" xlink:label="loc_MNT"/>
+<link:label xlink:type="resource" xlink:label="lab_MNT" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Mongolia, Tugriks</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MNT" xlink:to="lab_MNT" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MOP" xlink:label="loc_MOP"/>
+<link:label xlink:type="resource" xlink:label="lab_MOP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Macau, Patacas</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MOP" xlink:to="lab_MOP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MUR" xlink:label="loc_MUR"/>
+<link:label xlink:type="resource" xlink:label="lab_MUR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Mauritius, Rupees</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MUR" xlink:to="lab_MUR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MVR" xlink:label="loc_MVR"/>
+<link:label xlink:type="resource" xlink:label="lab_MVR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Maldives (Maldive Islands), Rufiyaa</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MVR" xlink:to="lab_MVR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MWK" xlink:label="loc_MWK"/>
+<link:label xlink:type="resource" xlink:label="lab_MWK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Malawi, Kwachas</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MWK" xlink:to="lab_MWK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MXN" xlink:label="loc_MXN"/>
+<link:label xlink:type="resource" xlink:label="lab_MXN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Mexico, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MXN" xlink:to="lab_MXN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MYR" xlink:label="loc_MYR"/>
+<link:label xlink:type="resource" xlink:label="lab_MYR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Malaysia, Ringgits</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MYR" xlink:to="lab_MYR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MZN" xlink:label="loc_MZN"/>
+<link:label xlink:type="resource" xlink:label="lab_MZN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Mozambique, Meticais</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MZN" xlink:to="lab_MZN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NAD" xlink:label="loc_NAD"/>
+<link:label xlink:type="resource" xlink:label="lab_NAD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Namibia, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_NAD" xlink:to="lab_NAD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NGN" xlink:label="loc_NGN"/>
+<link:label xlink:type="resource" xlink:label="lab_NGN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Nigeria, Nairas</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_NGN" xlink:to="lab_NGN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NIO" xlink:label="loc_NIO"/>
+<link:label xlink:type="resource" xlink:label="lab_NIO" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Nicaragua, Cordobas</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_NIO" xlink:to="lab_NIO" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NOK" xlink:label="loc_NOK"/>
+<link:label xlink:type="resource" xlink:label="lab_NOK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Norway, Krone</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_NOK" xlink:to="lab_NOK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NPR" xlink:label="loc_NPR"/>
+<link:label xlink:type="resource" xlink:label="lab_NPR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Nepal, Nepal Rupees</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_NPR" xlink:to="lab_NPR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_NZD" xlink:label="loc_NZD"/>
+<link:label xlink:type="resource" xlink:label="lab_NZD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">New Zealand, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_NZD" xlink:to="lab_NZD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_OMR" xlink:label="loc_OMR"/>
+<link:label xlink:type="resource" xlink:label="lab_OMR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Oman, Rials</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_OMR" xlink:to="lab_OMR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PAB" xlink:label="loc_PAB"/>
+<link:label xlink:type="resource" xlink:label="lab_PAB" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Panama, Balboa</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PAB" xlink:to="lab_PAB" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PEN" xlink:label="loc_PEN"/>
+<link:label xlink:type="resource" xlink:label="lab_PEN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Peru, Nuevos Soles</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PEN" xlink:to="lab_PEN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PGK" xlink:label="loc_PGK"/>
+<link:label xlink:type="resource" xlink:label="lab_PGK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Papua New Guinea, Kina</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PGK" xlink:to="lab_PGK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PHP" xlink:label="loc_PHP"/>
+<link:label xlink:type="resource" xlink:label="lab_PHP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Philippines, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PHP" xlink:to="lab_PHP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PKR" xlink:label="loc_PKR"/>
+<link:label xlink:type="resource" xlink:label="lab_PKR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Pakistan, Rupees</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PKR" xlink:to="lab_PKR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PLN" xlink:label="loc_PLN"/>
+<link:label xlink:type="resource" xlink:label="lab_PLN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Poland, Zlotych</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PLN" xlink:to="lab_PLN" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_PYG" xlink:label="loc_PYG"/>
+<link:label xlink:type="resource" xlink:label="lab_PYG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Paraguay, Guarani</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_PYG" xlink:to="lab_PYG" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_QAR" xlink:label="loc_QAR"/>
+<link:label xlink:type="resource" xlink:label="lab_QAR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Qatar, Rials</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_QAR" xlink:to="lab_QAR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RON" xlink:label="loc_RON"/>
+<link:label xlink:type="resource" xlink:label="lab_RON" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Romania, New Lei</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_RON" xlink:to="lab_RON" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RSD" xlink:label="loc_RSD"/>
+<link:label xlink:type="resource" xlink:label="lab_RSD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Serbia, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_RSD" xlink:to="lab_RSD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RUB" xlink:label="loc_RUB"/>
+<link:label xlink:type="resource" xlink:label="lab_RUB" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Russia, Rubles</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_RUB" xlink:to="lab_RUB" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_RWF" xlink:label="loc_RWF"/>
+<link:label xlink:type="resource" xlink:label="lab_RWF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Rwanda, Rwanda Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_RWF" xlink:to="lab_RWF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SAR" xlink:label="loc_SAR"/>
+<link:label xlink:type="resource" xlink:label="lab_SAR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Saudi Arabia, Riyals</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SAR" xlink:to="lab_SAR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SBD" xlink:label="loc_SBD"/>
+<link:label xlink:type="resource" xlink:label="lab_SBD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Solomon Islands, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SBD" xlink:to="lab_SBD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SCR" xlink:label="loc_SCR"/>
+<link:label xlink:type="resource" xlink:label="lab_SCR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Seychelles, Rupees</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SCR" xlink:to="lab_SCR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SDG" xlink:label="loc_SDG"/>
+<link:label xlink:type="resource" xlink:label="lab_SDG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Sudan, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SDG" xlink:to="lab_SDG" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SEK" xlink:label="loc_SEK"/>
+<link:label xlink:type="resource" xlink:label="lab_SEK" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Sweden, Kronor</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SEK" xlink:to="lab_SEK" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SGD" xlink:label="loc_SGD"/>
+<link:label xlink:type="resource" xlink:label="lab_SGD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Singapore, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SGD" xlink:to="lab_SGD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SHP" xlink:label="loc_SHP"/>
+<link:label xlink:type="resource" xlink:label="lab_SHP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Saint Helena, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SHP" xlink:to="lab_SHP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SLE" xlink:label="loc_SLE"/>
+<link:label xlink:type="resource" xlink:label="lab_SLE" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Sierra Leone, Leones</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SLE" xlink:to="lab_SLE" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SOS" xlink:label="loc_SOS"/>
+<link:label xlink:type="resource" xlink:label="lab_SOS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Somalia, Shillings</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SOS" xlink:to="lab_SOS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SRD" xlink:label="loc_SRD"/>
+<link:label xlink:type="resource" xlink:label="lab_SRD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Suriname, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SRD" xlink:to="lab_SRD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SYP" xlink:label="loc_SYP"/>
+<link:label xlink:type="resource" xlink:label="lab_SYP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Syria, Pounds</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SYP" xlink:to="lab_SYP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SZL" xlink:label="loc_SZL"/>
+<link:label xlink:type="resource" xlink:label="lab_SZL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">eSwatini, Liliangeni</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SZL" xlink:to="lab_SZL" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_THB" xlink:label="loc_THB"/>
+<link:label xlink:type="resource" xlink:label="lab_THB" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Thailand, Baht</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_THB" xlink:to="lab_THB" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TJS" xlink:label="loc_TJS"/>
+<link:label xlink:type="resource" xlink:label="lab_TJS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Tajikistan, Somoni</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TJS" xlink:to="lab_TJS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TND" xlink:label="loc_TND"/>
+<link:label xlink:type="resource" xlink:label="lab_TND" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Tunisia, Dinars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TND" xlink:to="lab_TND" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TOP" xlink:label="loc_TOP"/>
+<link:label xlink:type="resource" xlink:label="lab_TOP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Tonga, Pa'anga</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TOP" xlink:to="lab_TOP" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TRY" xlink:label="loc_TRY"/>
+<link:label xlink:type="resource" xlink:label="lab_TRY" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Turkey, New Lira</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TRY" xlink:to="lab_TRY" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TTD" xlink:label="loc_TTD"/>
+<link:label xlink:type="resource" xlink:label="lab_TTD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Trinidad and Tobago, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TTD" xlink:to="lab_TTD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TWD" xlink:label="loc_TWD"/>
+<link:label xlink:type="resource" xlink:label="lab_TWD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Taiwan, New Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TWD" xlink:to="lab_TWD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TZS" xlink:label="loc_TZS"/>
+<link:label xlink:type="resource" xlink:label="lab_TZS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Tanzania, Shillings</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TZS" xlink:to="lab_TZS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UAH" xlink:label="loc_UAH"/>
+<link:label xlink:type="resource" xlink:label="lab_UAH" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Ukraine, Hryvnia</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_UAH" xlink:to="lab_UAH" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UGX" xlink:label="loc_UGX"/>
+<link:label xlink:type="resource" xlink:label="lab_UGX" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Uganda, Shillings</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_UGX" xlink:to="lab_UGX" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_USD" xlink:label="loc_USD"/>
+<link:label xlink:type="resource" xlink:label="lab_USD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">United States of America, Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_USD" xlink:to="lab_USD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYU" xlink:label="loc_UYU"/>
+<link:label xlink:type="resource" xlink:label="lab_UYU" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Uruguay, Pesos</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_UYU" xlink:to="lab_UYU" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYW" xlink:label="loc_UYW"/>
+<link:label xlink:type="resource" xlink:label="lab_UYW" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Uruguay, Unidad Previsional</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_UYW" xlink:to="lab_UYW" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UZS" xlink:label="loc_UZS"/>
+<link:label xlink:type="resource" xlink:label="lab_UZS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Uzbekistan, Sums</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_UZS" xlink:to="lab_UZS" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VND" xlink:label="loc_VND"/>
+<link:label xlink:type="resource" xlink:label="lab_VND" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Viet Nam, Dong</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_VND" xlink:to="lab_VND" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VUV" xlink:label="loc_VUV"/>
+<link:label xlink:type="resource" xlink:label="lab_VUV" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Vanuatu, Vatu</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_VUV" xlink:to="lab_VUV" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_WST" xlink:label="loc_WST"/>
+<link:label xlink:type="resource" xlink:label="lab_WST" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Samoa, Tala</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_WST" xlink:to="lab_WST" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAF" xlink:label="loc_XAF"/>
+<link:label xlink:type="resource" xlink:label="lab_XAF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Communaute Financiere Africaine BEAC, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XAF" xlink:to="lab_XAF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAG" xlink:label="loc_XAG"/>
+<link:label xlink:type="resource" xlink:label="lab_XAG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Silver, Ounces</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XAG" xlink:to="lab_XAG" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XAU" xlink:label="loc_XAU"/>
+<link:label xlink:type="resource" xlink:label="lab_XAU" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Gold, Ounces</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XAU" xlink:to="lab_XAU" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XCD" xlink:label="loc_XCD"/>
+<link:label xlink:type="resource" xlink:label="lab_XCD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">East Caribbean Dollars</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XCD" xlink:to="lab_XCD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XDR" xlink:label="loc_XDR"/>
+<link:label xlink:type="resource" xlink:label="lab_XDR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">International Monetary Fund (IMF) Special Drawing Rights</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XDR" xlink:to="lab_XDR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XOF" xlink:label="loc_XOF"/>
+<link:label xlink:type="resource" xlink:label="lab_XOF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Communaute Financiere Africaine BCEAO, Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XOF" xlink:to="lab_XOF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPD" xlink:label="loc_XPD"/>
+<link:label xlink:type="resource" xlink:label="lab_XPD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Palladium Ounces</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XPD" xlink:to="lab_XPD" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPF" xlink:label="loc_XPF"/>
+<link:label xlink:type="resource" xlink:label="lab_XPF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Comptoirs Francais du Pacifique Francs</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XPF" xlink:to="lab_XPF" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XPT" xlink:label="loc_XPT"/>
+<link:label xlink:type="resource" xlink:label="lab_XPT" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Platinum, Ounces</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XPT" xlink:to="lab_XPT" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_YER" xlink:label="loc_YER"/>
+<link:label xlink:type="resource" xlink:label="lab_YER" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Yemen, Rials</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_YER" xlink:to="lab_YER" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZAR" xlink:label="loc_ZAR"/>
+<link:label xlink:type="resource" xlink:label="lab_ZAR" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">South Africa, Rand</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ZAR" xlink:to="lab_ZAR" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BOV" xlink:label="loc_BOV"/>
+<link:label xlink:type="resource" xlink:label="label_BOV" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Bolivian Mvdol (funds code)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_BOV" xlink:to="label_BOV" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHE" xlink:label="loc_CHE"/>
+<link:label xlink:type="resource" xlink:label="label_CHE" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">WIR Bank (complementary currency)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CHE" xlink:to="label_CHE" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CHW" xlink:label="loc_CHW"/>
+<link:label xlink:type="resource" xlink:label="label_CHW" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">WIR Bank complementary currency</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CHW" xlink:to="label_CHW" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CLF" xlink:label="loc_CLF"/>
+<link:label xlink:type="resource" xlink:label="label_CLF" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Unidad de Fomento (funds code)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CLF" xlink:to="label_CLF" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_COU" xlink:label="loc_COU"/>
+<link:label xlink:type="resource" xlink:label="label_COU" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Unidad de Valor Real</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_COU" xlink:to="label_COU" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_CUC" xlink:label="loc_CUC"/>
+<link:label xlink:type="resource" xlink:label="label_CUC" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Cuban convertible peso</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_CUC" xlink:to="label_CUC" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_GHS" xlink:label="loc_GHS"/>
+<link:label xlink:type="resource" xlink:label="label_GHS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Ghanaian cedi</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_GHS" xlink:to="label_GHS" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MXV" xlink:label="loc_MXV"/>
+<link:label xlink:type="resource" xlink:label="label_MXV" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Mexican Unidad de Inversion (UDI) (funds code)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_MXV" xlink:to="label_MXV" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_TMT" xlink:label="loc_TMT"/>
+<link:label xlink:type="resource" xlink:label="label_TMT" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Turkmenistani manat</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_TMT" xlink:to="label_TMT" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_USN" xlink:label="loc_USN"/>
+<link:label xlink:type="resource" xlink:label="label_USN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">United States dollar (next day) (funds code)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_USN" xlink:to="label_USN" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBA" xlink:label="loc_XBA"/>
+<link:label xlink:type="resource" xlink:label="label_XBA" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">European Composite Unit (EURCO) (bond market unit)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XBA" xlink:to="label_XBA" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBB" xlink:label="loc_XBB"/>
+<link:label xlink:type="resource" xlink:label="label_XBB" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">European Monetary Unit (E.M.U.-6) (bond market unit)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XBB" xlink:to="label_XBB" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBC" xlink:label="loc_XBC"/>
+<link:label xlink:type="resource" xlink:label="label_XBC" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">European Unit of Account 9 (E.U.A.-9) (bond market unit)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XBC" xlink:to="label_XBC" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XBD" xlink:label="loc_XBD"/>
+<link:label xlink:type="resource" xlink:label="label_XBD" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">European Unit of Account 17 (E.U.A.-17) (bond market unit)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XBD" xlink:to="label_XBD" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XTS" xlink:label="loc_XTS"/>
+<link:label xlink:type="resource" xlink:label="label_XTS" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Code reserved for testing purposes</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XTS" xlink:to="label_XTS" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XXX" xlink:label="loc_XXX"/>
+<link:label xlink:type="resource" xlink:label="label_XXX" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">No currency</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_XXX" xlink:to="label_XXX" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZWL" xlink:label="loc_ZWL"/>
+<link:label xlink:type="resource" xlink:label="label_ZWL" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Zimbabwe dollar (Deprecated 2024-08-31)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ZWL" xlink:to="label_ZWL" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SSP" xlink:label="loc_SSP"/>
+<link:label xlink:type="resource" xlink:label="label_SSP" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">South Sudan pound</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_SSP" xlink:to="label_SSP" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZMW" xlink:label="loc_ZMW"/>
+<link:label xlink:type="resource" xlink:label="label_ZMW" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Zambia, Kwacha</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_ZMW" xlink:to="label_ZMW" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_DeprecatedItemsForCurrency" xlink:label="loc_DeprecatedItemsForCurrency"/>
+<link:label xlink:type="resource" xlink:label="label_DeprecatedItemsForCurrency" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Deprecated items for currency [Abstract]</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_DeprecatedItemsForCurrency" xlink:to="label_DeprecatedItemsForCurrency" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_UYI" xlink:label="UYI"/>
+<link:label xlink:type="resource" xlink:label="label_UYI" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Uruguay Peso en Unidades Indexadas (UPUI)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="UYI" xlink:to="label_UYI" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XSU" xlink:label="XSU"/>
+<link:label xlink:type="resource" xlink:label="label_XSU" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Sistema Unitario de Compensacion Regional de Pagos (SUCRE)</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="XSU" xlink:to="label_XSU" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_XUA" xlink:label="XUA"/>
+<link:label xlink:type="resource" xlink:label="label_XUA" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">African Development Bank (ADB) Unit of Account</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="XUA" xlink:to="label_XUA" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_BYN" xlink:label="BYN"/>
+<link:label xlink:type="resource" xlink:label="label_BYN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">New Belarusian Ruble</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="BYN" xlink:to="label_BYN" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_STN" xlink:label="STN"/>
+<link:label xlink:type="resource" xlink:label="label_STN" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Sao Tome and Principe, Dobras</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="STN" xlink:to="label_STN" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_SVC" xlink:label="SVC"/>
+<link:label xlink:type="resource" xlink:label="label_SVC" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">El Salvador, Colon</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="SVC" xlink:to="label_SVC" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VES" xlink:label="VES"/>
+<link:label xlink:type="resource" xlink:label="label_VES" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Venezuelan Bol&#237;var Soberano</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="VES" xlink:to="label_VES" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_MRU" xlink:label="MRU"/>
+<link:label xlink:type="resource" xlink:label="label_MRU" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Mauritania, Ouguiyas</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="MRU" xlink:to="label_MRU" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_VED" xlink:label="VED"/>
+<link:label xlink:type="resource" xlink:label="label_VED" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US" id="label_VED">Venezuelan Bol&#237;var Soberano</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="VED" xlink:to="label_VED" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_ZWG" xlink:label="ZWG"/>
+<link:label xlink:type="resource" xlink:label="label_ZWG" xlink:role="http://www.xbrl.org/2003/role/label" xml:lang="en-US">Zimbabwe Gold</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="ZWG" xlink:to="label_ZWG" priority="10"/>
+</link:labelLink>
+<link:labelLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+<link:loc xlink:type="locator" xlink:href="currency-2025.xsd#currency_AllCurrenciesDomain" xlink:label="loc_AllCurrenciesDomain"/>
+<link:label xlink:type="resource" xlink:label="doc_AllCurrenciesDomain" xlink:role="http://www.xbrl.org/2003/role/documentation" xml:lang="en-US">ISO 4217 currency designators.</link:label>
+<link:labelArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-label" xlink:from="loc_AllCurrenciesDomain" xlink:to="doc_AllCurrenciesDomain" order="1.0" priority="10"/>
+</link:labelLink>
+</link:linkbase>
+</xs:appinfo>
+</xs:annotation>
+</xs:schema>

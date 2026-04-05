@@ -1,0 +1,134 @@
+{
+  "generated": "2026-03-21",
+  "concept_count": 20,
+  "coverage_target": ">=95%",
+  "accuracy_score_guide": {
+    "1.00": "human_verified",
+    "0.70-0.85": "taxonomy_rule",
+    "0.45-0.65": "pattern_match",
+    "0.30-0.44": "keyword_heuristic",
+    "0.00": "unmapped"
+  },
+  "concepts": [
+    {
+      "name": "TotalRevenue",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Total top-line revenue recognized during the period. Represents the aggregate net sales of goods and services before any deductions for costs or expenses. Segment sub-totals, deferred revenue balances, and revenue-adjacent items are excluded to prevent double-counting."
+    },
+    {
+      "name": "CostOfRevenue",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Direct costs attributable to the production of goods sold or services delivered. Includes raw materials, direct labor, and manufacturing overhead. Excludes operating expenses such as SG&A and R&D."
+    },
+    {
+      "name": "GrossProfit",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Revenue minus Cost of Revenue. Represents the profit a company earns after subtracting the direct costs of producing its products or delivering its services, before operating expenses, interest, and taxes."
+    },
+    {
+      "name": "OperatingExpenses",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Total operating expenses incurred in the ordinary course of business, including SG&A, R&D, and other recurring operational costs. Excludes non-operating items such as interest expense and income tax."
+    },
+    {
+      "name": "ResearchAndDevelopment",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Costs incurred in the research and development of new products, technologies, or processes. A forward-looking investment indicator — high R&D as a percentage of revenue often signals innovation-driven growth strategies."
+    },
+    {
+      "name": "SellingGeneralAdmin",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Selling, General and Administrative expenses — the overhead costs of running the business not directly tied to production. Includes marketing, executive compensation, rent, legal, and other administrative costs."
+    },
+    {
+      "name": "OperatingIncome",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "Earnings from core business operations before interest income/expense and income taxes (EBIT proxy). Calculated as Gross Profit minus Operating Expenses. A key measure of operational efficiency independent of capital structure."
+    },
+    {
+      "name": "NetIncome",
+      "statement": "Income Statement",
+      "unit": "USD",
+      "description": "The bottom-line profit attributable to the consolidated entity after all expenses, taxes, interest, and non-controlling interest deductions. Comprehensive income adjustments and per-share variants are excluded."
+    },
+    {
+      "name": "EPS_Basic",
+      "statement": "Income Statement",
+      "unit": "USD/share",
+      "description": "Basic Earnings Per Share — net income divided by the weighted-average number of common shares outstanding during the period, excluding dilutive securities such as stock options and convertible instruments."
+    },
+    {
+      "name": "EPS_Diluted",
+      "statement": "Income Statement",
+      "unit": "USD/share",
+      "description": "Diluted Earnings Per Share — net income divided by the weighted-average diluted share count, which includes all potentially dilutive securities (options, warrants, convertible bonds). The most conservative EPS measure and the standard for valuation multiples."
+    },
+    {
+      "name": "CashAndEquivalents",
+      "statement": "Balance Sheet",
+      "unit": "USD",
+      "description": "Cash and short-term liquid instruments with original maturities of three months or less, including bank deposits and money market funds. Includes restricted cash where the SEC-mandated combined presentation is reported."
+    },
+    {
+      "name": "TotalAssets",
+      "statement": "Balance Sheet",
+      "unit": "USD",
+      "description": "The aggregate of all assets owned or controlled by the entity — current assets, property and equipment, intangible assets, and other long-term holdings. Equals total liabilities plus stockholders' equity (the fundamental accounting identity). Asset sub-categories and segment breakdowns are excluded."
+    },
+    {
+      "name": "CurrentAssets",
+      "statement": "Balance Sheet",
+      "unit": "USD",
+      "description": "Assets expected to be converted to cash or consumed within one operating cycle (typically 12 months). Includes cash, accounts receivable, inventory, and short-term investments. A key component of liquidity analysis."
+    },
+    {
+      "name": "TotalLiabilities",
+      "statement": "Balance Sheet",
+      "unit": "USD",
+      "description": "The total of all financial obligations owed by the entity — both current (due within 12 months) and long-term. Includes debt, accounts payable, deferred revenue, and other commitments."
+    },
+    {
+      "name": "TotalLiabilitiesAndEquity",
+      "statement": "Balance Sheet",
+      "unit": "USD",
+      "description": "The sum of total liabilities and stockholders' equity — the right-hand side of the balance sheet. Must equal Total Assets by the fundamental accounting identity (Assets = Liabilities + Equity). Used as a cross-check for balance sheet integrity."
+    },
+    {
+      "name": "StockholdersEquity",
+      "statement": "Balance Sheet",
+      "unit": "USD",
+      "description": "The residual interest in the entity's assets after deducting all liabilities — the book value owned by shareholders. Includes paid-in capital, retained earnings, accumulated other comprehensive income, and non-controlling interests where reported on a consolidated basis."
+    },
+    {
+      "name": "OperatingCashFlow",
+      "statement": "Cash Flow Statement",
+      "unit": "USD",
+      "description": "Net cash generated or consumed by the company's core operating activities during the period. Often considered more reliable than net income as a measure of underlying business profitability because it is harder to manipulate with non-cash accounting choices."
+    },
+    {
+      "name": "InvestingCashFlow",
+      "statement": "Cash Flow Statement",
+      "unit": "USD",
+      "description": "Net cash used in or generated by investing activities — primarily capital expenditures (outflow), acquisitions, and proceeds from asset sales or investment maturities (inflows). A consistently negative value typically indicates a capital-intensive growth strategy."
+    },
+    {
+      "name": "FinancingCashFlow",
+      "statement": "Cash Flow Statement",
+      "unit": "USD",
+      "description": "Net cash from financing activities — debt issuance and repayments, equity raises, share buybacks, and dividend payments. Reflects how the company funds its operations and returns capital to shareholders."
+    },
+    {
+      "name": "CAPEX",
+      "statement": "Cash Flow Statement",
+      "unit": "USD",
+      "description": "Capital Expenditures — cash paid to acquire, maintain, or upgrade physical assets such as property, plant, and equipment. Key input for Free Cash Flow calculations: FCF = OperatingCashFlow − CAPEX."
+    }
+  ]
+}

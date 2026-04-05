@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+(c) 2010-2025 Financial Accounting Foundation; (c) 2007-2010 XBRL US, Inc.  All Rights Reserved.
+Notice: Authorized Uses are Set Forth at https://xbrl.fasb.org/terms/TaxonomiesTermsConditions.html
+  -->
+<xs:schema elementFormDefault='qualified' targetNamespace='http://fasb.org/us-gaap-all/2025' xmlns:link='http://www.xbrl.org/2003/linkbase' xmlns:us-gaap-all='http://fasb.org/us-gaap-all/2025' xmlns:xbrli='http://www.xbrl.org/2003/instance' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:xs='http://www.w3.org/2001/XMLSchema'>
+  <xs:annotation>
+    <xs:appinfo>
+      <link:linkbaseRef xlink:arcrole='http://www.w3.org/1999/xlink/properties/linkbase' xlink:href='us-gaap-doc-2025.xml' xlink:role='http://www.xbrl.org/2003/role/labelLinkbaseRef' xlink:type='simple' />
+      <link:linkbaseRef xlink:arcrole='http://www.w3.org/1999/xlink/properties/linkbase' xlink:href='us-gaap-ref-2025.xml' xlink:role='http://www.xbrl.org/2003/role/referenceLinkbaseRef' xlink:type='simple' />
+      <link:linkbaseRef xlink:arcrole='http://www.w3.org/1999/xlink/properties/linkbase' xlink:href='https://xbrl.fasb.org/srt/2025/elts/srt-doc-2025.xml' xlink:role='http://www.xbrl.org/2003/role/labelLinkbaseRef' xlink:type='simple' />
+      <link:linkbaseRef xlink:arcrole='http://www.w3.org/1999/xlink/properties/linkbase' xlink:href='https://xbrl.fasb.org/srt/2025/elts/srt-ref-2025.xml' xlink:role='http://www.xbrl.org/2003/role/referenceLinkbaseRef' xlink:type='simple' />
+    </xs:appinfo>
+    <xs:documentation> This file is an entry point for us-gaap (us-gaap). The DTS starting with this entry point includes
+                              the concepts defined in us-gaap (us-gaap) with their standard, period start, period end,
+                              total, axis default, documentation, deprecated label and deprecated date labels. It
+                              will also include references. It will not include presentation, calculation or
+                              definition linkbases. </xs:documentation>
+  </xs:annotation>
+  <xs:import namespace='http://www.xbrl.org/2003/instance' schemaLocation='http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd' />
+  <xs:import namespace='http://xbrl.sec.gov/dei-entire/2025' schemaLocation='https://xbrl.sec.gov/dei/2025/dei-entire-2025.xsd' />
+  <xs:import namespace='http://xbrl.sec.gov/country-entire/2025' schemaLocation='https://xbrl.sec.gov/country/2025/country-entire-2025.xsd' />
+  <xs:import namespace='http://xbrl.sec.gov/currency-entire/2025' schemaLocation='https://xbrl.sec.gov/currency/2025/currency-entire-2025.xsd' />
+  <xs:import namespace='http://xbrl.sec.gov/exch-entire/2025' schemaLocation='https://xbrl.sec.gov/exch/2025/exch-entire-2025.xsd' />
+  <xs:import namespace='http://xbrl.sec.gov/stpr-entire/2025' schemaLocation='https://xbrl.sec.gov/stpr/2025/stpr-entire-2025.xsd' />
+  <xs:import namespace='http://fasb.org/us-roles/2025' schemaLocation='us-roles-2025.xsd' />
+  <xs:import namespace='http://fasb.org/us-gaap-std/2025' schemaLocation='us-gaap-std-2025.xsd' />
+  <xs:import namespace='http://fasb.org/codification-part/2025' schemaLocation='us-parts-codification-2025.xsd' />
+  <xs:import namespace='http://fasb.org/tin-part/2025' schemaLocation='us-parts-tin-2025.xsd' />
+</xs:schema>

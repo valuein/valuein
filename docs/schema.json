@@ -1,0 +1,161 @@
+{
+  "version": "1.1.0",
+  "project": "Valuein SEC Data Warehouse",
+  "tables": {
+    "references": {
+      "description": "Denormalized flat join of entity + security + index_membership. One row per security. Recommended entry point for all cross-company queries — avoids the 3-table join.",
+      "columns": {
+        "cik": { "type": "VARCHAR" },
+        "name": { "type": "VARCHAR" },
+        "sector": { "type": "VARCHAR" },
+        "industry": { "type": "VARCHAR" },
+        "sic_code": { "type": "VARCHAR" },
+        "status": { "type": "VARCHAR" },
+        "entity_type": { "type": "VARCHAR" },
+        "security_id": { "type": "INTEGER" },
+        "symbol": { "type": "VARCHAR" },
+        "exchange": { "type": "VARCHAR" },
+        "mic": { "type": "VARCHAR" },
+        "valid_from": { "type": "DATE" },
+        "valid_to": { "type": "DATE" },
+        "is_active": { "type": "BOOLEAN" },
+        "figi": { "type": "VARCHAR" },
+        "composite_figi": { "type": "VARCHAR" },
+        "share_class_figi": { "type": "VARCHAR" },
+        "is_sp500": { "type": "BOOLEAN" }
+      }
+    },
+    "entity": {
+      "description": "Legal structure and profile of reporting companies.",
+      "columns": {
+        "cik": { "type": "VARCHAR", "primary_key": true },
+        "name": { "type": "VARCHAR" },
+        "lei": { "type": "VARCHAR" },
+        "industry": { "type": "VARCHAR" },
+        "sector": { "type": "VARCHAR" },
+        "sic_code": { "type": "VARCHAR" },
+        "fiscal_year_end": { "type": "VARCHAR" },
+        "location": { "type": "VARCHAR" },
+        "website": { "type": "VARCHAR" },
+        "ceo": { "type": "VARCHAR" },
+        "founded_year": { "type": "SMALLINT" },
+        "description": { "type": "VARCHAR" },
+        "status": { "type": "VARCHAR" },
+        "entity_type": { "type": "VARCHAR" },
+        "ein": { "type": "VARCHAR" },
+        "owner_org": { "type": "VARCHAR" },
+        "investor_website": { "type": "VARCHAR" },
+        "category": { "type": "VARCHAR" },
+        "state_of_incorporation": { "type": "VARCHAR" },
+        "phone": { "type": "VARCHAR" },
+        "address": { "type": "VARCHAR" },
+        "last_seen_at": { "type": "DATE" },
+        "ingested_at": { "type": "TIMESTAMPTZ" }
+      }
+    },
+    "security": {
+      "description": "Ticker symbols and tradeable instrument metadata (SCD Type 2 with date ranges).",
+      "columns": {
+        "id": { "type": "INTEGER", "primary_key": true },
+        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
+        "symbol": { "type": "VARCHAR" },
+        "exchange": { "type": "VARCHAR" },
+        "mic": { "type": "VARCHAR" },
+        "valid_from": { "type": "DATE" },
+        "valid_to": { "type": "DATE" },
+        "is_active": { "type": "BOOLEAN" },
+        "figi": { "type": "VARCHAR" },
+        "composite_figi": { "type": "VARCHAR" },
+        "share_class_figi": { "type": "VARCHAR" },
+        "security_type": { "type": "VARCHAR" },
+        "market_sector": { "type": "VARCHAR" },
+        "figi_ticker": { "type": "VARCHAR" },
+        "figi_name": { "type": "VARCHAR" },
+        "figi_exch_code": { "type": "VARCHAR" },
+        "ingested_at": { "type": "TIMESTAMPTZ" }
+      }
+    },
+    "filing": {
+      "description": "Metadata for all SEC filings processed.",
+      "columns": {
+        "accession_id": { "type": "VARCHAR", "primary_key": true },
+        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
+        "filing_date": { "type": "DATE" },
+        "form_type": { "type": "VARCHAR" },
+        "filing_url": { "type": "VARCHAR" },
+        "is_amendment": { "type": "BOOLEAN" },
+        "amendment_no": { "type": "SMALLINT" },
+        "report_date": { "type": "DATE" },
+        "items": { "type": "VARCHAR[]" },
+        "accepted_at": { "type": "TIMESTAMPTZ" },
+        "ingested_at": { "type": "TIMESTAMPTZ" }
+      }
+    },
+    "fact": {
+      "description": "Standardized financial data points (US-GAAP XBRL mapped to canonical standard_concept labels).",
+      "columns": {
+        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
+        "accession_id": { "type": "VARCHAR", "references": "filing.accession_id" },
+        "concept": { "type": "VARCHAR" },
+        "standard_concept": { "type": "VARCHAR" },
+        "priority": { "type": "SMALLINT" },
+        "label": { "type": "VARCHAR" },
+        "numeric_value": { "type": "DOUBLE" },
+        "derived_quarterly_value": { "type": "DOUBLE" },
+        "unit": { "type": "VARCHAR" },
+        "period_start": { "type": "DATE" },
+        "period_end": { "type": "DATE" },
+        "fiscal_year": { "type": "VARCHAR" },
+        "fiscal_period": { "type": "VARCHAR" },
+        "frame": { "type": "VARCHAR" },
+        "statement_type": { "type": "VARCHAR" },
+        "confidence_score": { "type": "DOUBLE" },
+        "is_negative": { "type": "BOOLEAN" },
+        "is_audited": { "type": "BOOLEAN" },
+        "is_estimated": { "type": "BOOLEAN" },
+        "data_quality": { "type": "VARCHAR" },
+        "knowledge_at": { "type": "TIMESTAMPTZ" },
+        "ingested_at": { "type": "TIMESTAMPTZ" }
+      }
+    },
+    "valuation": {
+      "description": "Pre-computed intrinsic value estimates per entity per fiscal period (two-stage DCF + DDM).",
+      "columns": {
+        "valuation_id": { "type": "UUID", "primary_key": true },
+        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
+        "period_end": { "type": "DATE" },
+        "knowledge_at": { "type": "TIMESTAMPTZ" },
+        "dcf_value_per_share": { "type": "DOUBLE" },
+        "ddm_value_per_share": { "type": "DOUBLE" },
+        "wacc": { "type": "DOUBLE" },
+        "terminal_growth_rate": { "type": "DOUBLE" },
+        "stage1_growth_rate": { "type": "DOUBLE" },
+        "stage1_years": { "type": "SMALLINT" },
+        "fcf_base": { "type": "DOUBLE" },
+        "shares_outstanding": { "type": "DOUBLE" },
+        "ingested_at": { "type": "TIMESTAMPTZ" }
+      }
+    },
+    "index_membership": {
+      "description": "Historical index constituents (S&P 500, etc.). Use references.is_sp500 for current membership — use this table only for historical entry/exit analysis.",
+      "columns": {
+        "id": { "type": "INTEGER", "primary_key": true },
+        "security_id": { "type": "INTEGER", "references": "security.id" },
+        "index_name": { "type": "VARCHAR" },
+        "start_date": { "type": "DATE" },
+        "end_date": { "type": "DATE" }
+      }
+    },
+    "taxonomy_guide": {
+      "description": "Human-readable definitions for all standard_concept values used in the fact table.",
+      "columns": {
+        "standard_concept": { "type": "VARCHAR", "primary_key": true },
+        "human_name": { "type": "VARCHAR" },
+        "definition": { "type": "VARCHAR" },
+        "unit_type": { "type": "VARCHAR" },
+        "balance_type": { "type": "VARCHAR" },
+        "source_reference": { "type": "VARCHAR" }
+      }
+    }
+  }
+}

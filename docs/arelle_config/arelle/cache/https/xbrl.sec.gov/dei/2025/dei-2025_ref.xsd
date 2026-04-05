@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This schema was created by staff of the U.S. Securities and Exchange Commission. -->
+<!-- Data and content created by government employees within the scope of their employment -->
+<!-- are not subject to domestic copyright protection. 17 U.S.C. 105. -->
+<xs:schema
+xmlns:dei-ref="http://xbrl.sec.gov/dei-ref/2025"
+xmlns:link="http://www.xbrl.org/2003/linkbase"
+xmlns:ref="http://www.xbrl.org/2006/ref"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xs="http://www.w3.org/2001/XMLSchema"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+targetNamespace="http://xbrl.sec.gov/dei-ref/2025"
+elementFormDefault="qualified"
+xsi:schemaLocation="http://www.xbrl.org/2006/ref http://www.xbrl.org/2006/ref-2006-02-27.xsd">
+<xs:annotation>
+<xs:appinfo>
+<link:linkbase id="lnk">
+<link:referenceLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityAddressesTable" xlink:label="EntityAddressesTable"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012b-2" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12</ref:Section>
+<ref:Subsection>b-2</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityAddressesTable" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityCentralIndexKey" xlink:label="EntityCentralIndexKey"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityCentralIndexKey" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityRegistrantName" xlink:label="EntityRegistrantName"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityRegistrantName" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityTaxIdentificationNumber" xlink:label="EntityTaxIdentificationNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityTaxIdentificationNumber" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_LegalEntityIdentifier" xlink:label="LegalEntityIdentifier"/>
+<link:reference xlink:type="resource" xlink:label="GlobalLEIFoundationwww.leiroc.org2013-08-21" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>Global LEI Foundation</ref:Publisher>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="LegalEntityIdentifier" xlink:to="GlobalLEIFoundationwww.leiroc.org2013-08-21" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityEmergingGrowthCompany" xlink:label="EntityEmergingGrowthCompany"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityEmergingGrowthCompany" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntitySmallBusiness" xlink:label="EntitySmallBusiness"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntitySmallBusiness" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityShellCompany" xlink:label="EntityShellCompany"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityShellCompany" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityFilerCategory" xlink:label="EntityFilerCategory"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityFilerCategory" xlink:to="SECExchangeAct24012b-2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityWellKnownSeasonedIssuer" xlink:label="EntityWellKnownSeasonedIssuer"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230405" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>405</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityWellKnownSeasonedIssuer" xlink:to="SECSecuritiesAct230405" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityExTransitionPeriod" xlink:label="EntityExTransitionPeriod"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct7AB2" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>7A</ref:Number>
+<ref:Section>B</ref:Section>
+<ref:Subsection>2</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityExTransitionPeriod" xlink:to="SECSecuritiesAct7AB2" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityInvCompanyType" xlink:label="EntityInvCompanyType"/>
+<link:reference xlink:type="resource" xlink:label="SECRegulationS-T232313" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Regulation S-T</ref:Name>
+<ref:Number>232</ref:Number>
+<ref:Section>313</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityInvCompanyType" xlink:to="SECRegulationS-T232313" order="1.0" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_SecurityExchangeName" xlink:label="SecurityExchangeName"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012d1-1" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12</ref:Section>
+<ref:Subsection>d1-1</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="SecurityExchangeName" xlink:to="SECExchangeAct24012d1-1" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_Security12gTitle" xlink:label="Security12gTitle"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012g" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12</ref:Section>
+<ref:Subsection>g</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="Security12gTitle" xlink:to="SECExchangeAct24012g" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_Security12bTitle" xlink:label="Security12bTitle"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012b" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12</ref:Section>
+<ref:Subsection>b</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="Security12bTitle" xlink:to="SECExchangeAct24012b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentShellCompanyEventDate" xlink:label="DocumentShellCompanyEventDate"/>
+<link:reference xlink:type="resource" xlink:label="SECForm20-F249220f" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form 20-F</ref:Name>
+<ref:Number>249</ref:Number>
+<ref:Section>220</ref:Section>
+<ref:Subsection>f</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentShellCompanyEventDate" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentsIncorporatedByReferenceTextBlock" xlink:label="DocumentsIncorporatedByReferenceTextBlock"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012b-23" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12</ref:Section>
+<ref:Subsection>b-23</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentsIncorporatedByReferenceTextBlock" xlink:to="SECExchangeAct24012b-23" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityInteractiveDataCurrent" xlink:label="EntityInteractiveDataCurrent"/>
+<link:reference xlink:type="resource" xlink:label="SECRegulationS-T232405" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Regulation S-T</ref:Name>
+<ref:Number>232</ref:Number>
+<ref:Section>405</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityInteractiveDataCurrent" xlink:to="SECRegulationS-T232405" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentShellCompanyReport" xlink:label="DocumentShellCompanyReport"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentShellCompanyReport" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentTransitionReport" xlink:label="DocumentTransitionReport"/>
+<link:reference xlink:type="resource" xlink:label="SECForms10-K_10-Q_20-F24013a-1" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Forms 10-K, 10-Q, 20-F</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>13</ref:Section>
+<ref:Subsection>a-1</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentTransitionReport" xlink:to="SECForms10-K_10-Q_20-F24013a-1" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentQuarterlyReport" xlink:label="DocumentQuarterlyReport"/>
+<link:reference xlink:type="resource" xlink:label="SECForm10-Q240308a" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form 10-Q</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>308</ref:Section>
+<ref:Subsection>a</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentQuarterlyReport" xlink:to="SECForm10-Q240308a" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentAnnualReport" xlink:label="DocumentAnnualReport"/>
+<link:reference xlink:type="resource" xlink:label="SECForm10-K249310" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form 10-K</ref:Name>
+<ref:Number>249</ref:Number>
+<ref:Section>310</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentAnnualReport" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentAnnualReport" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECForm40-F249240f" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form 40-F</ref:Name>
+<ref:Number>249</ref:Number>
+<ref:Section>240</ref:Section>
+<ref:Subsection>f</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentAnnualReport" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_WrittenCommunications" xlink:label="WrittenCommunications"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230425" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>425</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="WrittenCommunications" xlink:to="SECSecuritiesAct230425" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_SolicitingMaterial" xlink:label="SolicitingMaterial"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct14a24012" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>14a</ref:Section>
+<ref:Subsection>12</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="SolicitingMaterial" xlink:to="SECExchangeAct14a24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_PreCommencementTenderOffer" xlink:label="PreCommencementTenderOffer"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24014d2b" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>14d</ref:Section>
+<ref:Subsection>2b</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="PreCommencementTenderOffer" xlink:to="SECExchangeAct24014d2b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_PreCommencementIssuerTenderOffer" xlink:label="PreCommencementIssuerTenderOffer"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24013e4c" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>13e</ref:Section>
+<ref:Subsection>4c</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="PreCommencementIssuerTenderOffer" xlink:to="SECExchangeAct24013e4c" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_BusinessContactMember" xlink:label="BusinessContactMember"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="BusinessContactMember" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="BusinessContactMember" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_ContactPersonnelFaxNumber" xlink:label="ContactPersonnelFaxNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="ContactPersonnelFaxNumber" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityPrimarySicNumber" xlink:label="EntityPrimarySicNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityPrimarySicNumber" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_FormerAddressMember" xlink:label="FormerAddressMember"/>
+<link:reference xlink:type="resource" xlink:label="SECForm8-K249308" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form 8-K</ref:Name>
+<ref:Number>249</ref:Number>
+<ref:Section>308</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="FormerAddressMember" xlink:to="SECForm8-K249308" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECForm10-Q249308a" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form 10-Q</ref:Name>
+<ref:Number>249</ref:Number>
+<ref:Section>308</ref:Section>
+<ref:Subsection>a</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="FormerAddressMember" xlink:to="SECForm10-Q249308a" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentRegistrationStatement" xlink:label="DocumentRegistrationStatement"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentRegistrationStatement" xlink:to="SECExchangeAct24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AnnualInformationForm" xlink:label="AnnualInformationForm"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AnnualInformationForm" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AuditedAnnualFinancialStatements" xlink:label="AuditedAnnualFinancialStatements"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditedAnnualFinancialStatements" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_SecurityReportingObligation" xlink:label="SecurityReportingObligation"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24015d" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>15</ref:Section>
+<ref:Subsection>d</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="SecurityReportingObligation" xlink:to="SECExchangeAct24015d" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EntityBankruptcyProceedingsReportingCurrent" xlink:label="EntityBankruptcyProceedingsReportingCurrent"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24012_13_15d" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>12, 13, 15d</ref:Section>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EntityBankruptcyProceedingsReportingCurrent" xlink:to="SECExchangeAct24012_13_15d" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentAccountingStandard" xlink:label="DocumentAccountingStandard"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentAccountingStandard" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_OtherReportingStandardItemNumber" xlink:label="OtherReportingStandardItemNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="OtherReportingStandardItemNumber" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AdrMember" xlink:label="AdrMember"/>
+<link:reference xlink:type="resource" xlink:label="SECExchangeAct24015d-3" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Exchange Act</ref:Name>
+<ref:Number>240</ref:Number>
+<ref:Section>15</ref:Section>
+<ref:Subsection>d-3</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AdrMember" xlink:to="SECExchangeAct24015d-3" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_IcfrAuditorAttestationFlag" xlink:label="IcfrAuditorAttestationFlag"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="IcfrAuditorAttestationFlag" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="IcfrAuditorAttestationFlag" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="IcfrAuditorAttestationFlag" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveUponFiling462e" xlink:label="EffectiveUponFiling462e"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230462e" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>462</ref:Section>
+<ref:Subsection>e</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveUponFiling462e" xlink:to="SECSecuritiesAct230462e" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AdditionalSecuritiesEffective413b" xlink:label="AdditionalSecuritiesEffective413b"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230413b" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>413</ref:Section>
+<ref:Subsection>b</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AdditionalSecuritiesEffective413b" xlink:to="SECSecuritiesAct230413b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveWhenDeclaredSection8c" xlink:label="EffectiveWhenDeclaredSection8c"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct8c" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Section>8</ref:Section>
+<ref:Subsection>c</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveWhenDeclaredSection8c" xlink:to="SECSecuritiesAct8c" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveUponFiling486b" xlink:label="EffectiveUponFiling486b"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230486b" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>486</ref:Section>
+<ref:Subsection>b</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveUponFiling486b" xlink:to="SECSecuritiesAct230486b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveOnSetDate486b" xlink:label="EffectiveOnSetDate486b"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveOnSetDate486b" xlink:to="SECSecuritiesAct230486b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveOnDate486b" xlink:label="EffectiveOnDate486b"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveOnDate486b" xlink:to="SECSecuritiesAct230486b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveAfter60Days486a" xlink:label="EffectiveAfter60Days486a"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230486a" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>486</ref:Section>
+<ref:Subsection>a</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveAfter60Days486a" xlink:to="SECSecuritiesAct230486a" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveOnSetDate486a" xlink:label="EffectiveOnSetDate486a"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveOnSetDate486a" xlink:to="SECSecuritiesAct230486a" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_EffectiveOnDate486a" xlink:label="EffectiveOnDate486a"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="EffectiveOnDate486a" xlink:to="SECSecuritiesAct230486a" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AdditionalSecurities462b" xlink:label="AdditionalSecurities462b"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230462b" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>462</ref:Section>
+<ref:Subsection>b</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AdditionalSecurities462b" xlink:to="SECSecuritiesAct230462b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AdditionalSecurities462bFileNumber" xlink:label="AdditionalSecurities462bFileNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AdditionalSecurities462bFileNumber" xlink:to="SECSecuritiesAct230462b" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_NoSubstantiveChanges462c" xlink:label="NoSubstantiveChanges462c"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230462c" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>462</ref:Section>
+<ref:Subsection>c</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="NoSubstantiveChanges462c" xlink:to="SECSecuritiesAct230462c" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_NoSubstantiveChanges462cFileNumber" xlink:label="NoSubstantiveChanges462cFileNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="NoSubstantiveChanges462cFileNumber" xlink:to="SECSecuritiesAct230462c" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_ExhibitsOnly462d" xlink:label="ExhibitsOnly462d"/>
+<link:reference xlink:type="resource" xlink:label="SECSecuritiesAct230462d" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Securities Act</ref:Name>
+<ref:Number>230</ref:Number>
+<ref:Section>462</ref:Section>
+<ref:Subsection>d</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="ExhibitsOnly462d" xlink:to="SECSecuritiesAct230462d" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_RegistrationStatementAmendmentNumber" xlink:label="RegistrationStatementAmendmentNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="RegistrationStatementAmendmentNumber" xlink:to="SECExchangeAct24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_InvestmentCompanyActRegistration" xlink:label="InvestmentCompanyActRegistration"/>
+<link:reference xlink:type="resource" xlink:label="SECInvestmentCompanyAct270" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Investment Company Act</ref:Name>
+<ref:Number>270</ref:Number>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyActRegistration" xlink:to="SECInvestmentCompanyAct270" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_InvestmentCompanyRegistrationAmendment" xlink:label="InvestmentCompanyRegistrationAmendment"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyRegistrationAmendment" xlink:to="SECInvestmentCompanyAct270" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_InvestmentCompanyRegistrationAmendmentNumber" xlink:label="InvestmentCompanyRegistrationAmendmentNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyRegistrationAmendmentNumber" xlink:to="SECInvestmentCompanyAct270" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_PreEffectiveAmendmentNumber" xlink:label="PreEffectiveAmendmentNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="PreEffectiveAmendmentNumber" xlink:to="SECExchangeAct24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_PostEffectiveAmendmentNumber" xlink:label="PostEffectiveAmendmentNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="PostEffectiveAmendmentNumber" xlink:to="SECExchangeAct24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_PreEffectiveAmendment" xlink:label="PreEffectiveAmendment"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="PreEffectiveAmendment" xlink:to="SECExchangeAct24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_PostEffectiveAmendment" xlink:label="PostEffectiveAmendment"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="PostEffectiveAmendment" xlink:to="SECExchangeAct24012" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_ExhibitsOnly462dFileNumber" xlink:label="ExhibitsOnly462dFileNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="ExhibitsOnly462dFileNumber" xlink:to="SECSecuritiesAct230462d" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_NewEffectiveDateForPreviousFiling" xlink:label="NewEffectiveDateForPreviousFiling"/>
+<link:reference xlink:type="resource" xlink:label="SECFormN-2" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form N-2</ref:Name>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="NewEffectiveDateForPreviousFiling" xlink:to="SECFormN-2" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECFormN-3" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form N-3</ref:Name>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="NewEffectiveDateForPreviousFiling" xlink:to="SECFormN-3" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECFormN-4" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form N-4</ref:Name>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="NewEffectiveDateForPreviousFiling" xlink:to="SECFormN-4" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECFormN-6" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form N-6</ref:Name>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="NewEffectiveDateForPreviousFiling" xlink:to="SECFormN-6" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_InvestmentCompanyActFileNumber" xlink:label="InvestmentCompanyActFileNumber"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyActFileNumber" xlink:to="SECFormN-2" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyActFileNumber" xlink:to="SECFormN-3" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyActFileNumber" xlink:to="SECFormN-4" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="InvestmentCompanyActFileNumber" xlink:to="SECFormN-6" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DividendOrInterestReinvestmentPlanOnly" xlink:label="DividendOrInterestReinvestmentPlanOnly"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DividendOrInterestReinvestmentPlanOnly" xlink:to="SECFormN-2" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECFormS-3" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form S-3</ref:Name>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DividendOrInterestReinvestmentPlanOnly" xlink:to="SECFormS-3" priority="10"/>
+<link:reference xlink:type="resource" xlink:label="SECFormF-3" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Form F-3</ref:Name>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DividendOrInterestReinvestmentPlanOnly" xlink:to="SECFormF-3" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DelayedOrContinuousOffering" xlink:label="DelayedOrContinuousOffering"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DelayedOrContinuousOffering" xlink:to="SECFormN-2" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DelayedOrContinuousOffering" xlink:to="SECFormS-3" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DelayedOrContinuousOffering" xlink:to="SECFormF-3" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AuditorName" xlink:label="AuditorName"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorName" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorName" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorName" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AuditorLocation" xlink:label="AuditorLocation"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorLocation" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorLocation" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorLocation" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AuditorFirmId" xlink:label="AuditorFirmId"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorFirmId" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorFirmId" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorFirmId" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentFinStmtErrorCorrectionFlag" xlink:label="DocumentFinStmtErrorCorrectionFlag"/>
+<link:reference xlink:type="resource" xlink:label="SECRegulationS-K229402w" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Regulation S-K</ref:Name>
+<ref:Number>229</ref:Number>
+<ref:Section>402</ref:Section>
+<ref:Subsection>w</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtErrorCorrectionFlag" xlink:to="SECRegulationS-K229402w" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtErrorCorrectionFlag" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtErrorCorrectionFlag" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtErrorCorrectionFlag" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_DocumentFinStmtRestatementRecoveryAnalysisFlag" xlink:label="DocumentFinStmtRestatementRecoveryAnalysisFlag"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtRestatementRecoveryAnalysisFlag" xlink:to="SECRegulationS-K229402w" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtRestatementRecoveryAnalysisFlag" xlink:to="SECForm10-K249310" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtRestatementRecoveryAnalysisFlag" xlink:to="SECForm20-F249220f" priority="10"/>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="DocumentFinStmtRestatementRecoveryAnalysisFlag" xlink:to="SECForm40-F249240f" priority="10"/>
+<link:loc xlink:type="locator" xlink:href="dei-2025.xsd#dei_AuditorOpinionTextBlock" xlink:label="AuditorOpinionTextblock"/>
+<link:reference xlink:type="resource" xlink:label="SECRegulationS-X21022" xlink:role="http://www.xbrl.org/2003/role/presentationRef">
+<ref:Publisher>SEC</ref:Publisher>
+<ref:Name>Regulation S-X</ref:Name>
+<ref:Number>210</ref:Number>
+<ref:Section>2</ref:Section>
+<ref:Subsection>2</ref:Subsection>
+</link:reference>
+<link:referenceArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/concept-reference" xlink:from="AuditorOpinionTextblock" xlink:to="SECRegulationS-X21022" priority="10"/>
+</link:referenceLink>
+</link:linkbase>
+</xs:appinfo>
+</xs:annotation>
+</xs:schema>
