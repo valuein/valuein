@@ -1,0 +1,21 @@
+name: Publish to MCP Registry
+
+on:
+  push:
+    branches: [main]
+    paths: ['server.json']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+      - run: mcp-publisher login github
+      - run: mcp-publisher publish ./server.json

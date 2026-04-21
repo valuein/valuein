@@ -1,0 +1,21 @@
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python (scripts/)
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node (in case tooling is added later)
+node_modules/
+
+# Local env
+.env
+.env.local

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.valuein/mcp-sec-edgar",
+  "description": "SEC EDGAR fundamentals, ratios, valuation, and filings for AI agents. Point-in-time safe.",
+  "version": "2.0.0",
+  "websiteUrl": "https://valuein.biz",
+  "repository": {
+    "url": "https://github.com/valuein/valuein",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.valuein.biz/mcp"
+    }
+  ]
+}
