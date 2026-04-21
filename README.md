@@ -3,400 +3,352 @@
 [![PyPI version](https://img.shields.io/pypi/v/valuein-sdk?cacheSeconds=300)](https://pypi.org/project/valuein-sdk/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/valuein-sdk/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
-[![CI](https://github.com/valuein/quants/actions/workflows/publish.yml/badge.svg)](https://github.com/valuein/quants/actions/workflows/publish.yml)
+[![MCP Registry](https://img.shields.io/badge/MCP-registry.modelcontextprotocol.io-blue)](https://registry.modelcontextprotocol.io)
 
-# 💎 Valuein Python SDK: Frictionless Financial Data
-A high-performance toolkit for querying point-in-time US fundamentals from SEC EDGAR, built for quants, analysts, and data engineers.
+# 💎 Valuein — Community, Docs, and Discovery Hub
 
-The Valuein SDK, is a complete infrastructure solution for consuming point-in-time accurate US Core financial fundamentals (facts) on your daily workflow. Whether you are building complex asynchronous Python pipelines, performing forensic financial research in Excel, or executing templated SQL, this library provides frictionless, zero-setup access to institutional-grade data.
+This repository is the **public home** for Valuein's SEC EDGAR fundamentals data product. It is the place to:
 
-## The Data Engine
-Powered by survivorship-bias-free data containing 12M+ filings and 108M+ facts from 10-Ks, 10-Qs, 8-Ks, 20-Fs, and amendments across 10,000+ active and delisted US companies since 1990.
+- Find **documentation** (methodology, data catalog, compliance, SLA, Excel guide)
+- Run **examples and notebooks** that connect to our live data
+- Open **support tickets, bug reports, and feature requests**
+- **Discover** our distribution channels — the Python SDK, the MCP server, the Excel template, and the REST API
 
-## Why use this toolkit?
-
-⚡ Lightning-Fast Python SDK: Execute blazing-fast queries against remote Parquet files hosted on R2, powered entirely by DuckDB under the hood. No database setup, no massive local downloads.
-
-📊 Excel & Power Query Ready: Not a Python developer? Fetch, transform, and analyze the data directly within Excel spreadsheets using our provided integrations.
-
-🛠️ Plug-and-Play SQL Templates: Skip the boilerplate. Use our pre-built SQL templates to immediately extract insights, calculate intrinsic values, or model standardized financial statements.
-
-📚 Comprehensive Context: Deep-dive documentation mapping out table schemas, primary keys, and field definitions to support your specific financial research use cases.
-
-## 🚀 Why Valuein Data and SDK Library
-> Easy of use and intelligence.
-
-| Feature                               | Benefit                                                    |
-|---------------------------------------|-----------------------------------------------------------|
-| 🕒 **<span title="Provides historical snapshots for accurate backtesting">Point‑in‑Time Data</span>** | Eliminate look‑ahead bias in backtests |
-| ⚖️ **<span title="Includes companies that went bankrupt, delisted, or were acquired">Survivorship‑Bias Free</span>** | Includes bankrupt, delisted, and acquired firms |
-| 📊 **<span title="Maps 15k+ raw XBRL tags to ~150 standard financial concepts">Standardized Concepts</span>** | 15k+ XBRL tags mapped to ~150 canonical financial concepts |
-| 🚀 **<span title="High-speed in-memory SQL engine using DuckDB">DuckDB SQL Engine</span>** | Millisecond analytics directly in Python |
-| ☁️ **<span title="Stream Parquet data from cloud storage without downloading locally">Cloud Parquet Streaming</span>** | No local data downloads required |
-| 🧩 **<span title="Ready-to-use financial templates for backtesting and signals">Financial Templates</span>** | Production‑ready investment signals |
-
-
-## 🧠 What You Can Do With This Repository
-
-| Use Case | Who | Where to Start |
-|---|---|---|
-| **Query financial data via Python** | Quants, data engineers | [Quickstart](#quickstart) |
-| **Run 39 pre-built financial signals** | Analysts, quants | [SQL Templates](#sql-templates) |
-| **Learn with interactive notebooks** | Students, new users | [Examples & Notebooks](#examples--notebooks) |
-| **Pull data into Excel** | Financial analysts | [Excel Integration](#excel-integration) |
-| **Prove data quality to stakeholders** | Institutional buyers, compliance | [Research & Quality Proofs](#research--quality-proofs) |
-| **Read methodology and compliance docs** | Due diligence, enterprise | [Documentation](#documentation) |
-| **Contribute templates, examples, research** | Open-source contributors | [Contributing](#contributing) |
+The source code for the SDK, MCP server, and data pipeline lives in dedicated repositories. This repo is the front door.
 
 ---
 
-## ⚡ Quickstart
+## 📦 The Data Product
 
-**1. Install Package**
+Survivorship-bias-free, point-in-time US fundamentals sourced from SEC EDGAR:
 
-``` bash
+- **12M+ filings** (10-K, 10-Q, 8-K, 20-F + amendments), 1990–present
+- **108M+ facts** across **10,000+** active and delisted US entities
+- **11,966 XBRL tags** normalized to **~150 canonical `standard_concept`** values
+- **Cloud Parquet** on Cloudflare R2 — stream with DuckDB, no local downloads
+
+### Why it's different
+
+| Feature | Why it matters |
+|---|---|
+| 🕒 **Point-in-Time (PIT)** | Every fact carries `filing_date` and `knowledge_at` — no look-ahead bias in backtests |
+| ⚖️ **Survivorship-bias free** | Delisted, bankrupt, acquired companies included |
+| 📊 **Standardized concepts** | 11,966 raw XBRL tags mapped to canonical names (both are on the `fact` table) |
+| 🚀 **DuckDB native** | Millisecond analytics via `httpfs` against remote Parquet |
+| ☁️ **Zero-setup** | `pip install` and query — no database provisioning, no large downloads |
+
+---
+
+## 🚚 Distribution Channels
+
+We deliver the same underlying data through five interfaces so it lands wherever you already work.
+
+| Channel | For | How to get it |
+|---|---|---|
+| **Python SDK** | Quants, engineers, data scientists | `pip install valuein-sdk` · [PyPI](https://pypi.org/project/valuein-sdk/) |
+| **MCP Server** | AI agents (Claude, Cursor, Codex, etc.) | `https://mcp.valuein.biz/mcp` · see [MCP Discovery](#-mcp-discovery--ai-agents) |
+| **Excel / Power Query** | Financial analysts, CPAs, researchers | [Excel setup guide](docs/excel-guide.md) |
+| **Web Dashboard** | Non-technical users, retail, executives | [valuein.biz](https://valuein.biz) |
+| **REST API** | B2B partners, third-party integrations | `https://data.valuein.biz` — [contact us](mailto:support@valuein.biz) for the integration guide |
+
+All channels authenticate with the **same Stripe-issued API token** and share the same tier model.
+
+---
+
+## 💳 Plans & Access
+
+| Plan | Coverage | Data | Price | Get Access |
+|---|---|---|---|---|
+| **Sample** | S&P 500 · last 5 years · active + inactive | Public, read-only | **Free** | No registration — works out of the box |
+| **S&P 500** | S&P 500 · full history · active + inactive | Full Parquet access | **Free** | [Register](https://buy.stripe.com/3cI28qgx81Og66weXgco004) |
+| **Pro** | Full US universe · all core fundamentals | Full Parquet access | **$200 / month** | [Subscribe](https://buy.stripe.com/5kQ3cudkW0Kc3Yo02mco005) |
+| **Pro (Annual)** | Same as Pro · 20% discount | Full Parquet access | **$1,920 / year** | [Subscribe](https://buy.stripe.com/eVq00i94GakM52s6qKco003) |
+
+One token unlocks the **SDK, MCP, Excel, and REST API** — no per-channel billing.
+
+---
+
+## ⚡ Quickstart — Python SDK
+
+**1. Install**
+
+```bash
 pip install valuein-sdk
 ```
 
-### Run the script — no token required
-
-Install and query real data immediately, no registration needed for the SAMPLE dataset:
+**2. Query real data without a token** (Sample tier, no registration):
 
 ```python
 from valuein_sdk import ValueinClient
 
-client = ValueinClient()                            # load all tables by default
-print("Me: ", client.me())                          # dict: plan, status, email, createdAt
-print("Manifest: ", client.manifest())              # dict: snapshot, last_updated, tables (cached 5 min)
-print("Tables: ", client.tables())                  # list of loaded table names
-print("Fact Schema: ", client.get_schema("fact"))  # dict: column → DuckDB type for any loaded table
+with ValueinClient() as client:
+    print(client.me())                               # {plan, status, email, createdAt}
+    print(client.manifest())                         # snapshot metadata
+    print(client.tables())                           # loaded table names
+    print(client.get_schema("fact"))                 # column → DuckDB type
 
-sql_query = "SELECT COUNT(cik) FROM entity"
-result_df = client.query(sql_query)             # SQL → pandas DataFrame
-print(f"Query Results: {result_df}")
+    df = client.query("SELECT COUNT(*) FROM entity")
+    print(df)
 ```
 
-Add a token at any time to unlock the full dataset — no code changes needed.
-
-## 🔑 2. Get Your API Token
-
-| Data Plan        | Coverage                                                        | Price | Get Access                                                  |
-|------------------|-----------------------------------------------------------------|------|-------------------------------------------------------------|
-| **Sample**       | S&P 500 coverage<br>5-years only<br>Active & inactive companies | **Free** | No registration                                             |
-| **S&P500**       | S&P 500 coverage<br>Full history<br>Active & inactive companies | **Free** | [Register](https://buy.stripe.com/3cI28qgx81Og66weXgco004)  |
-| **Pro**          | Full universe of US stocks<br>US core fundamentals              | **$200 / month** | [Subscribe](https://buy.stripe.com/5kQ3cudkW0Kc3Yo02mco005) |
-| **Pro (Annual)** | Same as Pro plan (20% Discount)                                 | **$1920 / year** | [Subscribe](https://buy.stripe.com/eVq00i94GakM52s6qKco003) |
-
-
-## 🔐 3. Set Your API Token
+**3. Unlock the full dataset** — add a token, no code changes needed:
 
 ```bash
-echo 'VALUEIN_API_KEY="your_token"' >> .env
+echo 'VALUEIN_API_KEY="your_token_here"' >> .env
 ```
 
-## ▶️ 4. Production-ready code
-
-The ValueinClient handles authentication, table discovery, and local caching in a high-performance DuckDB instance.
-
-The Recommended Way For Production is the Context Manager block/pattern because it ensures that temporary files and database connections are closed automatically, even if your script crashes.
+**4. Production pattern** — context manager, typed errors, pre-built SQL templates:
 
 ```python
 from valuein_sdk import ValueinClient, ValueinError
 
-try:
-    # load specific tables OR omit to load all tables
-    with ValueinClient() as client:
-                
-        f_df = client.get(table="filing")               # download full table → pandas DataFrame
-        print(f"Filings: {f_df.head()}")
-                
-        try:
-            result_df = client.run_template(            # named SQL template → pandas DataFrame
-                "fundamentals_by_ticker",
-                ticker="AAPL",
-                start_date="2020-01-01",
-                end_date="2024-01-01",
-                form_types=["10-K", "10-Q"],
-                metrics=["TotalRevenue", "NetIncome", "OperatingCashFlow"],  # required — standard_concept filter
-            )
-            print(f"Template Results: {result_df}")
-        except ValueinError as e:
-            print(f"Catch all error types: {e}")       
-except Exception as e:
-    print(f"Initialization error: {e}")
+with ValueinClient() as client:
+    try:
+        df = client.run_template(
+            "fundamentals_by_ticker",
+            ticker="AAPL",
+            start_date="2020-01-01",
+            end_date="2024-01-01",
+            form_types=["10-K", "10-Q"],
+            metrics=["TotalRevenue", "NetIncome", "OperatingCashFlow"],
+        )
+        print(df)
+    except ValueinError as e:
+        print(f"SDK error: {e}")
 ```
 
 ---
 
-# 🗂️ Data Schema
-> Find more information regarding all tables, and it fields in [docs/schema.json](docs/schema.json).
+## 🗂️ Data Model Essentials
 
-| Table              | Description                   | Records |
-|-------------------|-------------------------------|---------|
-| **references**     | **Start here.** Flat join of entity + security + index_membership. One row per security. Boolean flags (`is_sp500`) replace three joins. | ~7K |
-| **entity**         | Company metadata              | 19K+    |
-| **security**       | Ticker history (SCD Type 2)   | 7K+     |
-| **filing**         | Filing metadata               | 12M+    |
-| **fact**           | Financial statement facts     | 108M+   |
-| **valuation**      | Two-stage DCF + DDM intrinsic value per entity per period | 19K+    |
-| **taxonomy_guide** | 2026 US GAAP Taxonomy Guide | 11,966  |
-| **index_membership** | Historical index membership with start/end dates | 8K+     |
+Full schema in [`docs/schema.json`](docs/schema.json) and [`docs/data_catalog.md`](docs/data_catalog.md).
 
+| Table | Description | Records |
+|---|---|---|
+| **`references`** | **Start here.** Flat join of entity + security + index_membership. One row per security with `is_sp500`, `is_active`, sector, exchange. Replaces 3-table joins. | ~7K |
+| `entity` | Company metadata | 19K+ |
+| `security` | Ticker history (SCD Type 2) | 7K+ |
+| `filing` | Filing metadata (10-K, 10-Q, 8-K, 20-F + amendments) | 12M+ |
+| `fact` | Financial statement facts — raw `concept` + canonical `standard_concept` on every row | 108M+ |
+| `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | 19K+ |
+| `taxonomy_guide` | 2026 US GAAP Taxonomy Guide | 11,966 |
+| `index_membership` | Historical index entry/exit dates | 8K+ |
 
-### 🔗 Key Joins
+### Key joins
 
 ```
-references.cik                  →  entity.cik  (references is the fast entry point)
-security.entity_id              →  entity.cik
-filing.entity_id                →  entity.cik
-fact.entity_id                  →  entity.cik
-fact.accession_id               →  filing.accession_id
-index_membership.security_id    →  security.id
+references.cik               → entity.cik
+security.entity_id           → entity.cik
+filing.entity_id             → entity.cik
+fact.entity_id               → entity.cik
+fact.accession_id            → filing.accession_id
+index_membership.security_id → security.id
 ```
 
-### ⚡ DuckDB Query Patterns
-
-Three patterns that eliminate redundant joins and scans on every cross-company query:
-
-**1. `references` replaces entity + security + index_membership**
-```sql
--- Filter S&P 500 tech companies — zero joins
-SELECT symbol, name, sector
-FROM   references
-WHERE  is_sp500 = TRUE AND sector ILIKE '%technology%' AND is_active = TRUE
-```
-
-**2. `LATERAL` for the latest filing per company**
-```sql
-JOIN LATERAL (
-  SELECT accession_id, filing_date
-  FROM   filing
-  WHERE  entity_id = r.cik AND form_type = '10-K'
-  ORDER  BY filing_date DESC
-  LIMIT  1
-) f ON true
-```
-
-**3. Pivot multiple concepts in one `fact` scan**
-```sql
--- Debt + equity in one pass — no self-join
-SELECT
-  MAX(CASE WHEN standard_concept = 'LongTermDebt'       THEN numeric_value END) AS debt,
-  MAX(CASE WHEN standard_concept = 'StockholdersEquity' THEN numeric_value END) AS equity
-FROM fact WHERE standard_concept IN ('LongTermDebt', 'StockholdersEquity')
-GROUP BY accession_id
-```
-
-> For quarterly cash flow metrics, use `COALESCE(derived_quarterly_value, numeric_value)` — Q2/Q3 10-Qs report YTD; this column isolates the single quarter.
-
-See [`valuein_sdk/queries/SQL_CHEATSHEET.md`](valuein_sdk/queries/SQL_CHEATSHEET.md) for 8 complete patterns including FCF screens, PIT backtesting, and restatement auditing.
-
----
-
-### 🏷️ Standard Concept Names
-
-> [!Note]
-> Raw XBRL tags (11,966 unique) are normalized to canonical `standard_concept` values. We standardized the most used
-3,200 concepts from the US GAAP Taxonomy Code which allows to categorize 95% of all facts, the rest has the 'Other' category.
-
-> Both the raw `concept` tag (xbrl_tag) and the normalized `standard_concept` are on the `fact` table — no join to a separate mapping table needed.
-
-
-### 📅 Date Columns Reference
+### Date columns — which to use when
 
 | Column | Table | Use for |
 |---|---|---|
-| `report_date` / `period_end` | `filing` / `fact` | Aligning to fiscal calendar |
+| `report_date` / `period_end` | `filing` / `fact` | Fiscal calendar alignment |
 | `filing_date` | `filing` | **PIT backtest filter** — when the SEC received the filing |
-| `knowledge_at` | `fact` | Millisecond-precision PIT for intraday signal research |
+| `knowledge_at` | `fact` | Millisecond-precision PIT for intraday research |
 
+> For cross-company backtests, **always** filter by `filing_date <= trade_date`. Using `report_date` introduces look-ahead bias.
 
-### 🧩 Template Categories
+### Canonical `standard_concept` names
 
-| Range | Category | Examples |
-|---|---|---|
-| 01–04 | Data Access | Fundamentals by ticker, FIGI lookup, peer comparison, survivorship-bias-free screen |
-| 05–09 | Income Statement | YoY revenue growth, TTM, margin analysis, FCF, R&D intensity |
-| 10–15 | Balance Sheet | Liquidity, solvency, interest coverage, cash conversion, capex ratios |
-| 16–20 | Investment Scores | DuPont, Piotroski F-Score, Altman Z-Score, accruals anomaly |
-| 21–26 | Valuation & Screening | Sector aggregates, peer ranking, dilution, arbitrage signals |
-| 27–33 | Short Signals | Late filers, restatements, 8-K events, ghost companies |
-| 34–39 | Advanced Analytics | PIT backtest engine, Z-score outliers, seasonality, XBRL audit |
+Query `fact.standard_concept` with canonical names like `'TotalRevenue'`, `'NetIncome'`, `'OperatingCashFlow'`, `'CAPEX'`, `'StockholdersEquity'` — **not** raw XBRL tags (`'Revenues'`, `'NetIncomeLoss'`, `'Assets'`). The full canonical list lives in [`docs/data_catalog.md`](docs/data_catalog.md).
 
-See [`valuein_sdk/queries/SQL_CHEATSHEET.md`](https://github.com/valuein/quants/blob/main/valuein_sdk/queries/SQL_CHEATSHEET.md) for the full template reference.
+### DuckDB query patterns that pay off
 
+**Start from `references`** — zero joins for cross-company filters:
+```sql
+SELECT symbol, name, sector
+FROM   references
+WHERE  is_sp500 = TRUE AND is_active = TRUE AND sector ILIKE '%technology%'
+```
 
-## 📚 Documentation
+**`LATERAL` for the latest filing per company**:
+```sql
+JOIN LATERAL (
+    SELECT accession_id FROM filing
+    WHERE  entity_id = r.cik AND form_type = '10-K'
+    ORDER  BY filing_date DESC LIMIT 1
+) f ON TRUE
+```
 
-| Document | Description | Format |
-|----------|------------|--------|
-| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Data sourcing, PIT architecture, restatement handling, XBRL normalization logic | Markdown |
-| [`docs/COMPLIANCE_AND_DDQ.md`](docs/COMPLIANCE_AND_DDQ.md) | Data provenance, MNPI policy, PIT integrity, security, SLA summary | Markdown |
-| [`docs/SLA.md`](docs/SLA.md) | Uptime targets, data freshness SLAs, support response times, SLA credits | Markdown |
-| [`docs/excel-guide.md`](docs/excel-guide.md) | Full Excel / Power Query setup walkthrough | Markdown |
-| [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | All columns, types, definitions, sample values | Excel |
-| [`docs/schema.json`](docs/schema.json) | Machine-readable JSON schema | JSON |
+**Pivot multiple concepts in one `fact` scan**:
+```sql
+SELECT
+  MAX(CASE WHEN standard_concept = 'TotalRevenue'       THEN numeric_value END) AS revenue,
+  MAX(CASE WHEN standard_concept = 'StockholdersEquity' THEN numeric_value END) AS equity
+FROM   fact
+WHERE  standard_concept IN ('TotalRevenue', 'StockholdersEquity')
+GROUP  BY accession_id
+```
+
+> Cash flow items: use `COALESCE(derived_quarterly_value, numeric_value)` — Q2/Q3 10-Qs report YTD, this column isolates the quarter. CAPEX sign varies by filer — always `ABS(capex)`.
 
 ---
 
-## 🐍 Python Examples
-Standalone Python scripts and four Jupyter notebooks, designed to go from install to insight in under 3 minutes.*
+## 🐍 Examples in this Repository
 
-### Ticker lookup example
-Run any SQL against the data lake. No downloads. No local database. DuckDB executes your queries in-process.
+All examples work against the SDK published on PyPI. The Sample tier runs without a token.
 
-```python
-from valuein_sdk import ValueinClient
+### Python scripts ([`examples/python/`](examples/python/))
 
-client = ValueinClient(tables=["entity", "security"])
-# This client only fetch these 2 tables, making it faster!
+| Script | Level | What it shows |
+|---|---|---|
+| [`getting_started.py`](examples/python/getting_started.py) | Beginner | First query, token check, entity counts by sector |
+| [`usage.py`](examples/python/usage.py) | Reference | Every public SDK method demonstrated |
+| [`entity_screening.py`](examples/python/entity_screening.py) | Beginner | Screen by sector, SIC code, active vs inactive |
+| [`financial_analysis.py`](examples/python/financial_analysis.py) | Intermediate | Revenue trends, margins, peer comparison |
+| [`pit_backtest.py`](examples/python/pit_backtest.py) | Intermediate | Correct PIT discipline, restatement impact |
+| [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Intermediate | Delisted companies, index membership, bias quantification |
+| [`production-ready.py`](examples/python/production-ready.py) | Advanced | Service pattern for FastAPI / Celery / Airflow integrations |
 
-df = client.query("""
-    SELECT e.cik, e.name, e.sector, e.status,
-           s.symbol, s.exchange
-    FROM   security s
-    JOIN   entity   e ON s.entity_id = e.cik
-    WHERE  s.symbol = 'AAPL' AND s.is_active = TRUE
-""")
-print(df)
+Run any example:
+
+```bash
+# Sample tier — no token needed
+python examples/python/getting_started.py
+
+# Paid tier
+VALUEIN_API_KEY=xxx python examples/python/pit_backtest.py
 ```
 
-You are now querying **SEC financial statements directly from the
-cloud**.
-
-
-### Python scripts (`examples/python/`)
-
-| Script | Level | What it demonstrates |
-|---|---|---|
-| [`getting_started.py`](examples/python/getting_started.py) | Beginner | Auth check, first query, entity counts by sector |
-| [`usage.py`](examples/python/usage.py) | Reference | Every public SDK method demonstrated |
-| [`entity_screening.py`](examples/python/entity_screening.py) | Beginner | Screen by sector, SIC code, active vs inactive status |
-| [`financial_analysis.py`](examples/python/financial_analysis.py) | Intermediate | Revenue trends, margins, concept normalization, peer comparison |
-| [`pit_backtest.py`](examples/python/pit_backtest.py) | Intermediate | Correct PIT discipline, restatement impact, `filing_date` vs `report_date` |
-| [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Intermediate | Delisted/bankrupt companies, index_membership, bias quantification |
-
-### Jupyter notebooks (`examples/notebooks/`)
+### Jupyter notebooks ([`examples/notebooks/`](examples/notebooks/))
 
 | Notebook | Open in Colab |
 |---|---|
-| [Quickstart](examples/notebooks/quickstart.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/quants/blob/main/examples/notebooks/quickstart.ipynb) |
-| [Fundamental Analysis](examples/notebooks/fundamental_analysis.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/quants/blob/main/examples/notebooks/fundamental_analysis.ipynb) |
-| [PIT Backtest](examples/notebooks/pit_backtest.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/quants/blob/main/examples/notebooks/pit_backtest.ipynb) |
-| [Survivorship Bias](examples/notebooks/survivorship_bias.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/quants/blob/main/examples/notebooks/survivorship_bias.ipynb) |
+| [Quickstart](examples/notebooks/quickstart.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/quickstart.ipynb) |
+| [Fundamental Analysis](examples/notebooks/fundamental_analysis.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/fundamental_analysis.ipynb) |
+| [PIT Backtest](examples/notebooks/pit_backtest.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/pit_backtest.ipynb) |
+| [Survivorship Bias](examples/notebooks/survivorship_bias.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/survivorship_bias.ipynb) |
 
 ---
 
-### 🛡️ Error Handling
+## 🛡️ Error Handling
+
+The SDK exposes typed exceptions so your code can react appropriately to each failure mode:
 
 ```python
 from valuein_sdk import (
+    ValueinClient,
     ValueinAuthError,      # HTTP 401/403 — invalid or expired token
     ValueinPlanError,      # HTTP 403 — endpoint requires a higher plan
-    ValueinNotFoundError,  # HTTP 404 — no table found 
+    ValueinNotFoundError,  # HTTP 404 — table or endpoint does not exist
     ValueinRateLimitError, # HTTP 429 — includes .retry_after (seconds)
     ValueinAPIError,       # HTTP 5xx — includes .status_code
-    ValueinClient
 )
 
-client = None
-try:
-    client = ValueinClient()
-    df = client.query("SELECT * FROM fact LIMIT 1000000")
-except ValueinAuthError:
-    print("Check your VALUEIN_API_KEY. It might be expired or invalid.")
-except ValueinPlanError:
-    print("This requires a higher-tier plan. Upgrade at valuein.biz.")
-except ValueinRateLimitError as e:
-    print(f"Slow down! Retry allowed in {e.retry_after}s.")
-except ValueinNotFoundError as e:
-    print(f"That table or endpoint doesn't exist: {e}")
-except ConnectionError as e:
-    print(f"Physical network issue: {e}")
-except ValueinAPIError as e:
-    print(f"The Gateway is having a bad day (Status {e.status_code}).")
-except Exception as e:
-    print(f"Non-SDK error (Python/Logic): {e}")
-finally:
-    # Always close manually if not using a context manager and if a client was created.
-    if client is not None:
-        client.close()
+with ValueinClient() as client:
+    try:
+        df = client.query("SELECT * FROM fact LIMIT 1000")
+    except ValueinAuthError:
+        print("Check your VALUEIN_API_KEY — it may be expired or invalid.")
+    except ValueinPlanError:
+        print("This query requires a higher-tier plan. Upgrade at valuein.biz.")
+    except ValueinRateLimitError as e:
+        print(f"Rate limited. Retry allowed in {e.retry_after}s.")
+    except ValueinAPIError as e:
+        print(f"Gateway error (status {e.status_code}).")
 ```
 
 ---
 
-## 🔬 Research & Quality Proofs
+## 📊 Excel Integration
 
-16 runnable research modules that prove every data quality claim with code. Designed for institutional due diligence and quantitative research.
+Stream SEC fundamentals straight into Excel via Power Query — no Python, no scripts.
 
-```bash
-# Install research dependencies
-uv sync --group research
+**Requirements:** Microsoft 365 (build 16.0.17531+) and an active API token.
 
-# Run a proof
-python research/quantitative/pit_correctness_proof.py
-python research/quality_proof/balance_sheet_check.py
+**Quick path:**
+
+1. **Get the template** — follow the download link in [`docs/excel-guide.md`](docs/excel-guide.md)
+2. **Open in Excel** — enable editing and content
+3. **Paste your token** into the **START HERE** sheet
+4. **Click** `Data > Refresh All`
+
+The workbook ships with **8 pre-configured sheets**: Income Statement, Balance Sheet, Cash Flow, Entities, Securities, Filings, Index Membership, and the Data Dictionary. The full walkthrough — including token setup, Named Ranges, refresh troubleshooting, and the Power Query M-language internals — is in [`docs/excel-guide.md`](docs/excel-guide.md).
+
+On Excel 2019 or earlier, `Parquet.Document()` is unavailable; email [support@valuein.biz](mailto:support@valuein.biz) for CSV exports.
+
+---
+
+## 🤖 MCP Discovery — AI Agents
+
+Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI agent (Claude, Cursor, Codex, and the wider agent ecosystem).
+
+- **Endpoint:** `https://mcp.valuein.biz/mcp` (Streamable HTTP, MCP spec 2025-11-25)
+- **Auth:** `Authorization: Bearer <your_api_token>` — the same token used by the SDK and Excel
+- **Manifest:** [`server.json`](server.json) in this repo is the source of truth for the registry listing
+- **Registry:** [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) — search for `io.github.valuein/mcp-sec-edgar`
+
+### Tools exposed
+
+| Tool | Description | Available in |
+|---|---|---|
+| `search_companies` | Ticker / name / CIK lookup | All plans |
+| `get_sec_filing_links` | Direct links to 10-K, 10-Q, 8-K, 20-F on SEC EDGAR | All plans |
+| `get_company_fundamentals` | Annual (all plans) or quarterly + extended history (Pro) | Free → Pro |
+| `get_financial_ratios` | Margins, returns, leverage, efficiency ratios | Pro |
+| `get_dcf_inputs` | Raw inputs for two-stage DCF + DDM models | Enterprise |
+
+### Configure in an AI client
+
+**Claude Desktop** — add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "valuein": {
+      "url": "https://mcp.valuein.biz/mcp",
+      "headers": { "Authorization": "Bearer YOUR_VALUEIN_API_KEY" }
+    }
+  }
+}
 ```
 
----
-# 📊 Excel Integration
-
-**Stream live SEC fundamental data directly into your spreadsheets. No Python, or complex scripts, just pure data power.**
-
-### ⚡ Quick Start
-Get up and running in less than 60 seconds.
-
-1.  **Download Template:** Get the [`valuein-fundamentals.xlsx`](excel/valuein-fundamentals.xlsx) workbook.
-2.  **Authorize:** Open the workbook and enter your API token in the **Connectivity Guide** sheet.
-3.  **Sync Data:** Click **`Data > Refresh All`**.
-
-> [!TIP]
-> Data streams directly from Parquet files on Cloudflare R2, ensuring high-speed transfers and minimal local overhead.
-
-### 🛠 Requirements
-* **Microsoft 365** (Build 16.0.17531 or later)
-* Active API Token
-
-### 📂 Pre-Configured Sheets
-The workbook includes **8 high-performance sheets** ready for analysis:
-
-* **Financials:** Income Statement, Balance Sheet, Cash Flow
-* **Metadata:** Entities, Securities, Filings
-* **Reference:** Index Membership, Data Dictionary
-
-### 🧑‍💻 Developer Customization
-For those who prefer a "Do It Yourself" approach, the raw **M-language** source files for Power Query are available in the [`excel/power-query/`](excel/power-query/) directory. You can use these to build custom connections in your existing workbooks.
-
-📖 **Need more help?** View the [Full Setup Walkthrough](docs/excel-guide.md).
-
-
-### 📊 Research Modules
-
-**`research/fundamental/`** — Financial statement analysis workflows
-- Income statement, balance sheet, cash flow, DuPont decomposition, Altman Z-Score
-
-**`research/quantitative/`** — Factor model and strategy research
-- PIT correctness proof, survivorship bias quantification, restatement tracking as short signal, sector rotation
-
-**`research/data_engineering/`** — XBRL normalization and pipeline analysis
-- Concept mapping explorer, taxonomy coverage, filing timeline, data freshness by sector
-
-**`research/quality_proof/`** — Automated data quality validation
-- Zero PIT violations, balance sheet equation check (Assets = Liabilities + Equity within 1%), coverage report, SEC cross-reference spot-check
-
-See [`research/README.md`](research/README.md) for a full breakdown of what each module proves and the key metric it validates.
+Any MCP-compliant client that supports Streamable HTTP remotes will work with the same URL + Bearer token.
 
 ---
 
-## 🤝 Contributing
+## 📚 Documentation
 
-We welcome contributions including SQL templates, notebooks, scripts, research modules, and documentation improvements.
+Everything in [`docs/`](docs/) is kept in sync with the production data.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for code standards, naming conventions, and the PR process.
+| Document | What's in it |
+|---|---|
+| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization |
+| [`docs/COMPLIANCE_AND_DDQ.md`](docs/COMPLIANCE_AND_DDQ.md) | Data provenance, MNPI policy, PIT integrity, security, SLA summary |
+| [`docs/SLA.md`](docs/SLA.md) | Uptime targets, data freshness, support response times, SLA credits |
+| [`docs/excel-guide.md`](docs/excel-guide.md) | Full Excel / Power Query setup walkthrough |
+| [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |
+| [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | Same catalog as a workbook — columns, types, sample values |
+| [`docs/schema.json`](docs/schema.json) | Machine-readable table + column schema |
 
-## 📄 License
+---
 
-Apache-2.0 License — see [LICENSE](LICENSE).
+## 💬 Support & Community
 
-**Disclosure:** This repository is for research and educational purposes
-only and does not constitute financial advice.
+GitHub Issues is the primary support channel. Four templates cover the common cases:
+
+| I want to… | Open |
+|---|---|
+| Report incorrect or suspicious data | [Data Quality Report](.github/ISSUE_TEMPLATE/01_data_quality_report.md) |
+| Request a feature, concept, or dataset | [Feature Request](.github/ISSUE_TEMPLATE/02_feature_request.md) |
+| Report an outage or degraded service | [Service Outage](.github/ISSUE_TEMPLATE/03_service_outage.md) |
+| Ask a general question | [General Question](.github/ISSUE_TEMPLATE/04_general_question.md) |
+
+For private or contractual matters (DPAs, procurement, DDQs, enterprise SLAs): **[support@valuein.biz](mailto:support@valuein.biz)**.
+
+Contributions — examples, notebook improvements, documentation fixes — are welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and style guide.
+
+---
+
+## 📄 License & Disclosure
+
+[Apache 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+This repository is provided for research and educational purposes. It is not investment advice. No warranty of fitness for any particular trading, investment, or regulatory purpose is implied.
