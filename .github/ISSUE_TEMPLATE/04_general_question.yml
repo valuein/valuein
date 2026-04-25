@@ -1,0 +1,55 @@
+name: ❓ General question
+description: Methodology, integration help, or anything else.
+title: "[Q&A] <Short summary>"
+labels: ["question", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a question, please skim:
+        - [`docs/QUERY_COOKBOOK.md`](../tree/main/docs/QUERY_COOKBOOK.md) — DuckDB recipes
+        - [`docs/data_catalog.md`](../tree/main/docs/data_catalog.md) — canonical concept names
+        - [`docs/MCP_TOOLS.md`](../tree/main/docs/MCP_TOOLS.md) — MCP tool reference
+        - [`docs/METHODOLOGY.md`](../tree/main/docs/METHODOLOGY.md) — sourcing, PIT, restatements
+        - [`SUPPORT.md`](../tree/main/SUPPORT.md) — where to get help
+        Asking publicly here helps the next person who hits the same question.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Data methodology (how is this calculated?)
+        - SDK usage (Python / DuckDB / SQL)
+        - MCP / AI agent integration
+        - Excel / Power Query
+        - PIT discipline / backtesting
+        - Standardization / concept mapping
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      placeholder: Ask your question clearly.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What are you trying to accomplish? What have you already tried?
+      placeholder: |
+        I'm building a sector-relative valuation screen and trying to compare P/E ratios across the energy sector,
+        but the numbers I'm getting look unusually high.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: I have already checked
+      options:
+        - label: "[`docs/data_catalog.md`](../tree/main/docs/data_catalog.md) — canonical concept names"
+        - label: "[`docs/QUERY_COOKBOOK.md`](../tree/main/docs/QUERY_COOKBOOK.md) — DuckDB recipes"
+        - label: "[`docs/METHODOLOGY.md`](../tree/main/docs/METHODOLOGY.md) — sourcing, PIT, restatements"
+        - label: "[`docs/MCP_TOOLS.md`](../tree/main/docs/MCP_TOOLS.md) — MCP tool reference (if MCP-related)"

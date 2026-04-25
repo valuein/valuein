@@ -19,11 +19,10 @@ This guide walks you through connecting the **Valuein FDE Excel template** to li
 
 ## Step 1 — Download the Template
 
-Download `excel/valuein-fundamentals.xlsx` from this repository:
+The Excel template ships with the SDK distribution. Get it from one of:
 
-```
-https://github.com/valuein/quants/raw/main/excel/valuein-fundamentals.xlsx
-```
+- The **Templates** tab on [valuein.biz/developers](https://valuein.biz/developers) (signed-in customers)
+- Email [support@valuein.biz](mailto:support@valuein.biz) — we'll send the latest `valuein-fundamentals.xlsx` directly
 
 Open the file in Excel. If prompted, click **Enable Editing** and then **Enable Content**.
 
@@ -118,10 +117,11 @@ Every financial fact in the dataset carries two key dates:
 
 | Tier | Data scope | Access |
 |---|---|---|
-| **sp500 (free)** | S&P 500 constituents only — current and historical members | Any valid token |
-| **full (paid)** | 20,000+ entities including delisted, bankrupt, and acquired companies | Paid subscription |
+| **Free (`sp500`)** | S&P 500 constituents only — current and historical members | Free signup at [valuein.biz/signup/free](https://valuein.biz/signup/free) |
+| **Pro** | Full universe (12,000+ tickers), 10-year history | $49 / mo — [subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
+| **Enterprise (`full`)** | Full universe, full history (1994–present), 4h priority freshness | $299 / mo — [subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 
-The Power Query connections automatically detect your plan from the `/v1/me` endpoint and route to the correct data bucket.
+The Power Query connections automatically detect your plan from the `/v1/me` endpoint and route to the correct R2 bucket.
 
 ---
 
@@ -130,7 +130,7 @@ The Power Query connections automatically detect your plan from the `/v1/me` end
 | Error | Cause | Resolution |
 |---|---|---|
 | "Invalid token" or 401 | Token is missing, wrong, or expired | Re-paste your token in cell C7 on START HERE. Regenerate at [valuein.biz/portal](https://valuein.biz/portal). |
-| "Plan upgrade required" or 403 | Your token is `sp500` but the query requested `full` data | Upgrade at [valuein.biz/pricing](https://valuein.biz/pricing) or use the sp500 tables. |
+| "Plan upgrade required" or 403 | Your token tier is below the data the query requested | Upgrade at [valuein.biz/pricing](https://valuein.biz/pricing) — Pro for full universe, Enterprise for full history. |
 | "Formula.Firewall" error | Power Query privacy settings prevent cross-source queries | Go to File → Options → Trust Center → Trust Center Settings → Privacy → set to "Ignore Privacy Levels". |
 | Parquet.Document not found | Excel version is too old | Upgrade to Microsoft 365 or request CSV exports from support. |
 | Refresh times out | Large table on slow connection | Increase query timeout: Power Query Editor → File → Options → Query Settings. |
@@ -140,6 +140,6 @@ The Power Query connections automatically detect your plan from the `/v1/me` end
 
 ## Support
 
-- **Documentation:** [valuein.biz/docs](https://valuein.biz/docs)
+- **Documentation:** [valuein.biz/developers](https://valuein.biz/developers)
 - **Email:** [support@valuein.biz](mailto:support@valuein.biz)
-- **GitHub Issues:** [github.com/valuein/quants/issues](https://github.com/valuein/quants/issues)
+- **GitHub Issues:** [github.com/valuein/valuein/issues](https://github.com/valuein/valuein/issues)

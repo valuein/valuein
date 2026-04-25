@@ -1,0 +1,97 @@
+name: 🕵️ Data quality report
+description: A specific value differs from what's in the SEC filing.
+title: "[DQ] <TICKER> · <CONCEPT> · <FY>"
+labels: ["data-quality", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us improve data quality. Please be specific — one ticker, one concept, one period per report. We respond to confirmed data-quality issues within one business day.
+  - type: input
+    id: ticker
+    attributes:
+      label: Ticker
+      placeholder: e.g. MSFT
+    validations:
+      required: true
+  - type: input
+    id: concept
+    attributes:
+      label: Standardized concept
+      description: Use the canonical name from `docs/data_catalog.md` (e.g. `OperatingCashFlow`, `NetIncome`).
+      placeholder: e.g. OperatingCashFlow
+    validations:
+      required: true
+  - type: input
+    id: period
+    attributes:
+      label: Fiscal period
+      description: Year and (optionally) quarter — match how it appears in `fact.fiscal_year` / `fact.fiscal_period`.
+      placeholder: e.g. FY2023, FY2024 Q1
+    validations:
+      required: true
+  - type: input
+    id: form_type
+    attributes:
+      label: Form type
+      placeholder: 10-K · 10-Q · 8-K · 20-F · 10-K/A
+    validations:
+      required: true
+  - type: textarea
+    id: discrepancy
+    attributes:
+      label: The discrepancy
+      description: What value do you see in our data, what value is in the SEC filing, and what page/note?
+      placeholder: |
+        Value in Valuein: 14,500,000,000
+        Value in 10-K:    14,850,000,000  (page 45, Statement of Cash Flows, "Net cash from operating activities")
+    validations:
+      required: true
+  - type: input
+    id: filing_url
+    attributes:
+      label: Link to the SEC filing
+      placeholder: https://www.sec.gov/Archives/edgar/data/...
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: How you saw it (SQL, code, MCP tool call)
+      render: text
+      placeholder: |
+        client.run_template(
+            "fundamentals_by_ticker",
+            ticker="MSFT",
+            start_date="2023-01-01",
+            end_date="2023-12-31",
+            metrics=["OperatingCashFlow"],
+        )
+    validations:
+      required: false
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact on you
+      options:
+        - Blocking a live trading model
+        - Affecting a historical backtest
+        - Methodology question
+        - Minor / cosmetic
+    validations:
+      required: true
+  - type: input
+    id: tier
+    attributes:
+      label: Plan tier you're on
+      placeholder: Sample · Free · Pro · Enterprise
+    validations:
+      required: false
+  - type: input
+    id: sdk_version
+    attributes:
+      label: SDK version (if applicable)
+      description: Output of `python -c "import valuein_sdk; print(valuein_sdk.__version__)"`.
+      placeholder: e.g. 2.1.0
+    validations:
+      required: false

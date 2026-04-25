@@ -1,0 +1,20 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentation
+    url: https://github.com/valuein/valuein#documentation
+    about: Methodology, query cookbook, MCP tools reference, data catalog, SLA, compliance.
+  - name: 💬 Q&A and discussion
+    url: https://github.com/valuein/valuein/discussions
+    about: Open-ended questions, design discussion, "is this the right approach" — please use Discussions before opening an issue.
+  - name: 🔐 Security disclosure
+    url: https://github.com/valuein/valuein/security/advisories/new
+    about: Found a vulnerability? Please report it privately — never in a public issue.
+  - name: 💼 Sales, contracts, custom plans
+    url: mailto:sales@valuein.biz
+    about: Enterprise plans, redistribution licensing, dataset add-ons.
+  - name: 🧾 Billing
+    url: mailto:billing@valuein.biz
+    about: Invoices, refunds, payment issues.
+  - name: 🛡️ Compliance / DDQ
+    url: mailto:compliance@valuein.biz
+    about: Vendor due diligence, DPAs, security questionnaires.

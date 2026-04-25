@@ -1,0 +1,71 @@
+name: 🚨 Service outage / connection failure
+description: Inability to connect, queries failing, or the API is down.
+title: "[OUTAGE] <Channel> · <Short summary>"
+labels: ["critical", "infrastructure", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For confirmed outages on a paid tier we acknowledge within 2 hours, 24/7. Please give us enough detail to reproduce — exact timestamp, channel, and the full error.
+  - type: input
+    id: timestamp
+    attributes:
+      label: Timestamp (UTC)
+      placeholder: e.g. 2026-04-25 14:30 UTC
+    validations:
+      required: true
+  - type: dropdown
+    id: channel
+    attributes:
+      label: Affected channel
+      options:
+        - Python SDK (PyPI `valuein-sdk`)
+        - MCP server (`mcp.valuein.biz/mcp`)
+        - Bulk-data API (`data.valuein.biz`)
+        - Excel / Power Query
+        - Web dashboard (`valuein.biz`)
+        - Other / unsure
+    validations:
+      required: true
+  - type: input
+    id: tier
+    attributes:
+      label: Plan tier
+      placeholder: Sample · Free · Pro · Enterprise
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Exact error / log output
+      description: Paste the full traceback or HTTP response body. Mask any tokens.
+      render: text
+      placeholder: |
+        valuein_sdk.exceptions.ValueinAPIError: Gateway error (status 503)
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps / code to reproduce
+      render: python
+      placeholder: |
+        from valuein_sdk import ValueinClient
+        with ValueinClient() as c:
+            df = c.query("SELECT COUNT(*) FROM fact")
+    validations:
+      required: false
+  - type: input
+    id: sdk_version
+    attributes:
+      label: SDK version (if applicable)
+      placeholder: e.g. 2.1.0
+    validations:
+      required: false
+  - type: input
+    id: client_id
+    attributes:
+      label: Client info (browser / Python / agent)
+      placeholder: e.g. Python 3.11 on macOS · Claude Desktop 0.7.x · Cursor
+    validations:
+      required: false

@@ -1,0 +1,69 @@
+name: 💡 Feature, metric, or dataset request
+description: Suggest a new SDK method, MCP tool, ratio, concept, or dataset.
+title: "[FEAT] <name>"
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the suggestion. The fastest path to a yes is a clean GAAP definition (or formula), a concrete use case, and an idea of who else would use it.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where would this live?
+      options:
+        - SDK method (`ValueinClient.x()`)
+        - SDK SQL template (`run_template("name", …)`)
+        - MCP tool (callable by AI agents)
+        - New `standard_concept` (canonical name)
+        - New table or column
+        - New documentation / cookbook recipe
+        - Excel / Power Query
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Proposed name
+      placeholder: e.g. sloan_ratio · piotroski_f_score · capex_intensity
+    validations:
+      required: true
+  - type: textarea
+    id: definition
+    attributes:
+      label: Definition / formula
+      description: Use canonical concept names from `docs/data_catalog.md`.
+      placeholder: |
+        Sloan Ratio = (NetIncome − OperatingCashFlow) / TotalAssets
+        Higher absolute values flag potential earnings-management risk.
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: Why does this matter? Who uses it?
+      placeholder: |
+        We're building a quality-of-earnings screen for a long/short equity strategy.
+        Sloan ratio is a standard accruals-anomaly signal.
+    validations:
+      required: true
+  - type: input
+    id: reference
+    attributes:
+      label: Reference / paper / industry standard
+      description: A link to a paper, textbook, or peer-reviewed source helps us prioritize.
+      placeholder: e.g. Sloan (1996), "Do stock prices fully reflect information in accruals and cash flows about future earnings?"
+    validations:
+      required: false
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority for you
+      options:
+        - Critical (blocking a launch)
+        - High (would use this within 30 days)
+        - Nice to have
+    validations:
+      required: true
