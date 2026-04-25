@@ -91,7 +91,9 @@ print("e) client.get('taxonomy_guide') — data dictionary sample")
 print("=" * 60)
 client_full = ValueinClient(tables=["taxonomy_guide"])
 tg = client_full.get("taxonomy_guide")
-print(tg[["standard_concept", "human_name", "unit_type"]].head(10).to_string(index=False))
+print(
+    tg[["standard_concept", "human_name", "unit_type"]].head(10).to_string(index=False)
+)
 print()
 
 # ── f) client.run_template() ──────────────────────────────────────────────────

@@ -7,7 +7,7 @@ in October 2023, then restated them in February 2024, most data providers
 silently overwrite the original number. Your backtest now uses data you
 didn't have at the time — that's look-ahead bias.
 
-Valuein preserves every version of every fact with a knowledge_at timestamp.
+Valuein preserves every version of every fact with an accepted_at timestamp.
 You can ask: "What did the market know on date X?"
 
 What you'll learn:
@@ -43,7 +43,7 @@ df = client.query(f"""
         fa.fiscal_year,
         f.form_type,
         f.filing_date,
-        fa.knowledge_at,
+        fa.accepted_at,
         round(fa.numeric_value / 1e9, 2) AS revenue_bn
     FROM   fact    fa
     JOIN   filing  f  ON fa.accession_id = f.accession_id
@@ -52,7 +52,7 @@ df = client.query(f"""
       AND  s.is_active         = TRUE
       AND  fa.standard_concept = 'TotalRevenue'
       AND  f.form_type         IN ('10-K', '10-K/A')
-    ORDER  BY fa.period_end DESC, fa.knowledge_at ASC
+    ORDER  BY fa.period_end DESC, fa.accepted_at ASC
     LIMIT  15
 """)
 print(df.to_string(index=False))
@@ -124,6 +124,6 @@ print("This is why institutional quants pay for PIT data.")
 print(
     "\nRule: ALWAYS filter by filing_date <= trade_date.\n"
     "      NEVER filter by report_date alone.\n"
-    "      Use knowledge_at for millisecond-precision PIT filtering."
+    "      Use accepted_at for millisecond-precision PIT filtering."
 )
 print("=" * 60)

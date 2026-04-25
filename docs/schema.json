@@ -114,7 +114,7 @@
         "is_audited": { "type": "BOOLEAN" },
         "is_estimated": { "type": "BOOLEAN" },
         "data_quality": { "type": "VARCHAR" },
-        "knowledge_at": { "type": "TIMESTAMPTZ" },
+        "accepted_at": { "type": "TIMESTAMPTZ" },
         "ingested_at": { "type": "TIMESTAMPTZ" }
       }
     },
@@ -124,7 +124,7 @@
         "valuation_id": { "type": "UUID", "primary_key": true },
         "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
         "period_end": { "type": "DATE" },
-        "knowledge_at": { "type": "TIMESTAMPTZ" },
+        "accepted_at": { "type": "TIMESTAMPTZ" },
         "dcf_value_per_share": { "type": "DOUBLE" },
         "ddm_value_per_share": { "type": "DOUBLE" },
         "wacc": { "type": "DOUBLE" },

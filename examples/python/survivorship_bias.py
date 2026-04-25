@@ -20,7 +20,9 @@ Run:
 
 from valuein_sdk import ValueinClient
 
-client = ValueinClient(tables=["entity", "security", "fact", "filing", "index_membership"])
+client = ValueinClient(
+    tables=["entity", "security", "fact", "filing", "index_membership"]
+)
 
 # ── 1. Scale of inactive entities ────────────────────────────────────────────
 print("=" * 60)
@@ -136,7 +138,9 @@ else:
     if not df.empty:
         company = df["name"].iloc[0]
         print(f"  Company: {company}")
-        print(df[["fiscal_year", "standard_concept", "value_bn"]].to_string(index=False))
+        print(
+            df[["fiscal_year", "standard_concept", "value_bn"]].to_string(index=False)
+        )
     else:
         print("  (No inactive companies with fact data in this plan tier)")
 print()
@@ -178,8 +182,12 @@ print(f"  - Total Entities: {total_count:,}")
 print(f"  - Truly Inactive/Dead: {dead_count:,} ({pct_dead}%)")
 print("\n  S&P 500 SURVIVORSHIP:")
 print(f"  - {total_departed:,} companies left the S&P 500 index.")
-print(f"    └─ {departed_active:,} are still trading (likely demoted to MidCap/SmallCap).")
-print(f"    └─ {departed_inactive:,} are the true 'Survivorship Bias' cases (delisted/bankrupt).")
+print(
+    f"    └─ {departed_active:,} are still trading (likely demoted to MidCap/SmallCap)."
+)
+print(
+    f"    └─ {departed_inactive:,} are the true 'Survivorship Bias' cases (delisted/bankrupt)."
+)
 print("\n  A backtest that ignores the 'Inactive' subset is fundamentally flawed,")
 print("  as it ignores the 100% losses that occur when a company ceases to exist.")
 print("=" * 60)

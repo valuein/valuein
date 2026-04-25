@@ -128,7 +128,7 @@ one row per security, boolean `is_sp500` flag). Never start from the 3-table joi
 ### PIT and survivorship discipline — preserve in every example
 
 - Filter by `filing_date <= trade_date`, **never** `report_date` (look-ahead bias)
-- Use `knowledge_at` for millisecond-precision PIT in intraday research
+- Use `accepted_at` for millisecond-precision PIT in intraday research
 - Survivorship-bias-free → include delisted/acquired; use `status != 'ACTIVE'` (other values exist
   beyond `'INACTIVE'`/`'DELISTED'`) and `security.valid_to IS NOT NULL` for historical tickers
 - `references.is_sp500` = current membership; `index_membership` = historical entry/exit dates

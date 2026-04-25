@@ -23,7 +23,7 @@ Get your API key at [valuein.biz](https://valuein.biz).
 | [`usage.py`](python/usage.py) | Every public SDK method demonstrated | `entity`, `security`, `filing`, `fact` | Reference |
 | [`entity_screening.py`](python/entity_screening.py) | Screen the universe: sectors, SIC codes, active vs inactive | `entity`, `security` | Beginner |
 | [`financial_analysis.py`](python/financial_analysis.py) | Revenue trends, balance sheets, gross margin, concept normalization | `entity`, `security`, `filing`, `fact` | Intermediate |
-| [`pit_backtest.py`](python/pit_backtest.py) | Point-in-Time discipline: `knowledge_at`, `filing_date` vs `report_date` | `entity`, `security`, `filing`, `fact` | Intermediate |
+| [`pit_backtest.py`](python/pit_backtest.py) | Point-in-Time discipline: `accepted_at`, `filing_date` vs `report_date` | `entity`, `security`, `filing`, `fact` | Intermediate |
 | [`survivorship_bias.py`](python/survivorship_bias.py) | Bankrupt and delisted companies — "We have the data others deleted" | `entity`, `security`, `filing`, `fact` | Intermediate |
 
 ## Run any script

@@ -369,7 +369,9 @@ def _update_xlsx(path: str) -> None:
             ):
                 # Value is in the next column
                 next_cell = overview.cell(row=cell.row, column=cell.column + 1)
-                next_cell.value = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+                next_cell.value = datetime.now(timezone.utc).strftime(
+                    "%Y-%m-%d %H:%M UTC"
+                )
                 break
 
     # --- Build (or replace) sheet "5. Standardized Concepts" -----------------
@@ -383,7 +385,9 @@ def _update_xlsx(path: str) -> None:
     header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
     header_align = Alignment(horizontal="left", vertical="center", wrap_text=False)
 
-    alt_fill = PatternFill("solid", fgColor="F3E5F5")  # very light purple for alternating rows
+    alt_fill = PatternFill(
+        "solid", fgColor="F3E5F5"
+    )  # very light purple for alternating rows
     body_font = Font(name="Calibri", size=11)
     wrap_align = Alignment(horizontal="left", vertical="top", wrap_text=True)
     top_align = Alignment(horizontal="left", vertical="top", wrap_text=False)

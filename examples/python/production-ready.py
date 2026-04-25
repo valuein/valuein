@@ -38,7 +38,9 @@ class MarketDataGateway:
 
         # In production, data pipelines should explicitly constrain memory
         # to prevent out-of-memory (OOM) kills on cloud containers.
-        self.config = ValueinConfig(memory_limit="4GB", max_temp_directory_size="20GB", threads=4)
+        self.config = ValueinConfig(
+            memory_limit="4GB", max_temp_directory_size="20GB", threads=4
+        )
 
         # Load the heavy tables ONCE during initialization
         self.required_tables = ["entity", "security", "filing", "fact"]
@@ -61,7 +63,9 @@ class MarketDataGateway:
 
                 # Step B: Execute Business Logic (Aggregation)
                 top_filers = self._get_top_filers(client, limit=5)
-                logger.info(f"Top Filers by Volume:\n{top_filers.to_string(index=False)}")
+                logger.info(
+                    f"Top Filers by Volume:\n{top_filers.to_string(index=False)}"
+                )
 
                 # Step C: Execute Template Logic (Time-Series)
                 fundamentals = self._get_fundamentals(client, target_ticker)
@@ -72,7 +76,9 @@ class MarketDataGateway:
                     )
 
         except ValueinAuthError:
-            logger.critical("Authentication failed. Check VALUEIN_API_KEY vault/secrets.")
+            logger.critical(
+                "Authentication failed. Check VALUEIN_API_KEY vault/secrets."
+            )
             sys.exit(1)
         except ValueinPlanError as e:
             logger.error(f"Plan permission denied: {e}")
