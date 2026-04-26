@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths: ['server.json']
+  workflow_dispatch:
 
 jobs:
   publish:
@@ -13,9 +14,40 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate server.json (pre-flight)
+        run: |
+          set -euo pipefail
+          # JSON well-formedness
+          python3 -m json.tool server.json > /dev/null
+
+          # The registry caps `description` at 100 chars.  This isn't surfaced
+          # in the published JSON Schema's maxLength, so the publish call
+          # would otherwise fail with HTTP 422 mid-job — catch it locally.
+          DESC_LEN=$(python3 -c "import json; print(len(json.load(open('server.json'))['description']))")
+          NAME=$(python3 -c "import json; print(json.load(open('server.json'))['name'])")
+          VERSION=$(python3 -c "import json; print(json.load(open('server.json'))['version'])")
+
+          if [ "$DESC_LEN" -gt 100 ]; then
+            echo "::error file=server.json::description is $DESC_LEN chars but registry caps at 100"
+            exit 1
+          fi
+
+          echo "Publishing $NAME @ $VERSION (description: $DESC_LEN chars)"
+
       - name: Install mcp-publisher
         run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          set -euo pipefail
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" \
+            | tar xz mcp-publisher
           sudo mv mcp-publisher /usr/local/bin/
-      - run: mcp-publisher login github
-      - run: mcp-publisher publish ./server.json
+          mcp-publisher --version || true
+
+      # `login github-oidc` consumes the workflow's OIDC token automatically.
+      # The interactive `login github` (device flow) is a footgun in CI —
+      # it blocks waiting for a human to type in the device code.
+      - name: Login (GitHub OIDC, non-interactive)
+        run: mcp-publisher login github-oidc
+
+      - name: Publish
+        run: mcp-publisher publish ./server.json
