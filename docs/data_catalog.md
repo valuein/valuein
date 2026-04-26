@@ -1,8 +1,8 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-03-21  
+> **Last updated**: 2026-04-25  
 > **Standardized concepts**: 20  
-> **Historical coverage**: 1990 – present  
+> **Historical coverage**: 1994 – present  
 > **Coverage target**: ≥ 95% of all SEC EDGAR financial facts
 
 ---
@@ -153,67 +153,6 @@ Net cash from financing activities — debt issuance and repayments, equity rais
 **Unit:** USD
 
 Capital Expenditures — cash paid to acquire, maintain, or upgrade physical assets such as property, plant, and equipment. Key input for Free Cash Flow calculations: FCF = OperatingCashFlow − CAPEX.
-
----
-
-## Valuation Models
-
-Valuein computes intrinsic value estimates for every entity using three models. Results are available in the `valuation` table.
-
-### `model_type` reference
-
-| `model_type` | Full name | Earnings basis | Character |
-|---|---|---|---|
-| `dcf` | DCF — Owner Earnings | Owner earnings per diluted share | Conservative (Buffett/Greenwald) |
-| `dcf_fcf` | DCF — Free Cash Flow | FCF per diluted share | Wall Street consensus |
-| `ddm` | Dividend Discount Model | Dividends per diluted share | Income-focused |
-
-### `dcf` — Owner Earnings (Valuein proprietary)
-
-Owner earnings is a Buffett/Greenwald concept that adjusts reported net income for the cash reality of the business. It strips out non-cash charges and adds back true economic costs, then divides by diluted shares to produce a conservative per-share earnings input:
-
-```
-owner_earnings = net_income + D&A + SBC + Δworking_capital − maintenance_capex
-owner_earnings_per_share = owner_earnings / diluted_shares
-```
-
-This is the **more conservative** of the two DCF models. It tends to produce lower intrinsic values than `dcf_fcf` because maintenance capex is subtracted from the earnings base.
-
-### `dcf_fcf` — Free Cash Flow (Wall Street consensus)
-
-Free cash flow per share is the standard metric used by sell-side analysts and institutional models:
-
-```
-fcf_per_share = (operating_cash_flow − |capital_expenditures|) / diluted_shares
-```
-
-This model applies the same two-stage DCF framework as `dcf` but uses FCF as the earnings input. Because FCF does not separate maintenance from growth capex, it is **less conservative** and typically produces higher intrinsic values. Use it to understand how Wall Street peers would price the same growth assumptions.
-
-### `ddm` — Dividend Discount Model
-
-Applied only to dividend-paying companies. Uses the Gordon Growth Model with the 5-year average dividend per diluted share and the 5-year dividend CAGR as inputs. Intrinsic value reflects only the present value of future dividends, making it most relevant for mature, income-generating businesses.
-
-### Two-stage DCF framework (applies to `dcf` and `dcf_fcf`)
-
-Both DCF models share the same discounting framework:
-
-| Parameter | Source |
-|---|---|
-| `growth_rate` | 5-year historical CAGR; defaults to `0.0` if unavailable (`data_quality = 'estimated'`) |
-| `discount_rate` | Fixed required rate of return (internal constant) |
-| `growth_years` | 5 years (high-growth stage) |
-| `terminal_rate` | Perpetuity growth rate applied after the high-growth stage |
-
-When `data_quality = 'reported'`, the growth rate was derived from observed historical data. When `data_quality = 'estimated'`, the CAGR was not available and was defaulted to 0% — treat these valuations as conservative floor estimates.
-
-### Comparing `dcf` vs `dcf_fcf`
-
-Both models are intentionally included so you can see the range of reasonable valuations for the same company:
-
-- **`dcf` (owner earnings):** What a conservative value investor would pay. Better for capital-intensive businesses where maintenance capex is a real economic cost.
-- **`dcf_fcf` (free cash flow):** What consensus sell-side models would produce. Better for asset-light businesses where FCF closely tracks true earnings power.
-
-For most companies `dcf_fcf > dcf`. A large gap between the two signals heavy reinvestment needs (growth capex embedded in CapEx that the FCF model does not strip out).
 
 ---
 

@@ -280,7 +280,7 @@ def _write_markdown(path: str) -> None:
         "",
         f"> **Last updated**: {today}  ",
         f"> **Standardized concepts**: {len(CONCEPTS)}  ",
-        "> **Historical coverage**: 1990 – present  ",
+        "> **Historical coverage**: 1994 – present  ",
         "> **Coverage target**: ≥ 95% of all SEC EDGAR financial facts",
         "",
         "---",

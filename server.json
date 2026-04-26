@@ -1,9 +1,22 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.valuein/mcp-sec-edgar",
-  "description": "SEC EDGAR fundamentals, ratios, valuation, and filings for AI agents. Point-in-time safe.",
-  "version": "2.0.0",
+  "title": "Valuein — SEC EDGAR Fundamentals",
+  "description": "Point-in-time, survivorship-bias-free U.S. fundamentals from SEC EDGAR for AI agents. 12,000+ entities since 1994 across 10-K, 10-Q, 8-K, and 20-F filings, with company financials, ratios, two-stage DCF and DDM valuations, peer comparables, capital allocation profiles, earnings signals, filing lineage, and semantic search over Risk Factors / MD&A / Business / Legal / Controls narrative sections. 14 live tools plus 8 analyst SOP prompts. One Bearer token, same as the Python SDK and Excel template.",
+  "version": "2.0.1",
   "websiteUrl": "https://valuein.biz",
+  "icons": [
+    {
+      "src": "https://www.valuein.biz/valuein/colored_logo_no_bg.png",
+      "mimeType": "image/png",
+      "theme": "light"
+    },
+    {
+      "src": "https://www.valuein.biz/valuein/twitter-rounded.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
   "repository": {
     "url": "https://github.com/valuein/valuein",
     "source": "github"
@@ -13,5 +26,60 @@
       "type": "streamable-http",
       "url": "https://mcp.valuein.biz/mcp"
     }
-  ]
+  ],
+  "_meta": {
+    "io.github.valuein/categories": [
+      "finance",
+      "data",
+      "research",
+      "developer-tools"
+    ],
+    "io.github.valuein/keywords": [
+      "sec edgar",
+      "fundamentals",
+      "financial data",
+      "point in time",
+      "pit",
+      "survivorship bias",
+      "10-k",
+      "10-q",
+      "8-k",
+      "20-f",
+      "xbrl",
+      "us gaap",
+      "valuation",
+      "dcf",
+      "ddm",
+      "financial ratios",
+      "factor screen",
+      "backtesting",
+      "risk factors",
+      "mda",
+      "semantic search",
+      "filing text",
+      "quant",
+      "fintech"
+    ],
+    "io.github.valuein/audience": [
+      "quants",
+      "analysts",
+      "portfolio-managers",
+      "data-engineers",
+      "ai-agents"
+    ],
+    "io.github.valuein/auth": {
+      "model": "bearer",
+      "header": "Authorization",
+      "obtain": "https://valuein.biz/pricing",
+      "free_tier": true,
+      "anonymous_sample": true
+    },
+    "io.github.valuein/tools_summary": {
+      "live": 14,
+      "stubs": 1,
+      "prompts": 8,
+      "resources": 2
+    },
+    "io.github.valuein/docs": "https://github.com/valuein/valuein/blob/main/docs/MCP_TOOLS.md"
+  }
 }
