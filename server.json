@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.valuein/mcp-sec-edgar",
   "title": "Valuein — SEC EDGAR Fundamentals",
-  "description": "Point-in-time, survivorship-bias-free U.S. fundamentals from SEC EDGAR for AI agents. 12,000+ entities since 1994 across 10-K, 10-Q, 8-K, and 20-F filings, with company financials, ratios, two-stage DCF and DDM valuations, peer comparables, capital allocation profiles, earnings signals, filing lineage, and semantic search over Risk Factors / MD&A / Business / Legal / Controls narrative sections. 14 live tools plus 8 analyst SOP prompts. One Bearer token, same as the Python SDK and Excel template.",
-  "version": "2.0.1",
+  "description": "Point-in-time, survivorship-bias-free SEC EDGAR fundamentals for AI agents. 1994 to present.",
+  "version": "2.0.2",
   "websiteUrl": "https://valuein.biz",
   "icons": [
     {
