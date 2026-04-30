@@ -2,7 +2,7 @@
 
 Transparency is foundational to the Valuein product. This document describes how raw SEC EDGAR XBRL data is processed into standardized, point-in-time accurate financial time series.
 
-The data product covers **12,000+** active and delisted US entities, **12M+** filings, and **108M+** standardized facts since **1994**. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
+The data product covers **16,000+** active and delisted US entities, **12M+** filings, and **105M+** standardized facts since **1994**. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
 
 ---
 
@@ -146,10 +146,10 @@ The `data_quality` field on each valuation row indicates input reliability:
 
 | Dimension | Detail |
 |---|---|
-| **Entities** | 12,000+ active and delisted US-listed companies (the Pro and Enterprise tiers see all of them) |
+| **Entities** | 16,000+ active and delisted US-listed companies (the Pro and Enterprise tiers see all of them) |
 | **History** | 1994 – present |
 | **Filings** | 12M+ (10-K, 10-Q, 8-K, 20-F, and amendments) |
-| **Facts** | 108M+ standardized financial data points |
+| **Facts** | 105M+ standardized financial data points |
 | **XBRL coverage** | 95% of all SEC EDGAR financial facts mapped to a canonical `standard_concept`; the remainder is exposed under `'Other'` for transparency |
 | **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness for Enterprise; real-time 8-K alerts on Custom |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |

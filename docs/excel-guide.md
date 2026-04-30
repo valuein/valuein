@@ -118,8 +118,8 @@ Every financial fact in the dataset carries two key dates:
 | Tier | Data scope | Access |
 |---|---|---|
 | **Free (`sp500`)** | S&P 500 constituents only — current and historical members | Free signup at [valuein.biz/signup/free](https://valuein.biz/signup/free) |
-| **Pro** | Full universe (12,000+ tickers), 10-year history | $49 / mo — [subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
-| **Enterprise (`full`)** | Full universe, full history (1994–present), 4h priority freshness | $299 / mo — [subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
+| **Pro** | Full universe (16,000+ tickers), 10-year history | $49 / mo — [subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
+| **Enterprise (`full`)** | Full universe, full history (1994–present), 4h priority freshness | $200 / mo — [subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 
 The Power Query connections automatically detect your plan from the `/v1/me` endpoint and route to the correct R2 bucket.
 

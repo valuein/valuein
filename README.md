@@ -46,7 +46,7 @@ pip install valuein-sdk          # data for code
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
 - **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, and amendments since **1994**
-- **108M+ standardized facts** across **12,000+** active and delisted US entities
+- **105M+ standardized facts** across **16,000+** active and delisted US entities
 - **11,966 raw XBRL tags** normalized to **~150 canonical `standard_concept`** values (95% coverage)
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
@@ -89,8 +89,8 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 |---|---|---|---|---|---|
 | **Sample** | S&P 500 (~500 tickers) | 5-year window | Quarterly snapshots | **Free** · no signup | Just `pip install valuein-sdk` |
 | **Free** | S&P 500 (~500 tickers) | 1994 – present | Daily | **Free** · register | [Register](https://valuein.biz/signup/free) |
-| **Pro** | Full universe (12,000+ tickers, active + delisted) | 10 years | 24h after SEC | **$49 / mo** · $470 / yr | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
-| **Enterprise** | Full universe | 1994 – present | 4h priority | **$299 / mo** · $2,870 / yr | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
+| **Pro** | Full universe (16,000+ tickers, active + delisted) | 10 years | 24h after SEC | **$49 / mo** · $470 / yr | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
+| **Enterprise** | Full universe | 1994 – present | 4h priority | **$200 / mo** · $1,920 / yr | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Custom** | Negotiated · redistribution license · webhooks | Custom | Real-time 8-K | Talk to us | [sales@valuein.biz](mailto:sales@valuein.biz) |
 
 Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):

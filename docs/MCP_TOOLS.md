@@ -284,7 +284,7 @@ All tools are callable on every paid tier. **What changes is the data the tool c
 |---|---|
 | Sample (anonymous) | S&P 500 sample · 5-year window |
 | Free | S&P 500 · 1994 – present |
-| Pro | Full universe (12,000+ tickers) · 10-year history · 24h freshness |
+| Pro | Full universe (16,000+ tickers) · 10-year history · 24h freshness |
 | Enterprise | Full universe · 1994 – present · 4h priority freshness |
 | Custom | Negotiated scope · real-time 8-K push · redistribution license |
 

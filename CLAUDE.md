@@ -74,16 +74,18 @@ uv run jupyter lab examples/notebooks/quickstart.ipynb
 **Always** use `uv run python …`, never bare `python` / `python3`.
 
 There is no `pyproject.toml`, no `tests/`, no `release.sh`, no `pytest` suite in this repo. Tests
-for the SDK live in the `quants` repo. Treat example scripts as the smoke test — if `getting_started.py`
-runs cleanly on the sample tier, the published SDK version is healthy from a user's perspective.
+for the SDK live in `~/PycharmProjects/sdk` (the `valuein-sdk` PyPI package). Treat example scripts
+as the smoke test — if `getting_started.py` runs cleanly on the sample tier, the published SDK
+version is healthy from a user's perspective.
 
 ---
 
 ## MCP registry publishing
 
 `server.json` lists the remote MCP server at `https://mcp.valuein.biz/mcp` with the identifier
-`io.github.valuein/mcp-sec-edgar`. The actual Worker code is elsewhere (`quants/mcp/` or
-`~/WebstormProjects/mcp`); this file just tells the public MCP registry where to find it.
+`io.github.valuein/mcp-sec-edgar`. The Worker code lives in `~/WebstormProjects/mcp` (the
+retired `quants/mcp/` path is gone); this file just tells the public MCP registry where to
+find it.
 
 Publishing flow (`.github/workflows/publish-mcp.yml`):
 1. Workflow triggers on `push` to `main` that touches `server.json`
@@ -91,8 +93,9 @@ Publishing flow (`.github/workflows/publish-mcp.yml`):
 3. `mcp-publisher login github` uses the workflow's OIDC `id-token: write` to authenticate
 4. `mcp-publisher publish ./server.json` pushes to registry.modelcontextprotocol.io
 
-Version bumps in `server.json` should match the Worker's deployed version in `quants/mcp/`.
-Bumping here without shipping the corresponding Worker change is a silent lie to the registry.
+Version bumps in `server.json` should match the Worker's deployed version in
+`~/WebstormProjects/mcp`. Bumping here without shipping the corresponding Worker change is a
+silent lie to the registry.
 
 ---
 
