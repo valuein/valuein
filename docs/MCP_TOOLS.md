@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **8 analyst SOP prompts**, and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro and Enterprise see the full universe and the full history.
+The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro and Enterprise see the full universe and the full history.
 
 ---
 
@@ -248,8 +248,12 @@ Returns: `[{ticker, accession_id, section, chunk_no, preview, score, filing_url}
 
 These are pre-written multi-step instructions an MCP-aware agent can invoke as a single high-level command. Each chains the right tools in the right order.
 
+The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis and `screen_and_shortlist` for idea generation. The eight specialised SOPs underneath are narrower single-purpose chains.
+
 | Prompt | What it does |
 |---|---|
+| `equity_research_brief` ⭐ | Full single-ticker institutional research brief in markdown. Three depth modes: `quick` (≈3 tool calls — snapshot), `full` (≈8 calls — default, the institutional brief), `forensic` (≈11 calls — adds restatement audit + fact-level SEC verification). Renders as an artifact you can export to Word / PDF directly from Claude Desktop or claude.ai. PIT-safe via `as_of_date` for backtests. |
+| `screen_and_shortlist` ⭐ | PM-style idea generation. Builds a survivorship-free universe, ranks it on a chosen factor objective (`quality` / `value` / `growth` / `balanced`), QCs the leaders with a period-over-period change check, and hands off the top picks to `equity_research_brief` for full write-ups. Survivorship-free historical screening via `as_of_date`. |
 | `margin_and_moat_teardown` | Decompose a company's margin structure and quantify its moat using ratios + peer comparables |
 | `peer_benchmarking_memo` | Generate a sector peer-benchmarking memo — financials, ratios, valuation gap |
 | `quality_and_risk_audit` | Earnings-quality and accruals audit, plus restatement and 8-K event scan |
@@ -259,7 +263,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 | `survivorship_free_backtest` | Construct a survivorship-bias-free universe and run a factor-rebalance backtest |
 | `pit_factor_constructor` | Build a PIT-correct factor (with `filing_date <= trade_date` discipline) |
 
-Invoke a prompt the same way as a tool — most clients surface them in the same picker.
+Invoke a prompt the same way as a tool — most clients surface them in the same picker. The flagship prompts include built-in plan-aware fallback (returns "🔒 Pro/Enterprise unlocks this" inline rather than aborting on tier-gated sections), data-freshness lines, automatic restatement flagging on any row where `lineage.restated = true`, and a not-investment-advice disclaimer.
 
 ---
 

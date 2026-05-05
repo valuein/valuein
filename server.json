@@ -3,7 +3,7 @@
   "name": "io.github.valuein/mcp-sec-edgar",
   "title": "Valuein — SEC EDGAR Fundamentals",
   "description": "Point-in-time, survivorship-bias-free SEC EDGAR fundamentals for AI agents. 1994 to present.",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "websiteUrl": "https://valuein.biz",
   "icons": [
     {
@@ -77,7 +77,7 @@
     "io.github.valuein/tools_summary": {
       "live": 14,
       "stubs": 1,
-      "prompts": 8,
+      "prompts": 10,
       "resources": 2
     },
     "io.github.valuein/docs": "https://github.com/valuein/valuein/blob/main/docs/MCP_TOOLS.md"

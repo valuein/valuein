@@ -287,7 +287,7 @@ Valuein ships a remote Model Context Protocol server so any MCP-capable agent (C
 
 ### Tools
 
-The server exposes 14 tools, plus 8 analyst SOP prompts and 2 data resources. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro and Enterprise see the full universe.
+The server exposes 14 tools, plus 10 analyst SOP prompts (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus eight specialised chains) and 2 data resources. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro and Enterprise see the full universe.
 
 **Discovery & schema**
 
