@@ -168,7 +168,8 @@ WHERE r.is_active = TRUE
 WHERE r.is_active = TRUE OR r.valid_to IS NOT NULL
 
 -- Historical S&P 500 reconstruction at a date
-WHERE im.start_date <= :as_of AND (im.end_date IS NULL OR im.end_date > :as_of)
+-- (index_membership keys on cik with effective_date / removal_date)
+WHERE im.effective_date <= :as_of AND (im.removal_date IS NULL OR im.removal_date > :as_of)
 ```
 
 See [QUERY_COOKBOOK.md §10–12](QUERY_COOKBOOK.md#universe-construction) for full universe-construction recipes.

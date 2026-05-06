@@ -72,7 +72,7 @@ class MarketDataGateway:
                 if not fundamentals.empty:
                     logger.info(
                         f"Found {len(fundamentals)} fundamental records for {target_ticker}. "
-                        f"Latest Revenue: {fundamentals['Revenues'].iloc[0] if 'Revenues' in fundamentals.columns else 'N/A'}"
+                        f"Latest Revenue: {fundamentals['TotalRevenue'].iloc[0] if 'TotalRevenue' in fundamentals.columns else 'N/A'}"
                     )
 
         except ValueinAuthError:

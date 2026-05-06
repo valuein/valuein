@@ -61,7 +61,7 @@ Return the columns, types, and descriptions for any table. Useful when an agent 
 
 | Parameter | Type | Required |
 |---|---|---|
-| `table` | string | yes — one of `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `filing_text` |
+| `table` | string | yes — one of `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `factor_scores`, `earnings_signals`, `filing_text` |
 
 Returns: `{table, description, columns: [{name, type, description, primary_key?, references?}]}`.
 
@@ -222,7 +222,7 @@ Issue a presigned R2 URL for direct Parquet streaming — bypass the gateway whe
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `table` | string | yes | One of the partitioned tables: `fact`, `ratio`, `filing`, `valuation` |
+| `table` | string | yes | One of the partitioned tables: `fact`, `ratio`, `filing`, `valuation`, `factor_scores`, `earnings_signals` |
 | `entity_ids` | string[] | optional | Limit to specific CIKs |
 | `expires_in_seconds` | integer | optional | Default 600, max 3600 |
 

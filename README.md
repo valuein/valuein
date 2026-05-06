@@ -117,10 +117,13 @@ with ValueinClient() as client:
     print(client.tables())           # currently loaded tables
 
     df = client.query("""
-        SELECT symbol, name, sector
-        FROM   "references"
-        WHERE  is_sp500 = TRUE AND is_active = TRUE
-        ORDER  BY name
+        SELECT r.symbol, r.name, r.sector
+        FROM   "references" r
+        JOIN   index_membership im ON im.cik = r.cik
+        WHERE  im.index_name = 'SP500'
+          AND  im.removal_date IS NULL
+          AND  r.is_active = TRUE
+        ORDER  BY r.name
         LIMIT  10
     """)
     print(df)
@@ -212,7 +215,7 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 
 | Table | What it is | Why it matters |
 |---|---|---|
-| **`references`** | **Start here.** Flat join of `entity` + `security` + `index_membership`. One row per security with `is_sp500`, `is_active`, sector, exchange. | Replaces the 3-table join — every cross-company filter is one scan. |
+| **`references`** | **Start here.** Flat join of `entity` + `security`. One row per security with `cik`, `is_active`, sector, exchange, FIGI. For membership, JOIN `index_membership` on `cik = cik`. | One scan for cross-company metadata; index membership stays in its own table so historical entry/exit is preserved. |
 | `entity` | Company metadata — CIK, name, sector, SIC, status, fiscal year end | The legal entity dimension. |
 | `security` | Ticker history (SCD Type 2 with `valid_from` / `valid_to`) | Resolve historical tickers, share classes, exchanges. |
 | `filing` | Filing metadata — `accession_id`, `filing_date`, `report_date`, form type, amendment flag | The "what was filed when" dimension. |
@@ -220,7 +223,9 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `ratio` | Pipeline-computed financial ratios per filing | Skip the SQL — margins, returns, leverage, efficiency pre-calculated. |
 | `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | Cross-check your model against ours. |
 | `taxonomy_guide` | 2026 US GAAP Taxonomy | Definitions for every `standard_concept`. |
-| `index_membership` | Historical S&P 500 entry/exit dates | Reconstruct the index on any historical date. |
+| `index_membership` | Historical index constituents (SP500, NASDAQ100, RUSSELL3000, WILSHIRE5000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
+| `factor_scores` | Cross-sectional factor scores + percentile ranks (10 factors + composite) computed from latest two 10-Ks | Quality / value / momentum screens with one query — no recomputation. |
+| `earnings_signals` | Trailing 4-quarter EPS trend + surprise %, plus YoY revenue growth | Earnings-momentum signals without re-deriving them from `fact`. |
 | `filing_text` | Narrative chunks from 10-K / 10-Q / 20-F TextBlocks (Risk Factors, MD&A, Business, Legal, Controls) | Source of the Vectorize index that powers semantic search via MCP. |
 
 ### Date columns — which to use when
@@ -235,12 +240,16 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 
 ### Three patterns that pay off in DuckDB
 
-**1. Start from `references`** (zero joins for cross-company filters):
+**1. Start from `references`** (one join for cross-company filters; membership is in `index_membership`):
 
 ```sql
-SELECT symbol, name, sector
-FROM   "references"
-WHERE  is_sp500 = TRUE AND is_active = TRUE AND sector ILIKE '%technology%'
+SELECT r.symbol, r.name, r.sector
+FROM   "references" r
+JOIN   index_membership im ON im.cik = r.cik
+WHERE  im.index_name = 'SP500'
+  AND  im.removal_date IS NULL          -- current member
+  AND  r.is_active     = TRUE
+  AND  r.sector ILIKE '%technology%'
 ```
 
 **2. `LATERAL` for the latest filing per company:**

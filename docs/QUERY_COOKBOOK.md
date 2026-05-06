@@ -56,12 +56,15 @@ Related:
 ### 1. Always start from `references`
 
 **Use when:** any cross-company query. `references` is the denormalized flat
-join of `entity` + `security` + `index_membership` with one row per security
-and a boolean `is_sp500` flag. It replaces the 3-table join you would
-otherwise write.
+join of `entity` + `security` with one row per security (carries `cik`,
+`symbol`, `name`, `sector`, `is_active`, FIGI). Replaces the 2-table join you
+would otherwise write. For index membership, `JOIN index_membership ON cik = cik`
+(same column name on both sides since migration 0015) — there is no `is_sp500`
+flag on `references` (dropped 2026-05-02 because it was snapshot-only and
+single-index, both footguns the membership table avoids by design).
 
 ```sql
-SELECT symbol, name, sector, is_sp500, is_active
+SELECT symbol, name, sector, is_active
 FROM   "references"
 WHERE  sector    ILIKE '%technology%'
   AND  is_active = TRUE
@@ -69,8 +72,8 @@ ORDER  BY name
 LIMIT  20
 ```
 
-> Why: every cross-company query that filters on sector/index/active status
-> is 10× faster and simpler starting here.
+> Why: every cross-company query that filters on sector or active status is
+> a single scan starting here.
 
 ---
 
@@ -81,6 +84,7 @@ LIMIT  20
 ```sql
 SELECT r.symbol, r.name, f.filing_date, f.accession_id
 FROM   "references" r
+JOIN   index_membership im ON im.cik = r.cik
 JOIN   LATERAL (
     SELECT accession_id, filing_date
     FROM   filing
@@ -89,8 +93,9 @@ JOIN   LATERAL (
     ORDER  BY filing_date DESC
     LIMIT  1
 ) f ON TRUE
-WHERE r.is_sp500  = TRUE
-  AND r.is_active = TRUE
+WHERE im.index_name   = 'SP500'
+  AND im.removal_date IS NULL          -- current member
+  AND r.is_active     = TRUE
 ```
 
 > Why: `LATERAL` reads one row per outer row. Compared to a window function
@@ -265,42 +270,49 @@ WHERE  status != 'ACTIVE'           -- include everything non-active
 
 ### 11. Current S&P 500 members
 
-**Use when:** you want today's index constituents. Fast path via `references`.
+**Use when:** you want today's index constituents.
 
 ```sql
-SELECT symbol, name, sector, exchange
-FROM   "references"
-WHERE  is_sp500  = TRUE
-  AND  is_active = TRUE
-ORDER  BY name
+SELECT r.symbol, r.name, r.sector, r.exchange
+FROM   "references" r
+JOIN   index_membership im ON im.cik = r.cik
+WHERE  im.index_name   = 'SP500'
+  AND  im.removal_date IS NULL        -- current member
+  AND  r.is_active     = TRUE
+ORDER  BY r.name
 ```
 
-> Why: `references.is_sp500` is a pre-computed flag. No join to
-> `index_membership` needed.
+> Why: `index_membership` is the single source of truth for membership —
+> current OR historical. JOIN on `cik = cik` (same column name on both
+> sides post-migration 0015).
 
 ---
 
 ### 12. Historical S&P 500 (entries and exits)
 
 **Use when:** "which companies *left* the S&P 500?" — membership timeline.
+`index_membership` uses half-open `[)` semantics: `effective_date <= D < removal_date`.
 
 ```sql
 SELECT
     e.name,
     e.status,
-    s.symbol,
-    im.start_date AS joined_index,
-    im.end_date   AS left_index
+    r.symbol,
+    im.effective_date AS joined_index,
+    im.removal_date   AS left_index,
+    im.removal_reason
 FROM   index_membership im
-JOIN   security s ON s.id      = im.security_id
-JOIN   entity   e ON e.cik     = s.entity_id
-WHERE  im.index_name = 'S&P 500'
-  AND  im.end_date IS NOT NULL        -- they left the index
-ORDER  BY im.end_date DESC
+JOIN   "references" r ON r.cik = im.cik
+JOIN   entity      e ON e.cik = im.cik
+WHERE  im.index_name  = 'SP500'
+  AND  im.removal_date IS NOT NULL    -- they left the index
+ORDER  BY im.removal_date DESC
 ```
 
-> Why: `references.is_sp500` is current-only. Historical entry/exit dates
-> live in `index_membership`.
+> Why: `index_membership` records every entry and exit with `effective_date`
+> / `removal_date` (and `announcement_date` / `removal_announcement_date` for
+> inclusion-arb backtests). The previous `references.is_sp500` flag was
+> snapshot-only — dropped 2026-05-02.
 
 ---
 
@@ -323,7 +335,10 @@ WITH latest AS (
         ORDER  BY filing_date DESC
         LIMIT  1
     ) f ON TRUE
-    WHERE r.is_sp500 = TRUE AND r.is_active = TRUE
+    JOIN index_membership im ON im.cik = r.cik
+    WHERE im.index_name   = 'SP500'
+      AND im.removal_date IS NULL
+      AND r.is_active     = TRUE
 ),
 prior AS (
     SELECT l.cik, f.accession_id AS prior_accession_id

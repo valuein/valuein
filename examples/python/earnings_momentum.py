@@ -42,7 +42,10 @@ df = client.query("""
             ORDER  BY filing_date DESC
             LIMIT  1
         ) f ON TRUE
-        WHERE r.is_sp500 = TRUE AND r.is_active = TRUE
+        JOIN index_membership im ON im.cik = r.cik
+        WHERE im.index_name   = 'SP500'
+          AND im.removal_date IS NULL
+          AND r.is_active     = TRUE
     ),
     prior AS (
         SELECT

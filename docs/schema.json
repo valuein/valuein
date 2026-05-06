@@ -1,160 +1,773 @@
 {
-  "version": "1.1.0",
+  "version": "2.4.0",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
-      "description": "Denormalized flat join of entity + security + index_membership. One row per security. Recommended entry point for all cross-company queries — avoids the 3-table join.",
+      "description": "Denormalized flat join of entity + security.  One row per security \u2014 covers the company universe (CIK + primary identifiers + sector + ticker).  For ANY membership question (current or historical, SP500 or Russell), JOIN with index_membership on cik = cik.  The join column has the same name on both sides \u2014 this view does NOT carry index-membership flags because they're inherently snapshot-only and single-index, both of which are footguns the index_membership table avoids by design.",
       "columns": {
-        "cik": { "type": "VARCHAR" },
-        "name": { "type": "VARCHAR" },
-        "sector": { "type": "VARCHAR" },
-        "industry": { "type": "VARCHAR" },
-        "sic_code": { "type": "VARCHAR" },
-        "status": { "type": "VARCHAR" },
-        "entity_type": { "type": "VARCHAR" },
-        "security_id": { "type": "INTEGER" },
-        "symbol": { "type": "VARCHAR" },
-        "exchange": { "type": "VARCHAR" },
-        "mic": { "type": "VARCHAR" },
-        "valid_from": { "type": "DATE" },
-        "valid_to": { "type": "DATE" },
-        "is_active": { "type": "BOOLEAN" },
-        "figi": { "type": "VARCHAR" },
-        "composite_figi": { "type": "VARCHAR" },
-        "share_class_figi": { "type": "VARCHAR" },
-        "is_sp500": { "type": "BOOLEAN" }
+        "cik": {
+          "type": "VARCHAR"
+        },
+        "name": {
+          "type": "VARCHAR"
+        },
+        "sector": {
+          "type": "VARCHAR"
+        },
+        "industry": {
+          "type": "VARCHAR"
+        },
+        "sic_code": {
+          "type": "VARCHAR"
+        },
+        "status": {
+          "type": "VARCHAR"
+        },
+        "entity_type": {
+          "type": "VARCHAR"
+        },
+        "security_id": {
+          "type": "INTEGER"
+        },
+        "symbol": {
+          "type": "VARCHAR"
+        },
+        "exchange": {
+          "type": "VARCHAR"
+        },
+        "mic": {
+          "type": "VARCHAR"
+        },
+        "valid_from": {
+          "type": "DATE"
+        },
+        "valid_to": {
+          "type": "DATE"
+        },
+        "is_active": {
+          "type": "BOOLEAN"
+        },
+        "figi": {
+          "type": "VARCHAR"
+        },
+        "composite_figi": {
+          "type": "VARCHAR"
+        },
+        "share_class_figi": {
+          "type": "VARCHAR"
+        }
       }
     },
     "entity": {
       "description": "Legal structure and profile of reporting companies.",
       "columns": {
-        "cik": { "type": "VARCHAR", "primary_key": true },
-        "name": { "type": "VARCHAR" },
-        "lei": { "type": "VARCHAR" },
-        "industry": { "type": "VARCHAR" },
-        "sector": { "type": "VARCHAR" },
-        "sic_code": { "type": "VARCHAR" },
-        "fiscal_year_end": { "type": "VARCHAR" },
-        "location": { "type": "VARCHAR" },
-        "website": { "type": "VARCHAR" },
-        "ceo": { "type": "VARCHAR" },
-        "founded_year": { "type": "SMALLINT" },
-        "description": { "type": "VARCHAR" },
-        "status": { "type": "VARCHAR" },
-        "entity_type": { "type": "VARCHAR" },
-        "ein": { "type": "VARCHAR" },
-        "owner_org": { "type": "VARCHAR" },
-        "investor_website": { "type": "VARCHAR" },
-        "category": { "type": "VARCHAR" },
-        "state_of_incorporation": { "type": "VARCHAR" },
-        "phone": { "type": "VARCHAR" },
-        "address": { "type": "VARCHAR" },
-        "last_seen_at": { "type": "DATE" },
-        "ingested_at": { "type": "TIMESTAMPTZ" }
+        "cik": {
+          "type": "VARCHAR",
+          "primary_key": true
+        },
+        "name": {
+          "type": "VARCHAR"
+        },
+        "lei": {
+          "type": "VARCHAR"
+        },
+        "industry": {
+          "type": "VARCHAR"
+        },
+        "sector": {
+          "type": "VARCHAR"
+        },
+        "sic_code": {
+          "type": "VARCHAR"
+        },
+        "sic_description": {
+          "type": "VARCHAR",
+          "description": "Full SEC SIC industry label (e.g. 'Electronic Computers').  Companion to ``sic_code`` \u2014 use this on responses where a human-readable string is more useful than the raw 4-digit code."
+        },
+        "fiscal_year_end": {
+          "type": "VARCHAR"
+        },
+        "location": {
+          "type": "VARCHAR"
+        },
+        "website": {
+          "type": "VARCHAR"
+        },
+        "ceo": {
+          "type": "VARCHAR"
+        },
+        "founded_year": {
+          "type": "SMALLINT"
+        },
+        "description": {
+          "type": "VARCHAR"
+        },
+        "status": {
+          "type": "VARCHAR"
+        },
+        "entity_type": {
+          "type": "VARCHAR"
+        },
+        "ein": {
+          "type": "VARCHAR"
+        },
+        "owner_org": {
+          "type": "VARCHAR"
+        },
+        "investor_website": {
+          "type": "VARCHAR"
+        },
+        "category": {
+          "type": "VARCHAR"
+        },
+        "state_of_incorporation": {
+          "type": "VARCHAR"
+        },
+        "state_of_incorporation_description": {
+          "type": "VARCHAR",
+          "description": "Full SEC label for the state-of-incorporation code (e.g. 'Delaware')."
+        },
+        "phone": {
+          "type": "VARCHAR"
+        },
+        "business_address": {
+          "type": "VARCHAR"
+        },
+        "mailing_address": {
+          "type": "VARCHAR",
+          "description": "Mailing address (separate from HQ) \u2014 registered agent / correspondence target.  Often differs from business_address for foreign issuers and trusts."
+        },
+        "country_code": {
+          "type": "VARCHAR"
+        },
+        "is_foreign": {
+          "type": "BOOLEAN"
+        },
+        "flags": {
+          "type": "VARCHAR",
+          "description": "SEC-flagged status string (e.g. 'Shell', 'Delinquent'). NULL for clean issuers."
+        },
+        "has_insider_transactions": {
+          "type": "BOOLEAN",
+          "description": "SEC declares Form 4/5 activity exists for this issuer."
+        },
+        "is_insider_owner": {
+          "type": "BOOLEAN",
+          "description": "SEC declares this CIK itself owns insider holdings."
+        },
+        "former_names": {
+          "type": "JSON",
+          "description": "SEC ``formerNames[]`` history \u2014 JSON array of ``{name, from, to}`` objects.  Useful for ticker-history queries and merger lineage (e.g. tracing FB \u2192 META, GOOG \u2192 GOOGL share splits, or a former subsidiary's prior name).  Empty array when the issuer has never renamed."
+        },
+        "last_seen_at": {
+          "type": "DATE"
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        }
       }
     },
     "security": {
       "description": "Ticker symbols and tradeable instrument metadata (SCD Type 2 with date ranges).",
       "columns": {
-        "id": { "type": "INTEGER", "primary_key": true },
-        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
-        "symbol": { "type": "VARCHAR" },
-        "exchange": { "type": "VARCHAR" },
-        "mic": { "type": "VARCHAR" },
-        "valid_from": { "type": "DATE" },
-        "valid_to": { "type": "DATE" },
-        "is_active": { "type": "BOOLEAN" },
-        "figi": { "type": "VARCHAR" },
-        "composite_figi": { "type": "VARCHAR" },
-        "share_class_figi": { "type": "VARCHAR" },
-        "security_type": { "type": "VARCHAR" },
-        "market_sector": { "type": "VARCHAR" },
-        "figi_ticker": { "type": "VARCHAR" },
-        "figi_name": { "type": "VARCHAR" },
-        "figi_exch_code": { "type": "VARCHAR" },
-        "ingested_at": { "type": "TIMESTAMPTZ" }
+        "id": {
+          "type": "INTEGER",
+          "primary_key": true
+        },
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "symbol": {
+          "type": "VARCHAR"
+        },
+        "exchange": {
+          "type": "VARCHAR"
+        },
+        "mic": {
+          "type": "VARCHAR"
+        },
+        "valid_from": {
+          "type": "DATE"
+        },
+        "valid_to": {
+          "type": "DATE"
+        },
+        "is_active": {
+          "type": "BOOLEAN"
+        },
+        "figi": {
+          "type": "VARCHAR"
+        },
+        "composite_figi": {
+          "type": "VARCHAR"
+        },
+        "share_class_figi": {
+          "type": "VARCHAR"
+        },
+        "security_type": {
+          "type": "VARCHAR"
+        },
+        "market_sector": {
+          "type": "VARCHAR"
+        },
+        "figi_ticker": {
+          "type": "VARCHAR"
+        },
+        "figi_name": {
+          "type": "VARCHAR"
+        },
+        "figi_exch_code": {
+          "type": "VARCHAR"
+        },
+        "is_primary_ticker": {
+          "type": "BOOLEAN",
+          "description": "True for the ticker SEC's company_tickers.json marks as the entity's primary listing.  Multi-share-class issuers (BRK-A/BRK-B, GOOG/GOOGL) emit multiple is_active=TRUE rows; default consumer queries filter is_primary_ticker=TRUE for one row per CIK."
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        }
       }
     },
     "filing": {
       "description": "Metadata for all SEC filings processed.",
       "columns": {
-        "accession_id": { "type": "VARCHAR", "primary_key": true },
-        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
-        "filing_date": { "type": "DATE" },
-        "form_type": { "type": "VARCHAR" },
-        "filing_url": { "type": "VARCHAR" },
-        "is_amendment": { "type": "BOOLEAN" },
-        "amendment_no": { "type": "SMALLINT" },
-        "report_date": { "type": "DATE" },
-        "items": { "type": "VARCHAR[]" },
-        "accepted_at": { "type": "TIMESTAMPTZ" },
-        "ingested_at": { "type": "TIMESTAMPTZ" }
+        "accession_id": {
+          "type": "VARCHAR",
+          "primary_key": true
+        },
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "filing_date": {
+          "type": "DATE"
+        },
+        "form_type": {
+          "type": "VARCHAR"
+        },
+        "filing_url": {
+          "type": "VARCHAR"
+        },
+        "is_amendment": {
+          "type": "BOOLEAN"
+        },
+        "amendment_no": {
+          "type": "SMALLINT"
+        },
+        "superseded_by": {
+          "type": "VARCHAR",
+          "references": "filing.accession_id",
+          "description": "Accession-id of the filing that supersedes this one in the amendment chain (NULL when this is the latest version).  Populated post-ingest by ``services/filings/amendment_linker.py``."
+        },
+        "report_date": {
+          "type": "DATE"
+        },
+        "items": {
+          "type": "VARCHAR[]"
+        },
+        "size": {
+          "type": "INTEGER",
+          "description": "Filing size in bytes (per SEC submissions feed)."
+        },
+        "is_xbrl": {
+          "type": "BOOLEAN",
+          "description": "SEC-declared: filing carries an XBRL exhibit."
+        },
+        "is_inline_xbrl": {
+          "type": "BOOLEAN",
+          "description": "SEC-declared: filing uses Inline XBRL (iXBRL)."
+        },
+        "is_xbrl_numeric": {
+          "type": "BOOLEAN",
+          "description": "Distinct from is_xbrl/is_inline_xbrl \u2014 TRUE when the XBRL exhibit carries machine-readable numeric facts (the source of every fact-table row)."
+        },
+        "primary_document": {
+          "type": "VARCHAR",
+          "description": "Filename of the lead document in the filing package."
+        },
+        "primary_doc_description": {
+          "type": "VARCHAR",
+          "description": "SEC-provided label describing the primary document."
+        },
+        "core_type": {
+          "type": "VARCHAR",
+          "description": "Base form_type stripped of the ``/A`` amendment suffix (e.g. ``10-K/A`` \u2192 ``10-K``).  Use this for form-family filtering when you don't care whether a filing is the original or an amendment."
+        },
+        "file_number": {
+          "type": "VARCHAR",
+          "description": "SEC EDGAR file number (e.g. ``001-36743``)."
+        },
+        "film_number": {
+          "type": "VARCHAR",
+          "description": "SEC EDGAR microfiche / film number assigned at acceptance."
+        },
+        "act": {
+          "type": "VARCHAR",
+          "description": "Securities-Act designator: ``33`` (1933 Act), ``34`` (1934 Act), or empty.  Helps distinguish registration-statement vs. exchange-act filings."
+        },
+        "is_audited": {
+          "type": "BOOLEAN",
+          "description": "Filing is an annual (audited) report \u2014 TRUE for 10-K / 20-F / 40-F and their amendments, FALSE for 10-Q / 8-K / etc."
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        }
       }
     },
     "fact": {
       "description": "Standardized financial data points (US-GAAP XBRL mapped to canonical standard_concept labels).",
       "columns": {
-        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
-        "accession_id": { "type": "VARCHAR", "references": "filing.accession_id" },
-        "concept": { "type": "VARCHAR" },
-        "standard_concept": { "type": "VARCHAR" },
-        "priority": { "type": "SMALLINT" },
-        "label": { "type": "VARCHAR" },
-        "numeric_value": { "type": "DOUBLE" },
-        "derived_quarterly_value": { "type": "DOUBLE" },
-        "unit": { "type": "VARCHAR" },
-        "period_start": { "type": "DATE" },
-        "period_end": { "type": "DATE" },
-        "fiscal_year": { "type": "VARCHAR" },
-        "fiscal_period": { "type": "VARCHAR" },
-        "frame": { "type": "VARCHAR" },
-        "statement_type": { "type": "VARCHAR" },
-        "confidence_score": { "type": "DOUBLE" },
-        "is_negative": { "type": "BOOLEAN" },
-        "is_audited": { "type": "BOOLEAN" },
-        "is_estimated": { "type": "BOOLEAN" },
-        "data_quality": { "type": "VARCHAR" },
-        "accepted_at": { "type": "TIMESTAMPTZ" },
-        "ingested_at": { "type": "TIMESTAMPTZ" }
+        "fact_id": {
+          "type": "VARCHAR",
+          "description": "Deterministic identity hash: SHA-256(entity_id|accession_id|concept|period_end|unit). Matches the Postgres unique constraint idx_fact_unique_constraint. Computed at export time by run_exports.py \u2014 not stored in the database."
+        },
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "accession_id": {
+          "type": "VARCHAR",
+          "references": "filing.accession_id"
+        },
+        "concept": {
+          "type": "VARCHAR"
+        },
+        "standard_concept": {
+          "type": "VARCHAR"
+        },
+        "priority": {
+          "type": "SMALLINT"
+        },
+        "label": {
+          "type": "VARCHAR"
+        },
+        "numeric_value": {
+          "type": "DOUBLE",
+          "description": "The value as reported in this specific filing (accession_id)."
+        },
+        "derived_quarterly_value": {
+          "type": "DOUBLE"
+        },
+        "unit": {
+          "type": "VARCHAR"
+        },
+        "period_start": {
+          "type": "DATE"
+        },
+        "period_end": {
+          "type": "DATE"
+        },
+        "fiscal_year": {
+          "type": "INTEGER"
+        },
+        "fiscal_period": {
+          "type": "VARCHAR"
+        },
+        "frame": {
+          "type": "VARCHAR"
+        },
+        "statement_type": {
+          "type": "VARCHAR"
+        },
+        "confidence_score": {
+          "type": "DOUBLE"
+        },
+        "is_negative": {
+          "type": "BOOLEAN"
+        },
+        "is_audited": {
+          "type": "BOOLEAN"
+        },
+        "is_estimated": {
+          "type": "BOOLEAN"
+        },
+        "data_quality": {
+          "type": "VARCHAR"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "reporting_currency": {
+          "type": "VARCHAR",
+          "description": "ISO-4217 currency code when the unit is a monetary currency (e.g. 'USD', 'EUR', 'JPY').  NULL for non-monetary facts (shares, ratios, days, etc.)."
+        },
+        "period_span_days": {
+          "type": "INTEGER"
+        },
+        "is_cumulative": {
+          "type": "BOOLEAN"
+        },
+        "derivation_type": {
+          "type": "VARCHAR"
+        },
+        "derivation_uncertain": {
+          "type": "BOOLEAN"
+        },
+        "value_current": {
+          "type": "DOUBLE",
+          "description": "Bloomberg Option-C: the latest-known value for this (entity_id, standard_concept, period_end, unit) \u2014 i.e., the value any analyst watching the tape TODAY would see. Computed at export time via DuckDB window functions."
+        },
+        "value_as_filed": {
+          "type": "DOUBLE",
+          "description": "Bloomberg Option-C: the originally-reported value (first-ever accepted_at in the partition)."
+        },
+        "first_filed_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "Timestamp of first disclosure (min accepted_at in the partition)."
+        },
+        "restated": {
+          "type": "BOOLEAN",
+          "description": "TRUE if any version of this fact in the partition differs from the others \u2014 signals that a later filing restated this number.  WARNING: this signal is computed against the GLOBAL state of the warehouse, NOT PIT \u2014 a query with as_of_date in the past may still see TRUE for a fact whose restatement happened AFTER the cutoff.  Treat as informational; for PIT reasoning, the MCP server exposes this as ``lineage.restated_in_warehouse`` so consumers know the field is not PIT-safe (audit CC-004)."
+        }
       }
     },
     "valuation": {
-      "description": "Pre-computed intrinsic value estimates per entity per fiscal period (two-stage DCF + DDM).",
+      "description": "Pre-computed intrinsic value estimates per entity. One row per (entity_id, valuation_date, model_type) \u2014 multiple model types (DCF, DDM, GrahamNumber, etc.) coexist for the same valuation_date. Recomputed each pipeline run; not point-in-time.",
       "columns": {
-        "valuation_id": { "type": "UUID", "primary_key": true },
-        "entity_id": { "type": "VARCHAR", "references": "entity.cik" },
-        "period_end": { "type": "DATE" },
-        "accepted_at": { "type": "TIMESTAMPTZ" },
-        "dcf_value_per_share": { "type": "DOUBLE" },
-        "ddm_value_per_share": { "type": "DOUBLE" },
-        "wacc": { "type": "DOUBLE" },
-        "terminal_growth_rate": { "type": "DOUBLE" },
-        "stage1_growth_rate": { "type": "DOUBLE" },
-        "stage1_years": { "type": "SMALLINT" },
-        "fcf_base": { "type": "DOUBLE" },
-        "shares_outstanding": { "type": "DOUBLE" },
-        "ingested_at": { "type": "TIMESTAMPTZ" }
+        "id": {
+          "type": "BIGINT",
+          "primary_key": true
+        },
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "security_id": {
+          "type": "INTEGER",
+          "references": "security.id"
+        },
+        "valuation_date": {
+          "type": "DATE",
+          "description": "The fiscal period_end the valuation was computed against."
+        },
+        "model_type": {
+          "type": "VARCHAR",
+          "description": "Valuation model identifier. Live values: 'dcf' (earnings-based two-stage), 'dcf_fcf' (free-cash-flow-based two-stage), 'ddm' (dividend discount model). Filter on this to select a specific intrinsic-value approach; multiple rows per (entity_id, valuation_date) are expected."
+        },
+        "model_version": {
+          "type": "VARCHAR"
+        },
+        "intrinsic_value": {
+          "type": "DOUBLE",
+          "description": "Total enterprise / equity value implied by the model (currency)."
+        },
+        "per_share_value": {
+          "type": "DOUBLE",
+          "description": "intrinsic_value / shares_outstanding \u2014 the model's fair-value estimate per share."
+        },
+        "margin_of_safety": {
+          "type": "DOUBLE",
+          "description": "(per_share_value - current_price) / per_share_value. >0 = undervalued."
+        },
+        "valuation_label": {
+          "type": "VARCHAR",
+          "description": "Human-readable bucket \u2014 'undervalued' / 'fairly_valued' / 'overvalued'."
+        },
+        "base_earnings": {
+          "type": "DOUBLE",
+          "description": "DCF: trailing FCF base. DDM: trailing dividend base."
+        },
+        "growth_rate": {
+          "type": "DOUBLE",
+          "description": "Stage-1 growth rate."
+        },
+        "terminal_rate": {
+          "type": "DOUBLE",
+          "description": "Terminal-stage growth rate."
+        },
+        "discount_rate": {
+          "type": "DOUBLE",
+          "description": "WACC for DCF; cost of equity for DDM."
+        },
+        "growth_years": {
+          "type": "INTEGER",
+          "description": "Stage-1 horizon in years."
+        },
+        "terminal_years": {
+          "type": "INTEGER",
+          "description": "Years modeled in the terminal phase before the perpetuity."
+        },
+        "shares_outstanding": {
+          "type": "BIGINT"
+        },
+        "current_price": {
+          "type": "DOUBLE",
+          "description": "Market price used to compute margin_of_safety. NULL when the pipeline could not source a quote \u2014 margin_of_safety is then NULL too."
+        },
+        "base_dividend": {
+          "type": "DOUBLE",
+          "description": "DDM only: trailing dividend base."
+        },
+        "dividend_growth_rate": {
+          "type": "DOUBLE",
+          "description": "DDM only."
+        },
+        "payout_ratio": {
+          "type": "DOUBLE"
+        },
+        "data_quality": {
+          "type": "VARCHAR",
+          "description": "Pipeline-assigned label \u2014 'reported' | 'estimated' | 'low_confidence'."
+        },
+        "source_period": {
+          "type": "VARCHAR",
+          "description": "Which fiscal period (e.g. 'FY2024', 'TTM') supplied base_earnings."
+        },
+        "assumptions": {
+          "type": "JSON",
+          "description": "Full input bundle for the model \u2014 base_earnings, discount_rate, growth_rate, terminal_growth_rate, etc. Use to reproduce the calc."
+        },
+        "created_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "updated_at": {
+          "type": "TIMESTAMPTZ"
+        }
       }
     },
     "index_membership": {
-      "description": "Historical index constituents (S&P 500, etc.). Use references.is_sp500 for current membership — use this table only for historical entry/exit analysis.",
+      "description": "Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000).  Source of truth for ALL membership questions \u2014 current OR historical.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window.  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides \u2014 see migration 0015 for the rationale.",
       "columns": {
-        "id": { "type": "INTEGER", "primary_key": true },
-        "security_id": { "type": "INTEGER", "references": "security.id" },
-        "index_name": { "type": "VARCHAR" },
-        "start_date": { "type": "DATE" },
-        "end_date": { "type": "DATE" }
+        "id": {
+          "type": "INTEGER",
+          "primary_key": true
+        },
+        "cik": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "index_name": {
+          "type": "VARCHAR",
+          "description": "Canonical short code: SP500 | NASDAQ100 | RUSSELL3000 | WILSHIRE5000."
+        },
+        "effective_date": {
+          "type": "DATE",
+          "description": "First trading day the company traded as a member."
+        },
+        "announcement_date": {
+          "type": "DATE",
+          "description": "Date S&P Dow Jones Indices publicly announced the addition.  Typically 5\u201310 trading days before effective_date.  Populated by Layer 4 (S&P press release scraper); NULL on rows from Wikipedia / GitHub seed / IVV daily.  Use for inclusion-arb backtests via the ``as_of_basis='announcement'`` switch on get_pit_universe."
+        },
+        "removal_date": {
+          "type": "DATE",
+          "description": "First trading day the company was NOT a member.  NULL = current.  [) interval semantics \u2014 a company removed on 2017-06-19 is NOT a member on 2017-06-19."
+        },
+        "removal_announcement_date": {
+          "type": "DATE",
+          "description": "Date the removal was publicly announced; symmetric with announcement_date.  NULL when only Wikipedia / IVV layers wrote the row."
+        },
+        "removal_reason": {
+          "type": "VARCHAR",
+          "description": "merger | acquisition | bankruptcy | criteria | spinoff | other.  NULL when removal_date IS NULL."
+        },
+        "successor_cik": {
+          "type": "VARCHAR",
+          "description": "Acquirer CIK when removal_reason in {merger, acquisition}. Essential for backtests crossing M&A \u2014 without it, a stock disappearing looks indistinguishable from a delisting."
+        },
+        "source": {
+          "type": "VARCHAR",
+          "description": "Provenance: wikipedia | ivv | spglobal_press | github_seed | manual."
+        },
+        "confidence": {
+          "type": "VARCHAR",
+          "description": "high | medium | low.  Used by get_pit_universe to set pit_safe automatically \u2014 pre-2000 dates default to 'low'."
+        },
+        "notes": {
+          "type": "VARCHAR"
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "updated_at": {
+          "type": "TIMESTAMPTZ"
+        }
       }
     },
     "taxonomy_guide": {
       "description": "Human-readable definitions for all standard_concept values used in the fact table.",
       "columns": {
-        "standard_concept": { "type": "VARCHAR", "primary_key": true },
-        "human_name": { "type": "VARCHAR" },
-        "definition": { "type": "VARCHAR" },
-        "unit_type": { "type": "VARCHAR" },
-        "balance_type": { "type": "VARCHAR" },
-        "source_reference": { "type": "VARCHAR" }
+        "standard_concept": {
+          "type": "VARCHAR",
+          "primary_key": true
+        },
+        "human_name": {
+          "type": "VARCHAR"
+        },
+        "definition": {
+          "type": "VARCHAR"
+        },
+        "unit_type": {
+          "type": "VARCHAR"
+        },
+        "balance_type": {
+          "type": "VARCHAR"
+        },
+        "source_reference": {
+          "type": "VARCHAR"
+        }
+      }
+    },
+    "ratio": {
+      "description": "Pipeline-computed financial ratios per entity per fiscal period. Derived from fact data \u2014 recomputed on each pipeline run (ON CONFLICT DO UPDATE). No accession_id or accepted_at: use computed_at for freshness.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "ratio_name": {
+          "type": "VARCHAR"
+        },
+        "category": {
+          "type": "VARCHAR",
+          "description": "Groups ratios for filtering without scanning all ratio_name values. Values: profitability | per_share | liquidity | leverage | efficiency | owner_earnings | valuation"
+        },
+        "value": {
+          "type": "DOUBLE"
+        },
+        "unit": {
+          "type": "VARCHAR",
+          "description": "percent | per_share | pure | x"
+        },
+        "period_end": {
+          "type": "DATE"
+        },
+        "fiscal_year": {
+          "type": "INTEGER"
+        },
+        "fiscal_period": {
+          "type": "VARCHAR",
+          "description": "FY | Q1 | Q2 | Q3 | Q4 | TTM"
+        },
+        "is_ttm": {
+          "type": "BOOLEAN"
+        },
+        "computed_at": {
+          "type": "TIMESTAMPTZ"
+        }
+      }
+    },
+    "factor_scores": {
+      "description": "Cross-sectional factor scores and percentile ranks per entity. Computed from the latest two 10-K filings. 10 factors matching the SDK AlphaEngine built-in set. _rank columns are PERCENT_RANK (0.0\u20131.0, where 1.0 = best). composite_rank is an equal-weight average of non-null factor ranks. Derived at export time \u2014 not stored in Postgres.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "period_end": {
+          "type": "DATE"
+        },
+        "fiscal_year": {
+          "type": "INTEGER"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "roe": {
+          "type": "DOUBLE"
+        },
+        "gross_margin": {
+          "type": "DOUBLE"
+        },
+        "operating_margin": {
+          "type": "DOUBLE"
+        },
+        "net_profit_margin": {
+          "type": "DOUBLE"
+        },
+        "revenue_growth_yoy": {
+          "type": "DOUBLE"
+        },
+        "fcf_to_assets": {
+          "type": "DOUBLE"
+        },
+        "debt_to_equity": {
+          "type": "DOUBLE"
+        },
+        "asset_turnover": {
+          "type": "DOUBLE"
+        },
+        "current_ratio": {
+          "type": "DOUBLE"
+        },
+        "piotroski_f_score": {
+          "type": "INTEGER"
+        },
+        "roe_rank": {
+          "type": "DOUBLE"
+        },
+        "gross_margin_rank": {
+          "type": "DOUBLE"
+        },
+        "operating_margin_rank": {
+          "type": "DOUBLE"
+        },
+        "net_profit_margin_rank": {
+          "type": "DOUBLE"
+        },
+        "revenue_growth_yoy_rank": {
+          "type": "DOUBLE"
+        },
+        "fcf_to_assets_rank": {
+          "type": "DOUBLE"
+        },
+        "debt_to_equity_rank": {
+          "type": "DOUBLE"
+        },
+        "asset_turnover_rank": {
+          "type": "DOUBLE"
+        },
+        "current_ratio_rank": {
+          "type": "DOUBLE"
+        },
+        "piotroski_f_score_rank": {
+          "type": "DOUBLE"
+        },
+        "composite_rank": {
+          "type": "DOUBLE"
+        }
+      }
+    },
+    "earnings_signals": {
+      "description": "Trend-based earnings expectations and surprise metrics per entity. eps_trend_est is the trailing 4-quarter average of EPS_Diluted. eps_surprise_pct = (actual - trend_est) / |trend_est|. NULL when fewer than 4 prior quarters exist or trend_est is zero. revenue_yoy_pct compares latest quarter to 4 quarters prior. Derived at export time \u2014 not stored in Postgres.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "period_end": {
+          "type": "DATE"
+        },
+        "fiscal_year": {
+          "type": "INTEGER"
+        },
+        "fiscal_period": {
+          "type": "VARCHAR"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "eps_actual": {
+          "type": "DOUBLE"
+        },
+        "eps_trend_est": {
+          "type": "DOUBLE"
+        },
+        "eps_surprise_pct": {
+          "type": "DOUBLE"
+        },
+        "revenue_actual": {
+          "type": "DOUBLE"
+        },
+        "revenue_yoy_pct": {
+          "type": "DOUBLE"
+        }
       }
     }
   }

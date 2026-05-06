@@ -1,6 +1,6 @@
 """Valuein US Core Fundamentals — Entity Screening
 
-Learn how to screen the full universe of 10,000+ public companies.
+Learn how to screen the full universe of 16,000+ public entities.
 This script demonstrates survivorship-bias-free universe construction —
 a critical first step for any quant strategy.
 

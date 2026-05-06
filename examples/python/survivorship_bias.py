@@ -42,7 +42,9 @@ print()
 
 # ── 2. Former S&P 500 members that departed (survivorship in action) ──────────
 # index_membership tracks every company that ever joined an index.
-# end_date IS NOT NULL means they left — acquired, delisted, or went bankrupt.
+# removal_date IS NOT NULL means they left — acquired, delisted, or went bankrupt.
+# Since migration 0015, index_membership keys on cik and uses
+# effective_date / removal_date (half-open [) intervals).
 print("=" * 60)
 print("2. Former S&P 500 members that left the index")
 print("   (acquired, delisted, or bankrupt — data others deleted)")
@@ -51,16 +53,17 @@ df = client.query("""
     SELECT
         e.name,
         e.status,
-        s.symbol,
-        im.start_date   AS joined_index,
-        im.end_date     AS left_index
+        r.symbol,
+        im.effective_date AS joined_index,
+        im.removal_date   AS left_index,
+        im.removal_reason
     FROM   index_membership im
-    JOIN   security s ON s.id        = im.security_id
-    JOIN   entity   e ON e.cik       = s.entity_id
-    WHERE  im.index_name = 'S&P 500'
-      AND  im.end_date IS NOT NULL
-    QUALIFY row_number() OVER (PARTITION BY e.cik ORDER BY im.end_date DESC) = 1
-    ORDER BY im.end_date DESC
+    JOIN   "references" r ON r.cik = im.cik
+    JOIN   entity        e ON e.cik = im.cik
+    WHERE  im.index_name  = 'SP500'
+      AND  im.removal_date IS NOT NULL
+    QUALIFY row_number() OVER (PARTITION BY e.cik ORDER BY im.removal_date DESC) = 1
+    ORDER BY im.removal_date DESC
     LIMIT 20
 """)
 print(df.to_string(index=False))
@@ -76,13 +79,12 @@ df = client.query("""
         SELECT
             e.cik,
             e.name,
-            im.end_date
+            im.removal_date
         FROM   index_membership im
-        JOIN   security s ON s.id    = im.security_id
-        JOIN   entity   e ON e.cik   = s.entity_id
-        WHERE  im.index_name = 'S&P 500'
-          AND  im.end_date IS NOT NULL
-        ORDER  BY im.end_date DESC
+        JOIN   entity e ON e.cik = im.cik
+        WHERE  im.index_name  = 'SP500'
+          AND  im.removal_date IS NOT NULL
+        ORDER  BY im.removal_date DESC
         LIMIT  1
     )
     SELECT
@@ -93,7 +95,7 @@ df = client.query("""
     FROM   fact   fa
     JOIN   filing f ON fa.accession_id = f.accession_id
     JOIN   departed d ON fa.entity_id  = d.cik
-    WHERE  fa.standard_concept IN ('Revenues', 'NetIncomeLoss')
+    WHERE  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
       AND  f.form_type = '10-K'
       AND  fa.fiscal_period = 'FY'
     QUALIFY row_number() OVER (
@@ -125,7 +127,7 @@ else:
         FROM   fact   fa
         JOIN   filing f ON fa.accession_id = f.accession_id
         JOIN   target t ON fa.entity_id    = t.cik
-        WHERE  fa.standard_concept IN ('Revenues', 'NetIncomeLoss')
+        WHERE  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
           AND  f.form_type = '10-K'
           AND  fa.fiscal_period = 'FY'
         QUALIFY row_number() OVER (
@@ -157,14 +159,13 @@ total_stats = client.query("""
 
 # 2. Index Exit Stats - Distinguished by Status
 exit_stats = client.query("""
-    SELECT 
+    SELECT
         e.status,
-        count(DISTINCT s.entity_id) AS n
+        count(DISTINCT im.cik) AS n
     FROM index_membership im
-    JOIN security s ON s.id = im.security_id
-    JOIN entity e ON e.cik = s.entity_id
-    WHERE im.index_name = 'S&P 500' 
-      AND im.end_date IS NOT NULL
+    JOIN entity e ON e.cik = im.cik
+    WHERE im.index_name   = 'SP500'
+      AND im.removal_date IS NOT NULL
     GROUP BY e.status
 """)
 

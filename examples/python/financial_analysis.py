@@ -6,7 +6,7 @@ Covers revenue trends, balance sheet analysis, and margin ratios.
 Every fact in the dataset has two concept columns:
   - concept          — the raw XBRL tag as filed with the SEC (e.g. us-gaap:Revenues)
   - standard_concept — the canonical label our system assigns across all companies
-                       (e.g. 'Revenues'), enabling cross-company queries without
+                       (e.g. 'TotalRevenue'), enabling cross-company queries without
                        knowing each filer's specific tag choices.
 
 What you'll learn:
@@ -164,7 +164,7 @@ print()
 # standard_concept our system assigns. Querying DISTINCT pairs shows exactly
 # how normalization works without needing any private mapping table.
 print("=" * 60)
-print("5. Normalization: raw XBRL tags that resolve to 'Revenues'")
+print("5. Normalization: raw XBRL tags that resolve to 'TotalRevenue'")
 print("   (fact.concept vs fact.standard_concept)")
 print("=" * 60)
 df = client.query("""
@@ -172,7 +172,7 @@ df = client.query("""
         fa.concept          AS raw_xbrl_tag,
         fa.standard_concept AS normalized_concept
     FROM   fact fa
-    WHERE  fa.standard_concept = 'Revenues'
+    WHERE  fa.standard_concept = 'TotalRevenue'
     ORDER  BY fa.concept
     LIMIT  20
 """)
