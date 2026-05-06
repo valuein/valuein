@@ -21,7 +21,6 @@ body:
         - Data methodology (how is this calculated?)
         - SDK usage (Python / DuckDB / SQL)
         - MCP / AI agent integration
-        - Excel / Power Query
         - PIT discipline / backtesting
         - Standardization / concept mapping
         - Other

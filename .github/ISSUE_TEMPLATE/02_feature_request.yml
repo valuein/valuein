@@ -18,7 +18,6 @@ body:
         - New `standard_concept` (canonical name)
         - New table or column
         - New documentation / cookbook recipe
-        - Excel / Power Query
         - Something else
     validations:
       required: true

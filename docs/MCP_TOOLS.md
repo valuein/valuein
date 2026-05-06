@@ -3,7 +3,7 @@
 Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client (Claude Desktop, Cursor, Codex, custom agents). It speaks the **Streamable HTTP** transport from MCP spec **2025-11-25**.
 
 - **Endpoint:** `https://mcp.valuein.biz/mcp`
-- **Auth:** `Authorization: Bearer <your_api_token>` — same Stripe-issued token as the SDK and Excel
+- **Auth:** `Authorization: Bearer <your_api_token>` — same Stripe-issued token as the SDK and bulk-data API
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 

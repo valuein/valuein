@@ -30,7 +30,6 @@ pip install valuein-sdk          # data for code
 | See every channel we ship through | [Distribution channels](#distribution-channels) |
 | Check pricing and what each plan unlocks | [Plans & access](#plans--access) |
 | Connect an AI agent (Claude, Cursor, Codex…) | [MCP for AI agents](#mcp-for-ai-agents) |
-| Stream data into Excel | [Excel & Power Query](#excel--power-query) |
 | Read the data model | [Data model](#data-model) |
 | Find a quick recipe by role | [Recipes by role](#recipes-by-role) |
 | Run end-to-end Python examples | [`examples/python/`](examples/python/) |
@@ -61,19 +60,18 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 | 📊 **Standardized concepts** | Both the raw XBRL tag (`fact.concept`) and the canonical name (`fact.standard_concept`) are on every row. No hidden mapping table. |
 | 🚀 **DuckDB-native** | Millisecond analytics over remote Parquet via `httpfs`. Zero database provisioning. |
 | 🔁 **Append-only restatements** | A `10-K/A` adds a new row — the original stays. Reconstruct the as-reported view of any historical date. |
-| 🔐 **One token, every channel** | The same Bearer token authenticates the SDK, MCP server, Excel template, and bulk-data API. |
+| 🔐 **One token, every channel** | The same Bearer token authenticates the SDK, MCP server, and bulk-data API. |
 
 ---
 
 ## Distribution channels
 
-The same dataset, delivered five ways so it lands where you already work.
+The same dataset, delivered four ways so it lands where you already work.
 
 | Channel | Audience | Endpoint / install |
 |---|---|---|
 | **Python SDK** | Quants, engineers, data scientists | `pip install valuein-sdk` · [PyPI](https://pypi.org/project/valuein-sdk/) |
 | **MCP server** | AI agents (Claude, Cursor, Codex, custom) | `https://mcp.valuein.biz/mcp` · [server.json](server.json) |
-| **Excel & Power Query** | Financial analysts, CPAs, researchers | [docs/excel-guide.md](docs/excel-guide.md) |
 | **Web dashboard** | Retail, executives, non-technical users | [valuein.biz](https://valuein.biz) |
 | **Bulk data API** | B2B partners, fintech platforms | `https://data.valuein.biz` · [contact us](mailto:sales@valuein.biz) |
 
@@ -281,7 +279,7 @@ Query `fact.standard_concept` with canonical names like `'TotalRevenue'`, `'NetI
 Valuein ships a remote Model Context Protocol server so any MCP-capable agent (Claude Desktop, Cursor, Codex, custom) can answer fundamentals questions without writing code.
 
 - **Endpoint:** `https://mcp.valuein.biz/mcp` (Streamable HTTP, MCP spec 2025-11-25)
-- **Auth:** `Authorization: Bearer <your_api_token>` — same token as the SDK and Excel
+- **Auth:** `Authorization: Bearer <your_api_token>` — same token as the SDK and bulk-data API
 - **Manifest:** [`server.json`](server.json) — published to [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) as `io.github.valuein/mcp-sec-edgar`
 - **Reference:** [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) — every tool, every parameter, every tier gate
 
@@ -348,23 +346,6 @@ Same URL + Bearer token works for any MCP client that supports Streamable HTTP r
 
 ---
 
-## Excel & Power Query
-
-Stream SEC fundamentals straight into Excel with no Python and no scripts.
-
-**Requirements:** Microsoft 365 (build 16.0.17531+) and an active token.
-
-1. Get the template — see [`docs/excel-guide.md`](docs/excel-guide.md) for the download link.
-2. Open and **Enable Editing / Enable Content**.
-3. Paste your token into the **START HERE** sheet (cell C7).
-4. **Data → Refresh All**.
-
-The workbook ships with 8 pre-configured sheets: Income Statement, Balance Sheet, Cash Flow, Entities, Securities, Filings, Index Membership, Data Dictionary. Full walkthrough including Power Query M source, named ranges, and troubleshooting in [`docs/excel-guide.md`](docs/excel-guide.md).
-
-On Excel 2019 or earlier, `Parquet.Document()` is unavailable — email [support@valuein.biz](mailto:support@valuein.biz) for CSV exports.
-
----
-
 ## Examples in this repository
 
 Every script and notebook works against the SDK published on PyPI. The Sample tier runs without a token; add `VALUEIN_API_KEY` to use a paid tier.
@@ -411,7 +392,6 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 | [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | Same catalog as a workbook — columns, types, sample values |
 | [`docs/data_catalog.json`](docs/data_catalog.json) | Machine-readable catalog (used by SDK metadata + docs sites) |
 | [`docs/schema.json`](docs/schema.json) | Machine-readable table + column schema |
-| [`docs/excel-guide.md`](docs/excel-guide.md) | Full Excel / Power Query setup walkthrough |
 | [`docs/COMPLIANCE_AND_DDQ.md`](docs/COMPLIANCE_AND_DDQ.md) | Data provenance, MNPI policy, PIT integrity, security, SLA summary |
 | [`docs/SLA.md`](docs/SLA.md) | Uptime targets, data freshness, support response times, SLA credits |
 

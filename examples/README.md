@@ -58,7 +58,6 @@ Interactive versions of the matching scripts.
 ## What's not here (yet)
 
 - **MCP examples** — see [`docs/MCP_TOOLS.md`](../docs/MCP_TOOLS.md) for tool reference and connection instructions for Claude Desktop, Cursor, and other MCP-capable clients.
-- **Excel** — see [`docs/excel-guide.md`](../docs/excel-guide.md) for the Power Query walkthrough.
 
 ## Contributing
 

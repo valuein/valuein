@@ -11,7 +11,6 @@ Start with the docs — they cover the common cases:
 - [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) — every MCP tool, its parameters, and a worked example
 - [`docs/data_catalog.md`](docs/data_catalog.md) — canonical `standard_concept` names
 - [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) — sourcing, PIT, restatements, valuation models
-- [`docs/excel-guide.md`](docs/excel-guide.md) — full Power Query setup walkthrough
 - [valuein.biz](https://valuein.biz) — pricing, dashboard, signup
 
 If the answer isn't there, open a [Q&A issue](.github/ISSUE_TEMPLATE/04_general_question.yml). Q&A issues are public — that means everyone benefits from the answer.
@@ -26,7 +25,7 @@ Open a [Feature Request](.github/ISSUE_TEMPLATE/02_feature_request.yml). The fas
 
 ## Something is broken — I can't connect, queries fail, or the API is down
 
-Open a [Service Outage](.github/ISSUE_TEMPLATE/03_service_outage.yml). Include the timestamp, the channel (SDK / MCP / API / Excel), the exact error, and your tier. For confirmed outages we acknowledge within 2 hours, 24/7.
+Open a [Service Outage](.github/ISSUE_TEMPLATE/03_service_outage.yml). Include the timestamp, the channel (SDK / MCP / API), the exact error, and your tier. For confirmed outages we acknowledge within 2 hours, 24/7.
 
 ## I need a private channel for billing, contracts, or compliance
 

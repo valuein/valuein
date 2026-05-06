@@ -11,7 +11,7 @@ Valuein. It is the landing page a prospective user hits from PyPI, Smithery, or 
 
 **This repo contains:**
 - `README.md` / `CONTRIBUTING.md` / `LICENSE` / `NOTICE` — marketing + OSS governance
-- `docs/` — methodology, compliance, SLA, Excel guide, data catalog (md / json / xlsx), `schema.json`,
+- `docs/` — methodology, compliance, SLA, data catalog (md / json / xlsx), `schema.json`,
   and `arelle_config/arelle/` (XBRL tooling config, not code)
 - `examples/python/` — 7 standalone scripts that `import valuein_sdk`
 - `examples/notebooks/` — 4 Jupyter notebooks mirroring the Python examples
@@ -29,16 +29,18 @@ If a request mentions those, the target repo is almost certainly a sibling (see 
 ## Sibling repos — where the actual code lives
 
 The examples here are consumers of code published from other repos. Cross-cutting changes usually
-need to start upstream, then propagate here.
+need to start upstream, then propagate here. The legacy `~/PycharmProjects/quants` repo no longer
+exists — SDK and MCP are now standalone repos.
 
 | If you're asked to… | Go to |
 |---|---|
-| Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/quants` → `valuein_sdk/` |
-| Modify the MCP Worker code (`mcp.valuein.biz`, 5 tools, auth) | `~/PycharmProjects/quants` → `mcp/` (or standalone at `~/WebstormProjects/mcp`) |
+| Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/sdk` → `valuein_sdk/` |
+| Modify the MCP Worker code (`mcp.valuein.biz`, 14 live tools + 1 stub, 10 SOPs, auth) | `~/WebstormProjects/mcp` |
 | Change what `fact.standard_concept` values exist, or add a concept | `~/PycharmProjects/data-pipeline` → `services/accounting/definitions.py` (`STANDARD_DEFINITIONS`), **then** re-run `scripts/generate_catalog.py` here |
-| Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py`; update `docs/schema.json` here if public-facing |
-| Change token schema, gateway routing, Stripe webhook | `~/WebstormProjects/cloudflare` |
+| Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py` + `parquet_schema.py`; then propagate to `sdk/valuein_sdk/schema.json`, `mcp/schema.json` (`npm run generate:schema`), `cloudflare/edge-gateway` `VALID_TABLES`, and update `docs/schema.json` here last |
+| Change token schema, gateway routing, Stripe webhook, agent-pay | `~/WebstormProjects/cloudflare` |
 | Edit the frontend dashboard | `~/WebstormProjects/frontend` |
+| Bump the MCP server version listed in the public registry | `server.json` here — push to main triggers `.github/workflows/publish-mcp.yml` |
 
 When a user adds or renames a canonical concept in the pipeline, the flow here is:
 pipeline `STANDARD_DEFINITIONS` → update `CONCEPTS` in `scripts/generate_catalog.py` → re-run it →
@@ -125,8 +127,14 @@ sync with the SDK's bundled schema.
 
 `references` · `entity` · `security` · `filing` · `fact` · `valuation` · `taxonomy_guide` · `index_membership`
 
-Start cross-company queries from `references` (denormalized entity + security + index_membership,
-one row per security, boolean `is_sp500` flag). Never start from the 3-table join.
+Start cross-company queries from `references` (denormalized entity + security flat join, one row per
+security; carries `cik`, `symbol`, `name`, `sector`, `is_active`). Never start from the 3-table join.
+
+The `references.is_sp500` flag was **dropped in 2026-05-02** (data-pipeline commit `2a9ff95` —
+"Path B: rename entity_id→cik, drop is_sp500"). For ANY membership question — current OR
+historical — JOIN with `index_membership` ON `references.cik = im.cik` (same column name on both
+sides post-migration 0015). This is a single-index, snapshot-only footgun that we explicitly
+removed.
 
 ### PIT and survivorship discipline — preserve in every example
 
@@ -134,7 +142,8 @@ one row per security, boolean `is_sp500` flag). Never start from the 3-table joi
 - Use `accepted_at` for millisecond-precision PIT in intraday research
 - Survivorship-bias-free → include delisted/acquired; use `status != 'ACTIVE'` (other values exist
   beyond `'INACTIVE'`/`'DELISTED'`) and `security.valid_to IS NOT NULL` for historical tickers
-- `references.is_sp500` = current membership; `index_membership` = historical entry/exit dates
+- Current SP500 membership: `JOIN index_membership im ON r.cik = im.cik WHERE im.index_name = 'SP500' AND im.removal_date IS NULL`
+- Historical membership on a date: `WHERE $date >= im.effective_date AND ($date < im.removal_date OR im.removal_date IS NULL)`
 
 ### `fact.standard_concept` — canonical names only
 

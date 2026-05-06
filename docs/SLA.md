@@ -2,7 +2,7 @@
 
 **Effective date:** February 1, 2026
 
-This Service Level Agreement ("SLA") covers the production performance commitments for Valuein's distribution channels — the Python SDK, the MCP server (`mcp.valuein.biz`), the bulk-data API (`data.valuein.biz`), and the Excel template — for paid plans (Pro, Enterprise, Custom). The Sample and Free tiers are best-effort and not covered.
+This Service Level Agreement ("SLA") covers the production performance commitments for Valuein's distribution channels — the Python SDK, the MCP server (`mcp.valuein.biz`), and the bulk-data API (`data.valuein.biz`) — for paid plans (Pro, Enterprise, Custom). The Sample and Free tiers are best-effort and not covered.
 
 The pricing and tier scope referenced below mirrors [valuein.biz/pricing](https://valuein.biz/pricing). When the website and this document disagree, the website is the source of truth.
 
