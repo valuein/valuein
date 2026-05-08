@@ -6,7 +6,8 @@ getting_started.py to see the full API surface.
 Run:
     # Install (either workflow):  pip install valuein-sdk   |   uv pip install valuein-sdk
     # Token is OPTIONAL — without it, the SDK runs in SAMPLE mode (S&P 500, last 5 years).
-    export VALUEIN_API_KEY="your_token_here"   # only when you want full universe / full history
+    # only when you want full universe / full history
+    export VALUEIN_API_KEY="your_token_here"
     python examples/usage.py
 """
 

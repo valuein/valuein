@@ -144,6 +144,7 @@ with ValueinClient() as client:
 That's a real query against the live S&P 500 sample. Add a token only when you need full universe or full history:
 
 ```bash
+# optional — sample tier works without a key
 echo 'VALUEIN_API_KEY="your_token_here"' >> .env
 ```
 
