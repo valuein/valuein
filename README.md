@@ -159,27 +159,47 @@ from valuein_sdk import (
     ValueinPlanError,
     ValueinRateLimitError,
     ValueinAPIError,
+    ValueinError,
 )
 
-with ValueinClient() as client:
-    try:
-        df = client.run_template(
-            "fundamentals_by_ticker",
-            ticker="AAPL",
-            start_date="2020-01-01",
-            end_date="2024-12-31",
-            form_types=["10-K", "10-Q"],
-            metrics=["TotalRevenue", "NetIncome", "OperatingCashFlow"],
-        )
-        print(df.head())
-    except ValueinAuthError:
-        print("Token missing or expired — set VALUEIN_API_KEY.")
-    except ValueinPlanError:
-        print("This query needs a higher plan — see valuein.biz/pricing.")
-    except ValueinRateLimitError as e:
-        print(f"Rate limited; retry in {e.retry_after}s.")
-    except ValueinAPIError as e:
-        print(f"Gateway error (HTTP {e.status_code}).")
+# Two-level try/except is intentional:
+#   outer = init errors raised by ValueinClient.__enter__ (auth, manifest, 503)
+#   inner = per-query errors raised by run_query / run_template (rate-limit,
+#           plan denial, bad SQL). Each level dispatches by exception type so
+#           you can act on the right cause — exit on auth, sleep on rate-limit,
+#           upsell on plan, log + skip on a single bad row.
+
+try:
+    with ValueinClient() as client:
+        try:
+            # 1) Build & run a raw SQL query → pandas DataFrame
+            sql = "SELECT COUNT(cik) FROM entity"
+            result = client.run_query(sql)
+            print(result)
+
+            # 2) Run a named SQL template with kwargs (the SDK quotes safely)
+            df = client.run_template(
+                "fundamentals_by_ticker",
+                ticker="AAPL",
+                start_date="2020-01-01",
+                end_date="2024-12-31",
+                form_types=["10-K", "10-Q"],
+                metrics=["TotalRevenue", "NetIncome", "OperatingCashFlow"],
+            )
+            print(df.head())
+        except ValueinPlanError:
+            print("This query needs a higher plan — see valuein.biz/pricing.")
+        except ValueinRateLimitError as e:
+            print(f"Rate limited; retry in {e.retry_after}s.")
+        except ValueinError as ve:
+            # Catch-all for any other per-query failure (validation, bad SQL, etc.)
+            print(f"Query failed: {ve}")
+except ValueinAuthError:
+    raise SystemExit("Token missing or expired — set VALUEIN_API_KEY.")
+except ValueinAPIError as e:
+    print(f"Gateway error during init (HTTP {e.status_code}).")
+except Exception as e:
+    print(f"Initialization failed: {e}")
 ```
 
 The SDK ships **44 named SQL templates** for the most common screens, ratios, and PIT backtests. List them:
