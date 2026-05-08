@@ -30,7 +30,7 @@ client = ValueinClient(tables=["entity", "security", "filing", "fact"])
 print("=" * 60)
 print("1. NVIDIA revenue — last 5 annual filings (10-K)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         fa.fiscal_year,
         fa.period_end,
@@ -56,7 +56,7 @@ print()
 print("=" * 60)
 print("2. NVIDIA vs Tesla annual revenue comparison")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         s.symbol,
         fa.fiscal_year,
@@ -82,7 +82,7 @@ print()
 print("=" * 60)
 print("3. NVIDIA latest balance sheet snapshot")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     WITH latest AS (
         SELECT f.accession_id
         FROM   filing  f
@@ -116,7 +116,7 @@ print()
 print("=" * 60)
 print("4. Apple gross margin — last 5 annual filings")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         rev.fiscal_year,
         round(rev.numeric_value / 1e9, 2)                          AS revenue_bn,
@@ -139,7 +139,7 @@ df = client.query("""
 """)
 if df.empty:
     # AAPL uses an unmapped XBRL tag for revenue; fall back to GrossProfit alone
-    df = client.query("""
+    df = client.run_query("""
         SELECT
             fa.fiscal_year,
             round(fa.numeric_value / 1e9, 2) AS gross_profit_bn
@@ -167,7 +167,7 @@ print("=" * 60)
 print("5. Normalization: raw XBRL tags that resolve to 'TotalRevenue'")
 print("   (fact.concept vs fact.standard_concept)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT DISTINCT
         fa.concept          AS raw_xbrl_tag,
         fa.standard_concept AS normalized_concept

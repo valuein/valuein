@@ -26,7 +26,7 @@ print()
 print("Loading entity and security tables...")
 client = ValueinClient(tables=["entity", "security"])
 
-counts = client.query("""
+counts = client.run_query("""
     SELECT
         (SELECT count(*) FROM entity)   AS entities,
         (SELECT count(*) FROM security) AS securities
@@ -37,7 +37,7 @@ print()
 
 # ── Step 3: Look up a company by ticker ───────────────────────────────────────
 print("Looking up AAPL...")
-df = client.query("""
+df = client.run_query("""
     SELECT
         e.cik,
         e.name,

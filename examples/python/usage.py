@@ -41,11 +41,11 @@ print(f"  client.tables()   → {client.tables()}")
 print(f"  client.manifest() → {client.manifest()}")
 print()
 
-# ── d) client.query() — three examples ───────────────────────────────────────
+# ── d) client.run_query() — three examples ───────────────────────────────────────
 print("=" * 60)
-print("d) client.query() — Simple: entity status counts")
+print("d) client.run_query() — Simple: entity status counts")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT status, count(*) AS companies
     FROM   entity
     GROUP  BY status
@@ -55,9 +55,9 @@ print(df.to_string(index=False))
 print()
 
 print("=" * 60)
-print("d) client.query() — Join: top 10 companies by filing count")
+print("d) client.run_query() — Join: top 10 companies by filing count")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT e.name, e.sector, count(f.accession_id) AS filings
     FROM   entity   e
     JOIN   security s ON s.entity_id = e.cik AND s.is_active = TRUE
@@ -70,9 +70,9 @@ print(df.to_string(index=False))
 print()
 
 print("=" * 60)
-print("d) client.query() — Filter: NVDA 10-K filings")
+print("d) client.run_query() — Filter: NVDA 10-K filings")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT f.form_type, f.filing_date, f.report_date, f.accession_id
     FROM   filing   f
     JOIN   security s ON f.entity_id = s.entity_id

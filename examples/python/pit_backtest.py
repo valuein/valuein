@@ -37,7 +37,7 @@ print(
     "  A new row appears each time the company files an amendment.\n"
     "  Most providers keep only the latest — destroying history.\n"
 )
-df = client.query(f"""
+df = client.run_query(f"""
     SELECT
         fa.period_end,
         fa.fiscal_year,
@@ -63,7 +63,7 @@ print("=" * 60)
 print(f"2. PIT-correct: What did the market know about {TICKER} on {TRADE_DATE}?")
 print("   CORRECT: filter by filing_date <= trade_date")
 print("=" * 60)
-df_pit = client.query(f"""
+df_pit = client.run_query(f"""
     SELECT
         fa.standard_concept,
         fa.fiscal_year,
@@ -88,7 +88,7 @@ print("=" * 60)
 print("3. WRONG: filtering by report_date introduces look-ahead bias")
 print("   report_date is the fiscal period end, NOT when you learned it")
 print("=" * 60)
-df_wrong = client.query(f"""
+df_wrong = client.run_query(f"""
     SELECT
         fa.standard_concept,
         fa.fiscal_year,

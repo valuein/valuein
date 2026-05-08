@@ -28,7 +28,7 @@ print("=" * 60)
 print(f"1. {TICKER} — 5-year annual FCF history")
 print("   FCF = OperatingCashFlow − |CAPEX|")
 print("=" * 60)
-fcf = client.query(f"""
+fcf = client.run_query(f"""
     WITH fy_10k AS (
         SELECT
             fa.accession_id, fa.fiscal_year, fa.period_end,
@@ -81,7 +81,7 @@ print()
 print("=" * 60)
 print(f"2. {TICKER} — latest balance sheet context")
 print("=" * 60)
-bs = client.query(f"""
+bs = client.run_query(f"""
     WITH latest AS (
         SELECT f.accession_id
         FROM   filing    f
@@ -119,7 +119,7 @@ print()
 print("=" * 60)
 print(f"3. Valuein pre-computed valuation for {TICKER}")
 print("=" * 60)
-val = client.query(f"""
+val = client.run_query(f"""
     SELECT
         v.period_end,
         round(v.dcf_value_per_share, 2)      AS dcf_per_share,

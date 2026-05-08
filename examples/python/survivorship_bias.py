@@ -28,7 +28,7 @@ client = ValueinClient(
 print("=" * 60)
 print("1. The companies most providers deleted")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         status,
         count(*)                                              AS companies,
@@ -49,7 +49,7 @@ print("=" * 60)
 print("2. Former S&P 500 members that left the index")
 print("   (acquired, delisted, or bankrupt — data others deleted)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         e.name,
         e.status,
@@ -74,7 +74,7 @@ print()
 print("=" * 60)
 print("3. Revenue and net income for a former index member (pre-exit)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     WITH departed AS (
         SELECT
             e.cik,
@@ -111,7 +111,7 @@ if not df.empty:
     print(df[["fiscal_year", "standard_concept", "value_bn"]].to_string(index=False))
 else:
     # Fallback: any inactive entity with facts
-    df = client.query("""
+    df = client.run_query("""
         WITH target AS (
             SELECT e.cik, e.name
             FROM   entity e
@@ -150,7 +150,7 @@ print()
 # ── 4. Why it matters (Refined Logic) ─────────────────────────────────────────
 print("=" * 60)
 # 1. Total Universe Stats
-total_stats = client.query("""
+total_stats = client.run_query("""
     SELECT 
         count(*) as total,
         count(*) FILTER (WHERE status != 'ACTIVE') as inactive
@@ -158,7 +158,7 @@ total_stats = client.query("""
 """).iloc[0]
 
 # 2. Index Exit Stats - Distinguished by Status
-exit_stats = client.query("""
+exit_stats = client.run_query("""
     SELECT
         e.status,
         count(DISTINCT im.cik) AS n

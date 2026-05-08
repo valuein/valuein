@@ -116,7 +116,7 @@ with ValueinClient() as client:
     print(client.manifest())         # snapshot id, last_updated, tables
     print(client.tables())           # currently loaded tables
 
-    df = client.query("""
+    df = client.run_query("""
         SELECT r.symbol, r.name, r.sector
         FROM   "references" r
         JOIN   index_membership im ON im.cik = r.cik

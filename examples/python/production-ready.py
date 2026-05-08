@@ -107,7 +107,7 @@ class MarketDataGateway:
             ORDER  BY filings DESC
             LIMIT  {limit}
         """
-        return client.query(query)
+        return client.run_query(query)
 
     def _get_fundamentals(self, client: ValueinClient, ticker: str) -> pd.DataFrame:
         """Example of safely invoking a bundled SQL template."""

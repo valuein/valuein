@@ -35,7 +35,7 @@ client = ValueinClient(tables=["references", "filing", "fact"])
 print("=" * 60)
 print("1. Pulling latest + prior-year 10-K fundamentals (S&P 500)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     WITH latest AS (
         SELECT
             r.cik, r.symbol, r.name, r.sector,

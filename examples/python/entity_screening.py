@@ -24,7 +24,7 @@ client = ValueinClient(tables=["entity", "security"])
 print("=" * 60)
 print("1. Universe composition (active vs inactive)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         status,
         count(*) AS companies,
@@ -40,7 +40,7 @@ print()
 print("=" * 60)
 print("2. Top 10 sectors by company count")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT
         coalesce(sector::VARCHAR, '(unclassified)') AS sector,
         count(*) AS companies
@@ -56,7 +56,7 @@ print()
 print("=" * 60)
 print("3. Active Technology companies (sample)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT e.cik, e.name, e.industry, s.symbol, s.exchange
     FROM   entity   e
     JOIN   security s ON s.entity_id = e.cik AND s.is_active = TRUE
@@ -72,7 +72,7 @@ print()
 print("=" * 60)
 print("4. Semiconductor companies (SIC 3674)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT e.name, e.status, s.symbol, s.exchange
     FROM   entity   e
     LEFT   JOIN security s ON s.entity_id = e.cik AND s.is_active = TRUE
@@ -87,7 +87,7 @@ print()
 print("=" * 60)
 print("5. Inactive/delisted companies (what most datasets omit)")
 print("=" * 60)
-df = client.query("""
+df = client.run_query("""
     SELECT e.name, e.sector::VARCHAR AS sector, e.status, e.fiscal_year_end
     FROM   entity e
     WHERE  e.status IN ('INACTIVE', 'DELISTED')
@@ -97,7 +97,7 @@ df = client.query("""
 print(df.to_string(index=False))
 print()
 
-inactive_count = client.query(
+inactive_count = client.run_query(
     "SELECT count(*) AS n FROM entity WHERE status IN ('INACTIVE', 'DELISTED')"
 )["n"].iloc[0]
 print(
