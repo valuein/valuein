@@ -20,14 +20,21 @@ If you want to change the SDK itself or the MCP server, those repos have their o
 git clone https://github.com/valuein/valuein.git
 cd valuein
 
-# We use uv for everything (https://github.com/astral-sh/uv)
 # Examples are standalone scripts that depend only on the published SDK.
+# Either pip or uv works — both run the same script unchanged:
 
-# Run any example on the Sample tier (no token, no signup):
+# pip (universal):
+python -m venv .venv && source .venv/bin/activate
+pip install valuein-sdk
+python examples/python/getting_started.py     # Sample tier — no token, no signup
+
+# uv (faster, recommended for contributors — https://docs.astral.sh/uv/):
+uv venv && source .venv/bin/activate
+uv pip install valuein-sdk
 uv run python examples/python/getting_started.py
 
-# Or with a paid tier:
-VALUEIN_API_KEY=xxx uv run python examples/python/factor_screen.py
+# With a paid tier (either workflow):
+VALUEIN_API_KEY=xxx python examples/python/factor_screen.py
 ```
 
 There is no `pyproject.toml`, no test suite, and no build step in this repo. The example scripts are themselves the smoke test — if `getting_started.py` runs cleanly on the Sample tier, the published SDK is healthy.

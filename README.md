@@ -104,9 +104,21 @@ Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):
 
 ## Quickstart (30 seconds, no token)
 
+Pick whichever Python workflow you already use — both work in any virtual environment, and both run the same code below:
+
 ```bash
+# Option A — pip (universal, ships with Python)
+python -m venv .venv && source .venv/bin/activate
 pip install valuein-sdk
 ```
+
+```bash
+# Option B — uv (10–100× faster; install from https://docs.astral.sh/uv/)
+uv venv && source .venv/bin/activate
+uv pip install valuein-sdk
+```
+
+> **Zero-friction by design.** No `VALUEIN_API_KEY`? No problem. The SDK detects the missing token and falls back to the SAMPLE dataset (S&P 500, last 5 years); the edge gateway does the same — `GET /v1/{sp500,pro,full}/:table` with no `Authorization` header automatically 302-redirects to `/v1/sample/:table`. The snippet below runs as-is.
 
 ```python
 from valuein_sdk import ValueinClient

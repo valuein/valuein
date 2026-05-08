@@ -17,7 +17,9 @@ What you'll learn:
 - How to safely z-score with outliers via pandas
 
 Run:
-    export VALUEIN_API_KEY="your_token_here"
+    # Install (either workflow):  pip install valuein-sdk   |   uv pip install valuein-sdk
+    # Token is OPTIONAL — without it, the SDK runs in SAMPLE mode (S&P 500, last 5 years).
+    export VALUEIN_API_KEY="your_token_here"   # only when you want full universe / full history
     python examples/python/factor_screen.py
 """
 

@@ -4,9 +4,12 @@ The first script every new user should run. Confirms your token works,
 loads two lightweight tables, and shows you how to look up a company
 by ticker. Completes in under 30 seconds.
 
-Run:
-    export VALUEIN_API_KEY="your_token_here"
+Run (no token required — falls back to the SAMPLE tier automatically):
+    pip install valuein-sdk      # or: uv pip install valuein-sdk
     python examples/python/getting_started.py
+
+Add a token only when you need full universe / full history:
+    export VALUEIN_API_KEY="your_token_here"
 """
 
 from valuein_sdk import ValueinClient

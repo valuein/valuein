@@ -4,8 +4,25 @@ Practical, copy-paste scripts and notebooks that go from zero to real financial 
 
 ## Prerequisites
 
+Either workflow is fine — both work in any virtual environment:
+
 ```bash
+# Option A — pip (universal)
+python -m venv .venv && source .venv/bin/activate
 pip install valuein-sdk
+```
+
+```bash
+# Option B — uv (faster; install from https://docs.astral.sh/uv/)
+uv venv && source .venv/bin/activate
+uv pip install valuein-sdk
+```
+
+**No API key required to start.** When `VALUEIN_API_KEY` is unset, the SDK and the edge gateway both fall back to the SAMPLE dataset (S&P 500, last 5 years) — every example below runs as-is.
+
+Add a token only when you need the full universe or full history:
+
+```bash
 # add a token only when you need full universe / full history
 export VALUEIN_API_KEY=your_key_here
 ```
