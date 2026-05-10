@@ -327,7 +327,7 @@ Valuein ships a remote Model Context Protocol server so any MCP-capable agent (C
 
 ### Tools
 
-The server exposes 14 tools, plus 10 analyst SOP prompts (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus eight specialised chains) and 2 data resources. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro and Enterprise see the full universe.
+The server exposes 19 tools (15 core + 4 smart-money primitives), plus 10 analyst SOP prompts (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus eight specialised chains) and 2 data resources. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full universe; Enterprise also unlocks the smart-money tools (insider transactions, 13F holdings, blockholder disclosures).
 
 **Discovery & schema**
 
@@ -368,6 +368,17 @@ The server exposes 14 tools, plus 10 analyst SOP prompts (two flagship cross-per
 |---|---|
 | `get_compute_ready_stream` | Issue presigned R2 URLs for direct Parquet streaming (skip the gateway) |
 | `search_filing_text` | Semantic search over Risk Factors / MD&A / Business across every 10-K / 10-Q / 20-F (rolling out — Vectorize backfill in progress) |
+
+**Smart money — Enterprise tier only**
+
+The smart-money bundle replaces Bloomberg's INSIDER\<GO\> / OWNER\<GO\> / HDS\<GO\> screens with a single Valuein token. Each tool reads a per-CIK Parquet partition and returns structured rows with the `lineage` envelope for one-click SEC verification.
+
+| Tool | What it does |
+|---|---|
+| `get_insider_transactions` | Form 3 / 4 / 5 / 144 line items per issuer — joined to insider_party for name + role |
+| `get_institutional_holdings` | Form 13F top holders for one issuer with HHI concentration + 13F-lag staleness flag |
+| `get_manager_portfolio` | Form 13F filer's full portfolio with QoQ deltas (new / increased / decreased / exited) |
+| `get_blockholders` | SC 13D / 13G with the first-class `going_active` flag (13G→13D = control-change signal) |
 
 ### Configure in Claude Desktop
 

@@ -771,7 +771,7 @@
       }
     },
     "insider_party": {
-      "description": "Directory of every insider / reporting person referenced by Form 3/4/5/144.  Keyed on CIK when SEC-registered, otherwise on a normalized name.  Joined to insider_transaction via insider_party_id.  FULL bucket only — Alpha-tier gated.",
+      "description": "Directory of every insider / reporting person referenced by Form 3/4/5/144.  Keyed on CIK when SEC-registered, otherwise on a normalized name.  Joined to insider_transaction via insider_party_id.  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
           "type": "INTEGER",
@@ -798,7 +798,7 @@
       }
     },
     "insider_transaction": {
-      "description": "Form 3 / 4 / 5 / 144 line items — each row is one transaction, initial holding, or proposed sale by an insider.  transaction_type is 'transaction' (Form 4/5), 'initial_holding' (Form 3), or 'proposed_sale' (Form 144).  Joins to ``filing`` via accession_id, to ``entity`` (issuer) via entity_id, and to ``insider_party`` via insider_party_id.  FULL bucket only — Alpha-tier gated.",
+      "description": "Form 3 / 4 / 5 / 144 line items — each row is one transaction, initial holding, or proposed sale by an insider.  transaction_type is 'transaction' (Form 4/5), 'initial_holding' (Form 3), or 'proposed_sale' (Form 144).  Joins to ``filing`` via accession_id, to ``entity`` (issuer) via entity_id, and to ``insider_party`` via insider_party_id.  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -883,7 +883,7 @@
       }
     },
     "institutional_holding": {
-      "description": "Form 13F-HR holdings — institutional managers' quarterly position disclosures.  One row per (filing, CUSIP, share-class, put/call).  Joins to ``filing`` via accession_id, to ``entity`` (filer) via filer_cik.  subject_entity_id is the issuer CIK (NULL until the CUSIP→CIK lookup resolves).  FULL bucket only — Alpha-tier gated.",
+      "description": "Form 13F-HR holdings — institutional managers' quarterly position disclosures.  One row per (filing, CUSIP, share-class, put/call).  Joins to ``filing`` via accession_id, to ``entity`` (filer) via filer_cik.  subject_entity_id is the issuer CIK (NULL until the CUSIP→CIK lookup resolves).  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -947,7 +947,7 @@
       }
     },
     "beneficial_ownership": {
-      "description": "SC 13D / SC 13G beneficial-ownership disclosures (5%+ stakes).  One row per (filing, reporting person).  Group filings carry multiple reporting persons — each lands as a separate row.  Joins to ``filing`` via accession_id; subject_entity_id is the issuer CIK (the company being held).  FULL bucket only — Alpha-tier gated.",
+      "description": "SC 13D / SC 13G beneficial-ownership disclosures (5%+ stakes).  One row per (filing, reporting person).  Group filings carry multiple reporting persons — each lands as a separate row.  Joins to ``filing`` via accession_id; subject_entity_id is the issuer CIK (the company being held).  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
           "type": "BIGINT",
