@@ -80,7 +80,7 @@ print()
 
 # ── 3. Latest balance sheet context ──────────────────────────────────────────
 # A DCF needs the capital structure to convert enterprise value → equity value,
-# and EPS_Diluted (or share count) to convert equity value → per-share value.
+# and EPSDiluted (or share count) to convert equity value → per-share value.
 print("=" * 60)
 print(f"2. {TICKER} — latest balance sheet context")
 print("=" * 60)
@@ -106,7 +106,7 @@ bs = client.run_query(f"""
         'TotalAssets',
         'TotalLiabilities',
         'StockholdersEquity',
-        'EPS_Diluted'
+        'EPSDiluted'
     )
     QUALIFY ROW_NUMBER() OVER (
         PARTITION BY fa.standard_concept ORDER BY fa.period_end DESC

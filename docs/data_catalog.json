@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-25",
+  "generated": "2026-05-09",
   "concept_count": 20,
   "coverage_target": ">=95%",
   "accuracy_score_guide": {
@@ -59,13 +59,13 @@
       "description": "The bottom-line profit attributable to the consolidated entity after all expenses, taxes, interest, and non-controlling interest deductions. Comprehensive income adjustments and per-share variants are excluded."
     },
     {
-      "name": "EPS_Basic",
+      "name": "EPSBasic",
       "statement": "Income Statement",
       "unit": "USD/share",
       "description": "Basic Earnings Per Share — net income divided by the weighted-average number of common shares outstanding during the period, excluding dilutive securities such as stock options and convertible instruments."
     },
     {
-      "name": "EPS_Diluted",
+      "name": "EPSDiluted",
       "statement": "Income Statement",
       "unit": "USD/share",
       "description": "Diluted Earnings Per Share — net income divided by the weighted-average diluted share count, which includes all potentially dilutive securities (options, warrants, convertible bonds). The most conservative EPS measure and the standard for valuation multiples."

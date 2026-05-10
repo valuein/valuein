@@ -120,7 +120,7 @@ CONCEPTS: list[dict] = [
         ),
     },
     {
-        "name": "EPS_Basic",
+        "name": "EPSBasic",
         "statement": "Income Statement",
         "unit": "USD/share",
         "description": (
@@ -130,7 +130,7 @@ CONCEPTS: list[dict] = [
         ),
     },
     {
-        "name": "EPS_Diluted",
+        "name": "EPSDiluted",
         "statement": "Income Statement",
         "unit": "USD/share",
         "description": (
