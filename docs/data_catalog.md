@@ -1,6 +1,6 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-04-25  
+> **Last updated**: 2026-05-09  
 > **Standardized concepts**: 20  
 > **Historical coverage**: 1994 – present  
 > **Coverage target**: ≥ 95% of all SEC EDGAR financial facts
@@ -78,13 +78,13 @@ Earnings from core business operations before interest income/expense and income
 
 The bottom-line profit attributable to the consolidated entity after all expenses, taxes, interest, and non-controlling interest deductions. Comprehensive income adjustments and per-share variants are excluded.
 
-### `EPS_Basic`
+### `EPSBasic`
 
 **Unit:** USD/share
 
 Basic Earnings Per Share — net income divided by the weighted-average number of common shares outstanding during the period, excluding dilutive securities such as stock options and convertible instruments.
 
-### `EPS_Diluted`
+### `EPSDiluted`
 
 **Unit:** USD/share
 
