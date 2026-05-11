@@ -6,7 +6,7 @@ Valuein provides institutional-grade SEC fundamental data. This document address
 
 ## 1. Data Sourcing & Provenance
 
-- **Source:** 100% of the data originates from the U.S. Securities and Exchange Commission (SEC) EDGAR system. Coverage runs from 1994 to present across 16,000+ active and delisted US-listed entities.
+- **Source:** 100% of the data originates from the U.S. Securities and Exchange Commission (SEC) EDGAR system. Coverage runs from 1994 to present across 17,000+ active and delisted US-listed entities (22,000+ including foreign private issuers on the Institutional tier).
 - **Transformations:** Data undergoes normalization to resolve XBRL tag discrepancies across filers and fiscal years. 11,966 raw XBRL tags are mapped to ~150 canonical `standard_concept` values via a deterministic waterfall (direct tag → calculated alternative → null). Raw numeric facts are mathematically unaltered; no imputation or smoothing is applied. Both the raw and canonical names are present on every row of the `fact` table for traceability.
 - **Survivorship Bias:** The dataset retains all historical filings, including those from delisted, bankrupt, merged, or acquired entities. No entity is ever removed from the archive.
 
@@ -36,7 +36,7 @@ To completely eliminate look-ahead bias, the Valuein data architecture uses immu
 |---|---|
 | **Delivery** | Cloudflare R2 Object Storage over HTTPS |
 | **Authentication** | Read-only Bearer tokens; cryptographically generated per client |
-| **IP Allowlisting** | Available on Enterprise tier to restrict access to corporate VPN or VPC CIDR ranges |
+| **IP Allowlisting** | Available on the Enterprise (custom contract) tier to restrict access to corporate VPN or VPC CIDR ranges |
 | **PII** | Not present. The dataset contains only corporate financial metrics from public filings. |
 | **Data residency** | U.S.-based Cloudflare R2 region |
 

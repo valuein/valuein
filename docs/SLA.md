@@ -2,7 +2,7 @@
 
 **Effective date:** February 1, 2026
 
-This Service Level Agreement ("SLA") covers the production performance commitments for Valuein's distribution channels — the Python SDK, the MCP server (`mcp.valuein.biz`), and the bulk-data API (`data.valuein.biz`) — for paid plans (Pro, Enterprise, Custom). The Sample and Free tiers are best-effort and not covered.
+This Service Level Agreement ("SLA") covers the production performance commitments for Valuein's distribution channels — the Python SDK, the MCP server (`mcp.valuein.biz`), and the bulk-data API (`data.valuein.biz`) — for paid plans (Pro, Institutional, Enterprise). The Sample and Free tiers are best-effort and not covered.
 
 The pricing and tier scope referenced below mirrors [valuein.biz/pricing](https://valuein.biz/pricing). When the website and this document disagree, the website is the source of truth.
 
@@ -26,15 +26,15 @@ Downtime is measured from the time a verified incident is opened to the time ser
 
 The "time-to-database" commitment runs from SEC EDGAR acceptance to the data being queryable through any Valuein channel.
 
-| Filing type | Free / Pro target | Enterprise target | SLA guarantee |
+| Filing type | Free / Pro target | Institutional target | SLA guarantee |
 |---|---|---|---|
-| 8-K (current events) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Enterprise) |
-| 10-Q (quarterly) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Enterprise) |
-| 10-K (annual) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Enterprise) |
-| 10-K/A, 10-Q/A (amendments) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Enterprise) |
-| 20-F (foreign private issuers) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Enterprise) |
+| 8-K (current events) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
+| 10-Q (quarterly) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
+| 10-K (annual) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
+| 10-K/A, 10-Q/A (amendments) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
+| 20-F (foreign private issuers) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
 
-The Free and Sample tiers receive a daily snapshot. The Custom tier supports real-time 8-K push delivery via webhook.
+The Free and Sample tiers receive a daily snapshot. The Institutional tier includes filing-event webhooks on top of the 4h freshness target; the Enterprise (custom contract) tier supports real-time 8-K push delivery with sub-minute SLA.
 
 A new authoritative snapshot is published daily by **06:00 UTC**. Snapshot ID and `last_updated` timestamp are accessible via `client.manifest()` (SDK) or the `manifest` resource (MCP).
 
@@ -44,7 +44,7 @@ A new authoritative snapshot is published daily by **06:00 UTC**. Snapshot ID an
 
 GitHub Issues is the public support channel. Email is reserved for private matters (billing, contracts, security). Triage SLAs are tier-aware.
 
-| Severity | Definition | Free | Pro | Enterprise / Custom |
+| Severity | Definition | Free | Pro | Institutional / Enterprise |
 |---|---|---|---|---|
 | **Critical** | Total outage; production blocker | Best-effort | < 4h, business hours | < 2h, 24/7 |
 | **High** | Significant data error (incorrect value, missing filing) | Best-effort | < 1 business day | < 4 business hours |
@@ -70,7 +70,7 @@ Per-tier rate limits are canonical at [`https://data.valuein.biz/v1/plans`](http
 | Sample (anonymous) | 15 | 150 |
 | Free | 60 | 1,000 |
 | Pro | 100 | 3,000 |
-| Enterprise | 300 | 10,000 |
+| Institutional | 300 | 10,000 |
 
 Rate-limit responses include a `Retry-After` header and a typed `ValueinRateLimitError.retry_after` in the SDK. Bursting above the per-minute limit briefly is allowed up to a 2× factor; sustained bursts trigger a backoff window.
 

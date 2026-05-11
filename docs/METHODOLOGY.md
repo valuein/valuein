@@ -2,7 +2,7 @@
 
 Transparency is foundational to the Valuein product. This document describes how raw SEC EDGAR XBRL data is processed into standardized, point-in-time accurate financial time series.
 
-The data product covers **16,000+** active and delisted US entities, **12M+** filings, and **105M+** standardized facts since **1994**. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
+The data product covers **17,000+** active and delisted US entities (22,000+ with foreign private issuers on the Institutional tier), **12M+** filings, and **105M+** standardized facts since **1994**. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
 
 ---
 
@@ -146,12 +146,12 @@ The `data_quality` field on each valuation row indicates input reliability:
 
 | Dimension | Detail |
 |---|---|
-| **Entities** | 16,000+ active and delisted US-listed companies (the Pro and Enterprise tiers see all of them) |
-| **History** | 1994 – present |
-| **Filings** | 12M+ (10-K, 10-Q, 8-K, 20-F, and amendments) |
+| **Entities** | 17,000+ active and delisted US-listed companies (the Pro tier sees all of them; the Institutional tier adds 22,000+ including foreign private issuers and a per-fact intraday `accepted_at` timestamp) |
+| **History** | 1994 – present (Pro: 30-year window from 1995; Institutional: 1990 – present) |
+| **Filings** | 12M+ (10-K, 10-Q, 8-K, 20-F, and amendments; Institutional adds 6-K and 40-F) |
 | **Facts** | 105M+ standardized financial data points |
 | **XBRL coverage** | 95% of all SEC EDGAR financial facts mapped to a canonical `standard_concept`; the remainder is exposed under `'Other'` for transparency |
-| **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness for Enterprise; real-time 8-K alerts on Custom |
+| **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K alerts for Enterprise (custom contract) |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |
 
 ---

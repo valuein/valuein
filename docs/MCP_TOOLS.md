@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro and Enterprise see the full universe and the full history.
+The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full universe + 30 years; Institutional adds intraday `accepted_at`, filing-event webhooks, foreign issuers, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -34,7 +34,7 @@ Same URL + Bearer token. The server advertises tool, prompt, and resource listin
 
 ### Sample token
 
-The Sample tier works without a token but only against the S&P 500 sample slice. To explore the full universe and history, [register](https://valuein.biz/signup/free) (Free, S&P 500 only) or [subscribe](https://valuein.biz/pricing) (Pro / Enterprise).
+The Sample tier works without a token but only against the S&P 500 sample slice. To explore the full universe and history, [register](https://valuein.biz/signup/free) (Free, S&P 500 only) or [subscribe](https://valuein.biz/pricing) (Pro / Institutional).
 
 ---
 
@@ -263,7 +263,7 @@ The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equ
 | `survivorship_free_backtest` | Construct a survivorship-bias-free universe and run a factor-rebalance backtest |
 | `pit_factor_constructor` | Build a PIT-correct factor (with `filing_date <= trade_date` discipline) |
 
-Invoke a prompt the same way as a tool — most clients surface them in the same picker. The flagship prompts include built-in plan-aware fallback (returns "🔒 Pro/Enterprise unlocks this" inline rather than aborting on tier-gated sections), data-freshness lines, automatic restatement flagging on any row where `lineage.restated = true`, and a not-investment-advice disclaimer.
+Invoke a prompt the same way as a tool — most clients surface them in the same picker. The flagship prompts include built-in plan-aware fallback (returns "🔒 Pro / Institutional unlocks this" inline rather than aborting on tier-gated sections), data-freshness lines, automatic restatement flagging on any row where `lineage.restated = true`, and a not-investment-advice disclaimer.
 
 ---
 
@@ -288,9 +288,9 @@ All tools are callable on every paid tier. **What changes is the data the tool c
 |---|---|
 | Sample (anonymous) | S&P 500 sample · 5-year window |
 | Free | S&P 500 · 1994 – present |
-| Pro | Full universe (16,000+ tickers) · 10-year history · 24h freshness |
-| Enterprise | Full universe · 1994 – present · 4h priority freshness |
-| Custom | Negotiated scope · real-time 8-K push · redistribution license |
+| Pro | Full universe (17,000+ tickers) · 30-year history (1995→present) · 24h freshness |
+| Institutional | Full universe + delisted + foreign issuers (22,000+) · 1990 – present + intraday `accepted_at` · 4h priority + filing-event webhooks · redistribution license |
+| Enterprise | Negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
 
 A `ValueinPlanError`-equivalent MCP error is raised when a tool call needs data outside the bound tier — the agent should suggest the user upgrade at [valuein.biz/pricing](https://valuein.biz/pricing).
 
