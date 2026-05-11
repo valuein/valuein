@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full universe + 30 years; Institutional adds intraday `accepted_at`, filing-event webhooks, foreign issuers, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity US universe with 30 years of point-in-time fundamentals (10-K / 10-Q / 8-K / 20-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -288,8 +288,8 @@ All tools are callable on every paid tier. **What changes is the data the tool c
 |---|---|
 | Sample (anonymous) | S&P 500 sample · 5-year window |
 | Free | S&P 500 · 1994 – present |
-| Pro | Full universe (17,000+ tickers) · 30-year history (1995→present) · 24h freshness |
-| Institutional | Full universe + delisted + foreign issuers (22,000+) · 1990 – present + intraday `accepted_at` · 4h priority + filing-event webhooks · redistribution license |
+| Pro | Full ~18,000-entity US universe · 30-year point-in-time history (1995→present) · 24h freshness · fundamentals only |
+| Institutional | Full universe · 1990–present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · redistribution license |
 | Enterprise | Negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
 
 A `ValueinPlanError`-equivalent MCP error is raised when a tool call needs data outside the bound tier — the agent should suggest the user upgrade at [valuein.biz/pricing](https://valuein.biz/pricing).

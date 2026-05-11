@@ -2,7 +2,7 @@
 
 Transparency is foundational to the Valuein product. This document describes how raw SEC EDGAR XBRL data is processed into standardized, point-in-time accurate financial time series.
 
-The data product covers **17,000+** active and delisted US entities (22,000+ with foreign private issuers on the Institutional tier), **12M+** filings, and **105M+** standardized facts since **1994**. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
+The data product covers **~18,000** active and delisted US public-company entities, **12M+** filings, and **105M+** standardized facts since **1994**. The fundamentals dataset (10-K / 10-Q / 8-K / 20-F + amendments) is exposed on every paid tier; the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 and institutional ownership on Forms 13F / 13D / 13G) is exposed on the Institutional tier only. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
 
 ---
 
@@ -146,9 +146,9 @@ The `data_quality` field on each valuation row indicates input reliability:
 
 | Dimension | Detail |
 |---|---|
-| **Entities** | 17,000+ active and delisted US-listed companies (the Pro tier sees all of them; the Institutional tier adds 22,000+ including foreign private issuers and a per-fact intraday `accepted_at` timestamp) |
-| **History** | 1994 – present (Pro: 30-year window from 1995; Institutional: 1990 – present) |
-| **Filings** | 12M+ (10-K, 10-Q, 8-K, 20-F, and amendments; Institutional adds 6-K and 40-F) |
+| **Entities** | ~18,000 active and delisted US-listed companies. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro is a 30-year rolling window; Institutional is unlimited 1990→present) and access to the smart-money dataset. |
+| **History** | Pro: 30-year rolling (1995 → present). Institutional: 1990 → present. |
+| **Filings** | 12M+ — 10-K, 10-Q, 8-K, 20-F, and their amendments. 6-K and 40-F are not currently in the ingest scope. |
 | **Facts** | 105M+ standardized financial data points |
 | **XBRL coverage** | 95% of all SEC EDGAR financial facts mapped to a canonical `standard_concept`; the remainder is exposed under `'Other'` for transparency |
 | **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K alerts for Enterprise (custom contract) |
