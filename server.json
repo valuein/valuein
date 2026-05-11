@@ -3,7 +3,7 @@
   "name": "io.github.valuein/mcp-sec-edgar",
   "title": "Valuein — SEC EDGAR Fundamentals",
   "description": "Point-in-time, survivorship-bias-free SEC EDGAR fundamentals for AI agents. 1994 to present.",
-  "version": "2.7.0",
+  "version": "2.8.0",
   "websiteUrl": "https://valuein.biz",
   "icons": [
     {
@@ -72,7 +72,19 @@
       "header": "Authorization",
       "obtain": "https://valuein.biz/pricing",
       "free_tier": true,
-      "anonymous_sample": true
+      "anonymous_sample": true,
+      "machine_payments": {
+        "protocol": "mpp.dev",
+        "protocol_version": "1",
+        "anonymous_pay_per_call": true,
+        "supported_currencies": ["usdc", "usd"],
+        "supported_networks": ["solana-usdc", "tempo-card", "link-card", "link-bank"],
+        "endpoints": {
+          "charge": "https://api.valuein.biz/api/mpp/charge",
+          "quote": "https://api.valuein.biz/api/mpp/quote",
+          "discovery": "https://api.valuein.biz/api/mpp/well-known"
+        }
+      }
     },
     "io.github.valuein/tools_summary": {
       "live": 14,
