@@ -35,7 +35,8 @@ Email the right inbox — public issues are not appropriate for these:
 |---|---|
 | Billing, refunds, invoicing | billing@valuein.biz |
 | DPAs, security questionnaires, vendor due diligence | compliance@valuein.biz |
-| Enterprise contracts, custom plans, redistribution licensing | sales@valuein.biz |
+| Institutional ($499/mo) — redistribution license + webhooks + intraday + business-hours SLA | sales@valuein.biz |
+| Enterprise (custom) — dedicated infrastructure, zero-retention, bespoke SLA | sales@valuein.biz |
 | Security vulnerabilities (see [`SECURITY.md`](SECURITY.md)) | security@valuein.biz |
 | Code-of-conduct concerns (see [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)) | conduct@valuein.biz |
 | Anything else | support@valuein.biz |
