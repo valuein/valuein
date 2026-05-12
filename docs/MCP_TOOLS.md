@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity US universe with 30 years of point-in-time fundamentals (10-K / 10-Q / 8-K / 20-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **14 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes), **10 analyst SOP prompts** (two flagship cross-persona briefs + eight specialised chains), and **2 reference resources**. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity US + Canadian universe with 30 years of point-in-time fundamentals (10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -142,7 +142,7 @@ Direct EDGAR URLs for a company's filings.
 | Parameter | Type | Required |
 |---|---|---|
 | `ticker` | string | yes |
-| `form_types` | string[] | optional — any of `10-K`, `10-Q`, `8-K`, `20-F`, `10-K/A`, `10-Q/A` |
+| `form_types` | string[] | optional — any of `10-K`, `10-Q`, `8-K`, `20-F`, `40-F`, `10-K/A`, `10-Q/A`, `20-F/A`, `40-F/A` |
 | `limit` | integer | optional — default 20 |
 
 Returns: `[{accession_id, filing_date, form_type, url, is_amendment}]`.
