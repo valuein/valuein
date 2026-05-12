@@ -452,18 +452,6 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 
 ---
 
-## Benchmarks
-
-Reproducible scoreboard measuring whether Valuein's MCP server returns **correct, lineage-traceable, point-in-time** answers on the questions analysts and AI agents actually ask. Methodology is published; the runner is checked in; competing data providers are invited to PR their own scores on the same task set.
-
-| Benchmark | Status | Source |
-|---|---|---|
-| [`benchmarks/finance-bench/`](benchmarks/finance-bench/) | Scaffolding shipped; first official run pending | Custom task set inspired by [FinanceBench (Islam et al. 2023)](https://arxiv.org/abs/2311.11944) |
-
-See [`benchmarks/README.md`](benchmarks/README.md) for the full methodology + reproduction recipe. The FinanceBench paper established the bar (GPT-4-Turbo + RAG fails 81% of single-doc 10-K questions); our bet is that a structured-data MCP with lineage + PIT integrity beats that floor by a wide margin.
-
----
-
 ## Support & community
 
 GitHub Issues is the primary support channel. Use the right template — it routes correctly and gets faster triage.
