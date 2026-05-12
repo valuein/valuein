@@ -146,7 +146,7 @@ The `data_quality` field on each valuation row indicates input reliability:
 
 | Dimension | Detail |
 |---|---|
-| **Entities** | ~18,000 active and delisted US + Canadian public-company entities. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro is a 30-year rolling window; Institutional is unlimited 1990→present) and access to the smart-money dataset. |
+| **Entities** | ~18,000 active and delisted US + Canadian public-company entities (the `entity_type='us_public_filer'` subset — CIKs with at least one 10-K / 10-Q / 8-K / 20-F / 40-F filing). The full `entity` table is larger because per-filing parsers (SC 13D/G, Form 3/4/5, Form 144, 13F-HR) emit stub rows for issuers named in smart-money filings; those rows are labelled `entity_type='smart_money_subject'` and are excluded from the universe count. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro = 30-year rolling; Institutional = unlimited 1990→present) and access to the smart-money dataset. |
 | **History** | Pro: 30-year rolling (1995 → present). Institutional: 1990 → present. |
 | **Filings** | 12M+ — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
 | **Facts** | 105M+ standardized financial data points |
