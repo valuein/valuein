@@ -35,7 +35,7 @@ If you need source code for any of the above, redirect to the right repo. Don't 
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
 - **105M+ standardized financial facts** across **~18,000** active and delisted US public-company entities
-- **12M+ filings** since **1994** — 10-K, 10-Q, 8-K, 20-F, and amendments
+- **12M+ filings** since **1994** — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS), and amendments
 - **11,966 raw XBRL tags** normalized to **~150 canonical `standard_concept`** values
 - Distributed via four channels: **Python SDK**, **MCP server**, **Bulk Data API**, **web dashboard**
 - All four channels unlocked by a single Stripe-issued Bearer token at the user's tier
