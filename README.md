@@ -329,7 +329,9 @@ Valuein ships a remote Model Context Protocol server so any MCP-capable agent (C
 
 ### Tools
 
-The server exposes 19 tools (15 core + 4 smart-money primitives), plus 10 analyst SOP prompts (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus eight specialised chains) and 2 data resources. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity universe with 30 years of point-in-time fundamentals; Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license.
+<!-- GEN:mcp-summary -->
+The server exposes **44 live tools + 1 stub** (45 total), plus **22 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity universe with 30 years of point-in-time fundamentals; Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license.
+<!-- /GEN:mcp-summary -->
 
 **Discovery & schema**
 

@@ -15,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - uses: astral-sh/setup-uv@v3
+
+      - name: Verify server.json + README counts match the published MCP manifest
+        run: uv run python scripts/sync_mcp_manifest.py --check
+        env:
+          # Pull the canonical manifest from the deployed MCP repo. CI has no
+          # sibling checkout, so fall back to the published raw URL.
+          MCP_MANIFEST_URL: https://raw.githubusercontent.com/valuein/mcp/main/manifest.json
+
       - name: Validate server.json (pre-flight)
         run: |
           set -euo pipefail

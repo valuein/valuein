@@ -1,0 +1,48 @@
+name: Sync MCP manifest
+
+# Keeps server.json + README.md in lockstep with the MCP server's
+# authoritative manifest (~/WebstormProjects/mcp → github.com/valuein/mcp).
+#
+# Triggers:
+#   - Nightly cron (catches manifest drift even when this repo is idle)
+#   - Manual workflow_dispatch
+#   - repository_dispatch type=mcp-manifest-updated (fired from the mcp repo
+#     after it commits a new manifest.json, for near-real-time sync)
+#
+# If anything diff'd, commit + push to main. Touching server.json then
+# triggers publish-mcp.yml to republish to registry.modelcontextprotocol.io.
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [mcp-manifest-updated]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v3
+
+      - name: Sync from MCP manifest
+        run: uv run python scripts/sync_mcp_manifest.py
+        env:
+          MCP_MANIFEST_URL: https://raw.githubusercontent.com/valuein/mcp/main/manifest.json
+
+      - name: Commit + push if diff
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "✓ already in sync — nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add server.json README.md
+          git commit -m "chore: sync MCP manifest (server.json + README counts)"
+          git push
