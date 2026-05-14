@@ -32,7 +32,7 @@ jobs:
       - name: Sync from MCP manifest
         run: uv run python scripts/sync_mcp_manifest.py
         env:
-          MCP_MANIFEST_URL: https://raw.githubusercontent.com/valuein/mcp/main/manifest.json
+          MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
 
       - name: Commit + push if diff
         run: |

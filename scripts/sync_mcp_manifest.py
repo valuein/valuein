@@ -16,7 +16,9 @@ this script keeps them honest.
 Source resolution order:
 1. Sibling local checkout (`~/WebstormProjects/mcp/manifest.json`) — for dev
 2. Override via `MCP_MANIFEST_URL` env var
-3. Default: raw.githubusercontent.com/valuein/mcp/main/manifest.json (in CI)
+3. Default: https://mcp.valuein.biz/manifest.json (served by the deployed Worker;
+   the `valuein/mcp` GitHub repo is private, so the raw.githubusercontent URL
+   would 404 in CI)
 
 Usage:
   uv run python scripts/sync_mcp_manifest.py            # write changes
@@ -37,9 +39,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SERVER_JSON = REPO_ROOT / "server.json"
 README = REPO_ROOT / "README.md"
 
-DEFAULT_MANIFEST_URL = (
-    "https://raw.githubusercontent.com/valuein/mcp/main/manifest.json"
-)
+DEFAULT_MANIFEST_URL = "https://mcp.valuein.biz/manifest.json"
 LOCAL_MCP = REPO_ROOT.parent.parent / "WebstormProjects" / "mcp" / "manifest.json"
 
 
