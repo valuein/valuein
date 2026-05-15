@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-05-15T20:48:56Z",
+  "measured_at": "2026-05-15T22:51:03Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 498,
-    "filings": 12048,
+    "entities": 0,
+    "filings": 0,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,55 +20,34 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json.",
     "overall": {
-      "filings": 12048,
-      "clean_filings": 11997,
-      "filings_with_errors": 51,
-      "accuracy_pct": 99.58
+      "filings": 0,
+      "clean_filings": 0,
+      "filings_with_errors": 0,
+      "accuracy_pct": null
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 7358,
-        "clean_filings": 7309,
-        "filings_with_errors": 49,
-        "accuracy_pct": 99.33
+        "filings": 0,
+        "clean_filings": 0,
+        "filings_with_errors": 0,
+        "accuracy_pct": null
       },
       "legacy_pre_2010": {
-        "filings": 4690,
-        "clean_filings": 4688,
-        "filings_with_errors": 2,
-        "accuracy_pct": 99.96,
+        "filings": 0,
+        "clean_filings": 0,
+        "filings_with_errors": 0,
+        "accuracy_pct": null,
         "_note": "Pre-2010 XBRL was optional; most pre-2010 filings have no facts and trivially pass every identity. Use modern_2010_onward as the honest measurement."
       }
     },
-    "top_remaining_pareto": [
-      {
-        "identity_key": "is_01_gross_profit",
-        "filings_failed": 82
-      },
-      {
-        "identity_key": "sp_08_gross_profit_le_revenue",
-        "filings_failed": 17
-      },
-      {
-        "identity_key": "eps_03_diluted_shares_ge_basic",
-        "filings_failed": 6
-      },
-      {
-        "identity_key": "sp_01_total_assets_positive",
-        "filings_failed": 3
-      },
-      {
-        "identity_key": "sp_06_total_debt_nonnegative",
-        "filings_failed": 2
-      }
-    ]
+    "top_remaining_pareto": []
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 4055754,
-    "correctly_unstandardized": 3932179,
-    "mapping_gaps": 123575,
-    "accuracy_pct": 96.95
+    "facts_with_standard_concept_other": 0,
+    "correctly_unstandardized": 0,
+    "mapping_gaps": 0,
+    "accuracy_pct": 0.0
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
