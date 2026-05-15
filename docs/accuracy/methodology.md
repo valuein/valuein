@@ -81,33 +81,56 @@ These are honest engineering decisions, not metric-gaming. Every loosening choic
 
 ## 4. Reproducing the measurement
 
-### 4.1 Free / no-token path
+### 4.1 Free path (sample tier — 5-year S&P 500 window)
 
-The `sec-data-sample` R2 bucket serves 5 years of S&P 500 Parquet without authentication. To independently re-derive a directionally-correct accuracy number:
+The sample tier is free, but a Bearer token is required to fetch its Parquet files (lead-capture flow — we ask for an email so we know who's evaluating). Get one in 30 seconds at [valuein.biz/register](https://valuein.biz/register).
 
 ```bash
 # 1. Install DuckDB (one binary, zero deps): https://duckdb.org/docs/installation
-# 2. Run the public accuracy script — it auto-targets the sample tier:
+# 2. Export your free token and run the script:
 
-duckdb -c ".read scripts/accuracy/accuracy_check.sql"
+export VALUEIN_TOKEN="your_free_token_here"
+
+duckdb -c "
+LOAD httpfs;
+CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
+.read scripts/accuracy/accuracy_check.sql
+"
 ```
 
-You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; only the dataset is smaller (5-year SP500 window vs. 35-year full-universe).
+You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window (vs. 35-year full universe on paid tiers).
 
 ### 4.2 Pro / Institutional path
 
-If you have a Bearer token from [valuein.biz](https://valuein.biz):
+Same flow as 4.1 but with your paid-tier token and the corresponding bucket URL:
 
-```sql
+```bash
+duckdb -c "
 LOAD httpfs;
-SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro';
-CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer YOUR_TOKEN'});
-
--- Now run the public script:
+CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
+SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro';   -- or /v1/full
 .read scripts/accuracy/accuracy_check.sql
+"
 ```
 
-You get the full 30-year × 17,000-entity number, with the same SQL.
+Full 30-year × 17,000-entity number, same SQL.
+
+### 4.3 Offline path (no network, no token)
+
+If you'd rather not depend on our infrastructure for the proof:
+
+```bash
+# Download the offline sample Parquet bundle (~250 MB, no token):
+curl -L -o sample.zip https://valuein.biz/download/sample
+unzip sample.zip -d ./sample
+
+duckdb -c "
+SET VARIABLE valuein_bucket_base = 'file:///$(pwd)/sample';
+.read scripts/accuracy/accuracy_check.sql
+"
+```
+
+Same script, same answer, no third-party trust required.
 
 ### 4.3 Programmatic
 
