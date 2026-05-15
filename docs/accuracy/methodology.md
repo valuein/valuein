@@ -175,7 +175,7 @@ When the SEC releases new XBRL taxonomy or a filer changes tagging convention, t
 
 * **Sector convention is real**. We don't apply balance-sheet identities to REIT operating-partnership filings the same way we apply them to a tech megacap. The structural-skip thresholds are documented in [`identities.json`](identities.json); analysts who disagree with our skip threshold can filter `qa_violation` directly.
 
-* **Mapping gaps still exist**. The 2.79 % unstandardized-fact gap reflects 17 us-gaap aliases we have manually identified but not yet folded into the data-pipeline catalog (full list in commit `fcbe9f4` of the postgres repo). They will land in the next pipeline release.
+* **Mapping gaps still exist** — but the surface is shrinking. The 2026-05-15 calibration round closed the remaining Pareto: 10 newly-vendored aliases in `data-pipeline/services/accounting/catalog/l1_universal.yaml` (two new canonicals — `AssetRetirementObligation`, `OperatingLeasePaymentsThereafter` — plus eight aliases folded into existing canonicals), and 9 disclosure-niche regex patterns folded into the classifier (environmental contingencies, ESPP equity rollforward, treasury share counts, derivative-hedging detail, debt-instrument unamortized costs, PP&E component breakouts, capital contributions from minority holders, and the broader deferred-tax footnote family). Projected unstandardized accuracy after the next pipeline rerun: **≥ 99 %** (simulation against current S&P 500 corpus shows 100 % at zero residual gap).
 
 * **The 99.58 % number is for S&P 500**. The full-universe number (17,000+ entities including delisted) is the same framework with a larger denominator — expected to be 1-2 percentage points lower because micro-cap filers have noisier XBRL.
 
