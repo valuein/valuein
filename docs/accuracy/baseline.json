@@ -9,7 +9,14 @@
     "entities": 498,
     "filings": 12048,
     "facts_total": 11285788,
-    "form_types": ["10-K", "20-F", "40-F", "10-K/A", "20-F/A", "40-F/A"]
+    "form_types": [
+      "10-K",
+      "20-F",
+      "40-F",
+      "10-K/A",
+      "20-F/A",
+      "40-F/A"
+    ]
   },
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity defined in identities.json.",
@@ -37,25 +44,98 @@
     "trajectory": {
       "_note": "10-iteration calibration history from production-data baseline to final. Every step traceable to a Pareto-leading identity and a real-world filer pattern.",
       "iterations": [
-        {"i": 0, "pct": 69.05, "modern_pct": 50.04, "change": "baseline — out-of-the-box engine on first SP500 production run"},
-        {"i": 1, "pct": 72.63, "modern_pct": 55.71, "change": "tolerance bumps round 1 (bs_01, bs_02, bs_03, bs_04, is_04, is_05)"},
-        {"i": 2, "pct": 86.55, "modern_pct": 78.17, "change": "structural-skip logic on top-Pareto identities"},
-        {"i": 3, "pct": 90.50, "modern_pct": 84.67, "change": "bs_05 + eps_02 polish, is_05 skip widened"},
-        {"i": 4, "pct": 95.20, "modern_pct": 92.21, "change": "demoted is_05 + bs_05 to warning (sector convention not math error)"},
-        {"i": 5, "pct": 96.02, "modern_pct": 93.54, "change": "tolerance bumps round 3"},
-        {"i": 6, "pct": 98.00, "modern_pct": 96.74, "change": "demoted cf_01 to warning (bank/insurance reconciling-items convention)"},
-        {"i": 7, "pct": 98.75, "modern_pct": 97.95, "change": "sector-skip widening on is_01 + bs_01"},
-        {"i": 8, "pct": 99.05, "modern_pct": 98.45, "change": "tolerance round 4 (is_01 = 0.15, is_02 = 0.20)"},
-        {"i": 9, "pct": 99.34, "modern_pct": 98.91, "change": "tolerance round 5 (bs_01 = 0.08, bs_04 = 0.08)"},
-        {"i": 10, "pct": 99.58, "modern_pct": 99.33, "change": "demoted is_02 + sp_04 + sp_05 to warning (sector-specific structural cases)"}
+        {
+          "i": 0,
+          "pct": 69.05,
+          "modern_pct": 50.04,
+          "change": "baseline \u2014 out-of-the-box engine on first SP500 production run"
+        },
+        {
+          "i": 1,
+          "pct": 72.63,
+          "modern_pct": 55.71,
+          "change": "tolerance bumps round 1 (bs_01, bs_02, bs_03, bs_04, is_04, is_05)"
+        },
+        {
+          "i": 2,
+          "pct": 86.55,
+          "modern_pct": 78.17,
+          "change": "structural-skip logic on top-Pareto identities"
+        },
+        {
+          "i": 3,
+          "pct": 90.5,
+          "modern_pct": 84.67,
+          "change": "bs_05 + eps_02 polish, is_05 skip widened"
+        },
+        {
+          "i": 4,
+          "pct": 95.2,
+          "modern_pct": 92.21,
+          "change": "demoted is_05 + bs_05 to warning (sector convention not math error)"
+        },
+        {
+          "i": 5,
+          "pct": 96.02,
+          "modern_pct": 93.54,
+          "change": "tolerance bumps round 3"
+        },
+        {
+          "i": 6,
+          "pct": 98.0,
+          "modern_pct": 96.74,
+          "change": "demoted cf_01 to warning (bank/insurance reconciling-items convention)"
+        },
+        {
+          "i": 7,
+          "pct": 98.75,
+          "modern_pct": 97.95,
+          "change": "sector-skip widening on is_01 + bs_01"
+        },
+        {
+          "i": 8,
+          "pct": 99.05,
+          "modern_pct": 98.45,
+          "change": "tolerance round 4 (is_01 = 0.15, is_02 = 0.20)"
+        },
+        {
+          "i": 9,
+          "pct": 99.34,
+          "modern_pct": 98.91,
+          "change": "tolerance round 5 (bs_01 = 0.08, bs_04 = 0.08)"
+        },
+        {
+          "i": 10,
+          "pct": 99.58,
+          "modern_pct": 99.33,
+          "change": "demoted is_02 + sp_04 + sp_05 to warning (sector-specific structural cases)"
+        }
       ]
     },
     "top_remaining_pareto": [
-      {"identity_key": "sp_08_gross_profit_le_revenue", "filings_failed": 10, "_note": "filers reporting GP > Revenue — real data-extraction quality flag"},
-      {"identity_key": "is_01_gross_profit", "filings_failed": 13, "_note": "industries without true COGS partition (consumer-staples distributors)"},
-      {"identity_key": "eps_03_diluted_shares_ge_basic", "filings_failed": 4, "_note": "rare anti-dilution math errors in early XBRL filings"},
-      {"identity_key": "sp_01_total_assets_positive", "filings_failed": 3},
-      {"identity_key": "sp_06_total_debt_nonnegative", "filings_failed": 1}
+      {
+        "identity_key": "sp_08_gross_profit_le_revenue",
+        "filings_failed": 10,
+        "_note": "filers reporting GP > Revenue \u2014 real data-extraction quality flag"
+      },
+      {
+        "identity_key": "is_01_gross_profit",
+        "filings_failed": 13,
+        "_note": "industries without true COGS partition (consumer-staples distributors)"
+      },
+      {
+        "identity_key": "eps_03_diluted_shares_ge_basic",
+        "filings_failed": 4,
+        "_note": "rare anti-dilution math errors in early XBRL filings"
+      },
+      {
+        "identity_key": "sp_01_total_assets_positive",
+        "filings_failed": 3
+      },
+      {
+        "identity_key": "sp_06_total_debt_nonnegative",
+        "filings_failed": 1
+      }
     ]
   },
   "unstandardized_facts": {
@@ -70,13 +150,19 @@
     "sql_script": "scripts/accuracy/accuracy_check.sql",
     "identities_catalog": "docs/accuracy/identities.json",
     "methodology": "docs/accuracy/methodology.md",
-    "run_command": "duckdb -c \".read scripts/accuracy/accuracy_check.sql\"",
-    "input_parquet_files": ["fact.parquet", "filing.parquet", "entity.parquet", "index_membership.parquet"]
+    "run_command": "See scripts/accuracy/accuracy_check.sql header \u2014 DuckDB + free Bearer token from valuein.biz/register",
+    "input_parquet_files": [
+      "fact",
+      "filing",
+      "entity",
+      "index_membership"
+    ],
+    "_note": "URLs use no file extension on the edge gateway (e.g. /v1/sample/fact). Local-Parquet runs append .parquet to the bundle paths."
   },
   "sources": [
     "FASB ASC 210 / 220 / 230 / 260 / 740 / 810",
-    "Penman (2013) — Financial Statement Analysis and Security Valuation 5e",
-    "Ohlson (1995) — Contemporary Accounting Research",
+    "Penman (2013) \u2014 Financial Statement Analysis and Security Valuation 5e",
+    "Ohlson (1995) \u2014 Contemporary Accounting Research",
     "FactSet Fundamentals Methodology v3.4",
     "XBRL US-GAAP Taxonomy + Calculation Linkbase 2009-2026",
     "WRDS Compustat Point-in-Time"

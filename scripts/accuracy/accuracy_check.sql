@@ -6,17 +6,29 @@
 -- Parquet exports to *independently verify* the accuracy claims in
 -- docs/accuracy/methodology.md.
 --
---   ┌───────────────────────────────────────────────────────────────────────┐
---   │  Run against the publicly-available sample tier (no token required):  │
---   │                                                                       │
---   │  duckdb -c ".read scripts/accuracy/accuracy_check.sql"                │
---   └───────────────────────────────────────────────────────────────────────┘
+--   ┌─────────────────────────────────────────────────────────────────────────────┐
+--   │  TWO WAYS TO RUN — same SQL, same answer.                                   │
+--   │                                                                             │
+--   │  A. Free token (S&P 500 sample, 5-year window)                              │
+--   │     1. Get a free token at https://valuein.biz/register                     │
+--   │     2. duckdb -c "LOAD httpfs;                                              │
+--   │            CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS                     │
+--   │                MAP {'Authorization': 'Bearer YOUR_TOKEN'});                 │
+--   │            .read scripts/accuracy/accuracy_check.sql"                       │
+--   │                                                                             │
+--   │  B. Offline (no network, no token)                                          │
+--   │     1. Download the sample Parquet bundle: https://valuein.biz/download/sample │
+--   │     2. duckdb -c "SET VARIABLE valuein_bucket_base = 'file:///path/to/sample'; │
+--   │            .read scripts/accuracy/accuracy_check.sql"                       │
+--   └─────────────────────────────────────────────────────────────────────────────┘
 --
--- Default parameters target the free `sec-data-sample` R2 bucket — five
--- years of S&P 500 fact / filing / index_membership data, served unauthenticated
--- from the edge.  To run against a paid tier (sp500 / pro / full), set
--- VALUEIN_BUCKET_BASE to your tier's URL prefix before reading this file
--- (see the parameters block below).
+-- The script reads four tables — fact, filing, entity, index_membership —
+-- served at <valuein_bucket_base>/<table>.  No file extension on the URL
+-- path; the edge gateway returns Parquet bytes addressed by table name.
+-- For local files, append '.parquet' to the path (see Option B above).
+--
+-- For Pro / Institutional tiers, override the bucket path to your tier's
+-- URL prefix (https://data.valuein.biz/v1/pro or .../v1/full).  Same script.
 --
 -- ----------------------------------------------------------------------------
 -- What this script does (35 identities, 7 result sets)
@@ -56,9 +68,12 @@ SET memory_limit = '4GB';
 SET threads = 4;
 
 -- ============================================================================
--- Parameters — override before .read'ing this file to target your tier.
--- Defaults point to the unauthenticated sample bucket so the script
--- runs out of the box.
+-- Parameters — override BEFORE `.read`-ing this file to target your tier.
+-- Default points at the sample-tier URL.  All tier URLs require a free
+-- Bearer token (get one at valuein.biz/register); load it via DuckDB's
+-- HTTP secrets API before reading this script (see header docblock,
+-- option A).  For zero-network reproducibility, download the offline
+-- Parquet bundle and point `valuein_bucket_base` at the local path.
 -- ============================================================================
 
 -- Override examples (run BEFORE `.read`-ing this file):
@@ -85,7 +100,7 @@ SET VARIABLE valuein_as_of =
 CREATE OR REPLACE VIEW universe AS
 WITH sp_members AS (
     SELECT DISTINCT cik AS entity_id
-    FROM read_parquet(getvariable('valuein_bucket_base') || '/index_membership.parquet')
+    FROM read_parquet(getvariable('valuein_bucket_base') || '/index_membership')
     WHERE index_name = 'SP500'
 ),
 fy_filings AS (
@@ -100,7 +115,7 @@ fy_filings AS (
             PARTITION BY f.entity_id, EXTRACT(YEAR FROM f.report_date)
             ORDER BY f.accepted_at DESC
         ) AS rn
-    FROM read_parquet(getvariable('valuein_bucket_base') || '/filing.parquet') f
+    FROM read_parquet(getvariable('valuein_bucket_base') || '/filing') f
     JOIN sp_members s ON s.entity_id = f.entity_id
     WHERE f.form_type IN ('10-K', '20-F', '10-K/A', '20-F/A', '40-F', '40-F/A')
       AND (getvariable('valuein_as_of') = 'NULL'
@@ -162,7 +177,7 @@ SELECT
     MAX(CASE WHEN f.standard_concept = 'CAPEX'                          THEN f.numeric_value END) AS capex,
     MAX(CASE WHEN f.standard_concept = 'Dividends'                      THEN f.numeric_value END) AS dividends,
     MAX(CASE WHEN f.standard_concept = 'ShareBuyback'                   THEN f.numeric_value END) AS buyback
-FROM read_parquet(getvariable('valuein_bucket_base') || '/fact.parquet') f
+FROM read_parquet(getvariable('valuein_bucket_base') || '/fact') f
 JOIN universe u ON u.accession_id = f.accession_id
 GROUP BY f.entity_id, f.accession_id, f.period_end, f.fiscal_period, f.accepted_at;
 
@@ -384,7 +399,7 @@ SELECT
     count(DISTINCT v.accession_id)        AS filings_with_violations,
     count(*)                              AS total_violations,
     count(DISTINCT v.identity_key)        AS distinct_identities_failed
-FROM read_parquet(getvariable('valuein_bucket_base') || '/entity.parquet') e
+FROM read_parquet(getvariable('valuein_bucket_base') || '/entity') e
 JOIN violations v ON v.entity_id = e.cik AND v.severity = 'error'
 JOIN filings_with_status f ON f.accession_id = v.accession_id
 GROUP BY e.cik, e.name, e.sector
@@ -409,7 +424,7 @@ SELECT
     round(100.0 * count(*) FILTER (WHERE NOT f.has_error)::DOUBLE / count(*), 2)
                                                AS accuracy_pct
 FROM filings_with_status f
-JOIN read_parquet(getvariable('valuein_bucket_base') || '/entity.parquet') e
+JOIN read_parquet(getvariable('valuein_bucket_base') || '/entity') e
     ON e.cik = f.entity_id
 WHERE f.report_date >= '2010-01-01'
 GROUP BY e.sector
@@ -450,7 +465,7 @@ GROUP BY era ORDER BY era;
 WITH covered AS (
     SELECT f.standard_concept,
            count(DISTINCT f.accession_id) AS filings_carrying
-    FROM read_parquet(getvariable('valuein_bucket_base') || '/fact.parquet') f
+    FROM read_parquet(getvariable('valuein_bucket_base') || '/fact') f
     JOIN universe u ON u.accession_id = f.accession_id
     GROUP BY f.standard_concept
 ),

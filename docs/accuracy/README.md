@@ -15,10 +15,17 @@ README and pricing page. Three files, all citable, all runnable:
 > *"Valuein guarantees 99.58 % mathematical consistency on S&P 500 annual filings, audited against SEC's own canonical `companyfacts` API, with each tolerance choice citable to FactSet PIT methodology, FASB ASC, or Penman §8-10. Re-running the measurement is one DuckDB command."*
 
 ```bash
-duckdb -c ".read scripts/accuracy/accuracy_check.sql"
+# Get a free token first (lead-capture, 30 seconds): https://valuein.biz/register
+export VALUEIN_TOKEN="your_token"
+
+duckdb -c "
+  LOAD httpfs;
+  CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
+  .read scripts/accuracy/accuracy_check.sql
+"
 ```
 
-That command targets the free `sec-data-sample` bucket (5 years of S&P 500 data, no token required). Pro / Institutional tier customers point it at their own bucket via a session variable — same SQL, larger universe.
+Prefer zero third-party trust? Download the [offline sample bundle](https://valuein.biz/download/sample), point `valuein_bucket_base` at the local path, run the same script. Same SQL, same answer. Pro / Institutional tier customers swap the URL — same SQL, larger universe.
 
 ## How this differs from other data vendors
 
