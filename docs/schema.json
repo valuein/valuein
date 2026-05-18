@@ -946,7 +946,7 @@
         }
       }
     },
-    "beneficial_ownership": {
+    "insider_ownership": {
       "description": "SC 13D / SC 13G beneficial-ownership disclosures (5%+ stakes).  One row per (filing, reporting person).  Group filings carry multiple reporting persons — each lands as a separate row.  Joins to ``filing`` via accession_id; subject_entity_id is the issuer CIK (the company being held).  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
