@@ -2,7 +2,7 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-05-19T04:19:44Z",
+  "measured_at": "2026-05-19T05:30:22Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
@@ -44,10 +44,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 1330028,
-    "correctly_unstandardized": 1278105,
-    "mapping_gaps": 51923,
-    "accuracy_pct": 96.1
+    "facts_with_standard_concept_other": 741264,
+    "correctly_unstandardized": 727575,
+    "mapping_gaps": 13689,
+    "accuracy_pct": 98.15
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
