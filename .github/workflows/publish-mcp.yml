@@ -20,9 +20,13 @@ jobs:
       - name: Verify server.json + README counts match the published MCP manifest
         run: uv run python scripts/sync_mcp_manifest.py --check
         env:
-          # Pull the canonical manifest from the deployed MCP repo. CI has no
-          # sibling checkout, so fall back to the published raw URL.
-          MCP_MANIFEST_URL: https://raw.githubusercontent.com/valuein/mcp/main/manifest.json
+          # Pull the canonical manifest from the DEPLOYED Worker, which serves
+          # manifest.json publicly. The valuein/mcp GitHub repo is private, so
+          # the raw.githubusercontent.com URL 404s in CI (no token) — that was
+          # the cause of the 2026-05-20 publish failure. The Worker endpoint is
+          # also more honest: it reflects what's actually live, not just what's
+          # committed to mcp/main.
+          MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
 
       - name: Validate server.json (pre-flight)
         run: |
