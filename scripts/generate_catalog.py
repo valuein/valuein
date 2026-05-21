@@ -1,7 +1,32 @@
 """
 generate_catalog.py
 ===================
-Generates the public-facing data catalog from the canonical concept definitions.
+Generates the public-facing data catalog from the canonical standardized-concept
+list published in the R2 ``manifest.json``.
+
+Single source of truth
+----------------------
+The list of canonical ``fact.standard_concept`` values is no longer hardcoded in
+this script.  It is sourced directly from the live, publicly readable R2 manifest
+(no API token required):
+
+    https://data.valuein.biz/v1/sample/manifest
+
+The manifest carries a top-level ``standard_concepts`` key produced by the
+pipeline (``data-pipeline/run_exports.py`` from
+``services/accounting/definitions.py``).  Two shapes are supported so the catalog
+keeps working across the pipeline contract migration:
+
+  * **Rich shape (current contract)** — ``list[dict]``, each entry carrying::
+
+        standard_concept, level, statement_type, category, definition,
+        unit_default, is_flow, bloomberg_equivalent, factset_equivalent,
+        gaap_ifrs_comparable
+
+  * **Legacy shape** — ``list[str]`` of concept names only.  Name-only entries
+    are surfaced with empty definition/category/statement_type so the catalog
+    still lists them; re-run after the next pipeline export to backfill the rich
+    fields.
 
 Outputs:
   docs/data_catalog.md       — Human-readable Markdown for analysts and integration partners.
@@ -13,15 +38,20 @@ Outputs:
 Run from the repo root:
     uv run python scripts/generate_catalog.py
 
+Override the manifest source for testing:
+    VALUEIN_MANIFEST_URL=https://example/manifest uv run python scripts/generate_catalog.py
+
 Re-run whenever STANDARD_DEFINITIONS in data-pipeline/services/accounting/definitions.py
-changes.  The canonical concept names in this script must stay in sync with what the
-pipeline writes to fact.standard_concept.
+changes AND a fresh pipeline export has been published — this script reflects
+exactly what the live manifest exposes, not a local copy.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import urllib.error
+import urllib.request
 from datetime import date, datetime, timezone
 
 import openpyxl
@@ -29,257 +59,251 @@ from openpyxl.styles import Alignment, Font, PatternFill
 from openpyxl.utils import get_column_letter
 
 # ---------------------------------------------------------------------------
-# Canonical concept definitions
-# Source: data-pipeline/services/accounting/definitions.py (STANDARD_DEFINITIONS)
-# These names are what SDK users query against fact.standard_concept.
+# Manifest source — the canonical standardized-concept list lives here.
+# Publicly readable, no API token required.
 # ---------------------------------------------------------------------------
 
-CONCEPTS: list[dict] = [
-    # Income Statement — Revenue
-    {
-        "name": "TotalRevenue",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Total top-line revenue recognized during the period. Represents the aggregate "
-            "net sales of goods and services before any deductions for costs or expenses. "
-            "Segment sub-totals, deferred revenue balances, and revenue-adjacent items are "
-            "excluded to prevent double-counting."
-        ),
-    },
-    {
-        "name": "CostOfRevenue",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Direct costs attributable to the production of goods sold or services delivered. "
-            "Includes raw materials, direct labor, and manufacturing overhead. Excludes "
-            "operating expenses such as SG&A and R&D."
-        ),
-    },
-    {
-        "name": "GrossProfit",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Revenue minus Cost of Revenue. Represents the profit a company earns after "
-            "subtracting the direct costs of producing its products or delivering its services, "
-            "before operating expenses, interest, and taxes."
-        ),
-    },
-    # Income Statement — Expenses
-    {
-        "name": "OperatingExpenses",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Total operating expenses incurred in the ordinary course of business, including "
-            "SG&A, R&D, and other recurring operational costs. Excludes non-operating items "
-            "such as interest expense and income tax."
-        ),
-    },
-    {
-        "name": "ResearchAndDevelopment",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Costs incurred in the research and development of new products, technologies, or "
-            "processes. A forward-looking investment indicator — high R&D as a percentage of "
-            "revenue often signals innovation-driven growth strategies."
-        ),
-    },
-    {
-        "name": "SellingGeneralAdmin",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Selling, General and Administrative expenses — the overhead costs of running the "
-            "business not directly tied to production. Includes marketing, executive "
-            "compensation, rent, legal, and other administrative costs."
-        ),
-    },
-    # Income Statement — Bottom line
-    {
-        "name": "OperatingIncome",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "Earnings from core business operations before interest income/expense and income "
-            "taxes (EBIT proxy). Calculated as Gross Profit minus Operating Expenses. A key "
-            "measure of operational efficiency independent of capital structure."
-        ),
-    },
-    {
-        "name": "NetIncome",
-        "statement": "Income Statement",
-        "unit": "USD",
-        "description": (
-            "The bottom-line profit attributable to the consolidated entity after all expenses, "
-            "taxes, interest, and non-controlling interest deductions. Comprehensive income "
-            "adjustments and per-share variants are excluded."
-        ),
-    },
-    {
-        "name": "EPSBasic",
-        "statement": "Income Statement",
-        "unit": "USD/share",
-        "description": (
-            "Basic Earnings Per Share — net income divided by the weighted-average number of "
-            "common shares outstanding during the period, excluding dilutive securities such as "
-            "stock options and convertible instruments."
-        ),
-    },
-    {
-        "name": "EPSDiluted",
-        "statement": "Income Statement",
-        "unit": "USD/share",
-        "description": (
-            "Diluted Earnings Per Share — net income divided by the weighted-average diluted "
-            "share count, which includes all potentially dilutive securities (options, warrants, "
-            "convertible bonds). The most conservative EPS measure and the standard for "
-            "valuation multiples."
-        ),
-    },
-    # Balance Sheet — Assets
-    {
-        "name": "CashAndEquivalents",
-        "statement": "Balance Sheet",
-        "unit": "USD",
-        "description": (
-            "Cash and short-term liquid instruments with original maturities of three months or "
-            "less, including bank deposits and money market funds. Includes restricted cash "
-            "where the SEC-mandated combined presentation is reported."
-        ),
-    },
-    {
-        "name": "TotalAssets",
-        "statement": "Balance Sheet",
-        "unit": "USD",
-        "description": (
-            "The aggregate of all assets owned or controlled by the entity — current assets, "
-            "property and equipment, intangible assets, and other long-term holdings. Equals "
-            "total liabilities plus stockholders' equity (the fundamental accounting identity). "
-            "Asset sub-categories and segment breakdowns are excluded."
-        ),
-    },
-    {
-        "name": "CurrentAssets",
-        "statement": "Balance Sheet",
-        "unit": "USD",
-        "description": (
-            "Assets expected to be converted to cash or consumed within one operating cycle "
-            "(typically 12 months). Includes cash, accounts receivable, inventory, and "
-            "short-term investments. A key component of liquidity analysis."
-        ),
-    },
-    # Balance Sheet — Liabilities & Equity
-    {
-        "name": "TotalLiabilities",
-        "statement": "Balance Sheet",
-        "unit": "USD",
-        "description": (
-            "The total of all financial obligations owed by the entity — both current (due "
-            "within 12 months) and long-term. Includes debt, accounts payable, deferred "
-            "revenue, and other commitments."
-        ),
-    },
-    {
-        "name": "TotalLiabilitiesAndEquity",
-        "statement": "Balance Sheet",
-        "unit": "USD",
-        "description": (
-            "The sum of total liabilities and stockholders' equity — the right-hand side of the "
-            "balance sheet. Must equal Total Assets by the fundamental accounting identity "
-            "(Assets = Liabilities + Equity). Used as a cross-check for balance sheet integrity."
-        ),
-    },
-    {
-        "name": "StockholdersEquity",
-        "statement": "Balance Sheet",
-        "unit": "USD",
-        "description": (
-            "The residual interest in the entity's assets after deducting all liabilities — the "
-            "book value owned by shareholders. Includes paid-in capital, retained earnings, "
-            "accumulated other comprehensive income, and non-controlling interests where "
-            "reported on a consolidated basis."
-        ),
-    },
-    # Cash Flow Statement
-    {
-        "name": "OperatingCashFlow",
-        "statement": "Cash Flow Statement",
-        "unit": "USD",
-        "description": (
-            "Net cash generated or consumed by the company's core operating activities during "
-            "the period. Often considered more reliable than net income as a measure of "
-            "underlying business profitability because it is harder to manipulate with "
-            "non-cash accounting choices."
-        ),
-    },
-    {
-        "name": "InvestingCashFlow",
-        "statement": "Cash Flow Statement",
-        "unit": "USD",
-        "description": (
-            "Net cash used in or generated by investing activities — primarily capital "
-            "expenditures (outflow), acquisitions, and proceeds from asset sales or investment "
-            "maturities (inflows). A consistently negative value typically indicates a "
-            "capital-intensive growth strategy."
-        ),
-    },
-    {
-        "name": "FinancingCashFlow",
-        "statement": "Cash Flow Statement",
-        "unit": "USD",
-        "description": (
-            "Net cash from financing activities — debt issuance and repayments, equity raises, "
-            "share buybacks, and dividend payments. Reflects how the company funds its "
-            "operations and returns capital to shareholders."
-        ),
-    },
-    {
-        "name": "CAPEX",
-        "statement": "Cash Flow Statement",
-        "unit": "USD",
-        "description": (
-            "Capital Expenditures — cash paid to acquire, maintain, or upgrade physical assets "
-            "such as property, plant, and equipment. Key input for Free Cash Flow "
-            "calculations: FCF = OperatingCashFlow − CAPEX."
-        ),
-    },
-]
+DEFAULT_MANIFEST_URL = "https://data.valuein.biz/v1/sample/manifest"
+_MANIFEST_TIMEOUT_SECONDS = 30
 
 _DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "docs")
 
+# Canonical statement-type ordering for the Markdown sections. Any
+# statement_type returned by the manifest that is not listed here is appended
+# afterwards in first-seen order; name-only/legacy concepts fall into the
+# "Uncategorized" bucket which always sorts last.
+_UNCATEGORIZED = "Uncategorized"
+_STATEMENT_ORDER = [
+    "Income Statement",
+    "Balance Sheet",
+    "Cash Flow Statement",
+]
 
-def generate() -> tuple[str, str, str]:
-    """Generate all three catalog outputs. Returns (md_path, json_path, xlsx_path)."""
+
+class CatalogError(RuntimeError):
+    """Raised when the catalog cannot be generated (e.g. manifest unavailable
+    or has not yet published any standardized concepts)."""
+
+
+# ---------------------------------------------------------------------------
+# Manifest fetch + normalisation
+# ---------------------------------------------------------------------------
+
+
+def _manifest_url() -> str:
+    """Return the manifest URL, honouring the VALUEIN_MANIFEST_URL override."""
+    return (
+        os.environ.get("VALUEIN_MANIFEST_URL", DEFAULT_MANIFEST_URL).strip() or DEFAULT_MANIFEST_URL
+    )
+
+
+def fetch_manifest(url: str | None = None) -> dict:
+    """Fetch and parse the R2 manifest JSON.
+
+    Args:
+        url: Manifest URL. Defaults to ``VALUEIN_MANIFEST_URL`` or
+            ``DEFAULT_MANIFEST_URL``.
+
+    Returns:
+        The parsed manifest as a dict.
+
+    Raises:
+        CatalogError: If the request fails or the body is not a JSON object.
+    """
+    target = url or _manifest_url()
+    req = urllib.request.Request(target, headers={"Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=_MANIFEST_TIMEOUT_SECONDS) as resp:
+            raw = resp.read()
+    except urllib.error.HTTPError as exc:  # pragma: no cover - network dependent
+        raise CatalogError(
+            f"Manifest request failed with HTTP {exc.code} for {target}: {exc.reason}"
+        ) from exc
+    except urllib.error.URLError as exc:  # pragma: no cover - network dependent
+        raise CatalogError(f"Could not reach the manifest at {target}: {exc.reason}") from exc
+
+    try:
+        manifest = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise CatalogError(f"Manifest at {target} returned invalid JSON: {exc}") from exc
+
+    if not isinstance(manifest, dict):
+        raise CatalogError(
+            f"Manifest at {target} is not a JSON object (got {type(manifest).__name__})."
+        )
+    return manifest
+
+
+def normalise_concepts(raw: object) -> list[dict]:
+    """Normalise the manifest ``standard_concepts`` value into catalog rows.
+
+    Handles BOTH manifest shapes:
+
+      * ``dict`` entries (rich contract) — full fields are carried through.
+      * ``str`` entries (legacy contract) — treated as name-only; definition,
+        statement_type and category are left empty.
+
+    Each returned row has a stable set of keys regardless of input shape::
+
+        name, statement, category, unit, level, is_flow, definition,
+        bloomberg_equivalent, factset_equivalent, gaap_ifrs_comparable
+
+    Rows are sorted by concept name (case-insensitive).
+
+    Args:
+        raw: The raw ``manifest["standard_concepts"]`` value.
+
+    Returns:
+        A sorted list of normalised concept rows.
+
+    Raises:
+        CatalogError: If ``raw`` is missing/null/empty, or any entry is an
+            unsupported type.
+    """
+    if raw is None:
+        raise CatalogError(
+            "Manifest field 'standard_concepts' is null. The manifest has not "
+            "published the concept list yet — run a data-pipeline export "
+            "(run_exports.py) first, then re-run this script."
+        )
+    if not isinstance(raw, list):
+        raise CatalogError(
+            f"Manifest field 'standard_concepts' must be a list (got {type(raw).__name__})."
+        )
+    if not raw:
+        raise CatalogError(
+            "Manifest field 'standard_concepts' is empty. The manifest has not "
+            "published the concept list yet — run a data-pipeline export "
+            "(run_exports.py) first, then re-run this script."
+        )
+
+    rows: list[dict] = []
+    for entry in raw:
+        if isinstance(entry, str):
+            name = entry.strip()
+            if not name:
+                continue
+            rows.append(_blank_row(name))
+        elif isinstance(entry, dict):
+            name = str(entry.get("standard_concept", "")).strip()
+            if not name:
+                # Skip malformed rich entries that carry no name.
+                continue
+            rows.append(
+                {
+                    "name": name,
+                    "statement": _clean(entry.get("statement_type")),
+                    "category": _clean(entry.get("category")),
+                    "unit": _clean(entry.get("unit_default")),
+                    "level": _clean(entry.get("level")),
+                    "is_flow": entry.get("is_flow"),
+                    "definition": _clean(entry.get("definition")),
+                    "bloomberg_equivalent": _clean(entry.get("bloomberg_equivalent")),
+                    "factset_equivalent": _clean(entry.get("factset_equivalent")),
+                    "gaap_ifrs_comparable": _clean(entry.get("gaap_ifrs_comparable")),
+                }
+            )
+        else:
+            raise CatalogError(
+                "Unsupported entry in 'standard_concepts': expected str or dict, "
+                f"got {type(entry).__name__}."
+            )
+
+    if not rows:
+        raise CatalogError(
+            "Manifest 'standard_concepts' contained no usable concept names. "
+            "Run a data-pipeline export first, then re-run this script."
+        )
+
+    rows.sort(key=lambda r: r["name"].lower())
+    return rows
+
+
+def _blank_row(name: str) -> dict:
+    """Build a name-only catalog row for a legacy ``list[str]`` entry."""
+    return {
+        "name": name,
+        "statement": "",
+        "category": "",
+        "unit": "",
+        "level": "",
+        "is_flow": None,
+        "definition": "",
+        "bloomberg_equivalent": "",
+        "factset_equivalent": "",
+        "gaap_ifrs_comparable": "",
+    }
+
+
+def _clean(value: object) -> str:
+    """Coerce a manifest value to a trimmed string ('' for None)."""
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def _statement_order(concepts: list[dict]) -> list[str]:
+    """Build the section order: canonical statements first, then any others
+    seen in the manifest, with the catch-all bucket always last."""
+    seen: list[str] = []
+    for c in concepts:
+        stmt = c["statement"] or _UNCATEGORIZED
+        if stmt not in seen:
+            seen.append(stmt)
+    ordered = [s for s in _STATEMENT_ORDER if s in seen]
+    ordered += [s for s in seen if s not in _STATEMENT_ORDER and s != _UNCATEGORIZED]
+    if _UNCATEGORIZED in seen:
+        ordered.append(_UNCATEGORIZED)
+    return ordered
+
+
+# ---------------------------------------------------------------------------
+# Generation
+# ---------------------------------------------------------------------------
+
+
+def generate(url: str | None = None) -> tuple[str, str, str]:
+    """Generate all three catalog outputs from the live manifest.
+
+    Args:
+        url: Optional manifest URL override (defaults to env / built-in).
+
+    Returns:
+        ``(md_path, json_path, xlsx_path)``.
+
+    Raises:
+        CatalogError: If the manifest is unreachable or has not published the
+            standardized-concept list.
+    """
+    source = url or _manifest_url()
+    manifest = fetch_manifest(source)
+    concepts = normalise_concepts(manifest.get("standard_concepts"))
+    print(f"Sourced {len(concepts)} standardized concepts from {source}")
+
     os.makedirs(_DOCS_DIR, exist_ok=True)
     md_path = os.path.normpath(os.path.join(_DOCS_DIR, "data_catalog.md"))
     json_path = os.path.normpath(os.path.join(_DOCS_DIR, "data_catalog.json"))
     xlsx_path = os.path.normpath(os.path.join(_DOCS_DIR, "DATA_CATALOG.xlsx"))
-    _write_markdown(md_path)
-    _write_json(json_path)
-    _update_xlsx(xlsx_path)
+    _write_markdown(md_path, concepts, source)
+    _write_json(json_path, concepts, source)
+    _update_xlsx(xlsx_path, concepts)
     print(f"Generated {md_path}")
     print(f"Generated {json_path}")
     print(f"Updated   {xlsx_path}")
     return md_path, json_path, xlsx_path
 
 
-def _write_markdown(path: str) -> None:
+def _write_markdown(path: str, concepts: list[dict], source: str) -> None:
     today = date.today().isoformat()
     by_statement: dict[str, list[dict]] = {}
-    for c in CONCEPTS:
-        by_statement.setdefault(c["statement"], []).append(c)
-
-    statement_order = ["Income Statement", "Balance Sheet", "Cash Flow Statement"]
+    for c in concepts:
+        by_statement.setdefault(c["statement"] or _UNCATEGORIZED, []).append(c)
 
     lines: list[str] = [
         "# Valuein Data Catalog",
         "",
         f"> **Last updated**: {today}  ",
-        f"> **Standardized concepts**: {len(CONCEPTS)}  ",
+        f"> **Standardized concepts**: {len(concepts)}  ",
         "> **Historical coverage**: 1994 – present  ",
         "> **Coverage target**: ≥ 95% of all SEC EDGAR financial facts",
         "",
@@ -309,27 +333,31 @@ def _write_markdown(path: str) -> None:
         "",
     ]
 
-    for stmt in statement_order:
-        concepts = by_statement.get(stmt, [])
-        if not concepts:
+    for stmt in _statement_order(concepts):
+        stmt_concepts = by_statement.get(stmt, [])
+        if not stmt_concepts:
             continue
         lines += [f"## {stmt}", ""]
-        for c in concepts:
-            lines += [
-                f"### `{c['name']}`",
-                "",
-                f"**Unit:** {c['unit']}",
-                "",
-                c["description"],
-                "",
-            ]
+        for c in stmt_concepts:
+            lines += [f"### `{c['name']}`", ""]
+            meta: list[str] = []
+            if c["unit"]:
+                meta.append(f"**Unit:** {c['unit']}")
+            if c["category"]:
+                meta.append(f"**Category:** {c['category']}")
+            if c["is_flow"] is not None:
+                meta.append(f"**Flow:** {'yes' if c['is_flow'] else 'no'}")
+            if meta:
+                lines += ["  ·  ".join(meta), ""]
+            if c["definition"]:
+                lines += [c["definition"], ""]
 
     lines += [
         "---",
         "",
-        "*This catalog is generated from the Valuein standardization pipeline. "
-        "The underlying matching rules are proprietary — this document describes "
-        "what each concept represents, not how it is detected.*",
+        "*This catalog is generated from the live Valuein R2 manifest "
+        f"(`{source}`). The underlying matching rules are proprietary — this "
+        "document describes what each concept represents, not how it is detected.*",
         "",
     ]
 
@@ -337,10 +365,11 @@ def _write_markdown(path: str) -> None:
         f.write("\n".join(lines))
 
 
-def _write_json(path: str) -> None:
+def _write_json(path: str, concepts: list[dict], source: str) -> None:
     payload = {
         "generated": date.today().isoformat(),
-        "concept_count": len(CONCEPTS),
+        "source": source,
+        "concept_count": len(concepts),
         "coverage_target": ">=95%",
         "accuracy_score_guide": {
             "1.00": "human_verified",
@@ -349,14 +378,14 @@ def _write_json(path: str) -> None:
             "0.30-0.44": "keyword_heuristic",
             "0.00": "unmapped",
         },
-        "concepts": CONCEPTS,
+        "concepts": concepts,
     }
     with open(path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, ensure_ascii=False)
         f.write("\n")
 
 
-def _update_xlsx(path: str) -> None:
+def _update_xlsx(path: str, concepts: list[dict]) -> None:
     """Add/replace the 'Standardized Concepts' sheet and refresh the Overview date."""
     wb = openpyxl.load_workbook(path)
 
@@ -369,9 +398,7 @@ def _update_xlsx(path: str) -> None:
             ):
                 # Value is in the next column
                 next_cell = overview.cell(row=cell.row, column=cell.column + 1)
-                next_cell.value = datetime.now(timezone.utc).strftime(
-                    "%Y-%m-%d %H:%M UTC"
-                )
+                next_cell.value = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
                 break
 
     # --- Build (or replace) sheet "5. Standardized Concepts" -----------------
@@ -385,9 +412,7 @@ def _update_xlsx(path: str) -> None:
     header_font = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
     header_align = Alignment(horizontal="left", vertical="center", wrap_text=False)
 
-    alt_fill = PatternFill(
-        "solid", fgColor="F3E5F5"
-    )  # very light purple for alternating rows
+    alt_fill = PatternFill("solid", fgColor="F3E5F5")  # very light purple for alternating rows
     body_font = Font(name="Calibri", size=11)
     wrap_align = Alignment(horizontal="left", vertical="top", wrap_text=True)
     top_align = Alignment(horizontal="left", vertical="top", wrap_text=False)
@@ -395,9 +420,10 @@ def _update_xlsx(path: str) -> None:
     # Column definitions: (header, width, attr)
     columns = [
         ("standard_concept", 28, "name"),
-        ("Financial Statement", 24, "statement"),
+        ("Financial Statement", 22, "statement"),
+        ("Category", 22, "category"),
         ("Unit", 14, "unit"),
-        ("Description", 80, "description"),
+        ("Definition", 80, "definition"),
     ]
 
     # Header row
@@ -412,7 +438,7 @@ def _update_xlsx(path: str) -> None:
     ws.freeze_panes = "A2"
 
     # Data rows
-    for row_idx, concept in enumerate(CONCEPTS, start=2):
+    for row_idx, concept in enumerate(concepts, start=2):
         is_alt = row_idx % 2 == 0
         fill = alt_fill if is_alt else PatternFill(fill_type=None)
 
@@ -420,13 +446,13 @@ def _update_xlsx(path: str) -> None:
             cell = ws.cell(row=row_idx, column=col_idx, value=concept[attr])
             cell.font = body_font
             cell.fill = fill
-            # Description column wraps; others stay single-line
-            cell.alignment = wrap_align if attr == "description" else top_align
+            # Definition column wraps; others stay single-line
+            cell.alignment = wrap_align if attr == "definition" else top_align
 
-        ws.row_dimensions[row_idx].height = 60  # tall enough for wrapped descriptions
+        ws.row_dimensions[row_idx].height = 60  # tall enough for wrapped definitions
 
     # Add a footer note below the data
-    footer_row = len(CONCEPTS) + 3
+    footer_row = len(concepts) + 3
     footer_cell = ws.cell(
         row=footer_row,
         column=1,
