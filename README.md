@@ -46,7 +46,7 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 
 - **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1994**
 - **105M+ standardized facts** across **~18,000** active and delisted US public-company entities
-- **11,966 raw XBRL tags** normalized to **~150 canonical `standard_concept`** values (95% coverage)
+- **11,966 raw XBRL tags** normalized to **292 canonical `standard_concept`** values (95% coverage)
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
 - **Semantic core** — every 10-K / 10-Q / 20-F's narrative sections (Risk Factors, MD&A, Business, Legal, Controls) chunked and indexed for natural-language search via the MCP server
