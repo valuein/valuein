@@ -37,6 +37,15 @@ A fact with `standard_concept = 'Other'` is **correctly unstandardized** if and 
 
 Anything else is a **mapping gap** — a tag our standardization rules should have recognized. Tonight's measurement: 2.79 % of `'Other'` facts are mapping gaps; the remaining 97.21 % are correctly classified.
 
+### 1.3 CPA-verified concept standardization
+
+Accuracy of the *numbers* (§1.1) is distinct from confidence in the *concept labels* those numbers are mapped to. Each canonical concept in the catalog carries a **`review_confidence`** score, surfaced on the `standard_concept` table and in the data catalog:
+
+* **`1.0` — CPA-verified.** An accountant has signed off on the concept's canonical name, statement type, and matching rule. A verified concept is **locked**: the automated standardization loop may only ever *create new* concepts, never mutate a verified one (`reviewed_by` / `reviewed_at` record the sign-off).
+* **`0.7` — provisional.** Auto-mapped by the coverage loop (used by ≥ 1,000 distinct issuers) and queued for the next CPA review cycle.
+
+Filter `review_confidence >= 1.0` for the accountant-verified concept set — the labels analysts, quants, portfolio managers, and AI models can agree on and train against without re-deriving the mapping. This is the human-in-the-loop guarantee behind the standardization layer: every published concept is either verified or transparently flagged as provisional.
+
 ---
 
 ## 2. The 35 identities
