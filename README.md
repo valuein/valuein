@@ -259,8 +259,8 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | Cross-check your model against ours. |
 | `taxonomy_guide` | 2026 US GAAP Taxonomy | Definitions for every `standard_concept`. |
 | `index_membership` | Historical index constituents (SP500, NASDAQ100, RUSSELL3000, WILSHIRE5000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
-| `factor_scores` | Cross-sectional factor scores + percentile ranks (10 factors + composite) computed from latest two 10-Ks | Quality / value / momentum screens with one query — no recomputation. |
-| `earnings_signals` | Trailing 4-quarter EPS trend + surprise %, plus YoY revenue growth | Earnings-momentum signals without re-deriving them from `fact`. |
+| `factor_scores` | Cross-sectional factor scores + percentile ranks + a proprietary composite | Quality / value / momentum screens with one query — no recomputation. |
+| `earnings_signals` | Proprietary TTM EPS trend estimate + surprise %, plus YoY revenue growth | Earnings-momentum signals without re-deriving them from `fact`. |
 | `filing_text` | Narrative chunks from 10-K / 10-Q / 20-F TextBlocks (Risk Factors, MD&A, Business, Legal, Controls) | Source of the Vectorize index that powers semantic search via MCP. |
 
 ### Date columns — which to use when
