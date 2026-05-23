@@ -201,6 +201,12 @@ def normalise_concepts(raw: object) -> list[dict]:
                     "bloomberg_equivalent": _clean(entry.get("bloomberg_equivalent")),
                     "factset_equivalent": _clean(entry.get("factset_equivalent")),
                     "gaap_ifrs_comparable": _clean(entry.get("gaap_ifrs_comparable")),
+                    # CPA review state — review_confidence 1.0 = accountant-verified
+                    # (locked), 0.7 = provisional/auto-mapped pending review.
+                    "reviewed": entry.get("reviewed"),
+                    "reviewed_by": _clean(entry.get("reviewed_by")),
+                    "reviewed_at": _clean(entry.get("reviewed_at")),
+                    "review_confidence": entry.get("review_confidence"),
                 }
             )
         else:
@@ -232,6 +238,10 @@ def _blank_row(name: str) -> dict:
         "bloomberg_equivalent": "",
         "factset_equivalent": "",
         "gaap_ifrs_comparable": "",
+        "reviewed": None,
+        "reviewed_by": "",
+        "reviewed_at": "",
+        "review_confidence": None,
     }
 
 
@@ -423,6 +433,7 @@ def _update_xlsx(path: str, concepts: list[dict]) -> None:
         ("Financial Statement", 22, "statement"),
         ("Category", 22, "category"),
         ("Unit", 14, "unit"),
+        ("Review Confidence", 16, "review_confidence"),
         ("Definition", 80, "definition"),
     ]
 

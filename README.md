@@ -59,6 +59,7 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 | 🕒 **Point-in-time** | `filing_date <= trade_date` removes look-ahead bias. `accepted_at` gives intraday resolution for same-day signals. |
 | ⚖️ **Survivorship-bias free** | Delisted, bankrupt, and acquired companies remain in every snapshot — your backtest sees the universe the market saw. |
 | 📊 **Standardized concepts** | Both the raw XBRL tag (`fact.concept`) and the canonical name (`fact.standard_concept`) are on every row. No hidden mapping table. |
+| 🔍 **CPA-verified catalog** | Every `standard_concept` carries a `review_confidence` — `1.0` once an accountant has signed off on its name, statement and rule (then it's locked; the pipeline only ever adds new concepts, never mutates a verified one), `0.7` while provisional. Filter `review_confidence >= 1.0` for the labels analysts, quants and AI models can agree on and train against. |
 | 🚀 **DuckDB-native** | Millisecond analytics over remote Parquet via `httpfs`. Zero database provisioning. |
 | 🔁 **Append-only restatements** | A `10-K/A` adds a new row — the original stays. Reconstruct the as-reported view of any historical date. |
 | 🔐 **One token, every channel** | The same Bearer token authenticates the SDK, MCP server, and bulk-data API. |
