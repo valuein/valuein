@@ -30,6 +30,7 @@ pip install valuein-sdk          # data for code
 | See every channel we ship through | [Distribution channels](#distribution-channels) |
 | Check pricing and what each plan unlocks | [Plans & access](#plans--access) |
 | Connect an AI agent (Claude, Cursor, Codex…) | [MCP for AI agents](#mcp-for-ai-agents) |
+| Set up the Workspace by role (analyst, PM, quant, creator) | [`docs/WORKSPACE_GUIDE.md`](docs/WORKSPACE_GUIDE.md) |
 | Read the data model | [Data model](#data-model) |
 | Find a quick recipe by role | [Recipes by role](#recipes-by-role) |
 | Run end-to-end Python examples | [`examples/python/`](examples/python/) |
@@ -442,6 +443,7 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 
 | Document | What's in it |
 |---|---|
+| [`docs/WORKSPACE_GUIDE.md`](docs/WORKSPACE_GUIDE.md) | Workspace welcome guide — 15-minute setup + daily/weekly/monthly playbooks per role (analyst, PM, quant, creator) |
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization, valuation models |
 | [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — 99.58% on 12,048 S&P 500 FY filings, citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
 | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | 20 copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
