@@ -590,6 +590,74 @@
         }
       }
     },
+    "standard_concept": {
+      "description": "Valuein's curated gold-standard concept catalog — the dictionary for the fact.standard_concept column. One row per canonical L1/L2 concept with its statement/category, definition, default unit, Bloomberg/FactSet equivalents, and CPA review state. Join fact.standard_concept = standard_concept.standard_concept for the curated label. Distinct from taxonomy_guide (the raw SEC us-gaap tag reference for fact.concept).",
+      "columns": {
+        "standard_concept": {
+          "type": "VARCHAR",
+          "primary_key": true
+        },
+        "level": {
+          "type": "VARCHAR",
+          "description": "L1 (top statement line) | L2 (sector-pack sub-line) | -- (the 'Other' catch-all)."
+        },
+        "statement_type": {
+          "type": "VARCHAR",
+          "description": "income | balance_sheet | cash_flow | comprehensive_income | supplemental | dei | notes | other."
+        },
+        "category": {
+          "type": "VARCHAR"
+        },
+        "definition": {
+          "type": "VARCHAR"
+        },
+        "unit_default": {
+          "type": "VARCHAR",
+          "description": "Canonical unit (USD | USD/share | shares | pct | …); NULL for non-numeric."
+        },
+        "is_flow": {
+          "type": "BOOLEAN",
+          "description": "TRUE for flow (period) measures, FALSE for stock (point-in-time) measures."
+        },
+        "parent_concept": {
+          "type": "VARCHAR",
+          "references": "standard_concept.standard_concept"
+        },
+        "sector_pack": {
+          "type": "VARCHAR",
+          "description": "Sector pack an L2 concept belongs to (banking, insurance, reit, …); NULL unless level='L2'."
+        },
+        "bloomberg_equivalent": {
+          "type": "VARCHAR"
+        },
+        "factset_equivalent": {
+          "type": "VARCHAR"
+        },
+        "gaap_ifrs_comparable": {
+          "type": "BOOLEAN"
+        },
+        "reviewed": {
+          "type": "BOOLEAN",
+          "description": "CPA sign-off flag — TRUE = an accountant verified the concept's name/statement/rule (then it is locked; the pipeline only ever creates new concepts, never mutates a reviewed one). Curated rows default TRUE; loop-generated provisional rows are FALSE."
+        },
+        "reviewed_by": {
+          "type": "VARCHAR"
+        },
+        "reviewed_at": {
+          "type": "DATE"
+        },
+        "review_confidence": {
+          "type": "DOUBLE",
+          "description": "Concept-level trust score in [0, 1] — 1.0 = CPA-verified, 0.7 = provisional/auto-mapped. The catalog analogue of fact.confidence_score; filter review_confidence >= 1.0 for the accountant-verified concept set."
+        },
+        "created_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "updated_at": {
+          "type": "TIMESTAMPTZ"
+        }
+      }
+    },
     "taxonomy_guide": {
       "description": "Human-readable definitions for all standard_concept values used in the fact table.",
       "columns": {
