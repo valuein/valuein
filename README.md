@@ -45,9 +45,9 @@ pip install valuein-sdk          # data for code
 
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
-- **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1994**
-- **105M+ standardized facts** across **~18,000** active and delisted US public-company entities
-- **11,966 raw XBRL tags** normalized to **292 canonical `standard_concept`** values (95% coverage)
+- **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1993**
+- **105M+ standardized facts** across **19,000+** active and delisted US public-company entities
+- **11,966 raw XBRL tags** normalized to **~286 canonical `standard_concept`** values (95%+ coverage)
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
 - **Semantic core** — every 10-K / 10-Q / 20-F's narrative sections (Risk Factors, MD&A, Business, Legal, Controls) chunked and indexed for natural-language search via the MCP server
@@ -88,12 +88,12 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 | Plan | Universe | History | Data freshness | Price | Get it |
 |---|---|---|---|---|---|
 | **Sample** | S&P 500 (~500 tickers) | 5-year window | Quarterly snapshots | **Free** · no signup | Just `pip install valuein-sdk` |
-| **Free** | S&P 500 (~500 tickers) | 1994 – present | Daily | **Free** · register | [Register](https://valuein.biz/signup/free) |
-| **Pro** | Full active + delisted US universe (~18,000 entities) — fundamentals dataset only | 30-year rolling (1995 → present) | 24h after SEC | **$49 / mo** · $490 / yr | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
-| **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | 1990 – present (unlimited) | 4h priority + filing-event webhooks | **$499 / mo** · $4,790 / yr | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
+| **Free** | S&P 500 (~500 tickers) | 1993 – present | Daily | **Free** · register | [Register](https://valuein.biz/signup/free) |
+| **Pro** | Full active + delisted US universe (19,000+ entities) — fundamentals dataset only | 15-year rolling (2011 → present) | 24h after SEC | **$49 / mo** · $490 / yr | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
+| **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | 1993 – present (unlimited) | 4h priority + filing-event webhooks | **$499 / mo** · $4,790 / yr | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | Negotiated · dedicated infrastructure · expanded redistribution scope | Custom | Real-time 8-K + zero-retention option | Talk to us | [sales@valuein.biz](mailto:sales@valuein.biz) |
 
-Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1990, filing-event webhooks, and a commercial redistribution license under a business-hours SLA; Enterprise adds dedicated infrastructure and bespoke contracts. PAYG (pay-per-call via [agent-pay](https://api.valuein.biz/api/payg/pricing)) is priced 3–5× the equivalent subscription rate to protect the ladder while capturing AI-agent traffic.
+Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and a commercial redistribution license under a business-hours SLA; Enterprise adds dedicated infrastructure and bespoke contracts. PAYG (pay-per-call via [agent-pay](https://api.valuein.biz/api/payg/pricing)) is priced 5× the equivalent subscription rate to protect the ladder while capturing AI-agent traffic.
 
 Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):
 
@@ -206,7 +206,7 @@ except Exception as e:
     print(f"Initialization failed: {e}")
 ```
 
-The SDK ships **44 named SQL templates** for the most common screens, ratios, and PIT backtests. List them:
+The SDK ships **54 named SQL templates** for the most common screens, ratios, and PIT backtests. List them:
 
 ```python
 from valuein_sdk import ValueinClient
@@ -260,7 +260,7 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `ratio` | Pipeline-computed financial ratios per filing | Skip the SQL — margins, returns, leverage, efficiency pre-calculated. |
 | `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | Cross-check your model against ours. |
 | `taxonomy_guide` | 2026 US GAAP Taxonomy | Definitions for every `standard_concept`. |
-| `index_membership` | Historical index constituents (SP500, NASDAQ100, RUSSELL3000, WILSHIRE5000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
+| `index_membership` | Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
 | `factor_scores` | Cross-sectional factor scores + percentile ranks + a proprietary composite | Quality / value / momentum screens with one query — no recomputation. |
 | `earnings_signals` | Proprietary TTM EPS trend estimate + surprise %, plus YoY revenue growth | Earnings-momentum signals without re-deriving them from `fact`. |
 | `filing_text` | Narrative chunks from 10-K / 10-Q / 20-F TextBlocks (Risk Factors, MD&A, Business, Legal, Controls) | Source of the Vectorize index that powers semantic search via MCP. |
@@ -332,7 +332,7 @@ Valuein ships a remote Model Context Protocol server so any MCP-capable agent (C
 ### Tools
 
 <!-- GEN:mcp-summary -->
-The server exposes **57 live tools + 1 stub** (58 total), plus **22 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity universe with 30 years of point-in-time fundamentals; Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license.
+The server exposes **57 live tools + 1 stub** (58 total), plus **22 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity universe with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license.
 <!-- /GEN:mcp-summary -->
 
 **Discovery & schema**
