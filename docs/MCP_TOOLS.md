@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **44 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes) across 12 active categories — data lookup, screening, smart-money, persisted state (theses / watchlists / alerts CRUD / reports), DCF compute, forensic audit, document generation. A 13th category (marketplace, 7 tools) ships hidden until Phase 2. **23 analyst SOP prompts** (two flagship cross-persona briefs + 21 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full ~18,000-entity US + Canadian universe with 30 years of point-in-time fundamentals (10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1990, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **57 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes) across 12 active categories — data lookup, screening, smart-money, persisted state (theses / watchlists / alerts CRUD / reports), DCF compute, forensic audit, document generation. A 13th category (marketplace, 7 tools) ships hidden until Phase 2. **22 analyst SOP prompts** (two flagship cross-persona briefs + 20 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -287,12 +287,64 @@ All tools are callable on every paid tier. **What changes is the data the tool c
 | Tier | Data the agent sees |
 |---|---|
 | Sample (anonymous) | S&P 500 sample · 5-year window |
-| Free | S&P 500 · 1994 – present |
-| Pro | Full ~18,000-entity US universe · 30-year point-in-time history (1995→present) · 24h freshness · fundamentals only |
-| Institutional | Full universe · 1990–present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · redistribution license |
+| Free | S&P 500 · 1993 – present |
+| Pro | Full 19,000+-entity US universe · 15-year rolling window (2011 → present) · 24h freshness · fundamentals only |
+| Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · redistribution license |
 | Enterprise | Negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
 
 A `ValueinPlanError`-equivalent MCP error is raised when a tool call needs data outside the bound tier — the agent should suggest the user upgrade at [valuein.biz/pricing](https://valuein.biz/pricing).
+
+---
+
+## Pay-per-call (MPP)
+
+Valuein supports **machine-to-machine pay-per-call** via the [Machine Payment Protocol](https://mpp.dev) (MPP). An agent that hits a rate limit or tier gate can pay per request in real time using a Stripe card Shared Payment Token — no human is needed in the loop.
+
+**Payment is card-only today.** Fetch `GET https://api.valuein.biz/api/mpp/well-known` to confirm which networks are active before initiating a payment.
+
+### Three-step flow
+
+```
+1. Quote
+   GET https://api.valuein.biz/api/mpp/quote?tool=<tool_name>&tickers=<CSV>
+   → { amount_usd, amount_usdc, nonce, accept: ["link-card"], expires_at }
+
+2. Charge
+   POST https://api.valuein.biz/api/mpp/charge
+   Header:
+     Payment: <base64url(JSON)>   where JSON =
+       {
+         "protocol_version": "1",
+         "network": "link-card",
+         "nonce": "<nonce from step 1>",
+         "amount_usd_cents":  <round(amount_usd  * 100)>,
+         "amount_usdc_cents": <round(amount_usdc * 100)>,
+         "signed_payload": "spt_<your card Shared Payment Token>"
+       }
+   → { retry_token, retry_expires_at }
+
+3. Retry the original MCP tool call with two added headers:
+     x-valuein-payg-confirm: 1
+     x-valuein-retry-token: <retry_token from step 2>
+```
+
+Pay whatever `/api/mpp/quote` returns (it applies plan caps + the $0.50 Stripe minimum) — don't hardcode prices.
+
+### Per-call rate card (indicative — the authoritative price is `/api/mpp/quote`)
+
+| Category | Tools | Price |
+|---|---|---|
+| Provenance / schema | `describe_schema`, `verify_fact_lineage` | Free |
+| Discovery | `search_companies`, `get_sec_filing_links` | **$0.01 / entity** |
+| Fundamentals | `get_company_fundamentals`, `get_financial_ratios` | **$0.10 / entity** |
+| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile`, `get_earnings_signals` | **$0.50 / entity** |
+| Compute | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` | **$2.50 / call** |
+| Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
+| Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
+
+Daily spend caps apply per identity as abuse protection (raisable on request); subscribers buying overflow within their tier get a discount on non-premium tools.
+
+For steady-state agent usage a [Pro or Institutional subscription](https://valuein.biz/pricing) is significantly cheaper — a single Stripe token unlocks every channel at the subscribed tier.
 
 ---
 
