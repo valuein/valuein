@@ -93,7 +93,25 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | 1993 – present (unlimited) | 4h priority + filing-event webhooks | **$499 / mo** · $4,790 / yr | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | Negotiated · dedicated infrastructure · expanded redistribution scope | Custom | Real-time 8-K + zero-retention option | Talk to us | [sales@valuein.biz](mailto:sales@valuein.biz) |
 
-Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and a commercial redistribution license under a business-hours SLA; Enterprise adds dedicated infrastructure and bespoke contracts. PAYG (pay-per-call via [agent-pay](https://api.valuein.biz/api/payg/pricing)) is priced 5× the equivalent subscription rate to protect the ladder while capturing AI-agent traffic.
+Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and a commercial redistribution license under a business-hours SLA; Enterprise adds dedicated infrastructure and bespoke contracts.
+
+### Pay-per-call (MPP)
+
+Autonomous AI agents that hit a rate or tier limit can pay per request using **Stripe card tokens** — no human checkout loop. Payment uses the [Machine Payment Protocol](https://mpp.dev). The agent quotes a price, charges a card Shared Payment Token, then retries the MCP call with the confirmed token.
+
+**Payment is card-only today.** Fetch `https://api.valuein.biz/api/mpp/well-known` to see which networks are live before paying.
+
+| Category | Examples | Price |
+|---|---|---|
+| Provenance / schema | `describe_schema`, `verify_fact_lineage` | Free |
+| Discovery | `search_companies`, `get_sec_filing_links` | **$0.01 / entity** |
+| Fundamentals | `get_company_fundamentals`, `get_financial_ratios` | **$0.10 / entity** |
+| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile`, `get_earnings_signals` | **$0.50 / entity** |
+| Compute | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` | **$2.50 / call** |
+| Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
+| Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
+
+PAYG is priced at 5× the subscription-equivalent rate — steady-state agent usage is almost always cheaper with a [Pro or Institutional subscription](https://valuein.biz/pricing). Daily spend caps exist per token as abuse protection; caps are raisable on request. See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
 
 Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):
 
