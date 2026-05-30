@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-05-24T07:52:46Z",
+  "measured_at": "2026-05-30T07:44:20Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
     "entities": 1026,
-    "filings": 19613,
+    "filings": 19616,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,15 +20,15 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json.",
     "overall": {
-      "filings": 19613,
-      "clean_filings": 19613,
+      "filings": 19616,
+      "clean_filings": 19616,
       "filings_with_errors": 0,
       "accuracy_pct": 100
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 11419,
-        "clean_filings": 11419,
+        "filings": 11422,
+        "clean_filings": 11422,
         "filings_with_errors": 0,
         "accuracy_pct": 100
       },
@@ -44,10 +44,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 41899713,
-    "correctly_unstandardized": 23705352,
-    "mapping_gaps": 18194361,
-    "accuracy_pct": 56.58
+    "facts_with_standard_concept_other": 41919549,
+    "correctly_unstandardized": 23714606,
+    "mapping_gaps": 18204943,
+    "accuracy_pct": 56.57
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
