@@ -4,6 +4,13 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Batch ALL github-actions bumps into a single monthly PR instead of one
+    # PR per action (setup-uv v8 dropped floating major tags, so each pinned
+    # action would otherwise generate its own PR on every release).
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     labels:
       - dependencies
       - github-actions
