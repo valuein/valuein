@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7
 
       - name: Verify server.json + README counts match the published MCP manifest
         run: uv run python scripts/sync_mcp_manifest.py --check
