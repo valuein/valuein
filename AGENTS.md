@@ -13,7 +13,7 @@ This repo is the **public discovery hub** for the Valuein financial data platfor
 It contains:
 
 - `README.md` — landing page for github.com/valuein/valuein
-- `examples/python/` — 9 standalone scripts that `import valuein_sdk` and run end-to-end against the live API
+- `examples/python/` — 11 standalone scripts that `import valuein_sdk` and run end-to-end against the live API
 - `examples/notebooks/` — 7 Jupyter notebooks mirroring the Python scripts (Colab-ready)
 - `docs/` — methodology, SLA, data license, schema, MCP tool reference, query cookbook, data catalog
 - `server.json` — MCP-registry manifest, published to `registry.modelcontextprotocol.io`
@@ -97,7 +97,7 @@ Discovery: `https://valuein.biz/.well-known/mcp.json`
 
 To add Valuein as a tool to Claude Desktop, Cursor, Codex, ChatGPT, or any MCP-capable agent client, register `https://mcp.valuein.biz/mcp` as a custom MCP server. The same Stripe Bearer token authenticates the SDK and the MCP server — no per-channel billing.
 
-The server ships **57 live tools + 1 stub** and **22 multi-step agentic SOPs** (prompts). Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md).
+The server ships **67 live tools + 1 stub** and **22 multi-step agentic SOPs** (prompts). Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md).
 
 ---
 
