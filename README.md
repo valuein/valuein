@@ -250,6 +250,9 @@ Every link below points to a runnable script in [`examples/python/`](examples/py
 | **Valuation modeler** | [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Free-cash-flow assembly, balance sheet, Valuein's pre-computed DCF |
 | **Data engineer** | [`production-ready.py`](examples/python/production-ready.py) | Service pattern for FastAPI / Celery / Airflow |
 | **First-time user** | [`getting_started.py`](examples/python/getting_started.py) | First query, token check, sector counts |
+| **Idea generation** | [`entity_screening.py`](examples/python/entity_screening.py) | Screen the universe by sector / size / status into a shortlist |
+| **Smart-money follower** | [`smart_money_screen.py`](examples/python/smart_money_screen.py) | Institutional-tier insider + 13F flow screen |
+| **API tour** | [`usage.py`](examples/python/usage.py) | Broad walkthrough of the SDK surface and table loads |
 | **Building an AI agent** | [MCP for AI agents](#mcp-for-ai-agents) | Use natural language — no SDK required |
 
 Run any of them:
