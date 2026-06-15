@@ -1,0 +1,77 @@
+name: Example smoke test (non-blocking)
+
+# Runs the flagship PIT factor-dataset example end-to-end against the LIVE
+# free S&P 500 tier, proving the published valuein-sdk + the gateway still
+# serve a real, survivorship-free, PIT-correct dataset from a user's seat.
+#
+# NON-BLOCKING by design: this job lives in its own workflow (not in any
+# required PR check) and is `continue-on-error`, so a gateway hiccup or an
+# expired CI token never blocks a merge. It is a smoke signal, not a gate.
+#
+# Requires repo secret VALUEIN_SP500_TOKEN — a free S&P 500 lead-capture
+# token (https://valuein.biz/pricing). When the secret is absent (e.g. on a
+# fork PR), the job skips cleanly instead of failing.
+#
+# Triggers:
+#   - push to main touching the example or this workflow
+#   - manual workflow_dispatch (test on demand)
+#   - nightly cron (catches SDK/gateway drift even when the repo is idle)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/python/pit_factor_dataset.py"
+      - ".github/workflows/example-smoke.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    # Non-blocking: never fail the run on a live-data hiccup.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v8.2.0
+
+      - name: Guard — skip when the SP500 token secret is not configured
+        id: guard
+        env:
+          VALUEIN_SP500_TOKEN: ${{ secrets.VALUEIN_SP500_TOKEN }}
+        run: |
+          if [ -z "${VALUEIN_SP500_TOKEN}" ]; then
+            echo "VALUEIN_SP500_TOKEN secret not set — skipping live smoke test."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run the PIT factor-dataset example (live free S&P 500 tier)
+        if: steps.guard.outputs.run == 'true'
+        env:
+          # The example reads VALUEIN_API_KEY; feed it the free SP500 token.
+          VALUEIN_API_KEY: ${{ secrets.VALUEIN_SP500_TOKEN }}
+        run: |
+          uv run --with valuein-sdk --with pyarrow --with pandas \
+            python examples/python/pit_factor_dataset.py
+
+      - name: Verify the dataset artifacts were written
+        if: steps.guard.outputs.run == 'true'
+        run: |
+          test -s pit_factor_dataset.parquet || { echo "::error::parquet output missing/empty"; exit 1; }
+          test -s pit_factor_dataset.csv     || { echo "::error::csv output missing/empty"; exit 1; }
+          echo "✓ both pit_factor_dataset.{parquet,csv} written"
+
+      - name: Upload dataset artifacts
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pit-factor-dataset
+          path: |
+            pit_factor_dataset.parquet
+            pit_factor_dataset.csv
+          if-no-files-found: warn
+          retention-days: 7
