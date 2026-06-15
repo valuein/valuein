@@ -752,9 +752,13 @@ def _markdown_ratio_lines() -> list[str]:
         "",
         "Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, "
         "`unit`, `period_end`, `fiscal_year`, `fiscal_period` (`'FY'` | `'TTM'`), "
-        "`is_ttm` (bool), `confidence_score`, `computed_at`. "
+        "`is_ttm` (bool), `confidence_score`, `accepted_at`, `computed_at`, `ingested_at`. "
         f"Of the {len(RATIOS)} ratios, {ttm_count} are materialized for both FY and "
-        f"TTM; the remaining {len(RATIOS) - ttm_count} are annual-only.",
+        f"TTM; the remaining {len(RATIOS) - ttm_count} are annual-only. "
+        "`ratio` is append-on-restatement: `accepted_at` is the PIT vintage "
+        "(max(accepted_at) of the input facts). Filter `accepted_at <= as_of` then "
+        "take the latest vintage to avoid look-ahead bias, mirroring `fact.accepted_at`; "
+        "NULL for cross-sectional `*_sector_pctile` rank rows.",
         "",
     ]
 
