@@ -1,6 +1,6 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-06-04  
+> **Last updated**: 2026-06-15  
 > **Standardized concepts**: 291  
 > **Historical coverage**: 1994 – present  
 > **Coverage target**: ≥ 95% of all SEC EDGAR financial facts
@@ -1888,7 +1888,7 @@ The pipeline also derives **164 financial ratios** per company into the `ratio` 
 
 The `ratio` table holds BOTH annual (`fiscal_period = 'FY'`, `is_ttm = false`) and trailing-twelve-month (`fiscal_period = 'TTM'`, `is_ttm = true`) rows per company. TTM is the sum/normalization of the latest four reported quarters, dated at the entity's most recent quarter close, so it is the most-current read; FY rows are dated at fiscal-year close. TTM rows exist ONLY for the profitability, per_share, liquidity, efficiency, and leverage categories — forensic, growth (CAGR), and sector-percentile ranks are annual-only. Always filter on a single period (e.g. `WHERE is_ttm = FALSE`, or `WHERE fiscal_period = 'FY'`); a raw `read_table('ratio')` query that does NOT filter `is_ttm` / `fiscal_period` returns FY + TTM rows for the same metric and DOUBLE-COUNTS companies in a screen. The SDK SQL templates already filter by a single fiscal_period, so they are safe — this warning is for raw DuckDB queries.
 
-Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`, `period_end`, `fiscal_year`, `fiscal_period` (`'FY'` | `'TTM'`), `is_ttm` (bool), `confidence_score`, `computed_at`. Of the 164 ratios, 77 are materialized for both FY and TTM; the remaining 87 are annual-only.
+Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`, `period_end`, `fiscal_year`, `fiscal_period` (`'FY'` | `'TTM'`), `is_ttm` (bool), `confidence_score`, `accepted_at`, `computed_at`, `ingested_at`. Of the 164 ratios, 77 are materialized for both FY and TTM; the remaining 87 are annual-only. `ratio` is append-on-restatement: `accepted_at` is the PIT vintage (max(accepted_at) of the input facts). Filter `accepted_at <= as_of` then take the latest vintage to avoid look-ahead bias, mirroring `fact.accepted_at`; NULL for cross-sectional `*_sector_pctile` rank rows.
 
 ### Profitability
 

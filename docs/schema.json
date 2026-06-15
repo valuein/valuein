@@ -683,7 +683,7 @@
       }
     },
     "ratio": {
-      "description": "Pipeline-computed financial ratios per entity per fiscal period. Derived from fact data — recomputed on each pipeline run (ON CONFLICT DO UPDATE). No accession_id or accepted_at: use computed_at for freshness.",
+      "description": "Pipeline-computed financial ratios per entity per fiscal period. Derived from fact data. Written append-on-restatement: each row's accepted_at is the PIT vintage = max(accepted_at) of the input facts, so a restated period is a NEW vintage row rather than an overwrite — mirroring fact.parquet. Filter as-of with accepted_at <= as_of then take the latest vintage to avoid look-ahead bias. No accession_id (ratios derive from multiple filings). accepted_at is NULL for cross-sectional rank rows (*_sector_pctile) and any year whose source facts lacked an acceptance timestamp; computed_at tracks the latest computation within a vintage.",
       "columns": {
         "entity_id": {
           "type": "VARCHAR",
@@ -699,9 +699,13 @@
         "value": {
           "type": "DOUBLE"
         },
+        "confidence_score": {
+          "type": "DOUBLE",
+          "description": "Entity-period data quality: average fact.confidence_score of the facts feeding this period. Filter Bloomberg-grade with >= 0.95. NULL for cross-sectional rank rows (e.g. *_sector_pctile)."
+        },
         "unit": {
           "type": "VARCHAR",
-          "description": "percent | per_share | pure | x"
+          "description": "percent | per_share | pure | x | percentile"
         },
         "period_end": {
           "type": "DATE"
@@ -716,8 +720,16 @@
         "is_ttm": {
           "type": "BOOLEAN"
         },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "PIT vintage — SEC acceptance timestamp of the latest input fact (max(accepted_at) of the year's facts). The date this ratio first became knowable. NULL for cross-sectional rank rows and un-timestamped years. Filter accepted_at <= as_of for look-ahead-free backtests, mirroring fact.accepted_at."
+        },
         "computed_at": {
           "type": "TIMESTAMPTZ"
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DB insertion timestamp; use computed_at for ratio freshness."
         }
       }
     },
