@@ -1,6 +1,6 @@
 {
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
-  "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
+  "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset. This is a periodically-committed snapshot from a production accuracy run (the run lives upstream in the data-pipeline repo, not in this public repo).  Re-derive locally any time: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
   "measured_at": "2026-06-06T07:50:10Z",
   "universe": {

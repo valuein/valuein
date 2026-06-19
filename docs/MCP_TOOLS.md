@@ -61,7 +61,7 @@ Return the columns, types, and descriptions for any table. Useful when an agent 
 
 | Parameter | Type | Required |
 |---|---|---|
-| `table` | string | yes — one of `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `factor_scores`, `earnings_signals`, `filing_text` |
+| `table` | string | yes — one of `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `filing_text` |
 
 Returns: `{table, description, columns: [{name, type, description, primary_key?, references?}]}`.
 
@@ -199,18 +199,7 @@ Factor-score-driven screen. The MCP server pre-computes factor scores per period
 | `is_sp500` | boolean | optional | |
 | `limit` | integer | optional | Default 25 |
 
-Returns: `[{ticker, name, sector, factor_scores: {...}}]`.
-
-### `get_earnings_signals`
-
-EPS trends and surprise metrics around earnings releases.
-
-| Parameter | Type | Required |
-|---|---|---|
-| `ticker` | string | yes |
-| `as_of_date` | date | optional |
-
-Returns: `{ticker, recent_quarters: [{period_end, eps_actual, eps_consensus_proxy, surprise_pct, post_release_volatility}]}`.
+Returns: `[{ticker, name, sector, scores: {...}}]`.
 
 ---
 
@@ -222,7 +211,7 @@ Issue a presigned R2 URL for direct Parquet streaming — bypass the gateway whe
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `table` | string | yes | One of the partitioned tables: `fact`, `ratio`, `filing`, `valuation`, `factor_scores`, `earnings_signals` |
+| `table` | string | yes | One of the partitioned tables: `fact`, `ratio`, `filing`, `valuation` |
 | `entity_ids` | string[] | optional | Limit to specific CIKs |
 | `expires_in_seconds` | integer | optional | Default 600, max 3600 |
 
@@ -337,7 +326,7 @@ Pay whatever `/api/mpp/quote` returns (it applies plan caps + the $0.50 Stripe m
 | Provenance / schema | `describe_schema`, `verify_fact_lineage` | Free |
 | Discovery | `search_companies`, `get_sec_filing_links` | **$0.01 / entity** |
 | Fundamentals | `get_company_fundamentals`, `get_financial_ratios` | **$0.10 / entity** |
-| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile`, `get_earnings_signals` | **$0.50 / entity** |
+| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile` | **$0.50 / entity** |
 | Compute | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` | **$2.50 / call** |
 | Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
 | Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |

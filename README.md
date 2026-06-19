@@ -106,7 +106,7 @@ Autonomous AI agents that hit a rate or tier limit can pay per request using **S
 | Provenance / schema | `describe_schema`, `verify_fact_lineage` | Free |
 | Discovery | `search_companies`, `get_sec_filing_links` | **$0.01 / entity** |
 | Fundamentals | `get_company_fundamentals`, `get_financial_ratios` | **$0.10 / entity** |
-| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile`, `get_earnings_signals` | **$0.50 / entity** |
+| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile` | **$0.50 / entity** |
 | Compute | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` | **$2.50 / call** |
 | Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
 | Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
@@ -279,8 +279,6 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | Cross-check your model against ours. |
 | `taxonomy_guide` | 2026 US GAAP Taxonomy | Definitions for every `standard_concept`. |
 | `index_membership` | Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
-| `factor_scores` | Cross-sectional factor scores + percentile ranks + a proprietary composite | Quality / value / momentum screens with one query — no recomputation. |
-| `earnings_signals` | Proprietary TTM EPS trend estimate + surprise %, plus YoY revenue growth | Earnings-momentum signals without re-deriving them from `fact`. |
 | `filing_text` | Narrative chunks from 10-K / 10-Q / 20-F TextBlocks (Risk Factors, MD&A, Business, Legal, Controls) | Source of the Vectorize index that powers semantic search via MCP. |
 
 ### Date columns — which to use when
@@ -383,8 +381,7 @@ The server exposes **68 live tools + 1 stub** (69 total), plus **22 agentic SOP 
 |---|---|
 | `compare_periods` | Side-by-side comparison across periods with material-change flags |
 | `get_peer_comparables` | Peer set + comparable metrics by sector |
-| `screen_universe` | Factor-score-driven screen across the universe |
-| `get_earnings_signals` | EPS trends and surprise metrics around earnings releases |
+| `screen_universe` | Multi-factor screen across the universe |
 
 **Bulk & semantic**
 
@@ -464,7 +461,7 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 |---|---|
 | [`docs/WORKSPACE_GUIDE.md`](docs/WORKSPACE_GUIDE.md) | Workspace welcome guide — 15-minute setup + daily/weekly/monthly playbooks per role (analyst, PM, quant, creator) |
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization, valuation models |
-| [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — 99.58% on 12,048 S&P 500 FY filings, citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
+| [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — measured source of truth is [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json) (latest snapshot: 88.96% on 11,423 modern-era S&P 500 FY filings, the honest ≥2010 figure; 93.55% overall on 19,617), citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
 | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | 20 copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
 | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — parameters, tier gates, examples |
 | [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |

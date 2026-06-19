@@ -2,16 +2,16 @@
 
 Valuein is built on a simple promise: **every fact you read can be mathematically verified against SEC's own canonical data.** This document describes how, and how you can reproduce the measurement yourself.
 
-The headline result on the first production run, measured 2026-05-15 against 12,048 S&P 500 annual filings (498 entities, 11.3 M facts, 1990–present):
+The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Latest committed snapshot (S&P 500 universe, 1993–present):
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — overall** | 12,048 | **99.58 %** |
-| Standardized facts — modern era (≥ 2010 XBRL) | 7,358 | **99.33 %** |
-| Standardized facts — legacy era (< 2010) | 4,690 | **99.96 %** |
-| **Unstandardized facts** (correctly left as `'Other'`) | 4.06 M | **97.21 %** |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,423 | **88.96 %** |
+| Standardized facts — overall (all eras) | 19,617 | **93.55 %** |
+| Standardized facts — legacy era (< 2010) — *trivially passes; do not cite* ⚠️ | 8,194 | see `baseline.json` |
+| **Unstandardized facts** (correctly left as `'Other'`) | 41.9 M | see `baseline.json` |
 
-Machine-readable version: [`baseline.json`](baseline.json).
+⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts and trivially pass every identity — **use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
 
 ---
 
@@ -35,7 +35,7 @@ A fact with `standard_concept = 'Other'` is **correctly unstandardized** if and 
 * a us-gaap tag that appears < 5,000 times in our corpus (long-tail niche); or
 * a us-gaap tag matching the documented disclosure-niche keywords (footnote details, tax-rate reconciliations, share-based-compensation award schedules, operating-lease maturity tables, etc. — full regex in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) §RESULT 7).
 
-Anything else is a **mapping gap** — a tag our standardization rules should have recognized. Tonight's measurement: 2.79 % of `'Other'` facts are mapping gaps; the remaining 97.21 % are correctly classified.
+Anything else is a **mapping gap** — a tag our standardization rules should have recognized. The current mapping-gap rate vs. correctly-classified rate is reported in [`baseline.json`](baseline.json) under `unstandardized_facts`; closing the gap is ongoing pipeline work.
 
 ### 1.3 CPA-verified concept standardization
 
@@ -68,13 +68,9 @@ The complete machine-readable list with formulas, tolerances, severities, and ci
 
 ---
 
-## 3. How we got from baseline to 99.58 %
+## 3. How calibration raises the raw baseline
 
-Out of the box, the engine measured **69.05 %** overall (50.04 % modern era). Climbing to 99.58 % took 10 calibration iterations on real SEC data — every change traceable to a specific Pareto-leading concept and a real-world filer pattern. The full trajectory:
-
-```
-79.6 % → 90.5 % → 95.2 % → 96.0 % → 98.0 % → 98.75 % → 99.05 % → 99.34 % → 99.58 %
-```
+Out of the box the engine measures a much lower raw figure; iterative calibration on real SEC data — every change traceable to a specific Pareto-leading concept and a real-world filer pattern — raises it. The current measured result after calibration lives in [`baseline.json`](baseline.json) (modern era is the honest figure). Calibration proceeds in steps, each one a documented loosening tied to a real filer pattern:
 
 Each step applied one of three calibration levers:
 
@@ -107,7 +103,7 @@ CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VAL
 "
 ```
 
-You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window (vs. 35-year full universe on paid tiers).
+You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window (vs. the full 1993–present universe on paid tiers).
 
 ### 4.2 Pro / Institutional path
 
@@ -122,7 +118,7 @@ SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro';   -- or /v
 "
 ```
 
-Full 30-year × 17,000-entity number, same SQL.
+Full 1993–present × 19,000+-entity number, same SQL.
 
 ### 4.3 Offline path (no network, no token)
 
@@ -165,28 +161,27 @@ Returns active violations, per-identity pass rates, and the restatement chain fo
 
 ---
 
-## 5. Continuous validation
+## 5. Re-validation
 
-The number isn't static. Every nightly pipeline run:
+The number isn't frozen. [`baseline.json`](baseline.json) is a snapshot that is **periodically re-committed** from a production accuracy run (the run itself lives upstream in the data-pipeline repo, not in this public repo — there is no nightly workflow inside this repo that regenerates it). A production accuracy run:
 
 1. Re-runs the full identity engine against the freshly-ingested fact table.
-2. Writes `accuracy_latest.json` to the host (matches the shape of [`baseline.json`](baseline.json)).
+2. Emits a JSON matching the shape of [`baseline.json`](baseline.json), which is then committed here.
 3. Updates the per-fact `confidence_score` in the next Parquet export.
-4. Posts a Slack alert if the headline accuracy drops below 99 % (the strict-quality-gate threshold).
 
-When the SEC releases new XBRL taxonomy or a filer changes tagging convention, the Pareto loop repeats — but the methodology and the SQL stay exactly the same.
+When the SEC releases new XBRL taxonomy or a filer changes tagging convention, the Pareto loop repeats — but the methodology and the SQL stay exactly the same, and you can always re-run [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) yourself to get a live number.
 
 ---
 
 ## 6. Limitations & honest caveats
 
-* **Legacy era (pre-2010)** XBRL was optional, so most pre-2010 filings have no facts in our database — they trivially pass every identity check. The headline number is dominated by modern-era filings (≥ 2010, ~7,358 of 12,048).
+* **Legacy era (pre-2010)** XBRL was optional, so most pre-2010 filings have no facts in our database — they trivially pass every identity check and inflate the all-era figure. **Read the modern-era (≥ 2010) number as the honest one** (11,423 of 19,617 filings in the latest [`baseline.json`](baseline.json) snapshot).
 
 * **Sector convention is real**. We don't apply balance-sheet identities to REIT operating-partnership filings the same way we apply them to a tech megacap. The structural-skip thresholds are documented in [`identities.json`](identities.json); analysts who disagree with our skip threshold can filter `qa_violation` directly.
 
-* **Mapping gaps still exist** — but the surface is shrinking. The 2026-05-15 calibration round closed the remaining Pareto: 10 newly-vendored aliases in `data-pipeline/services/accounting/catalog/l1_universal.yaml` (two new canonicals — `AssetRetirementObligation`, `OperatingLeasePaymentsThereafter` — plus eight aliases folded into existing canonicals), and 9 disclosure-niche regex patterns folded into the classifier (environmental contingencies, ESPP equity rollforward, treasury share counts, derivative-hedging detail, debt-instrument unamortized costs, PP&E component breakouts, capital contributions from minority holders, and the broader deferred-tax footnote family). Projected unstandardized accuracy after the next pipeline rerun: **≥ 99 %** (simulation against current S&P 500 corpus shows 100 % at zero residual gap).
+* **Mapping gaps still exist** — but the surface is shrinking as the standardization catalog grows (new canonical concepts and aliases land in the upstream `data-pipeline` catalog, plus disclosure-niche regex patterns folded into the classifier). The current mapping-gap rate is in [`baseline.json`](baseline.json) (`unstandardized_facts`); it is real ongoing work, not a solved problem.
 
-* **The 99.58 % number is for S&P 500**. The full-universe number (17,000+ entities including delisted) is the same framework with a larger denominator — expected to be 1-2 percentage points lower because micro-cap filers have noisier XBRL.
+* **The reported figure is for the S&P 500 universe.** The full-universe number (19,000+ entities including delisted) is the same framework with a larger denominator — expected to be a few percentage points lower because micro-cap filers have noisier XBRL.
 
 ---
 
