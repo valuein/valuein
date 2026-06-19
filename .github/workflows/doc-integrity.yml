@@ -1,0 +1,104 @@
+name: Doc integrity
+
+# Two gates protecting the public front-door docs:
+#
+#   (a) IP-leak gate — proprietary derived-signal tables/columns/tools must
+#       never reappear in the public schema, README, or MCP tool reference.
+#       (factor_scores / earnings_signals / composite_rank / eps_trend_est).
+#       The public academic metric `ratio.piotroski_f_score` is NOT matched.
+#
+#   (b) Accuracy-drift gate — docs/accuracy/baseline.json is the measured
+#       source of truth. Any hardcoded accuracy percentage in README.md or
+#       docs/accuracy/* that drifts more than 1.0 point from the baseline's
+#       honest modern-era figure fails the build, so the headline can never
+#       silently diverge from the JSON again (the root cause of VA25).
+#
+# Triggers: every push + PR, plus manual workflow_dispatch for testing.
+# No external services — pure bash + the Python that ships with the runner.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  doc-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: (a) IP-leak gate — no proprietary signals in public docs
+        run: |
+          set -uo pipefail
+          PATTERN='factor_scores|earnings_signals|composite_rank|eps_trend_est'
+          FILES="docs/schema.json README.md docs/MCP_TOOLS.md"
+          echo "Scanning: $FILES"
+          if grep -rnE "$PATTERN" $FILES; then
+            echo ""
+            echo "::error::IP-leak gate FAILED — proprietary derived-signal names"
+            echo "::error::found in public docs. Scrub them (see VA26). Do NOT"
+            echo "::error::regenerate docs/schema.json from parquet_schema.py"
+            echo "::error::until an upstream denylist exists."
+            exit 1
+          fi
+          echo "✓ IP-leak gate passed (0 hits)"
+
+      - name: (b) Accuracy-drift gate — README/docs match baseline.json
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, re, sys, pathlib
+
+          baseline = json.load(open("docs/accuracy/baseline.json"))
+          sf = baseline["standardized_facts"]
+          modern = sf["by_era"]["modern_2010_onward"]["accuracy_pct"]
+          overall = sf["overall"]["accuracy_pct"]
+          # Any accuracy_pct that actually appears in baseline.json is a real
+          # measured figure and is allowed to be cited verbatim in the docs
+          # (modern, overall, each by-era split, and the unstandardized rate).
+          # The gate only fails on percents that match NONE of them within tol
+          # — i.e. hallucinated / stale headlines like the old 99.58% / 97.21%.
+          # Allowed = the HONEST measured figures only. The legacy_pre_2010
+          # era is deliberately EXCLUDED: baseline.json's own _note says it
+          # trivially passes (pre-2010 XBRL was optional) and that modern-era
+          # is the honest measurement. Including it would let a near-100%
+          # legacy number shield a false ~99.x headline (exactly the VA25 bug).
+          allowed = {overall, modern}
+          if "accuracy_pct" in baseline.get("unstandardized_facts", {}):
+              allowed.add(baseline["unstandardized_facts"]["accuracy_pct"])
+          tol = 1.0
+          print(f"baseline modern={modern}  overall={overall}")
+          print(f"allowed (honest) figures: {sorted(allowed)}  tolerance=±{tol}")
+
+          targets = ["README.md"] + [
+              str(p) for p in pathlib.Path("docs/accuracy").glob("*")
+              if p.suffix in {".md", ".json"}
+          ]
+          # Matches "88.96 %", "93.55%", "99.58 %" etc.
+          pct_re = re.compile(r"(\d{2}\.\d{2})\s*%")
+
+          failures = []
+          for f in targets:
+              for n, line in enumerate(open(f, encoding="utf-8"), 1):
+                  for m in pct_re.finditer(line):
+                      val = float(m.group(1))
+                      # An accuracy claim is one that lands near a plausible
+                      # accuracy band (50–100%) AND is NOT within tolerance of
+                      # any current baseline figure.
+                      if not (50.0 <= val <= 100.0):
+                          continue
+                      if any(abs(val - a) <= tol for a in allowed):
+                          continue
+                      failures.append((f, n, val, line.strip()))
+
+          if failures:
+              print("\nAccuracy-drift gate FAILED — hardcoded percents that drift")
+              print(f">{tol} pt from baseline.json (modern={modern}, overall={overall}):\n")
+              for f, n, val, line in failures:
+                  print(f"  {f}:{n}  {val}%  ->  {line}")
+              print("\nFix: cite baseline.json, or update the number to the")
+              print("current measured figure. baseline.json is the source of truth.")
+              sys.exit(1)
+
+          print("✓ Accuracy-drift gate passed — no drifting percents")
+          PY
