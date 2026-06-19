@@ -461,7 +461,7 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 |---|---|
 | [`docs/WORKSPACE_GUIDE.md`](docs/WORKSPACE_GUIDE.md) | Workspace welcome guide — 15-minute setup + daily/weekly/monthly playbooks per role (analyst, PM, quant, creator) |
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization, valuation models |
-| [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — 99.58% on 12,048 S&P 500 FY filings, citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
+| [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — measured source of truth is [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json) (latest snapshot: 88.96% on 11,423 modern-era S&P 500 FY filings, the honest ≥2010 figure; 93.55% overall on 19,617), citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
 | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | 20 copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
 | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — parameters, tier gates, examples |
 | [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |
