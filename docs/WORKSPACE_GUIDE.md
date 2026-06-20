@@ -8,7 +8,7 @@
 
 **Your SEC research desk, run by an AI analyst.**
 
-105M+ point-in-time financial facts · 19,000+ US companies · 1993→present · zero survivorship bias
+111M+ point-in-time financial facts · 19,000+ US companies · 1993→present · zero survivorship bias
 
 [![Open the Workspace](https://img.shields.io/badge/Open-valuein.biz%2Fworkspace-2563EB?style=flat)](https://valuein.biz/workspace)
 [![Read online](https://img.shields.io/badge/Read_online-valuein.biz%2Fworkspace--guide-7C3AED?style=flat)](https://valuein.biz/workspace-guide)
@@ -23,7 +23,7 @@
 
 ---
 
-> **105M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 57 data tools and 22 ready-to-run analyst playbooks.**
+> **111M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 68 data tools and 22 ready-to-run analyst playbooks.**
 
 This is a simple, cadence-based setup so the Workspace earns its keep in your *daily, weekly, and monthly* routine within the first week.
 

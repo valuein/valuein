@@ -2,7 +2,7 @@
 
 Transparency is foundational to the Valuein product. This document describes how raw SEC EDGAR XBRL data is processed into standardized, point-in-time accurate financial time series.
 
-The data product covers **19,000+** active and delisted US public-company entities, **12M+** filings, and **105M+** standardized facts since **1993**. The fundamentals dataset (10-K / 10-Q / 8-K / 20-F + amendments) is exposed on every paid tier; the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 and institutional ownership on Forms 13F / 13D / 13G) is exposed on the Institutional tier only. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
+The data product covers **19,000+** active and delisted US public-company entities, **12M+** filings, and **111M+** standardized facts since **1993**. The fundamentals dataset (10-K / 10-Q / 8-K / 20-F + amendments) is exposed on every paid tier; the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 and institutional ownership on Forms 13F / 13D / 13G) is exposed on the Institutional tier only. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
 
 ---
 
@@ -149,7 +149,7 @@ The `data_quality` field on each valuation row indicates input reliability:
 | **Entities** | 19,000+ active and delisted US + Canadian public-company entities (the `entity_type='us_public_filer'` subset — CIKs with at least one 10-K / 10-Q / 8-K / 20-F / 40-F filing). The full `entity` table is larger because per-filing parsers (SC 13D/G, Form 3/4/5, Form 144, 13F-HR) emit stub rows for issuers named in smart-money filings; those rows are labelled `entity_type='smart_money_subject'` and are excluded from the universe count. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro = 15-year rolling; Institutional = full 1993→present) and access to the smart-money dataset. |
 | **History** | Pro: 15-year rolling (2011 → present). Institutional: 1993 → present. |
 | **Filings** | 12M+ — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
-| **Facts** | 105M+ standardized financial data points |
+| **Facts** | 111M+ standardized financial data points |
 | **XBRL coverage** | 95% of all SEC EDGAR financial facts mapped to a canonical `standard_concept`; the remainder is exposed under `'Other'` for transparency |
 | **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K alerts for Enterprise (custom contract) |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |

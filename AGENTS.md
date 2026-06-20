@@ -13,8 +13,8 @@ This repo is the **public discovery hub** for the Valuein financial data platfor
 It contains:
 
 - `README.md` — landing page for github.com/valuein/valuein
-- `examples/python/` — 11 standalone scripts that `import valuein_sdk` and run end-to-end against the live API
-- `examples/notebooks/` — 7 Jupyter notebooks mirroring the Python scripts (Colab-ready)
+- `examples/python/` — 12 standalone scripts that `import valuein_sdk` and run end-to-end against the live API
+- `examples/notebooks/` — 8 Jupyter notebooks mirroring the Python scripts (Colab-ready)
 - `docs/` — methodology, SLA, data license, schema, MCP tool reference, query cookbook, data catalog
 - `server.json` — MCP-registry manifest, published to `registry.modelcontextprotocol.io`
 - `scripts/generate_catalog.py` — regenerates `docs/data_catalog.{md,json,xlsx}` from the canonical concept list
@@ -34,13 +34,15 @@ If you need source code for any of the above, redirect to the right repo. Don't 
 
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
-- **105M+ standardized financial facts** across **19,000+** active and delisted US public-company entities
+- **~111M standardized financial facts** across **19,000+** active and delisted US public-company entities
 - **12M+ filings** since **1993** — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS), and amendments
-- **11,966 raw XBRL tags** normalized to **~286 canonical `standard_concept`** values
+- **11,966 raw XBRL tags** normalized to **291 canonical `standard_concept`** values, plus **164 materialized financial ratios** (FY + TTM)
 - Distributed via four channels: **Python SDK**, **MCP server**, **Bulk Data API**, **web dashboard**
 - All four channels unlocked by a single Stripe-issued Bearer token at the user's tier
 
 The Sample tier runs every example in this repo without an API key. Recommend it as the default starting point — never gate a new user behind signup.
+
+For point-in-time / survivorship-free work, point users at `examples/python/pit_factor_dataset.py` (and its notebook): a zero-SDK-code example that builds a PIT, survivorship-bias-free factor dataset (AlphaEngine — ROE, REVENUE_GROWTH_YOY, FCF_TO_ASSETS, DEBT_TO_EQUITY, PIOTROSKI_F_SCORE) and exports Parquet + CSV, showing the raw `references.cik = index_membership.cik` join and the `filing_date <= as_of` PIT filter explicitly.
 
 ---
 
@@ -97,7 +99,7 @@ Discovery: `https://valuein.biz/.well-known/mcp.json`
 
 To add Valuein as a tool to Claude Desktop, Cursor, Codex, ChatGPT, or any MCP-capable agent client, register `https://mcp.valuein.biz/mcp` as a custom MCP server. The same Stripe Bearer token authenticates the SDK and the MCP server — no per-channel billing.
 
-The server ships **67 live tools + 1 stub** and **22 multi-step agentic SOPs** (prompts). Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md).
+The server ships **68 live tools + 1 stub** (`server.json` v2.15.0) and **22 multi-step agentic SOPs** (prompts) + 3 resources. Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) (note: that doc's "57 live" header is stale — `server.json`'s `tools_summary` is authoritative at live=68).
 
 ---
 
@@ -178,8 +180,15 @@ A single Stripe-issued Bearer token unlocks every channel (SDK, MCP server, Bulk
 | Add a matching notebook | `examples/notebooks/<name>.ipynb` | Open in Colab, "Run all" |
 | Document a new MCP tool | `docs/MCP_TOOLS.md` | Manual review — no test gate |
 | Add a query recipe | `docs/QUERY_COOKBOOK.md` | Manual review |
-| Update the catalog | `scripts/generate_catalog.py` (CONCEPTS), then `uv run python scripts/generate_catalog.py` | Diff `docs/data_catalog.{md,json,xlsx}` |
+| Update the catalog | `scripts/generate_catalog.py` (CONCEPTS), then `uv run python scripts/generate_catalog.py` | Diff `docs/data_catalog.{md,json,xlsx}` (current: 291 concepts, 164 ratios) |
 | Bump MCP registry version | `server.json` `version` | GHA `.github/workflows/publish-mcp.yml` republishes on push |
+
+`server.json` + README are auto-synced from the `mcp` repo manifest by `.github/workflows/sync-mcp-manifest.yml`
+(nightly + `repository_dispatch`). Every push/PR also runs `.github/workflows/doc-integrity.yml`:
+(a) an **IP-leak gate** that fails if proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`)
+appear in `docs/schema.json`, `README.md`, or `docs/MCP_TOOLS.md`; and (b) an **accuracy-drift gate** that
+fails if any `NN.NN%` in `README.md` / `docs/accuracy/*` drifts >1pt from `docs/accuracy/baseline.json`.
+Do not reintroduce scrubbed signal names or edit a public accuracy figure away from the measured baseline.
 
 ### Conventions
 

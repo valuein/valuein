@@ -46,7 +46,7 @@ pip install valuein-sdk          # data for code
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
 - **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1993**
-- **105M+ standardized facts** across **19,000+** active and delisted US public-company entities
+- **111M+ standardized facts** across **19,000+** active and delisted US public-company entities
 - **11,966 raw XBRL tags** normalized to **~286 canonical `standard_concept`** values (95%+ coverage)
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
