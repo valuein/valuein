@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **68 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes) across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), DCF-compute, forensic-audit, and document-generation categories. A separate marketplace category (7 tools) ships hidden until Phase 2. **22 analyst SOP prompts** (two flagship cross-persona briefs + 20 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **68 live tools** across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), DCF-compute, forensic-audit, and document-generation categories. A separate marketplace category (7 tools) ships hidden until Phase 2. **22 analyst SOP prompts** (two flagship cross-persona briefs + 20 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -216,20 +216,6 @@ Issue a presigned R2 URL for direct Parquet streaming — bypass the gateway whe
 | `expires_in_seconds` | integer | optional | Default 600, max 3600 |
 
 Returns: `{presigned_r2_url, expires_at, schema_url}`. The agent should fetch the schema URL too — it lists column types and the partition layout.
-
-### `search_filing_text` *(rolling out)*
-
-Semantic search over Risk Factors, MD&A, Business, Legal Proceedings, and Controls & Procedures sections of every 10-K / 10-Q / 20-F since 2019.
-
-| Parameter | Type | Required | Notes |
-|---|---|---|---|
-| `query` | string | yes | Natural-language query (e.g. "supply chain fragility from Asia") |
-| `sector` | string | optional | Filter |
-| `as_of_date` | date | optional | PIT cutoff |
-
-Returns: `[{ticker, accession_id, section, chunk_no, preview, score, filing_url}]`.
-
-> **Status (April 2026):** the Vectorize backfill is in progress. Until backfill completes, the tool returns a "coming soon" status code so agents can fall back to `get_compute_ready_stream` against the `filing_text` table.
 
 ---
 

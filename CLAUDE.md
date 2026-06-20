@@ -19,7 +19,7 @@ Valuein. It is the landing page a prospective user hits from PyPI, Smithery, or 
 - `scripts/generate_catalog.py` — generator that writes `docs/data_catalog.md`, `data_catalog.json`,
   and updates `DATA_CATALOG.xlsx` from canonical concepts defined inline in the script
   (current output: `concept_count=291`, `ratio_count=164` — 77 FY+TTM, 87 annual-only)
-- `server.json` — MCP server manifest for registry.modelcontextprotocol.io (v2.15.0)
+- `server.json` — MCP server manifest for registry.modelcontextprotocol.io (v2.18.0)
 - `.github/workflows/` — `publish-mcp.yml` (registry publish), `sync-mcp-manifest.yml`
   (nightly + `repository_dispatch` sync of `server.json` + README from the `mcp` repo manifest),
   `doc-integrity.yml` (CI gate: IP-leak + accuracy-drift, on every push/PR)
@@ -39,7 +39,7 @@ exists — SDK and MCP are now standalone repos.
 | If you're asked to… | Go to |
 |---|---|
 | Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/sdk` → `valuein_sdk/` |
-| Modify the MCP Worker code (`mcp.valuein.biz`, 68 live tools + 1 stub `search_filing_text` (69 total visible; a 13th marketplace category stays hidden until Phase 2), 22 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
+| Modify the MCP Worker code (`mcp.valuein.biz`, 68 live tools (a marketplace category stays hidden until Phase 2), 22 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
 | Change what `fact.standard_concept` values exist, or add a concept | `~/PycharmProjects/data-pipeline` → `services/accounting/definitions.py` (`STANDARD_DEFINITIONS`), **then** re-run `scripts/generate_catalog.py` here |
 | Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py` + `parquet_schema.py`; then propagate to the SDK + MCP (both read the schema from the R2 manifest at runtime — the SDK no longer bundles `schema.json` since v3.2.0), `cloudflare/edge-gateway` (validates tables dynamically from the manifest), and regenerate `docs/schema.json` here last |
 | Change token schema, gateway routing, Stripe webhook, agent-pay | `~/WebstormProjects/cloudflare` |
