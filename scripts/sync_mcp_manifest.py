@@ -121,7 +121,7 @@ def render_summary(manifest: dict) -> str:
     """Render the README summary block with marker fence.
 
     The stub clause is suppressed entirely when the manifest reports zero
-    stub tools — "68 live tools" reads cleanly, while "68 live tools + 0 stub"
+    stub tools — "72 live tools" reads cleanly, while "72 live tools + 0 stub"
     would be a confusing artifact for public visitors.
     """
     counts = manifest["counts"]

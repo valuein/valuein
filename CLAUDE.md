@@ -39,7 +39,7 @@ exists — SDK and MCP are now standalone repos.
 | If you're asked to… | Go to |
 |---|---|
 | Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/sdk` → `valuein_sdk/` |
-| Modify the MCP Worker code (`mcp.valuein.biz`, 68 live tools (a marketplace category stays hidden until Phase 2), 22 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
+| Modify the MCP Worker code (`mcp.valuein.biz`, 72 live tools — incl. 4 free report-publishing tools; 3 paid report-marketplace tools stay hidden until launch — 22 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
 | Change what `fact.standard_concept` values exist, or add a concept | `~/PycharmProjects/data-pipeline` → `services/accounting/definitions.py` (`STANDARD_DEFINITIONS`), **then** re-run `scripts/generate_catalog.py` here |
 | Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py` + `parquet_schema.py`; then propagate to the SDK + MCP (both read the schema from the R2 manifest at runtime — the SDK no longer bundles `schema.json` since v3.2.0), `cloudflare/edge-gateway` (validates tables dynamically from the manifest), and regenerate `docs/schema.json` here last |
 | Change token schema, gateway routing, Stripe webhook, agent-pay | `~/WebstormProjects/cloudflare` |
