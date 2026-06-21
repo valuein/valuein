@@ -99,7 +99,7 @@ Discovery: `https://valuein.biz/.well-known/mcp.json`
 
 To add Valuein as a tool to Claude Desktop, Cursor, Codex, ChatGPT, or any MCP-capable agent client, register `https://mcp.valuein.biz/mcp` as a custom MCP server. The same Stripe Bearer token authenticates the SDK and the MCP server — no per-channel billing.
 
-The server ships **72 live tools** (`server.json` v2.18.0) and **22 multi-step agentic SOPs** (prompts) + 3 resources. This includes 4 **free** report-publishing/discovery tools (`publish_report`, `unpublish_report`, `search_reports`, `find_similar_reports`) for building a public `@handle` profile and reputation — publishing, not selling; the 3 paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) stay hidden until the marketplace launches. Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) — `server.json`'s `tools_summary` is authoritative at live=72.
+The server ships **75 live tools** (`server.json` v2.19.0) and **27 multi-step agentic SOPs** (prompts) + 3 resources. This includes **free** publish/unpublish visibility-toggle tools for building a public `@handle` profile and reputation: `publish_report` / `unpublish_report` / `search_reports` for reports (keyword catalog search — no semantic search yet), plus matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` parity for theses and claims — publishing, not selling; the 3 paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) stay hidden until the marketplace launches. Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) — `server.json`'s `tools_summary` is authoritative at live=75.
 
 ---
 
