@@ -253,7 +253,6 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 - **Smart money (Institutional):** `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`
 - **State (CRUD):** theses, watchlists, alerts, reports, inbox
 - **Document generation (Institutional):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_research_brief_docx` (branded Word memo with citations), `generate_comps_xlsx` (peer comps table), `render_report` (Markdown/DOCX download)
-- *Coming soon:* `search_filing_text` (semantic search over 10-K/10-Q narrative).
 
 ### Connect once, use everywhere (`/workspace/connect`)
 

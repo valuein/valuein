@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **68 live tools + 1 stub** (`search_filing_text`, rolling out as the Vectorize backfill completes) across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), DCF-compute, forensic-audit, and document-generation categories. A separate marketplace category (7 tools) ships hidden until Phase 2. **22 analyst SOP prompts** (two flagship cross-persona briefs + 20 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **72 live tools** across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), report-publishing, DCF-compute, forensic-audit, and document-generation categories. The 4 free report-publishing/discovery tools (`publish_report`, `unpublish_report`, `search_reports`, `find_similar_reports`) let any user build a public `@handle` profile and reputation. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. **22 analyst SOP prompts** (two flagship cross-persona briefs + 20 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -217,19 +217,58 @@ Issue a presigned R2 URL for direct Parquet streaming — bypass the gateway whe
 
 Returns: `{presigned_r2_url, expires_at, schema_url}`. The agent should fetch the schema URL too — it lists column types and the partition layout.
 
-### `search_filing_text` *(rolling out)*
+---
 
-Semantic search over Risk Factors, MD&A, Business, Legal Proceedings, and Controls & Procedures sections of every 10-K / 10-Q / 20-F since 2019.
+## Public reports — free publishing & discovery
+
+These four tools are **free on every tier**. They let an agent (or a creator working through one) turn a saved report into a public, citable research track record: a `/r/[slug]` page linked from the author's `@handle` profile. This is **publishing to build a public profile and reputation, not selling** — there is no charge to the author or the reader, and the agent never mints a number (every published figure keeps its `fact_id` lineage). The paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) remain **unreleased** until the marketplace launches.
+
+### `publish_report`
+
+Publish a saved report to the author's public profile as a shareable `/r/[slug]` page indexed for the public catalog and AI-search citation.
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `query` | string | yes | Natural-language query (e.g. "supply chain fragility from Asia") |
-| `sector` | string | optional | Filter |
-| `as_of_date` | date | optional | PIT cutoff |
+| `report_id` | string | yes | A report you own (created via `create_report` / persisted-state tools) |
+| `slug` | string | optional | Custom URL slug; auto-derived from the title if omitted |
+| `summary` | string | optional | Short public-facing description shown in the catalog |
 
-Returns: `[{ticker, accession_id, section, chunk_no, preview, score, filing_url}]`.
+Returns: `{report_id, slug, public_url, handle, published_at}`.
 
-> **Status (April 2026):** the Vectorize backfill is in progress. Until backfill completes, the tool returns a "coming soon" status code so agents can fall back to `get_compute_ready_stream` against the `filing_text` table.
+### `unpublish_report`
+
+Take a previously published report private again. The `/r/[slug]` page returns to a not-found state and the report leaves the public catalog.
+
+| Parameter | Type | Required |
+|---|---|---|
+| `report_id` | string | yes — a published report you own |
+
+Returns: `{report_id, slug, unpublished_at}`.
+
+### `search_reports`
+
+Search the public report catalog by ticker, author handle, or free-text keyword. Useful for discovering existing research before writing a new brief, or for surfacing a creator's body of work.
+
+| Parameter | Type | Required | Notes |
+|---|---|---|---|
+| `query` | string | optional | Free-text across title, summary, ticker, author |
+| `ticker` | string | optional | Restrict to reports covering a ticker |
+| `handle` | string | optional | Restrict to one author's public profile |
+| `limit` | integer | optional | Default 25, max 100 |
+
+Returns: `[{report_id, slug, public_url, title, summary, handle, tickers, published_at}]`.
+
+### `find_similar_reports`
+
+Find published reports similar to a given report or topic — the agent can cite or build on adjacent public research.
+
+| Parameter | Type | Required | Notes |
+|---|---|---|---|
+| `report_id` | string | one of these is required | Find reports similar to one you reference |
+| `topic` | string | one of these is required | Free-text topic / thesis to match against |
+| `limit` | integer | optional | Default 10, max 50 |
+
+Returns: `[{report_id, slug, public_url, title, handle, similarity, published_at}]`.
 
 ---
 

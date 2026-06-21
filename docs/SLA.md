@@ -94,7 +94,7 @@ To claim, email **billing@valuein.biz** with your incident ticket number(s) with
 
 - The Sample tier (anonymous) and the Free tier — both are best-effort and have no uptime, freshness, or response-time commitments.
 - Outages caused by force majeure, customer-side network issues, or third-party services we depend on (Cloudflare, Stripe, GitHub, PyPI).
-- Beta or experimental features explicitly labelled as such (currently `search_filing_text` on MCP — Vectorize backfill in progress).
+- Beta or experimental features explicitly labelled as such.
 - Use beyond the documented rate limits.
 
 ---

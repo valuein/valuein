@@ -348,7 +348,7 @@ Valuein ships a remote Model Context Protocol server so any MCP-capable agent (C
 ### Tools
 
 <!-- GEN:mcp-summary -->
-The server exposes **68 live tools + 1 stub** (69 total), plus **22 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity universe with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license.
+The server exposes **72 live tools**, plus **22 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity universe with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license.
 <!-- /GEN:mcp-summary -->
 
 **Discovery & schema**
@@ -383,12 +383,11 @@ The server exposes **68 live tools + 1 stub** (69 total), plus **22 agentic SOP 
 | `get_peer_comparables` | Peer set + comparable metrics by sector |
 | `screen_universe` | Multi-factor screen across the universe |
 
-**Bulk & semantic**
+**Bulk data**
 
 | Tool | What it does |
 |---|---|
 | `get_compute_ready_stream` | Issue presigned R2 URLs for direct Parquet streaming (skip the gateway) |
-| `search_filing_text` | Semantic search over Risk Factors / MD&A / Business across every 10-K / 10-Q / 20-F (rolling out — Vectorize backfill in progress) |
 
 **Smart money — Institutional tier and above**
 
@@ -400,6 +399,17 @@ The smart-money bundle replaces Bloomberg's INSIDER\<GO\> / OWNER\<GO\> / HDS\<G
 | `get_institutional_holdings` | Form 13F top holders for one issuer with HHI concentration + 13F-lag staleness flag |
 | `get_manager_portfolio` | Form 13F filer's full portfolio with QoQ deltas (new / increased / decreased / exited) |
 | `get_blockholders` | SC 13D / 13G with the first-class `going_active` flag (13G→13D = control-change signal) |
+
+**Public reports — free publishing & discovery (all tiers)**
+
+Publish your saved research to a public `@handle` profile and shareable `/r/[slug]` page — free to build a public track record and reputation. This is publishing, not selling; the paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) remain unreleased.
+
+| Tool | What it does |
+|---|---|
+| `publish_report` | Publish a saved report to your public profile (`@handle`) as a shareable `/r/[slug]` page |
+| `unpublish_report` | Take a previously published report private again |
+| `search_reports` | Search the public report catalog by ticker, author, or keyword |
+| `find_similar_reports` | Find published reports similar to a given report or topic |
 
 ### Configure in Claude Desktop
 

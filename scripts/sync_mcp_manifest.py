@@ -92,8 +92,8 @@ def update_server_json(manifest: dict) -> Tuple[str, str]:
 
 
 README_SUMMARY_TEMPLATE = (
-    "The server exposes **{live} live tools + {stubs} stub** "
-    "({total} total), plus **{prompts} agentic SOP prompts** "
+    "The server exposes **{live} live tools{stub_clause}**, "
+    "plus **{prompts} agentic SOP prompts** "
     "(two flagship cross-persona briefs — `equity_research_brief` and "
     "`screen_and_shortlist` — plus specialised chains for analyst, PM, "
     "quant, ratio, smart-money, and workflow personas) and **{resources} "
@@ -118,12 +118,22 @@ STALE_PARAGRAPH_RE = re.compile(
 
 
 def render_summary(manifest: dict) -> str:
-    """Render the README summary block with marker fence."""
+    """Render the README summary block with marker fence.
+
+    The stub clause is suppressed entirely when the manifest reports zero
+    stub tools — "72 live tools" reads cleanly, while "72 live tools + 0 stub"
+    would be a confusing artifact for public visitors.
+    """
     counts = manifest["counts"]
+    stubs = counts["tools_stub"]
+    if stubs:
+        noun = "stub" if stubs == 1 else "stubs"
+        stub_clause = f" + {stubs} {noun} ({counts['tools']} total)"
+    else:
+        stub_clause = ""
     body = README_SUMMARY_TEMPLATE.format(
         live=counts["tools_live"],
-        stubs=counts["tools_stub"],
-        total=counts["tools"],
+        stub_clause=stub_clause,
         prompts=counts["prompts"],
         resources=counts["resources"],
     )
