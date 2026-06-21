@@ -2,11 +2,11 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-06-21T06:52:01Z",
+  "measured_at": "2026-06-21T07:47:00Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 0,
+    "entities": 410,
     "filings": 0,
     "form_types": [
       "10-K",
