@@ -69,16 +69,20 @@ jobs:
           # reachable from the runner → 0 entities / 0 filings → null).
           # Filter them out; if no measured figures remain, skip the gate.
           allowed = {v for v in (overall, modern) if v is not None}
-          if "accuracy_pct" in baseline.get("unstandardized_facts", {}):
-              v = baseline["unstandardized_facts"]["accuracy_pct"]
-              if v is not None:
-                  allowed.add(v)
           tol = 1.0
           print(f"baseline modern={modern}  overall={overall}")
           if not allowed:
               print("⚠ baseline.json has no measured figures (null) — "
                     "accuracy-drift gate skipped (stub baseline)")
               sys.exit(0)
+          # Only extend allowed with the unstandardized rate when at least one
+          # standardized figure is real. A stub baseline writes 0.0 here which
+          # would otherwise cause every legitimate doc percent (88.96%, 93.55%)
+          # to appear to "drift" from 0.0 and fail the gate.
+          if "accuracy_pct" in baseline.get("unstandardized_facts", {}):
+              v = baseline["unstandardized_facts"]["accuracy_pct"]
+              if v is not None:
+                  allowed.add(v)
           print(f"allowed (honest) figures: {sorted(allowed)}  tolerance=±{tol}")
 
           targets = ["README.md"] + [
