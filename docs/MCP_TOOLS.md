@@ -7,7 +7,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **72 live tools** across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), report-publishing, DCF-compute, forensic-audit, and document-generation categories. The 4 free report-publishing/discovery tools (`publish_report`, `unpublish_report`, `search_reports`, `find_similar_reports`) let any user build a public `@handle` profile and reputation. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. **22 analyst SOP prompts** (two flagship cross-persona briefs + 20 specialised chains and daily flows) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **75 live tools** across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), report-publishing, DCF-compute, forensic-audit, and document-generation categories. Free visibility-toggle tools let any user build a public `@handle` profile and reputation: `publish_report` / `unpublish_report` / `search_reports` for reports, plus matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` parity for theses and claims. Reports are discovered via keyword catalog search (`search_reports`, pure-D1) — there is no semantic search yet. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. **27 analyst SOP prompts** (two flagship cross-persona briefs + 25 specialised chains, daily flows, and state-lifecycle playbooks) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 ---
 
@@ -219,9 +219,9 @@ Returns: `{presigned_r2_url, expires_at, schema_url}`. The agent should fetch th
 
 ---
 
-## Public reports — free publishing & discovery
+## Public publishing — free reputation building (reports, theses, claims)
 
-These four tools are **free on every tier**. They let an agent (or a creator working through one) turn a saved report into a public, citable research track record: a `/r/[slug]` page linked from the author's `@handle` profile. This is **publishing to build a public profile and reputation, not selling** — there is no charge to the author or the reader, and the agent never mints a number (every published figure keeps its `fact_id` lineage). The paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) remain **unreleased** until the marketplace launches.
+These tools are **free on every tier**. They let an agent (or a creator working through one) turn saved work into a public, citable research track record linked from the author's `@handle` profile. This is **publishing to build a public profile and reputation, not selling** — there is no charge to the author or the reader, and the agent never mints a number (every published figure keeps its `fact_id` lineage). Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (`search_reports`, pure-D1 — there is no semantic search yet). Theses and claims get the same free `publish` / `unpublish` visibility toggle so a full public track record (report + supporting theses + scored claims) can be built with one consistent pattern. The paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) remain **unreleased** until the marketplace launches.
 
 ### `publish_report`
 
@@ -258,17 +258,45 @@ Search the public report catalog by ticker, author handle, or free-text keyword.
 
 Returns: `[{report_id, slug, public_url, title, summary, handle, tickers, published_at}]`.
 
-### `find_similar_reports`
+### `publish_thesis`
 
-Find published reports similar to a given report or topic — the agent can cite or build on adjacent public research.
+Make a saved thesis public on the author's `@handle` profile — the same free visibility toggle as `publish_report`, applied to a thesis. Owner-scoped; flips the thesis to public so it appears in `list_public_theses_by_user`. Builds a verifiable public track record (sp500+).
 
-| Parameter | Type | Required | Notes |
-|---|---|---|---|
-| `report_id` | string | one of these is required | Find reports similar to one you reference |
-| `topic` | string | one of these is required | Free-text topic / thesis to match against |
-| `limit` | integer | optional | Default 10, max 50 |
+| Parameter | Type | Required |
+|---|---|---|
+| `thesis_id` | string | yes — a thesis you own |
 
-Returns: `[{report_id, slug, public_url, title, handle, similarity, published_at}]`.
+Returns: `{thesis_id, visibility, published_at}`.
+
+### `unpublish_thesis`
+
+Revert a published thesis back to private. Owner-scoped, idempotent — it drops out of the public profile feed (sp500+).
+
+| Parameter | Type | Required |
+|---|---|---|
+| `thesis_id` | string | yes — a published thesis you own |
+
+Returns: `{thesis_id, visibility, unpublished_at}`.
+
+### `publish_claim`
+
+Make a saved claim public on the author's `@handle` profile — publish/unpublish parity with reports and theses, applied to a provenance-bound, scoreable claim. Owner-scoped; the claim appears in `list_public_claims_by_user` so a public track record can carry its individual scored claims (sp500+).
+
+| Parameter | Type | Required |
+|---|---|---|
+| `claim_id` | string | yes — a claim you own |
+
+Returns: `{claim_id, visibility, published_at}`.
+
+### `unpublish_claim`
+
+Revert a published claim back to private. Owner-scoped, idempotent (sp500+).
+
+| Parameter | Type | Required |
+|---|---|---|
+| `claim_id` | string | yes — a published claim you own |
+
+Returns: `{claim_id, visibility, unpublished_at}`.
 
 ---
 
@@ -276,7 +304,7 @@ Returns: `[{report_id, slug, public_url, title, handle, similarity, published_at
 
 These are pre-written multi-step instructions an MCP-aware agent can invoke as a single high-level command. Each chains the right tools in the right order.
 
-The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis and `screen_and_shortlist` for idea generation. The eight specialised SOPs underneath are narrower single-purpose chains.
+The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis and `screen_and_shortlist` for idea generation. The remaining specialised SOPs underneath are narrower single-purpose chains, daily flows, and state-lifecycle playbooks. Below is a representative selection; the full set of **27 SOPs** is advertised by the live server's `prompts/list`.
 
 | Prompt | What it does |
 |---|---|
@@ -290,6 +318,11 @@ The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equ
 | `sector_ratio_screen` | Sector-relative outlier screen across the ratio table |
 | `survivorship_free_backtest` | Construct a survivorship-bias-free universe and run a factor-rebalance backtest |
 | `pit_factor_constructor` | Build a PIT-correct factor (with `filing_date <= trade_date` discipline) |
+| `publish_to_build_reputation` | Build-in-public flow — publish a report + thesis + claims to grow a verifiable public `@handle` track record |
+| `watchlist_and_alert_setup` | Stand up monitoring — create a watchlist, attach alerts, test-fire them, and read the inbox |
+| `claims_ledger_lifecycle` | Run a claim end-to-end — record → link to a thesis → grade → publish a provenance-bound claim |
+| `thesis_state_machine` | Drive a thesis through its lifecycle — save → grade → score outcome → read |
+| `multi_factor_signal` | PIT-disciplined composite signal — `get_pit_universe` → compute stream → screen → ratios |
 
 Invoke a prompt the same way as a tool — most clients surface them in the same picker. The flagship prompts include built-in plan-aware fallback (returns "🔒 Pro / Institutional unlocks this" inline rather than aborting on tier-gated sections), data-freshness lines, automatic restatement flagging on any row where `lineage.restated = true`, and a not-investment-advice disclaimer.
 

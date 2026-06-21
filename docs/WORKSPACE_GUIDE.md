@@ -41,7 +41,7 @@ Five things live here, and they reinforce each other:
 
 | Building block | What it is | The job it does for you |
 |---|---|---|
-| **Chat** | BYO-LLM assistant with 57 SEC data tools + 22 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
+| **Chat** | BYO-LLM assistant with 57 SEC data tools + 27 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
 | **Watchlists** | Named ticker lists (≤500 tickers + a criteria note) | The universe everything else points at — coverage, portfolio, pipeline |
 | **Theses** | Time-stamped bull/bear/neutral calls (conviction 1–5, horizon) | Record what you thought *and when*; auto-graded against fundamentals |
 | **Alerts → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
@@ -215,7 +215,7 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **Price** | $0, no signup | $0, register | **$49/mo · $490/yr** | **$499/mo · $4,790/yr** | Custom |
 | **Universe** | S&P 500 | S&P 500 | **19,000+** | 19,000+ + foreign | Contract |
 | **History** | 5 yr | 1993→ | 15-yr rolling (2011→) | 1993→ | Contract |
-| **Workspace + 22 SOPs** | — | ✓ | ✓ | ✓ | ✓ |
+| **Workspace + 27 SOPs** | — | ✓ | ✓ | ✓ | ✓ |
 | **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
 | **Theses / Watchlists / Alerts / Reports** | — | ✓ | ✓ | ✓ | ✓ |
 | **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
@@ -230,7 +230,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 
 ## 6. Reference — the full toolkit
 
-### 22 SOPs (your ready-made playbooks)
+### 27 SOPs (your ready-made playbooks)
 
 **Flagships**
 - **`equity_research_brief`** — single-ticker institutional brief. Depth: `quick` / `full` / `forensic`.
