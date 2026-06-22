@@ -248,6 +248,7 @@ Every link below points to a runnable script in [`examples/python/`](examples/py
 | **Trader / signals** | [`earnings_momentum.py`](examples/python/earnings_momentum.py) | YoY revenue & earnings acceleration ranking |
 | **Asset manager** | [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Quantify how survivorship bias inflates returns |
 | **Valuation modeler** | [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Free-cash-flow assembly, balance sheet, Valuein's pre-computed DCF |
+| **Auditor / compliance** | [`filing_provenance.py`](examples/python/filing_provenance.py) | Click-through SEC EDGAR links per filing — open the iXBRL viewer on the exact source document behind a number |
 | **Data engineer** | [`production-ready.py`](examples/python/production-ready.py) | Service pattern for FastAPI / Celery / Airflow |
 | **First-time user** | [`getting_started.py`](examples/python/getting_started.py) | First query, token check, sector counts |
 | **Building an AI agent** | [MCP for AI agents](#mcp-for-ai-agents) | Use natural language — no SDK required |
