@@ -11,10 +11,14 @@ first:
     primary document; every tagged number is highlighted in-page. `None` when
     the filing is not Inline-XBRL (older filings) — the /ix? overlay only
     renders for iXBRL.
+  • document_url      — a direct link to the rendered primary document itself;
+    opens the actual filing (not the index page) for any filing with a known
+    primary document, including non-iXBRL ones. `None` only when the primary
+    document is unknown.
   • viewer_url        — the cgi-bin Financial-Report viewer; any XBRL filing.
   • sec_url           — the EDGAR filing-index page; always exists.
 
-Prefer inline_viewer_url → viewer_url → sec_url.
+Prefer inline_viewer_url → document_url → viewer_url → sec_url.
 
 Run (no token required — falls back to the SAMPLE tier automatically):
     pip install valuein-sdk      # or: uv pip install valuein-sdk
@@ -35,7 +39,12 @@ df = client.filing_links("AAPL", form_types=["10-K"], limit=3)
 print(f"{len(df)} filing(s) for AAPL:\n")
 for _, row in df.iterrows():
     # The link your UI should use — strongest provenance with graceful fallback.
-    best = row["inline_viewer_url"] or row["viewer_url"] or row["sec_url"]
+    best = (
+        row["inline_viewer_url"]
+        or row["document_url"]
+        or row["viewer_url"]
+        or row["sec_url"]
+    )
     print(f"  {row['form_type']}  filed {row['filing_date']}  ({row['accession_id']})")
     print(f"    → {best}")
     print()
