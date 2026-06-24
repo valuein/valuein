@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-06-23T13:55:25Z",
+  "measured_at": "2026-06-24T04:54:13Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 410,
-    "filings": 6360,
+    "entities": 1030,
+    "filings": 19616,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,21 +20,21 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json.",
     "overall": {
-      "filings": 6360,
-      "clean_filings": 6360,
+      "filings": 19616,
+      "clean_filings": 19616,
       "filings_with_errors": 0,
       "accuracy_pct": 100
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 3160,
-        "clean_filings": 3160,
+        "filings": 11422,
+        "clean_filings": 11422,
         "filings_with_errors": 0,
         "accuracy_pct": 100
       },
       "legacy_pre_2010": {
-        "filings": 3200,
-        "clean_filings": 3200,
+        "filings": 8194,
+        "clean_filings": 8194,
         "filings_with_errors": 0,
         "accuracy_pct": 100,
         "_note": "Pre-2010 XBRL was optional; most pre-2010 filings have no facts and trivially pass every identity. Use modern_2010_onward as the honest measurement."
