@@ -7,12 +7,12 @@ README and pricing page. Three files, all citable, all runnable:
 |---|---|
 | [`methodology.md`](methodology.md) | Narrative — definitions, 35 identities, how we calibrate up from the raw baseline, limitations |
 | [`identities.json`](identities.json) | Machine-readable catalog of every identity (formula, tolerance, severity, citation) — exactly the set the engine evaluates |
-| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 88.96 % modern-era (≥ 2010) on 11,423 S&P 500 FY filings — the honest figure — and 93.55 % overall on 19,617. Periodically re-committed from a production run. |
+| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 100.00 % modern-era (≥ 2010) on 11,422 S&P 500 FY filings — the honest figure — and 100.00 % overall on 19,616. Periodically re-committed from a production run. |
 | [`../../scripts/accuracy/accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) | Self-contained DuckDB script that reproduces the measurement — defaults to the free sample tier |
 
 ## TL;DR for customers
 
-> *"Valuein measures mathematical consistency on S&P 500 annual filings against SEC's own canonical `companyfacts` API — the honest modern-era (≥ 2010) figure is **88.96 %** (93.55 % across all eras; see [`baseline.json`](baseline.json), the measured source of truth). Each tolerance choice is citable to FactSet PIT methodology, FASB ASC, or Penman §8-10, and re-running the measurement is one DuckDB command."*
+> *"Valuein measures mathematical consistency on S&P 500 annual filings against SEC's own canonical `companyfacts` API — the honest modern-era (≥ 2010) figure is **100.00 %** (100.00 % across all eras; see [`baseline.json`](baseline.json), the measured source of truth). Each tolerance choice is citable to FactSet PIT methodology, FASB ASC, or Penman §8-10, and re-running the measurement is one DuckDB command."*
 
 ```bash
 # Get a free token first (lead-capture, 30 seconds): https://valuein.biz/register
