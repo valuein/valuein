@@ -1,5 +1,5 @@
 {
-  "version": "2.16.0",
+  "version": "2.18.0",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
@@ -1150,6 +1150,43 @@
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        }
+      }
+    },
+    "stock_price": {
+      "description": "Coarse end-of-day market-price series per entity - period-end-aligned closes (one per fiscal period_end, for value-vs-price overlays) AND a monthly last-trading-day close history. Filter on observation to pick the grain. RAW closes (never split/dividend-adjusted); div_cash / split_factor carry the corporate-action factors for query-time total-return adjustment. Point-in-time: accepted_at = the market-close timestamp. Sourced from the licensed Tiingo archive; daily granularity is internal-only.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "price_date": {
+          "type": "DATE",
+          "description": "Trading day the close is from."
+        },
+        "close": {
+          "type": "DOUBLE",
+          "description": "Raw (unadjusted) closing price."
+        },
+        "div_cash": {
+          "type": "DOUBLE",
+          "description": "Cash dividend with ex-date == price_date (else 0)."
+        },
+        "split_factor": {
+          "type": "DOUBLE",
+          "description": "Split factor on price_date (1.0 if none)."
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "Market-close PIT stamp; filter accepted_at <= as_of."
+        },
+        "period_end": {
+          "type": "DATE",
+          "description": "Fiscal period this close aligns to (observation=period_end); NULL for monthly rows."
+        },
+        "observation": {
+          "type": "VARCHAR",
+          "description": "'period_end' (close at/just-before a fiscal close) | 'monthly' (last trading day of a month)."
         }
       }
     }
