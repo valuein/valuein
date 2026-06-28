@@ -1,7 +1,7 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-06-15  
-> **Standardized concepts**: 291  
+> **Last updated**: 2026-06-28  
+> **Standardized concepts**: 292  
 > **Historical coverage**: 1994 – present  
 > **Coverage target**: ≥ 95% of all SEC EDGAR financial facts
 
@@ -1634,6 +1634,12 @@ collaboration agreements (often with big-pharma partners).
 
 IFRS profit/loss for the period.  Strict prevents OCI contamination.
 
+### `NetIncomeIncludingNCI`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+Net income including non-controlling interest — consolidated bottom line before the NCI deduction.
+
 ### `NetIncomeNCI`
 
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
@@ -2112,4 +2118,4 @@ Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`
 
 ---
 
-*This catalog is generated from the live Valuein R2 manifest (`file:///tmp/valuein_manifest.json`). The underlying matching rules are proprietary — this document describes what each concept represents, not how it is detected.*
+*This catalog is generated from the live Valuein R2 manifest (`https://data.valuein.biz/v1/sample/manifest`). The underlying matching rules are proprietary — this document describes what each concept represents, not how it is detected.*

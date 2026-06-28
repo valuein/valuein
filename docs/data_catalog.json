@@ -1,7 +1,7 @@
 {
-  "generated": "2026-06-15",
-  "source": "file:///tmp/valuein_manifest.json",
-  "concept_count": 291,
+  "generated": "2026-06-28",
+  "source": "https://data.valuein.biz/v1/sample/manifest",
+  "concept_count": 292,
   "coverage_target": ">=95%",
   "accuracy_score_guide": {
     "1.00": "human_verified",
@@ -2451,6 +2451,22 @@
       "level": "L1",
       "is_flow": true,
       "definition": "IFRS profit/loss for the period.  Strict prevents OCI contamination.",
+      "bloomberg_equivalent": "",
+      "factset_equivalent": "",
+      "gaap_ifrs_comparable": "True",
+      "reviewed": true,
+      "reviewed_by": "",
+      "reviewed_at": "",
+      "review_confidence": 1
+    },
+    {
+      "name": "NetIncomeIncludingNCI",
+      "statement": "income",
+      "category": "profitability",
+      "unit": "USD",
+      "level": "L1",
+      "is_flow": true,
+      "definition": "Net income including non-controlling interest — consolidated bottom line before the NCI deduction.",
       "bloomberg_equivalent": "",
       "factset_equivalent": "",
       "gaap_ifrs_comparable": "True",

@@ -452,7 +452,13 @@ def fetch_manifest(url: str | None = None) -> dict:
         CatalogError: If the request fails or the body is not a JSON object.
     """
     target = url or _manifest_url()
-    req = urllib.request.Request(target, headers={"Accept": "application/json"})
+    # A User-Agent is required: the edge-gateway / Cloudflare bot filter 403s the
+    # default ``Python-urllib/x`` UA, which silently broke this documented command
+    # against the live manifest.
+    req = urllib.request.Request(
+        target,
+        headers={"Accept": "application/json", "User-Agent": "valuein-catalog-generator/1.0"},
+    )
     try:
         with urllib.request.urlopen(req, timeout=_MANIFEST_TIMEOUT_SECONDS) as resp:
             raw = resp.read()
