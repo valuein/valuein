@@ -6,8 +6,8 @@ The measured source of truth is [`baseline.json`](baseline.json) — re-derive i
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,423 | **88.96 %** |
-| Standardized facts — overall (all eras) | 19,617 | **93.55 %** |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,422 | **100.00 %** |
+| Standardized facts — overall (all eras) | 19,616 | **100.00 %** |
 | Standardized facts — legacy era (< 2010) — *trivially passes; do not cite* ⚠️ | 8,194 | see `baseline.json` |
 | **Unstandardized facts** (correctly left as `'Other'`) | 41.9 M | see `baseline.json` |
 
