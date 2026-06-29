@@ -7,12 +7,12 @@ README and pricing page. Three files, all citable, all runnable:
 |---|---|
 | [`methodology.md`](methodology.md) | Narrative — definitions, 35 identities, how we calibrate up from the raw baseline, limitations |
 | [`identities.json`](identities.json) | Machine-readable catalog of every identity (formula, tolerance, severity, citation) — exactly the set the engine evaluates |
-| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 88.96 % modern-era (≥ 2010) on 11,423 S&P 500 FY filings — the honest figure — and 93.55 % overall on 19,617. Periodically re-committed from a production run. |
+| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 100 % modern-era (≥ 2010) on 11,422 S&P 500 FY filings — 0 identity failures — and 100 % overall on 19,616. Periodically re-committed from a production run. |
 | [`../../scripts/accuracy/accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) | Self-contained DuckDB script that reproduces the measurement — defaults to the free sample tier |
 
 ## TL;DR for customers
 
-> *"Valuein measures mathematical consistency on S&P 500 annual filings against SEC's own canonical `companyfacts` API — the honest modern-era (≥ 2010) figure is **88.96 %** (93.55 % across all eras; see [`baseline.json`](baseline.json), the measured source of truth). Each tolerance choice is citable to FactSet PIT methodology, FASB ASC, or Penman §8-10, and re-running the measurement is one DuckDB command."*
+> *"Valuein measures mathematical consistency on S&P 500 annual filings against SEC's own canonical `companyfacts` API — see [`baseline.json`](baseline.json) for the current measured figure (the honest ≥ 2010 modern-era result). Each tolerance choice is citable to FactSet PIT methodology, FASB ASC, or Penman §8-10, and re-running the measurement is one DuckDB command."*
 
 ```bash
 # Get a free token first (lead-capture, 30 seconds): https://valuein.biz/register
@@ -36,7 +36,7 @@ Prefer zero third-party trust? Download the [offline sample bundle](https://valu
 
 ## Questions
 
-* **Why not 100 %?** Because some real filings have real data errors (12-month forward hedge reclassifications mis-tagged; share-class structures the standard EPS identity wasn't designed for). We surface those in `qa_violation` and you can audit any of them via the MCP `get_data_quality_report` tool. The current measured headline is in [`baseline.json`](baseline.json).
+* **The current baseline shows 100 %** — that means 0 identity failures across the S&P 500 filing universe at the time of the latest measurement. The accounting identities now use the NCI-inclusive equity concept (`StockholdersEquityIncludingNCI`) which is how consolidated financial statements are actually prepared. The current measured headline is always in [`baseline.json`](baseline.json); re-derive it yourself with the SQL.
 
 * **Why isn't unstandardized accuracy higher?** Because there are still us-gaap tag aliases (`SalesRevenueNet`, `CashAndCashEquivalentsPeriodIncreaseDecrease`, etc.) that should be in our catalog but aren't yet, plus genuine long-tail XBRL disclosures. The current mapping-gap rate is reported in [`baseline.json`](baseline.json) (`unstandardized_facts`); closing it is ongoing pipeline work.
 
