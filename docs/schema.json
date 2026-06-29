@@ -1,9 +1,9 @@
 {
-  "version": "2.18.0",
+  "version": "2.19.0",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
-      "description": "Denormalized flat join of entity + security.  One row per security \u2014 covers the company universe (CIK + primary identifiers + sector + ticker).  For ANY membership question (current or historical, SP500 or Russell), JOIN with index_membership on cik = cik.  The join column has the same name on both sides \u2014 this view does NOT carry index-membership flags because they're inherently snapshot-only and single-index, both of which are footguns the index_membership table avoids by design.",
+      "description": "Denormalized flat join of entity + security.  One row per security — covers the company universe (CIK + primary identifiers + sector + ticker).  For ANY membership question (current or historical, SP500 or Russell), JOIN with index_membership on cik = cik.  The join column has the same name on both sides — this view does NOT carry index-membership flags because they're inherently snapshot-only and single-index, both of which are footguns the index_membership table avoids by design.",
       "columns": {
         "cik": {
           "type": "VARCHAR"
@@ -82,7 +82,7 @@
         },
         "sic_description": {
           "type": "VARCHAR",
-          "description": "Full SEC SIC industry label (e.g. 'Electronic Computers').  Companion to ``sic_code`` \u2014 use this on responses where a human-readable string is more useful than the raw 4-digit code."
+          "description": "Full SEC SIC industry label (e.g. 'Electronic Computers').  Companion to ``sic_code`` — use this on responses where a human-readable string is more useful than the raw 4-digit code."
         },
         "fiscal_year_end": {
           "type": "VARCHAR"
@@ -135,7 +135,7 @@
         },
         "mailing_address": {
           "type": "VARCHAR",
-          "description": "Mailing address (separate from HQ) \u2014 registered agent / correspondence target.  Often differs from business_address for foreign issuers and trusts."
+          "description": "Mailing address (separate from HQ) — registered agent / correspondence target.  Often differs from business_address for foreign issuers and trusts."
         },
         "country_code": {
           "type": "VARCHAR"
@@ -157,7 +157,7 @@
         },
         "former_names": {
           "type": "JSON",
-          "description": "SEC ``formerNames[]`` history \u2014 JSON array of ``{name, from, to}`` objects.  Useful for ticker-history queries and merger lineage (e.g. tracing FB \u2192 META, GOOG \u2192 GOOGL share splits, or a former subsidiary's prior name).  Empty array when the issuer has never renamed."
+          "description": "SEC ``formerNames[]`` history — JSON array of ``{name, from, to}`` objects.  Useful for ticker-history queries and merger lineage (e.g. tracing FB → META, GOOG → GOOGL share splits, or a former subsidiary's prior name).  Empty array when the issuer has never renamed."
         },
         "last_seen_at": {
           "type": "DATE"
@@ -280,7 +280,7 @@
         },
         "is_xbrl_numeric": {
           "type": "BOOLEAN",
-          "description": "Distinct from is_xbrl/is_inline_xbrl \u2014 TRUE when the XBRL exhibit carries machine-readable numeric facts (the source of every fact-table row)."
+          "description": "Distinct from is_xbrl/is_inline_xbrl — TRUE when the XBRL exhibit carries machine-readable numeric facts (the source of every fact-table row)."
         },
         "primary_document": {
           "type": "VARCHAR",
@@ -292,7 +292,7 @@
         },
         "core_type": {
           "type": "VARCHAR",
-          "description": "Base form_type stripped of the ``/A`` amendment suffix (e.g. ``10-K/A`` \u2192 ``10-K``).  Use this for form-family filtering when you don't care whether a filing is the original or an amendment."
+          "description": "Base form_type stripped of the ``/A`` amendment suffix (e.g. ``10-K/A`` → ``10-K``).  Use this for form-family filtering when you don't care whether a filing is the original or an amendment."
         },
         "file_number": {
           "type": "VARCHAR",
@@ -308,7 +308,7 @@
         },
         "is_audited": {
           "type": "BOOLEAN",
-          "description": "Filing is an annual (audited) report \u2014 TRUE for 10-K / 20-F / 40-F and their amendments, FALSE for 10-Q / 8-K / etc."
+          "description": "Filing is an annual (audited) report — TRUE for 10-K / 20-F / 40-F and their amendments, FALSE for 10-Q / 8-K / etc."
         },
         "accepted_at": {
           "type": "TIMESTAMPTZ"
@@ -323,7 +323,7 @@
       "columns": {
         "fact_id": {
           "type": "VARCHAR",
-          "description": "Deterministic identity hash: SHA-256(entity_id|accession_id|concept|period_end|unit). Matches the Postgres unique constraint idx_fact_unique_constraint. Computed at export time by run_exports.py \u2014 not stored in the database."
+          "description": "Deterministic identity hash: SHA-256(entity_id|accession_id|concept|period_end|unit). Matches the Postgres unique constraint idx_fact_unique_constraint. Computed at export time by run_exports.py — not stored in the database."
         },
         "entity_id": {
           "type": "VARCHAR",
@@ -417,7 +417,7 @@
         },
         "accounting_standard": {
           "type": "VARCHAR",
-          "description": "Reporting taxonomy of the source filing \u2014 'US-GAAP' or 'IFRS'.  Derived from the XBRL taxonomy; defaults 'US-GAAP' for 10-K/10-Q/8-K and is usually 'IFRS' for 20-F / 40-F foreign issuers."
+          "description": "Reporting taxonomy of the source filing — 'US-GAAP' or 'IFRS'.  Derived from the XBRL taxonomy; defaults 'US-GAAP' for 10-K/10-Q/8-K and is usually 'IFRS' for 20-F / 40-F foreign issuers."
         },
         "reporting_currency": {
           "type": "VARCHAR",
@@ -437,7 +437,7 @@
         },
         "value_current": {
           "type": "DOUBLE",
-          "description": "Bloomberg Option-C: the latest-known value for this (entity_id, standard_concept, period_end, unit) \u2014 i.e., the value any analyst watching the tape TODAY would see. Computed at export time via DuckDB window functions."
+          "description": "Bloomberg Option-C: the latest-known value for this (entity_id, standard_concept, period_end, unit) — i.e., the value any analyst watching the tape TODAY would see. Computed at export time via DuckDB window functions."
         },
         "value_as_filed": {
           "type": "DOUBLE",
@@ -449,12 +449,12 @@
         },
         "restated": {
           "type": "BOOLEAN",
-          "description": "TRUE if any version of this fact in the partition differs from the others \u2014 signals that a later filing restated this number.  WARNING: this signal is computed against the GLOBAL state of the warehouse, NOT PIT \u2014 a query with as_of_date in the past may still see TRUE for a fact whose restatement happened AFTER the cutoff.  Treat as informational; for PIT reasoning, the MCP server exposes this as ``lineage.restated_in_warehouse`` so consumers know the field is not PIT-safe (audit CC-004)."
+          "description": "TRUE if any version of this fact in the partition differs from the others — signals that a later filing restated this number.  WARNING: this signal is computed against the GLOBAL state of the warehouse, NOT PIT — a query with as_of_date in the past may still see TRUE for a fact whose restatement happened AFTER the cutoff.  Treat as informational; for PIT reasoning, the MCP server exposes this as ``lineage.restated_in_warehouse`` so consumers know the field is not PIT-safe (audit CC-004)."
         }
       }
     },
     "valuation": {
-      "description": "Pre-computed intrinsic value estimates per entity. One row per (entity_id, valuation_date, model_type) \u2014 multiple model types (DCF, DDM, GrahamNumber, etc.) coexist for the same valuation_date. Recomputed each pipeline run; not point-in-time.",
+      "description": "Pre-computed intrinsic value estimates per entity. One row per (entity_id, valuation_date, model_type) — multiple model types (DCF, DDM, GrahamNumber, etc.) coexist for the same valuation_date. Recomputed each pipeline run; not point-in-time.",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -485,7 +485,7 @@
         },
         "per_share_value": {
           "type": "DOUBLE",
-          "description": "intrinsic_value / shares_outstanding \u2014 the model's fair-value estimate per share."
+          "description": "intrinsic_value / shares_outstanding — the model's fair-value estimate per share."
         },
         "margin_of_safety": {
           "type": "DOUBLE",
@@ -493,7 +493,7 @@
         },
         "valuation_label": {
           "type": "VARCHAR",
-          "description": "Human-readable bucket \u2014 'undervalued' / 'fairly_valued' / 'overvalued'."
+          "description": "Human-readable bucket — 'undervalued' / 'fairly_valued' / 'overvalued'."
         },
         "base_earnings": {
           "type": "DOUBLE",
@@ -524,7 +524,7 @@
         },
         "current_price": {
           "type": "DOUBLE",
-          "description": "Market price used to compute margin_of_safety. NULL when the pipeline could not source a quote \u2014 margin_of_safety is then NULL too."
+          "description": "Market price used to compute margin_of_safety. NULL when the pipeline could not source a quote — margin_of_safety is then NULL too."
         },
         "base_dividend": {
           "type": "DOUBLE",
@@ -539,7 +539,7 @@
         },
         "data_quality": {
           "type": "VARCHAR",
-          "description": "Pipeline-assigned label \u2014 'reported' | 'estimated' | 'low_confidence'."
+          "description": "Pipeline-assigned label — 'reported' | 'estimated' | 'low_confidence'."
         },
         "source_period": {
           "type": "VARCHAR",
@@ -547,7 +547,7 @@
         },
         "assumptions": {
           "type": "JSON",
-          "description": "Full input bundle for the model \u2014 base_earnings, discount_rate, growth_rate, terminal_growth_rate, etc. Use to reproduce the calc."
+          "description": "Full input bundle for the model — base_earnings, discount_rate, growth_rate, terminal_growth_rate, etc. Use to reproduce the calc."
         },
         "created_at": {
           "type": "TIMESTAMPTZ"
@@ -558,7 +558,7 @@
       }
     },
     "index_membership": {
-      "description": "Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000).  Source of truth for ALL membership questions \u2014 current OR historical.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window.  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides \u2014 see migration 0015 for the rationale.",
+      "description": "Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000).  Source of truth for ALL membership questions — current OR historical.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window.  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides — see migration 0015 for the rationale.",
       "columns": {
         "id": {
           "type": "INTEGER",
@@ -578,11 +578,11 @@
         },
         "announcement_date": {
           "type": "DATE",
-          "description": "Date S&P Dow Jones Indices publicly announced the addition.  Typically 5\u201310 trading days before effective_date.  Populated by Layer 4 (S&P press release scraper); NULL on rows from Wikipedia / GitHub seed / IVV daily.  Use for inclusion-arb backtests via the ``as_of_basis='announcement'`` switch on get_pit_universe."
+          "description": "Date S&P Dow Jones Indices publicly announced the addition.  Typically 5–10 trading days before effective_date.  Populated by Layer 4 (S&P press release scraper); NULL on rows from Wikipedia / GitHub seed / IVV daily.  Use for inclusion-arb backtests via the ``as_of_basis='announcement'`` switch on get_pit_universe."
         },
         "removal_date": {
           "type": "DATE",
-          "description": "First trading day the company was NOT a member.  NULL = current.  [) interval semantics \u2014 a company removed on 2017-06-19 is NOT a member on 2017-06-19."
+          "description": "First trading day the company was NOT a member.  NULL = current.  [) interval semantics — a company removed on 2017-06-19 is NOT a member on 2017-06-19."
         },
         "removal_announcement_date": {
           "type": "DATE",
@@ -594,7 +594,7 @@
         },
         "successor_cik": {
           "type": "VARCHAR",
-          "description": "Acquirer CIK when removal_reason in {merger, acquisition}. Essential for backtests crossing M&A \u2014 without it, a stock disappearing looks indistinguishable from a delisting."
+          "description": "Acquirer CIK when removal_reason in {merger, acquisition}. Essential for backtests crossing M&A — without it, a stock disappearing looks indistinguishable from a delisting."
         },
         "source": {
           "type": "VARCHAR",
@@ -602,7 +602,7 @@
         },
         "confidence": {
           "type": "VARCHAR",
-          "description": "high | medium | low.  Used by get_pit_universe to set pit_safe automatically \u2014 pre-2000 dates default to 'low'."
+          "description": "high | medium | low.  Used by get_pit_universe to set pit_safe automatically — pre-2000 dates default to 'low'."
         },
         "notes": {
           "type": "VARCHAR"
@@ -619,16 +619,16 @@
         },
         "last_seen_date": {
           "type": "DATE",
-          "description": "Rebuilder panel metadata \u2014 last date observed in the holdings snapshot.  NULL outside the IVV layer."
+          "description": "Rebuilder panel metadata — last date observed in the holdings snapshot.  NULL outside the IVV layer."
         },
         "avg_weight_pct": {
           "type": "DOUBLE",
-          "description": "Rebuilder panel metadata \u2014 average index weight (%) over the observed window.  NULL outside the IVV layer."
+          "description": "Rebuilder panel metadata — average index weight (%) over the observed window.  NULL outside the IVV layer."
         }
       }
     },
     "standard_concept": {
-      "description": "Valuein's curated gold-standard concept catalog (~292 rows) \u2014 the dictionary for the ``fact.standard_concept`` column.  Each row is one L1/L2 concept (Revenue, GrossProfit, LongTermDebt, \u2026) with its statement/category, definition, default unit, and Bloomberg/FactSet field equivalents.  Distinct from ``taxonomy_guide`` (the ~11,966-row raw SEC us-gaap tag reference for the ``fact.concept`` column): join ``fact.standard_concept = standard_concept.standard_concept`` for the curated label, ``fact.concept = taxonomy_guide.standard_concept`` for the raw tag.  The 'Other' catch-all row is included.",
+      "description": "Valuein's curated gold-standard concept catalog (~292 rows) — the dictionary for the ``fact.standard_concept`` column.  Each row is one L1/L2 concept (Revenue, GrossProfit, LongTermDebt, …) with its statement/category, definition, default unit, and Bloomberg/FactSet field equivalents.  Distinct from ``taxonomy_guide`` (the ~11,966-row raw SEC us-gaap tag reference for the ``fact.concept`` column): join ``fact.standard_concept = standard_concept.standard_concept`` for the curated label, ``fact.concept = taxonomy_guide.standard_concept`` for the raw tag.  The 'Other' catch-all row is included.",
       "columns": {
         "standard_concept": {
           "type": "VARCHAR",
@@ -651,7 +651,7 @@
         },
         "unit_default": {
           "type": "VARCHAR",
-          "description": "Canonical unit (USD | USD/share | shares | pct | \u2026); NULL for non-numeric."
+          "description": "Canonical unit (USD | USD/share | shares | pct | …); NULL for non-numeric."
         },
         "is_flow": {
           "type": "BOOLEAN",
@@ -660,11 +660,11 @@
         "parent_concept": {
           "type": "VARCHAR",
           "references": "standard_concept.standard_concept",
-          "description": "Parent in the L1\u2192L2 hierarchy (NULL for L1 / 'Other')."
+          "description": "Parent in the L1→L2 hierarchy (NULL for L1 / 'Other')."
         },
         "sector_pack": {
           "type": "VARCHAR",
-          "description": "Sector pack a L2 concept belongs to (banking, insurance, reit, \u2026); NULL unless level='L2'."
+          "description": "Sector pack a L2 concept belongs to (banking, insurance, reit, …); NULL unless level='L2'."
         },
         "bloomberg_equivalent": {
           "type": "VARCHAR",
@@ -680,7 +680,7 @@
         },
         "reviewed": {
           "type": "BOOLEAN",
-          "description": "Human-in-the-loop CPA sign-off flag.  TRUE = an accountant has verified this concept's canonical name, statement_type and rule; the concept is then LOCKED \u2014 the standardization coverage loop only ever creates NEW concepts, never mutates a reviewed one.  Curated catalog rows default TRUE; loop-generated provisional rows are FALSE."
+          "description": "Human-in-the-loop CPA sign-off flag.  TRUE = an accountant has verified this concept's canonical name, statement_type and rule; the concept is then LOCKED — the standardization coverage loop only ever creates NEW concepts, never mutates a reviewed one.  Curated catalog rows default TRUE; loop-generated provisional rows are FALSE."
         },
         "reviewed_by": {
           "type": "VARCHAR",
@@ -692,7 +692,7 @@
         },
         "review_confidence": {
           "type": "DOUBLE",
-          "description": "Concept-level trust score in [0, 1] \u2014 the catalog analogue of ``fact.confidence_score``.  1.0 = CPA-verified (reviewed=TRUE); 0.7 = provisional loop output pending review.  Filter ``review_confidence >= 1.0`` for the accountant-verified concept set.  Distinct from the per-fact *match* accuracy."
+          "description": "Concept-level trust score in [0, 1] — the catalog analogue of ``fact.confidence_score``.  1.0 = CPA-verified (reviewed=TRUE); 0.7 = provisional loop output pending review.  Filter ``review_confidence >= 1.0`` for the accountant-verified concept set.  Distinct from the per-fact *match* accuracy."
         },
         "created_at": {
           "type": "TIMESTAMPTZ"
@@ -730,7 +730,7 @@
         },
         "statement_type": {
           "type": "VARCHAR",
-          "description": "Statement the concept belongs to (income | balance_sheet | cash_flow | supplemental | \u2026)."
+          "description": "Statement the concept belongs to (income | balance_sheet | cash_flow | supplemental | …)."
         },
         "display_order": {
           "type": "SMALLINT",
@@ -753,7 +753,7 @@
       }
     },
     "ratio": {
-      "description": "Pipeline-computed financial ratios per entity per fiscal period. Derived from fact data.  Written append-on-restatement: each row's ``accepted_at`` is the PIT vintage = max(accepted_at) of the input facts that produced it, so a restated period (recomputed from a later-filed fact) is a NEW vintage row rather than an overwrite \u2014 mirroring fact.parquet.  Filter as-of with ``accepted_at <= as_of`` then take the latest vintage to avoid look-ahead bias.  No accession_id (ratios derive from multiple filings).  ``accepted_at`` is NULL for cross-sectional rank rows (``*_sector_pctile``) and any year whose source facts lacked an acceptance timestamp; ``computed_at`` tracks the latest computation within a vintage.",
+      "description": "Pipeline-computed financial ratios per entity per fiscal period. Derived from fact data.  Written append-on-restatement: each row's ``accepted_at`` is the PIT vintage = max(accepted_at) of the input facts that produced it, so a restated period (recomputed from a later-filed fact) is a NEW vintage row rather than an overwrite — mirroring fact.parquet.  Filter as-of with ``accepted_at <= as_of`` then take the latest vintage to avoid look-ahead bias.  No accession_id (ratios derive from multiple filings).  ``accepted_at`` is NULL for cross-sectional rank rows (``*_sector_pctile``) and any year whose source facts lacked an acceptance timestamp; ``computed_at`` tracks the latest computation within a vintage.",
       "columns": {
         "entity_id": {
           "type": "VARCHAR",
@@ -792,7 +792,7 @@
         },
         "accepted_at": {
           "type": "TIMESTAMPTZ",
-          "description": "PIT vintage \u2014 SEC acceptance timestamp of the latest input fact (max(accepted_at) of the year's facts).  The date this ratio first became knowable.  NULL for cross-sectional rank rows and un-timestamped years.  Filter ``accepted_at <= as_of`` for look-ahead-free backtests, mirroring fact.accepted_at."
+          "description": "PIT vintage — SEC acceptance timestamp of the latest input fact (max(accepted_at) of the year's facts).  The date this ratio first became knowable.  NULL for cross-sectional rank rows and un-timestamped years.  Filter ``accepted_at <= as_of`` for look-ahead-free backtests, mirroring fact.accepted_at."
         },
         "computed_at": {
           "type": "TIMESTAMPTZ"
@@ -804,7 +804,7 @@
       }
     },
     "insider_party": {
-      "description": "Directory of every insider / reporting person referenced by Form 3/4/5/144.  Keyed on CIK when SEC-registered, otherwise on a normalized name.  Joined to insider_transaction via insider_party_id.  FULL bucket only \u2014 enterprise tier (full plan).",
+      "description": "Directory of every insider / reporting person referenced by Form 3/4/5/144.  Keyed on CIK when SEC-registered, otherwise on a normalized name.  Joined to insider_transaction via insider_party_id.  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
           "type": "INTEGER",
@@ -831,7 +831,7 @@
       }
     },
     "insider_filing": {
-      "description": "Form 3 / 4 / 5 / SC 13D / SC 13G / 144 (and amendments) \u2014 the subject-rooted insider DISCLOSURE filing record.  Distinct from ``filing`` (financial-statement forms) so the financial table stays clean.  ``subject_cik`` is the issuer the disclosure is about \u2014 a SOFT reference (LEFT JOIN to entity.cik when in the fundamentals universe; may be NULL/unmatched for foreign / pre-IPO / delisted issuers).  ``filer_party_id`` FKs to ``insider_party`` (the insider / holder).  Children ``insider_transaction`` and ``insider_ownership`` FK to this table via accession_id.  FULL bucket only \u2014 enterprise tier.",
+      "description": "Form 3 / 4 / 5 / SC 13D / SC 13G / 144 (and amendments) — the subject-rooted insider DISCLOSURE filing record.  Distinct from ``filing`` (financial-statement forms) so the financial table stays clean.  ``subject_cik`` is the issuer the disclosure is about — a SOFT reference (LEFT JOIN to entity.cik when in the fundamentals universe; may be NULL/unmatched for foreign / pre-IPO / delisted issuers).  ``filer_party_id`` FKs to ``insider_party`` (the insider / holder).  Children ``insider_transaction`` and ``insider_ownership`` FK to this table via accession_id.  FULL bucket only — enterprise tier.",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -843,7 +843,7 @@
         },
         "subject_cik": {
           "type": "VARCHAR",
-          "description": "Issuer CIK the disclosure is about \u2014 soft reference (LEFT JOIN to entity.cik; no hard FK)."
+          "description": "Issuer CIK the disclosure is about — soft reference (LEFT JOIN to entity.cik; no hard FK)."
         },
         "filer_party_id": {
           "type": "BIGINT",
@@ -882,7 +882,7 @@
       }
     },
     "insider_transaction": {
-      "description": "Form 3 / 4 / 5 / 144 line items \u2014 each row is one transaction, initial holding, or proposed sale by an insider.  transaction_type is 'transaction' (Form 4/5), 'initial_holding' (Form 3), or 'proposed_sale' (Form 144).  Joins to ``insider_filing`` via accession_id, to ``entity`` (issuer) via entity_id (soft ref), and to ``insider_party`` via insider_party_id.  FULL bucket only.",
+      "description": "Form 3 / 4 / 5 / 144 line items — each row is one transaction, initial holding, or proposed sale by an insider.  transaction_type is 'transaction' (Form 4/5), 'initial_holding' (Form 3), or 'proposed_sale' (Form 144).  Joins to ``insider_filing`` via accession_id, to ``entity`` (issuer) via entity_id (soft ref), and to ``insider_party`` via insider_party_id.  FULL bucket only.",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -897,7 +897,7 @@
         },
         "entity_id": {
           "type": "VARCHAR",
-          "description": "Issuer CIK (the company whose securities the insider holds).  Soft reference \u2014 LEFT JOIN to entity.cik when the issuer is in the fundamentals universe; may not resolve for foreign / pre-IPO / delisted issuers."
+          "description": "Issuer CIK (the company whose securities the insider holds).  Soft reference — LEFT JOIN to entity.cik when the issuer is in the fundamentals universe; may not resolve for foreign / pre-IPO / delisted issuers."
         },
         "insider_party_id": {
           "type": "INTEGER",
@@ -947,7 +947,7 @@
         },
         "aggregate_market_value": {
           "type": "DOUBLE",
-          "description": "Form 144 only \u2014 proposed-sale total dollar value."
+          "description": "Form 144 only — proposed-sale total dollar value."
         },
         "broker_name": {
           "type": "VARCHAR",
@@ -974,7 +974,7 @@
       }
     },
     "institutional_filing": {
-      "description": "Form 13F-HR / 13F-NT (and amendments) \u2014 the manager-rooted filing record.  Distinct from ``filing`` (issuer-rooted) because 13F filings have no single subject issuer (the manager reports a portfolio across many issuers).  FK to ``insider_party`` for the manager.  FULL bucket only \u2014 enterprise tier.",
+      "description": "Form 13F-HR / 13F-NT (and amendments) — the manager-rooted filing record.  Distinct from ``filing`` (issuer-rooted) because 13F filings have no single subject issuer (the manager reports a portfolio across many issuers).  FK to ``insider_party`` for the manager.  FULL bucket only — enterprise tier.",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -991,7 +991,7 @@
         },
         "filer_cik": {
           "type": "VARCHAR",
-          "description": "Denormalised manager CIK \u2014 mirrors institutional_holding.filer_cik for query convenience."
+          "description": "Denormalised manager CIK — mirrors institutional_holding.filer_cik for query convenience."
         },
         "filing_date": {
           "type": "DATE"
@@ -1001,7 +1001,7 @@
         },
         "period_end": {
           "type": "DATE",
-          "description": "PERIODOFREPORT \u2014 quarter-end the holdings reflect."
+          "description": "PERIODOFREPORT — quarter-end the holdings reflect."
         },
         "accepted_at": {
           "type": "TIMESTAMPTZ"
@@ -1021,7 +1021,7 @@
       }
     },
     "institutional_holding": {
-      "description": "Form 13F-HR holdings \u2014 institutional managers' quarterly position disclosures.  One row per (filing, CUSIP, share-class, put/call).  Joins to ``institutional_filing`` via accession_id (the 13F filing record); ``filer_cik`` is the manager CIK (denormalised \u2014 same value as institutional_filing.filer_cik). ``subject_entity_id`` is the issuer CIK (NULL until the CUSIP\u2192CIK lookup resolves).  FULL bucket only \u2014 enterprise tier.",
+      "description": "Form 13F-HR holdings — institutional managers' quarterly position disclosures.  One row per (filing, CUSIP, share-class, put/call).  Joins to ``institutional_filing`` via accession_id (the 13F filing record); ``filer_cik`` is the manager CIK (denormalised — same value as institutional_filing.filer_cik). ``subject_entity_id`` is the issuer CIK (NULL until the CUSIP→CIK lookup resolves).  FULL bucket only — enterprise tier.",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -1049,7 +1049,7 @@
         "subject_entity_id": {
           "type": "VARCHAR",
           "references": "entity.cik",
-          "description": "Resolved issuer CIK; NULL until CUSIP\u2192CIK lookup completes."
+          "description": "Resolved issuer CIK; NULL until CUSIP→CIK lookup completes."
         },
         "name_of_issuer": {
           "type": "VARCHAR"
@@ -1089,7 +1089,7 @@
       }
     },
     "insider_ownership": {
-      "description": "SC 13D / SC 13G beneficial-ownership disclosures (5%+ stakes).  One row per (filing, reporting person).  Group filings carry multiple reporting persons \u2014 each lands as a separate row.  Joins to ``insider_filing`` via accession_id; subject_entity_id is the issuer CIK (the company being held \u2014 soft ref, LEFT JOIN to entity).  FULL bucket only \u2014 enterprise tier (full plan).",
+      "description": "SC 13D / SC 13G beneficial-ownership disclosures (5%+ stakes).  One row per (filing, reporting person).  Group filings carry multiple reporting persons — each lands as a separate row.  Joins to ``insider_filing`` via accession_id; subject_entity_id is the issuer CIK (the company being held — soft ref, LEFT JOIN to entity).  FULL bucket only — enterprise tier (full plan).",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -1118,11 +1118,11 @@
         },
         "subject_entity_id": {
           "type": "VARCHAR",
-          "description": "Issuer CIK \u2014 the company whose stock is held.  Soft reference \u2014 LEFT JOIN to entity.cik when in the fundamentals universe."
+          "description": "Issuer CIK — the company whose stock is held.  Soft reference — LEFT JOIN to entity.cik when in the fundamentals universe."
         },
         "schedule_type": {
           "type": "VARCHAR",
-          "description": "SC 13D | SC 13D/A | SC 13G | SC 13G/A (or SCHEDULE 13\u2026 long-form variants \u2014 both vocabularies accepted)."
+          "description": "SC 13D | SC 13D/A | SC 13G | SC 13G/A (or SCHEDULE 13… long-form variants — both vocabularies accepted)."
         },
         "as_of_date": {
           "type": "DATE"
@@ -1150,6 +1150,201 @@
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        }
+      }
+    },
+    "earnings_signals": {
+      "description": "Trend-based earnings expectations and surprise metrics per entity.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "period_end": {
+          "type": "DATE"
+        },
+        "fiscal_year": {
+          "type": "INTEGER"
+        },
+        "fiscal_period": {
+          "type": "VARCHAR"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "eps_actual": {
+          "type": "DOUBLE"
+        },
+        "eps_trend_est": {
+          "type": "DOUBLE"
+        },
+        "eps_surprise_pct": {
+          "type": "DOUBLE"
+        },
+        "revenue_actual": {
+          "type": "DOUBLE"
+        },
+        "revenue_yoy_pct": {
+          "type": "DOUBLE"
+        }
+      }
+    },
+    "factor_scores": {
+      "description": "Cross-sectional factor scores and percentile ranks per entity, computed across the full universe from recent annual filings.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "symbol": {
+          "type": "VARCHAR",
+          "description": "Primary ticker, joined from references at export."
+        },
+        "name": {
+          "type": "VARCHAR",
+          "description": "Company name, joined from references at export."
+        },
+        "sector": {
+          "type": "VARCHAR",
+          "description": "Sector, joined from references at export."
+        },
+        "period_end": {
+          "type": "DATE"
+        },
+        "fiscal_year": {
+          "type": "INTEGER"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "roe": {
+          "type": "DOUBLE"
+        },
+        "gross_margin": {
+          "type": "DOUBLE"
+        },
+        "operating_margin": {
+          "type": "DOUBLE"
+        },
+        "net_profit_margin": {
+          "type": "DOUBLE"
+        },
+        "revenue_growth_yoy": {
+          "type": "DOUBLE"
+        },
+        "fcf_to_assets": {
+          "type": "DOUBLE"
+        },
+        "debt_to_equity": {
+          "type": "DOUBLE"
+        },
+        "asset_turnover": {
+          "type": "DOUBLE"
+        },
+        "current_ratio": {
+          "type": "DOUBLE"
+        },
+        "piotroski_f_score": {
+          "type": "INTEGER"
+        },
+        "roe_rank": {
+          "type": "DOUBLE"
+        },
+        "gross_margin_rank": {
+          "type": "DOUBLE"
+        },
+        "operating_margin_rank": {
+          "type": "DOUBLE"
+        },
+        "net_profit_margin_rank": {
+          "type": "DOUBLE"
+        },
+        "revenue_growth_yoy_rank": {
+          "type": "DOUBLE"
+        },
+        "fcf_to_assets_rank": {
+          "type": "DOUBLE"
+        },
+        "debt_to_equity_rank": {
+          "type": "DOUBLE"
+        },
+        "asset_turnover_rank": {
+          "type": "DOUBLE"
+        },
+        "current_ratio_rank": {
+          "type": "DOUBLE"
+        },
+        "piotroski_f_score_rank": {
+          "type": "DOUBLE"
+        },
+        "composite_rank": {
+          "type": "DOUBLE"
+        }
+      }
+    },
+    "stock_price": {
+      "description": "Coarse end-of-day market-price series per entity — period-end-aligned closes and monthly last-trading-day closes. Filter on 'observation' for grain.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "price_date": {
+          "type": "DATE",
+          "description": "Trading day the close is from."
+        },
+        "close": {
+          "type": "DOUBLE",
+          "description": "Raw (unadjusted) closing price."
+        },
+        "div_cash": {
+          "type": "DOUBLE",
+          "description": "Cash dividend with ex-date == price_date (else 0)."
+        },
+        "split_factor": {
+          "type": "DOUBLE",
+          "description": "Split factor on price_date (1.0 if none)."
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "Market-close PIT stamp; filter accepted_at <= as_of."
+        },
+        "period_end": {
+          "type": "DATE",
+          "description": "Fiscal period this close aligns to (observation='period_end'); NULL for monthly rows."
+        },
+        "observation": {
+          "type": "VARCHAR",
+          "description": "'period_end' or 'monthly'."
+        }
+      }
+    },
+    "stock_price_daily": {
+      "description": "Daily end-of-day close series per entity — one row per trading day. Powers as-of-arbitrary-date price lookups. Schema v2.19.0.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "price_date": {
+          "type": "DATE",
+          "description": "Trading day the close is from."
+        },
+        "close": {
+          "type": "DOUBLE",
+          "description": "Raw (unadjusted) closing price."
+        },
+        "div_cash": {
+          "type": "DOUBLE",
+          "description": "Cash dividend with ex-date == price_date (else 0)."
+        },
+        "split_factor": {
+          "type": "DOUBLE",
+          "description": "Split factor on price_date (1.0 if none)."
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "Market-close PIT stamp; filter accepted_at <= as_of."
         }
       }
     }
