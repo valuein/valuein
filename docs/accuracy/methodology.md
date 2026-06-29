@@ -6,10 +6,10 @@ The measured source of truth is [`baseline.json`](baseline.json) — re-derive i
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,423 | **88.96 %** |
-| Standardized facts — overall (all eras) | 19,617 | **93.55 %** |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,422 | **100 %** |
+| Standardized facts — overall (all eras) | 19,616 | **100 %** |
 | Standardized facts — legacy era (< 2010) — *trivially passes; do not cite* ⚠️ | 8,194 | see `baseline.json` |
-| **Unstandardized facts** (correctly left as `'Other'`) | 41.9 M | see `baseline.json` |
+| **Unstandardized facts** (correctly left as `'Other'`) | 40.8 M | see `baseline.json` |
 
 ⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts and trivially pass every identity — **use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
 
