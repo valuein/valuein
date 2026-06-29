@@ -35,7 +35,7 @@ def main(ticker: str = "NVDA") -> None:
         )
         sys.exit(2)
 
-    client = ValueinClient(token=token)
+    client = ValueinClient(api_key=token)
     me = client.me()
     if me.get("plan") != "full":
         print(
