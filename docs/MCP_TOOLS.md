@@ -304,7 +304,7 @@ Returns: `{claim_id, visibility, unpublished_at}`.
 
 These are pre-written multi-step instructions an MCP-aware agent can invoke as a single high-level command. Each chains the right tools in the right order.
 
-The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis and `screen_and_shortlist` for idea generation. The remaining specialised SOPs underneath are narrower single-purpose chains, daily flows, and state-lifecycle playbooks. Below is a representative selection; the full set of **27 SOPs** is advertised by the live server's `prompts/list`.
+The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis and `screen_and_shortlist` for idea generation. The remaining specialised SOPs underneath are narrower single-purpose chains, daily flows, and state-lifecycle playbooks. Below is a representative selection; the full set of **28 SOPs** is advertised by the live server's `prompts/list`.
 
 | Prompt | What it does |
 |---|---|
