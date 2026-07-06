@@ -142,22 +142,25 @@ Same script, same answer, no third-party trust required.
 Through the Valuein SDK (`pip install valuein-sdk`), every `fact` row carries a `confidence_score ∈ [0, 1]` (composite of identity-pass rate × source-agreement × audit-status × restatement-density × age-decay) and a 4-bucket `reliability_code` for Bloomberg PR / Refinitiv parity:
 
 ```python
-import valuein_sdk
-client = valuein_sdk.Client(token='YOUR_TOKEN')
+from valuein_sdk import ValueinClient
 
-# Filter to Bloomberg-grade rows
-df = client.read_table('fact', filters=[('confidence_score', '>=', 0.95)])
+with ValueinClient() as client:  # reads VALUEIN_API_KEY from the environment
+    # Filter to Bloomberg-grade rows
+    df = client.run_query(
+        "SELECT * FROM fact WHERE confidence_score >= 0.95 LIMIT 1000"
+    )
 ```
 
 ### 4.4 Through the MCP server
 
-If you use Claude / Cursor / Codex with the Valuein MCP server (`@valuein/mcp-sec-edgar`), the per-ticker quality report is available as a tool call:
+If you use Claude, Copilot, ChatGPT, or Cursor with the Valuein MCP server (`@valuein/mcp-sec-edgar`), the same verification surface is available as tool calls:
 
 ```
-get_data_quality_report(ticker="AAPL")
+verify_fact_lineage(ticker="AAPL", concept="TotalRevenue", period_end="2024-09-28")
+forensic_audit(ticker="AAPL")
 ```
 
-Returns active violations, per-identity pass rates, and the restatement chain for that filer.
+`verify_fact_lineage` round-trips any figure back to the exact SEC filing (accession ID + EDGAR URL); `forensic_audit` runs the accounting-identity and restatement checks for one filer on demand.
 
 ---
 

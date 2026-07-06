@@ -1,13 +1,15 @@
 # Valuein MCP — Tool Reference
 
-Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client (Claude Desktop, Cursor, Codex, custom agents). It speaks the **Streamable HTTP** transport from MCP spec **2025-11-25**.
+Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client (Claude, Copilot, ChatGPT, Cursor, custom agents). It speaks the **Streamable HTTP** transport from MCP spec **2025-11-25**.
 
 - **Endpoint:** `https://mcp.valuein.biz/mcp`
 - **Auth:** `Authorization: Bearer <your_api_token>` — same Stripe-issued token as the SDK and bulk-data API
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **75 live tools** across its data-lookup, screening, smart-money, persisted-state (theses / watchlists / claims / citation-overrides / alerts CRUD / reports), report-publishing, DCF-compute, forensic-audit, and document-generation categories. Free visibility-toggle tools let any user build a public `@handle` profile and reputation: `publish_report` / `unpublish_report` / `search_reports` for reports, plus matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` parity for theses and claims. Reports are discovered via keyword catalog search (`search_reports`, pure-D1) — there is no semantic search yet. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. **27 analyst SOP prompts** (two flagship cross-persona briefs + 25 specialised chains, daily flows, and state-lifecycle playbooks) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers **95 live tools** across its data-lookup, screening, price & market data, smart-money, persisted-state (theses / claims / watchlists / citation-overrides / alerts CRUD / reports / scheduled tasks / rules / staged-action approvals / morning brief & agent runs), report-publishing, compute (DCF / forensic audit / bounded PIT backtest), and document-generation categories. Free visibility-toggle tools let any user build a public `@handle` profile and reputation: `publish_report` / `unpublish_report` / `search_reports` for reports, plus matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` parity for theses and claims. Reports are discovered via keyword catalog search (`search_reports`, pure-D1) — there is no semantic search yet. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. **28 analyst SOP prompts** (three flagship cross-persona workflows + specialised chains, daily flows, and state-lifecycle playbooks) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Free tokens see Sample / S&P 500 data; Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited history back to 1993, filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+
+This document covers the core data tools in detail; the full 95-tool surface (including the persisted-state, approval-ledger, scheduled-task, and rule-engine families summarised below) is advertised by the live server's `tools/list` and mirrored in [`server.json`](../server.json).
 
 ---
 
@@ -28,7 +30,7 @@ Add to `claude_desktop_config.json`:
 }
 ```
 
-### Cursor / Codex / any Streamable-HTTP MCP client
+### Cursor / Copilot / any Streamable-HTTP MCP client
 
 Same URL + Bearer token. The server advertises tool, prompt, and resource listings on the standard MCP discovery endpoints — no extra configuration needed.
 
@@ -61,7 +63,7 @@ Return the columns, types, and descriptions for any table. Useful when an agent 
 
 | Parameter | Type | Required |
 |---|---|---|
-| `table` | string | yes — one of `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `filing_text` |
+| `table` | string | yes — any published table, e.g. `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `standard_concept`, `stock_price`, `stock_price_daily` (+ the smart-money tables on Institutional). The valid set is resolved from the live manifest — see [`schema.json`](schema.json). |
 
 Returns: `{table, description, columns: [{name, type, description, primary_key?, references?}]}`.
 
@@ -203,11 +205,11 @@ Returns: `[{ticker, name, sector, scores: {...}}]`.
 
 ---
 
-## Bulk & semantic
+## Bulk data
 
 ### `get_compute_ready_stream`
 
-Issue a presigned R2 URL for direct Parquet streaming — bypass the gateway when the agent needs to push data into its own DuckDB or PyArrow context.
+Issue a signed, expiring download URL for direct Parquet streaming — bypass the gateway when the agent needs to push data into its own DuckDB or PyArrow context. The URL is Range-enabled, so DuckDB / Polars `httpfs` can read it like any remote Parquet file.
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
@@ -215,7 +217,27 @@ Issue a presigned R2 URL for direct Parquet streaming — bypass the gateway whe
 | `entity_ids` | string[] | optional | Limit to specific CIKs |
 | `expires_in_seconds` | integer | optional | Default 600, max 3600 |
 
-Returns: `{presigned_r2_url, expires_at, schema_url}`. The agent should fetch the schema URL too — it lists column types and the partition layout.
+Returns: `{download_url, expires_at, schema_url}`. The agent should fetch the schema URL too — it lists column types and the partition layout.
+
+---
+
+## Persistent research state, approvals, and automation (summary)
+
+Beyond the data tools above, the server persists research objects server-side, keyed to your token — save from one AI client (Claude), read from another (Cursor), score later. Representative tools per family; the authoritative list is the live `tools/list`:
+
+| Family | Representative tools | Notes |
+|---|---|---|
+| Price & market data | `get_stock_price`, `get_price_history`, `get_pit_valuation_ratios` | Daily OHLCV with `adjusted_close`; backtest-safe P/E, P/S, P/B, EV/EBITDA, FCF yield on any historical date |
+| Theses | `save_thesis`, `list_theses`, `score_thesis_outcome`, `publish_thesis` | Time-stamped bull/bear/neutral calls, auto-graded against subsequent fundamentals and prices |
+| Claims ledger | `save_claim`, `link_claim_to_thesis`, `score_claim`, `publish_claim` | Provenance-bound, individually scoreable claims — the unit of a public track record |
+| Watchlists & alerts | `save_watchlist`, `create_alert`, `test_alert`, `list_alert_inbox` | `price_move` and `fundamental_change` conditions; delivery via email, HMAC-signed webhook, dashboard inbox, or an `agent_run` that fires a standing agent team |
+| Reports | `create_report`, `render_report`, `save_freeform_report`, `list_report_versions` | Durable, versioned artifacts with branded md/docx export |
+| Scheduled tasks | `schedule_task`, `list_scheduled_tasks`, `cancel_scheduled_task` | Agent deferral — "re-check AAPL margins in 30 days" wakes a real managed re-run |
+| Rules engine | `create_rule`, `list_rules`, `test_rule` | Trigger→action automation; live triggers: `alert_fired`, `inbox_item`, `scheduled_task_wake`, `schedule_tick` (each rule reports its `trigger_wiring_status`) |
+| Approvals (HOTL) | `stage_action`, `list_pending_approvals`, `approve_staged_action`, `reject_staged_action` | Mutating/destructive actions stage for human approval; every decision is an immutable audit entry |
+| Briefing & runs | `get_morning_brief`, `list_agent_runs`, `get_agent_run` | Read your daily brief and managed-run history from any MCP client |
+| Compute | `compute_dcf`, `forensic_audit`, `run_backtest` | Deterministic in-server compute; `run_backtest` is a bounded PIT factor grid with an honest stream-fallback over threshold |
+| Document generation | `generate_dcf_xlsx`, `generate_comps_xlsx`, `generate_research_brief_docx` | Pro+; branded OOXML artifacts with server-side figure verification |
 
 ---
 
@@ -304,12 +326,13 @@ Returns: `{claim_id, visibility, unpublished_at}`.
 
 These are pre-written multi-step instructions an MCP-aware agent can invoke as a single high-level command. Each chains the right tools in the right order.
 
-The two **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis and `screen_and_shortlist` for idea generation. The remaining specialised SOPs underneath are narrower single-purpose chains, daily flows, and state-lifecycle playbooks. Below is a representative selection; the full set of **28 SOPs** is advertised by the live server's `prompts/list`.
+The three **⭐ flagship** prompts are the canonical end-to-end workflows — `equity_research_brief` for single-ticker analysis, `screen_and_shortlist` for idea generation, and `deferred_research_loop` for research that follows up on itself. The remaining specialised SOPs underneath are narrower single-purpose chains, daily flows, and state-lifecycle playbooks. Below is a representative selection; the full set of **28 SOPs** is advertised by the live server's `prompts/list`.
 
 | Prompt | What it does |
 |---|---|
 | `equity_research_brief` ⭐ | Full single-ticker institutional research brief in markdown. Three depth modes: `quick` (≈3 tool calls — snapshot), `full` (≈8 calls — default, the institutional brief), `forensic` (≈11 calls — adds restatement audit + fact-level SEC verification). Renders as an artifact you can export to Word / PDF directly from Claude Desktop or claude.ai. PIT-safe via `as_of_date` for backtests. |
 | `screen_and_shortlist` ⭐ | PM-style idea generation. Builds a survivorship-free universe, ranks it on a chosen factor objective (`quality` / `value` / `growth` / `balanced`), QCs the leaders with a period-over-period change check, and hands off the top picks to `equity_research_brief` for full write-ups. Survivorship-free historical screening via `as_of_date`. |
+| `deferred_research_loop` ⭐ | Research that follows up on itself. Chains initial research → `save_thesis` → a deliberate choice between a one-shot deferred check (`schedule_task`) and a standing monitor (`create_rule`) → `test_rule` dry-run → confirmation. The wake fires a real managed re-run when opted in. |
 | `margin_and_moat_teardown` | Decompose a company's margin structure and quantify its moat using ratios + peer comparables |
 | `peer_benchmarking_memo` | Generate a sector peer-benchmarking memo — financials, ratios, valuation gap |
 | `quality_and_risk_audit` | Earnings-quality and accruals audit, plus restatement and 8-K event scan |
@@ -330,12 +353,14 @@ Invoke a prompt the same way as a tool — most clients surface them in the same
 
 ## Resources
 
-The server exposes two read-only resources for grounding the agent:
+The server exposes three read-only reference resources for grounding the agent, plus a per-user alert feed:
 
 | URI | What it is |
 |---|---|
 | `schema://{table}` | Column-level schema for any of the published tables |
 | `reference://sp500` | Current S&P 500 constituent list |
+| `pricing://current` | Current plan matrix and per-call pricing |
+| `valuein://alerts/feed` | The authenticated user's alert inbox — lets an agent read and triage fired alerts |
 
 Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 

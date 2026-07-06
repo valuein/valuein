@@ -15,7 +15,7 @@ Valuein provides institutional-grade SEC fundamental data. This document address
 ## 2. Material Non-Public Information (MNPI)
 
 - **Policy:** Valuein data contains **no** Material Non-Public Information (MNPI).
-- **Latency:** Data is ingested, processed, and published to the R2 snapshot only after the filing has been publicly disseminated by the SEC EDGAR system. The `filing_date` field reflects the SEC's acceptance date; the millisecond-resolution `accepted_at` field on the `fact` and `valuation` tables corresponds to EDGAR's `acceptedDateTime`. Neither reflects Valuein's internal ingestion time.
+- **Latency:** Data is ingested, processed, and published to the R2 snapshot only after the filing has been publicly disseminated by the SEC EDGAR system. The `filing_date` field reflects the SEC's acceptance date; the millisecond-resolution `accepted_at` field on the `fact`, `filing`, and `ratio` tables corresponds to EDGAR's `acceptedDateTime`. Neither reflects Valuein's internal ingestion time.
 - **No alternative data:** The dataset contains solely structured financial data extracted from public SEC filings. No web scraping, satellite imagery, or credit-card transaction data is included.
 
 ---
@@ -42,7 +42,22 @@ To completely eliminate look-ahead bias, the Valuein data architecture uses immu
 
 ---
 
-## 5. Service Level Agreement
+## 5. AI & Agentic Governance
+
+Valuein's AI surface (the MCP server and the BYO-LLM Workspace) is designed for institutions that want AI with controls, not autonomy. All of the following are shipped and enforced in code:
+
+| Control | Detail |
+|---|---|
+| **The model never mints a number** | Financial figures originate only in typed, deterministic tools. Every figure carries a `fact_id` and its source SEC filing; `verify_fact_lineage` resolves any `fact_id` back to the filing URL for one-click audit. Server instructions forbid the model from computing or estimating figures itself. |
+| **Point-in-time discipline** | Every time-series tool accepts an `as_of_date` and reconstructs the information set as of that date — no look-ahead in AI-generated research, same as in backtests. |
+| **Reproducible runs** | Tools are deterministic and idempotent (same inputs → same output). Managed agent runs execute at temperature 0 with a model allow-list, wall-clock and output caps, and destructive-tool stripping. |
+| **Human-on-the-loop approvals** | Mutating and outward-facing agent actions are staged in an approval ledger — the agent proposes, a human approves or rejects, and every decision is recorded as an immutable audit entry. Read-only tools never require approval. |
+| **BYO-LLM, zero retention** | Workspace customers bring their own LLM key. The key is sealed in a short-lived encrypted cookie, is never persisted server-side in plaintext, and customer data is never used to train any model. An Enterprise zero-retention tier is available. |
+| **Availability honesty** | A figure that is not reported, not mapped, or suppressed is returned with an explicit availability status — never silently substituted or estimated. A tier limitation returns a structured error, never an empty result posing as data. |
+
+---
+
+## 6. Service Level Agreement
 
 See [`SLA.md`](SLA.md) for full commitments on uptime, data freshness latency, and support response times.
 
@@ -52,7 +67,7 @@ See [`SLA.md`](SLA.md) for full commitments on uptime, data freshness latency, a
 
 ---
 
-## 6. Contact
+## 7. Contact
 
 For compliance inquiries, vendor questionnaires, or enterprise agreements, contact:
 **compliance@valuein.biz**

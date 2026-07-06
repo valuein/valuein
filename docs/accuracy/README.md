@@ -7,7 +7,7 @@ README and pricing page. Three files, all citable, all runnable:
 |---|---|
 | [`methodology.md`](methodology.md) | Narrative — definitions, 35 identities, how we calibrate up from the raw baseline, limitations |
 | [`identities.json`](identities.json) | Machine-readable catalog of every identity (formula, tolerance, severity, citation) — exactly the set the engine evaluates |
-| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 100 % modern-era (≥ 2010) on 11,422 S&P 500 FY filings — 0 identity failures — and 100 % overall on 19,616. Periodically re-committed from a production run. |
+| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 100 % modern-era (≥ 2010) and 100 % overall — 0 identity failures across ~19,600 S&P 500 annual filings. Regenerated from a production run; the exact filing counts and figures are always in the file itself. |
 | [`../../scripts/accuracy/accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) | Self-contained DuckDB script that reproduces the measurement — defaults to the free sample tier |
 
 ## TL;DR for customers

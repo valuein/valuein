@@ -23,7 +23,7 @@
 
 ---
 
-> **111M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 68 data tools and 22 ready-to-run analyst playbooks.**
+> **111M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 95 data tools and 28 ready-to-run analyst playbooks.**
 
 This is a simple, cadence-based setup so the Workspace earns its keep in your *daily, weekly, and monthly* routine within the first week.
 
@@ -41,7 +41,7 @@ Five things live here, and they reinforce each other:
 
 | Building block | What it is | The job it does for you |
 |---|---|---|
-| **Chat** | BYO-LLM assistant with 57 SEC data tools + 27 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
+| **Chat** | BYO-LLM assistant with 95 SEC data tools + 28 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
 | **Watchlists** | Named ticker lists (≤500 tickers + a criteria note) | The universe everything else points at — coverage, portfolio, pipeline |
 | **Theses** | Time-stamped bull/bear/neutral calls (conviction 1–5, horizon) | Record what you thought *and when*; auto-graded against fundamentals |
 | **Alerts → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
@@ -191,7 +191,7 @@ Form a view → save thesis (public) → research it (SOP → Report)
                                                        │ SEO / AEO indexed
    reputation builds as theses auto-grade  ◄───────────┘ citation-rich article
                                                        │
-   followers see it in their Feed  ◄───────────────────┘
+   readers discover it via /research + your profile ◄──┘
 ```
 
 **Share visibility — pick deliberately:**
@@ -200,7 +200,7 @@ Form a view → save thesis (public) → research it (SOP → Report)
 |---|---|---|---|
 | **Private** | Only you | No | Drafts, internal work |
 | **Unlisted** | Anyone with the link | No (noindex) | Sharing with a client/colleague |
-| **Public** | Everyone, on your profile + followers' feeds | **Yes** | Building audience + reputation |
+| **Public** | Everyone, on your profile + the public research catalog | **Yes** | Building audience + reputation |
 
 Slugs are stable; if you rotate one, the old link 410s gracefully for 30 days. View counts and a per-view audit log are tracked. Owners can purge the edge cache on demand.
 

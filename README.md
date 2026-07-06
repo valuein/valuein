@@ -10,7 +10,7 @@
 
 # Valuein — SEC EDGAR fundamentals for analysts, quants, and AI agents
 
-> **Survivorship-bias-free, point-in-time US fundamentals — streamed as Parquet, queried with DuckDB or natural language.**
+> **Point-in-time, survivorship-free SEC fundamentals — built for AI agents, safe enough for institutions that fear AI.** Every number is born in a filing and carries a `fact_id`; the model never mints a digit. Streamed as Parquet, queried with DuckDB or natural language, reproducible run to run.
 
 This repository is the **public home and discovery hub** for the Valuein data platform. It hosts the documentation, examples, notebooks, and the [MCP registry manifest](server.json) used by AI agents to find us. Source code for the SDK, MCP server, and data pipeline lives in dedicated repositories — this is the front door.
 
@@ -29,7 +29,8 @@ pip install valuein-sdk          # data for code
 | Try the SDK in 30 seconds without a token | [Quickstart](#quickstart-30-seconds-no-token) |
 | See every channel we ship through | [Distribution channels](#distribution-channels) |
 | Check pricing and what each plan unlocks | [Plans & access](#plans--access) |
-| Connect an AI agent (Claude, Cursor, Codex…) | [MCP for AI agents](#mcp-for-ai-agents) |
+| See why AI agents are first-class citizens here | [Built for AI agents](#built-for-ai-agents) |
+| Connect an AI agent (Claude, Copilot, ChatGPT, Cursor…) | [MCP for AI agents](#mcp-for-ai-agents) |
 | Set up the Workspace by role (analyst, PM, quant, creator) | [`docs/WORKSPACE_GUIDE.md`](docs/WORKSPACE_GUIDE.md) |
 | Read the data model | [Data model](#data-model) |
 | Find a quick recipe by role | [Recipes by role](#recipes-by-role) |
@@ -46,11 +47,11 @@ pip install valuein-sdk          # data for code
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
 - **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1993**
-- **111M+ standardized facts** across **19,000+** active and delisted US public-company entities
-- **11,966 raw XBRL tags** normalized to **~286 canonical `standard_concept`** values (95%+ coverage)
+- **111M+ standardized facts** across **19,000+** US public companies — including every bankruptcy, merger, and delisting since 1993
+- **11,966 raw XBRL tags** normalized to **292 canonical `standard_concept`** values plus **164 materialized financial ratios** (FY + TTM); unmapped tags are exposed under `'Other'` rather than dropped
+- **20 Parquet tables** — 14 core (fundamentals, ratios, valuations, index membership, daily OHLCV price history with adjusted close) + 6 smart-money tables (Institutional tier)
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
-- **Semantic core** — every 10-K / 10-Q / 20-F's narrative sections (Risk Factors, MD&A, Business, Legal, Controls) chunked and indexed for natural-language search via the MCP server
 
 ### Why it's different
 
@@ -62,7 +63,26 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 | 🔍 **CPA-verified catalog** | Every `standard_concept` carries a `review_confidence` — `1.0` once an accountant has signed off on its name, statement and rule (then it's locked; the pipeline only ever adds new concepts, never mutates a verified one), `0.7` while provisional. Filter `review_confidence >= 1.0` for the labels analysts, quants and AI models can agree on and train against. |
 | 🚀 **DuckDB-native** | Millisecond analytics over remote Parquet via `httpfs`. Zero database provisioning. |
 | 🔁 **Append-only restatements** | A `10-K/A` adds a new row — the original stays. Reconstruct the as-reported view of any historical date. |
+| 🧾 **Measured, published accuracy** | Mathematical consistency checked against published, cited accounting identities — CI-gated, and re-derivable yourself with one DuckDB command. The current measured figure lives in [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json). |
 | 🔐 **One token, every channel** | The same Bearer token authenticates the SDK, MCP server, and bulk-data API. |
+
+---
+
+## Built for AI agents
+
+Valuein is MCP-first and agent-agnostic: the same typed tool surface works in Claude, Copilot, ChatGPT, Perplexity, Gemini, Grok, Cursor, or your own LangGraph / CrewAI agent. The design goal is simple — **the model never mints a number**. Numbers are born in tools, carried as provenance-tagged facts, and the model is only allowed to arrange words around figures it was handed.
+
+| Guarantee | How it's enforced |
+|---|---|
+| **Fact-level lineage** | Every figure a tool returns carries a `fact_id` and its source filing; `verify_fact_lineage` round-trips any `fact_id` back to the exact SEC filing URL in one call. |
+| **Zero look-ahead** | Every time-series tool accepts `as_of_date` and reconstructs the information set as of that date — the same PIT discipline the Parquet layer enforces for backtests. |
+| **Reproducible runs** | Deterministic, idempotent tools: same inputs, same output. No rolling windows, no hidden "latest". Agents can cache, retry, and replay; you can reproduce a run later. |
+| **Agent-agnostic state** | Theses, claims, watchlists, alerts, and reports persist server-side across sessions *and across clients* — save a thesis from Claude today, list it from Cursor tomorrow. |
+| **Human-on-the-loop (HOTL)** | Mutating and outward-facing tool actions go through a staged-action approval ledger: the agent proposes, a human approves, and the decision lands in an immutable audit entry. Read-only tools never stage. |
+| **Governed managed runs** | Server-side managed agent runs execute at temperature 0 with a model allow-list and destructive-tool stripping — reproducible research, not improvisation. |
+| **Graded track records** | Saved theses and claims are scored against subsequent fundamentals and prices; publishing builds a public, verifiable track record — your agent keeps score. |
+
+The full tool reference is in [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md); agent-facing runtime instructions are in [`AGENTS.md`](AGENTS.md).
 
 ---
 
@@ -73,7 +93,7 @@ The same dataset, delivered four ways so it lands where you already work.
 | Channel | Audience | Endpoint / install |
 |---|---|---|
 | **Python SDK** | Quants, engineers, data scientists | `pip install valuein-sdk` · [PyPI](https://pypi.org/project/valuein-sdk/) |
-| **MCP server** | AI agents (Claude, Cursor, Codex, custom) | `https://mcp.valuein.biz/mcp` · [server.json](server.json) |
+| **MCP server** | AI agents (Claude, Copilot, ChatGPT, Cursor, custom) | `https://mcp.valuein.biz/mcp` · [server.json](server.json) |
 | **Web dashboard** | Retail, executives, non-technical users | [valuein.biz](https://valuein.biz) |
 | **Bulk data API** | B2B partners, fintech platforms | `https://data.valuein.biz` · [contact us](mailto:sales@valuein.biz) |
 
@@ -117,7 +137,7 @@ Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):
 
 | Plan | Per minute | Per hour |
 |---|---:|---:|
-| Sample (anonymous) | 15 | 150 |
+| Sample (anonymous) | 60 | 600 |
 | Free | 60 | 1,000 |
 | Pro | 100 | 3,000 |
 | Institutional / Enterprise | 300 | 10,000 |
@@ -224,7 +244,7 @@ except Exception as e:
     print(f"Initialization failed: {e}")
 ```
 
-The SDK ships **54 named SQL templates** for the most common screens, ratios, and PIT backtests. List them:
+The SDK ships **60 named SQL templates** for the most common screens, ratios, and PIT backtests. List them:
 
 ```python
 from valuein_sdk import ValueinClient
@@ -267,7 +287,7 @@ VALUEIN_API_KEY=xxx python examples/python/factor_screen.py
 
 ## Data model
 
-Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concept names).
+Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concept names). The snapshot ships **20 Parquet tables** — the core tables below plus 6 smart-money tables on the Institutional tier (`insider_party` / `insider_filing` / `insider_transaction` / `institutional_filing` / `institutional_holding` / `insider_ownership`).
 
 | Table | What it is | Why it matters |
 |---|---|---|
@@ -280,7 +300,9 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | Cross-check your model against ours. |
 | `taxonomy_guide` | 2026 US GAAP Taxonomy | Definitions for every `standard_concept`. |
 | `index_membership` | Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
-| `filing_text` | Narrative chunks from 10-K / 10-Q / 20-F TextBlocks (Risk Factors, MD&A, Business, Legal, Controls) | Source of the Vectorize index that powers semantic search via MCP. |
+| `standard_concept` | The canonical concept catalog itself — names, statements, mapping rules, CPA review status | The ground truth behind `fact.standard_concept`. |
+| `stock_price` | Latest end-of-day close per entity | Quick current-price joins on any tier. |
+| `stock_price_daily` | Full daily OHLCV bar series per entity, with `adjusted_close` and corporate-action factors | Backtest-safe price legs — pair with fundamentals for PIT valuation multiples. |
 
 ### Date columns — which to use when
 
@@ -288,7 +310,7 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 |---|---|---|
 | `report_date` / `period_end` | `filing` / `fact` | Aligning to the fiscal calendar |
 | `filing_date` | `filing` | **PIT backtest filter** — when the SEC received it |
-| `accepted_at` | `fact`, `valuation`, `filing_text` | Millisecond-precision PIT for intraday research |
+| `accepted_at` | `fact`, `filing`, `ratio` (+ smart-money and price tables) | Millisecond-precision PIT for intraday research |
 
 > For any cross-company backtest, **always** filter by `filing_date <= trade_date`. Filtering by `report_date` introduces look-ahead bias.
 
@@ -339,7 +361,7 @@ Query `fact.standard_concept` with canonical names like `'TotalRevenue'`, `'NetI
 
 ## MCP for AI agents
 
-Valuein ships a remote Model Context Protocol server so any MCP-capable agent (Claude Desktop, Cursor, Codex, custom) can answer fundamentals questions without writing code.
+Valuein ships a remote, protocol-native Model Context Protocol server so any MCP-capable agent (Claude, Copilot, ChatGPT, Cursor, custom) can answer fundamentals questions — and keep persistent, auditable research state — without writing code.
 
 - **Endpoint:** `https://mcp.valuein.biz/mcp` (Streamable HTTP, MCP spec 2025-11-25)
 - **Auth:** `Authorization: Bearer <your_api_token>` — same token as the SDK and bulk-data API
@@ -388,7 +410,7 @@ The server exposes **95 live tools**, plus **28 agentic SOP prompts** (two flags
 
 | Tool | What it does |
 |---|---|
-| `get_compute_ready_stream` | Issue presigned R2 URLs for direct Parquet streaming (skip the gateway) |
+| `get_compute_ready_stream` | Issue signed, expiring download URLs for direct Parquet streaming (skip the gateway) |
 
 **Smart money — Institutional tier and above**
 
@@ -400,6 +422,21 @@ The smart-money bundle replaces Bloomberg's INSIDER\<GO\> / OWNER\<GO\> / HDS\<G
 | `get_institutional_holdings` | Form 13F top holders for one issuer with HHI concentration + 13F-lag staleness flag |
 | `get_manager_portfolio` | Form 13F filer's full portfolio with QoQ deltas (new / increased / decreased / exited) |
 | `get_blockholders` | SC 13D / 13G with the first-class `going_active` flag (13G→13D = control-change signal) |
+| `get_insider_sentiment` · `get_top_holders` · `get_smart_money_flow` | Aggregated insider buy/sell signal, largest holders, and net institutional flow per issuer |
+
+**Persistent, agent-agnostic research state (all MCP clients)**
+
+Research objects live server-side, keyed to your token — save from one AI client, read from another, score later.
+
+| Family | Tools (representative) | What it does |
+|---|---|---|
+| Theses & claims | `save_thesis`, `save_claim`, `score_thesis_outcome`, `score_claim` | Time-stamped calls with provenance-bound claims, auto-graded against subsequent fundamentals **and prices** |
+| Watchlists & alerts | `save_watchlist`, `create_alert`, `list_alert_inbox` | Standing monitors on price moves, fundamental changes, and filings — delivered to email, webhook, dashboard inbox, or an `agent_run` that fires a standing agent team |
+| Reports | `create_report`, `render_report`, `save_freeform_report` | Durable, versioned research artifacts with branded md/docx export |
+| Deferral & rules | `schedule_task`, `create_rule`, `test_rule` | "Re-check AAPL margins in 30 days" → a real scheduled re-run; trigger→action rules (alert fired, inbox item, task wake, schedule tick) |
+| Approvals (HOTL) | `stage_action`, `list_pending_approvals`, `approve_staged_action` | Mutating/destructive actions stage for human approval with an immutable audit entry |
+| Backtesting | `run_backtest`, `get_pit_valuation_ratios`, `get_price_history` | Bounded PIT factor grids and backtest-safe valuation multiples on any historical date |
+| Briefing | `get_morning_brief`, `list_agent_runs` | Read your daily brief and managed-run history from any MCP client |
 
 **Public publishing — free reputation building (all tiers)**
 
@@ -428,7 +465,7 @@ Add to `claude_desktop_config.json`:
 }
 ```
 
-Same URL + Bearer token works for any MCP client that supports Streamable HTTP remotes — Cursor, Codex, your own LangGraph / CrewAI agent.
+Same URL + Bearer token works for any MCP client that supports Streamable HTTP remotes — Copilot, ChatGPT, Cursor, your own LangGraph / CrewAI agent.
 
 ---
 

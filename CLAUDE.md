@@ -18,8 +18,8 @@ Valuein. It is the landing page a prospective user hits from PyPI, Smithery, or 
 - `examples/notebooks/` — 8 Jupyter notebooks mirroring the Python examples
 - `scripts/generate_catalog.py` — generator that writes `docs/data_catalog.md`, `data_catalog.json`,
   and updates `DATA_CATALOG.xlsx` from canonical concepts defined inline in the script
-  (current output: `concept_count=291`, `ratio_count=164` — 77 FY+TTM, 87 annual-only)
-- `server.json` — MCP server manifest for registry.modelcontextprotocol.io (v2.19.0)
+  (current output: `concept_count=292`, `ratio_count=164` — 77 FY+TTM, 87 annual-only)
+- `server.json` — MCP server manifest for registry.modelcontextprotocol.io (v2.45.1 — must match the deployed Worker)
 - `.github/workflows/` — `publish-mcp.yml` (registry publish), `sync-mcp-manifest.yml`
   (nightly + `repository_dispatch` sync of `server.json` + README from the `mcp` repo manifest),
   `doc-integrity.yml` (CI gate: IP-leak + accuracy-drift, on every push/PR)
@@ -39,7 +39,7 @@ exists — SDK and MCP are now standalone repos.
 | If you're asked to… | Go to |
 |---|---|
 | Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/sdk` → `valuein_sdk/` |
-| Modify the MCP Worker code (`mcp.valuein.biz`, 75 live tools — incl. free publish/unpublish parity for reports + theses + claims; 3 paid report-marketplace tools stay hidden until launch — 27 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
+| Modify the MCP Worker code (`mcp.valuein.biz`, 95 live tools — incl. free publish/unpublish parity for reports + theses + claims; 3 paid report-marketplace tools stay hidden until launch — 28 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
 | Change what `fact.standard_concept` values exist, or add a concept | `~/PycharmProjects/data-pipeline` → `services/accounting/definitions.py` (`STANDARD_DEFINITIONS`), **then** re-run `scripts/generate_catalog.py` here |
 | Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py` + `parquet_schema.py`; then propagate to the SDK + MCP (both read the schema from the R2 manifest at runtime — the SDK no longer bundles `schema.json` since v3.2.0), `cloudflare/edge-gateway` (validates tables dynamically from the manifest), and regenerate `docs/schema.json` here last |
 | Change token schema, gateway routing, Stripe webhook, agent-pay | `~/WebstormProjects/cloudflare` |
@@ -178,10 +178,10 @@ See `docs/data_catalog.md` for the canonical concept list. The source of truth i
 ### Accuracy — measured, not aspirational
 
 There is **no hard 95% coverage gate** — unmapped raw tags fall through to `Other`. The honest,
-reproducible accuracy figures live in `docs/accuracy/baseline.json`: **88.96% modern-era (≥2010,
-11,423 filings) / 93.55% overall (19,617 S&P 500 FY filings)**, measured 2026-06-06 and re-derivable
-via `duckdb scripts/accuracy/accuracy_check.sql`. The `doc-integrity.yml` accuracy gate pins every
-public `NN.NN%` to within 1pt of these. The legacy "≥95% coverage target" string still lingering in
+reproducible accuracy figures live in `docs/accuracy/baseline.json` — regenerated nightly from a
+production run and re-derivable via `duckdb scripts/accuracy/accuracy_check.sql`. NEVER hardcode an
+accuracy percentage in public docs that isn't taken from the current `baseline.json`; the
+`doc-integrity.yml` accuracy gate pins every public `NN.NN%` to within 1pt of the baseline. The legacy "≥95% coverage target" string still lingering in
 `scripts/generate_catalog.py` / the catalog is aspirational and contradicts these measured figures —
 do not amplify it.
 

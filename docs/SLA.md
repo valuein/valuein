@@ -67,7 +67,7 @@ Per-tier rate limits are canonical at [`https://data.valuein.biz/v1/plans`](http
 
 | Plan | Per minute | Per hour |
 |---|---:|---:|
-| Sample (anonymous) | 15 | 150 |
+| Sample (anonymous) | 60 | 600 |
 | Free | 60 | 1,000 |
 | Pro | 100 | 3,000 |
 | Institutional | 300 | 10,000 |
