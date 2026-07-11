@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-07-04T07:51:27Z",
+  "measured_at": "2026-07-11T07:15:24Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 1030,
-    "filings": 19607,
+    "entities": 1031,
+    "filings": 19620,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,21 +20,21 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json.",
     "overall": {
-      "filings": 19607,
-      "clean_filings": 19607,
+      "filings": 19620,
+      "clean_filings": 19620,
       "filings_with_errors": 0,
       "accuracy_pct": 100
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 11413,
-        "clean_filings": 11413,
+        "filings": 11422,
+        "clean_filings": 11422,
         "filings_with_errors": 0,
         "accuracy_pct": 100
       },
       "legacy_pre_2010": {
-        "filings": 8194,
-        "clean_filings": 8194,
+        "filings": 8198,
+        "clean_filings": 8198,
         "filings_with_errors": 0,
         "accuracy_pct": 100,
         "_note": "Pre-2010 XBRL was optional; most pre-2010 filings have no facts and trivially pass every identity. Use modern_2010_onward as the honest measurement."
@@ -44,10 +44,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 40803670,
-    "correctly_unstandardized": 23502579,
-    "mapping_gaps": 17301091,
-    "accuracy_pct": 57.6
+    "facts_with_standard_concept_other": 40792813,
+    "correctly_unstandardized": 23502355,
+    "mapping_gaps": 17290458,
+    "accuracy_pct": 57.61
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
