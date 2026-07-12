@@ -133,6 +133,8 @@ Autonomous AI agents that hit a rate or tier limit can pay per request using **S
 
 PAYG is priced at 5× the subscription-equivalent rate — steady-state agent usage is almost always cheaper with a [Pro or Institutional subscription](https://valuein.biz/pricing). Daily spend caps exist per token as abuse protection; caps are raisable on request. See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
 
+**The whole pattern — an agent that buys its own data, safely** — is written up as a reference implementation in **[`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)**: the two live consent models (a human-authorized bounded budget that auto-charges and serves inline; or per-call MPP for wallet-holding agents), why it's the safe default, and a runnable demo — [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) — that discovers the rail and reads back a live quote for free.
+
 Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):
 
 | Plan | Per minute | Per hour |

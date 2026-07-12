@@ -169,6 +169,23 @@ https://valuein.biz/pricing
 
 A single Stripe-issued Bearer token unlocks every channel (SDK, MCP server, Bulk Data API, web dashboard) at the subscribed tier — no per-channel billing.
 
+### The other consent model: a human-authorized budget
+
+The MPP flow above is for agents that can carry a `Payment:` header. If you're
+running through a connector that forwards only a Bearer token (e.g. Anthropic's
+MCP connector), there's a second live path: the human authorizes a **bounded
+session budget** once (default $10, "charged only for what I use"), and when you
+ask for a company above the caller's tier, the server **auto-charges that budget
+for exactly that one company and serves the promoted tier inline** — no round
+trip, no retry token. You just ask; the human's budget decides whether it's
+served. Promotion is upward-only and single-entity; the charge happens before the
+read and is auto-refunded if the read fails.
+
+**Full pattern + a runnable demo:** [`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)
+and [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py)
+(discovers the rail and reads a live quote for free; the pay step needs your own
+budget or wallet).
+
 ---
 
 ## Working in this repo
