@@ -25,7 +25,6 @@ OpenAI function, an MCP client).
 
 from __future__ import annotations
 
-import json
 import os
 
 import httpx
@@ -85,16 +84,27 @@ def main() -> None:
         print("       promoted tier INLINE — one query, no round-trip. Works with "
               "connectors that only forward a Bearer (e.g. Anthropic's).\n")
 
-        print("   MODEL B — per-call over MPP (a wallet-holding / guest agent):")
-        charge_body = {
-            "note": "auth travels in a base64url `Payment:` header, not the body",
-            "retry": "on success you get a retry_token; retry the SAME tool call "
-                     "with header  x-valuein-retry-token: <token>",
-        }
-        print(f"     POST {quote.get('pay_to_url')}")
-        print(f"       Payment: <base64url JSON: protocol_version, network, nonce="
-              f"{str(quote.get('nonce'))[:12]}…, amount_usd_cents, signed_payload>")
-        print(f"       → {json.dumps(charge_body)}\n")
+        print("   MODEL B — canonical MPP, pay-per-call (a wallet-holding / guest agent):")
+        print("     The paywall is advertised ON the resource, so a standard MPP")
+        print("     client discovers it without reading any of our docs:\n")
+        print(f"     POST {API}/api/mpp/call")
+        print(f'       {{"tool": "{TOOL}", "arguments": {{"ticker": "{TICKER}"}}}}')
+        print("       → 402  WWW-Authenticate: Payment id=… realm=… method=\"stripe\" …")
+        print("            request = base64url({\"amount\":\"50\",\"currency\":\"usd\",")
+        print("                                 \"methodDetails\":{\"networkId\":\"profile_…\"}})")
+        print("            (amount is a STRING of CENTS)\n")
+        print("     Retry the SAME request, now carrying the credential:")
+        print("       Authorization: Payment <base64url({")
+        print("         \"challenge\": { …the challenge params, echoed verbatim… },")
+        print("         \"payload\":   { \"spt\": \"spt_<Shared Payment Token>\" } })>")
+        print("       → 200, the data INLINE   (X-Valuein-Charge-Id: ch_…)\n")
+        print("     Any MPP client does both steps for you:")
+        print(f"       npx @stripe/link-cli mpp pay {API}/api/mpp/call \\")
+        print("         --method POST -H 'Content-Type: application/json' \\")
+        print(f'         --data \'{{"tool":"{TOOL}","arguments":{{"ticker":"{TICKER}"}}}}\' \\')
+        print("         --spend-request-id lsrq_…\n")
+        print("     If the tool call fails after the charge settles, we refund it")
+        print("     before returning the error — never money without service.\n")
 
         # If the caller has set up PAYG (a token + a saved card), point them at it.
         if os.environ.get("VALUEIN_API_KEY"):
