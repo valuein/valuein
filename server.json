@@ -91,9 +91,9 @@
       }
     },
     "io.github.valuein/tools_summary": {
-      "live": 101,
+      "live": 102,
       "stubs": 0,
-      "prompts": 28,
+      "prompts": 29,
       "resources": 3
     },
     "io.github.valuein/docs": "https://github.com/valuein/valuein/blob/main/docs/MCP_TOOLS.md"
