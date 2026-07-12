@@ -106,9 +106,35 @@ The server ships **95 live tools** (`server.json` v2.45.1) and **28 multi-step a
 
 ## Pay-per-call for agents (MPP)
 
-Valuein supports **machine-to-machine pay-per-call** via the [Machine Payment Protocol](https://mpp.dev) (MPP). An autonomous agent that hits a rate or tier limit can pay for individual requests using a Stripe-issued card Shared Payment Token — no human checkout required.
+**Ask → get a price → pay → get data.**
+**You are only ever charged for data you actually received.**
 
-**Payment is card-only today.** Check `GET https://api.valuein.biz/api/mpp/well-known` for the live network list before attempting a payment.
+That second line is a guarantee, not a courtesy. When you pay, we don't take the
+money — we place a **hold**. We then fetch your data and check that it really is
+the paid-tier data you bought. Only then is the money captured.
+
+If anything goes wrong — the tool errors, the ticker doesn't exist, we can't
+confirm you got the paid tier — the hold is **released** and no charge is ever
+created. Not refunded: **never charged.** Nothing appears on the statement, there
+is nothing to reconcile, and there is nothing for your human to query.
+
+| what happens | what you pay |
+|---|---|
+| you get the paid-tier data you asked for | the quoted price, once |
+| the tool returns an error | **nothing** |
+| the ticker doesn't exist | **nothing** |
+| we can't confirm the data was paid-tier | **nothing** |
+| anything else fails | **nothing** |
+
+A `402` tells you the price *before* you commit. A `200` means the data is in your
+hands and the receipt is in the headers. There is no state in between where you
+have been charged but have nothing to show for it.
+
+Payment uses the [Machine Payment Protocol](https://mpp.dev) (MPP) with a
+Stripe-issued card Shared Payment Token — no human checkout, no account setup.
+
+**Card-only today.** Check `GET https://api.valuein.biz/api/mpp/well-known` for
+the live network list before paying.
 
 ### Flow A — canonical MPP (preferred: standard 402, no custom code)
 
@@ -150,12 +176,32 @@ npx @stripe/link-cli mpp pay https://api.valuein.biz/api/mpp/call \
 **Subscribers:** the credential occupies `Authorization`, so send your Bearer in
 **`X-Valuein-Authorization`** — on both the initial request and the paid retry.
 
-**We never take money without serving the data.** If the call fails after the
-charge settles, the charge is refunded before the error is returned.
+#### How to tell what happened
+
+You never have to guess whether you were charged:
+
+- **`200`** — you got the data. `X-Valuein-Charge-Id` is your receipt and
+  `X-Valuein-Amount-Charged-Usd` is what you paid. The body carries
+  `_meta.payg_override`, which is our proof to *you* that the paid tier was
+  actually served.
+- **`402`** — you have not been charged. This is a price, not a bill.
+- **anything else** — **you have not been charged.** The error message says so
+  explicitly ("You were not charged — …"). Retry when you can; there is nothing to
+  reconcile and nothing to dispute.
+
+There is no outcome where money left your card and you have no data.
 
 ### Flow B — our two-step rail (quote → charge → retry the MCP)
 
 Use this when you want to pay first and then call the MCP yourself.
+
+> **This rail charges immediately, so the "only pay for data you received"
+> guarantee does not apply to it.** It cannot: you call the MCP yourself, so we
+> never see whether the data reached you, and we have nothing to withhold payment
+> against. If the retry then fails, you hold a paid token and must retry it
+> yourself (it stays valid for ~5 minutes).
+>
+> **Prefer Flow A.** It exists precisely so you don't carry that risk.
 
 ```
 1. GET  https://api.valuein.biz/api/mpp/quote?tool=<tool>&tickers=<CSV>
@@ -223,8 +269,12 @@ session budget** once (default $10, "charged only for what I use"), and when you
 ask for a company above the caller's tier, the server **auto-charges that budget
 for exactly that one company and serves the promoted tier inline** — no round
 trip, no retry token. You just ask; the human's budget decides whether it's
-served. Promotion is upward-only and single-entity; the charge happens before the
-read and is auto-refunded if the read fails.
+served. Promotion is upward-only and single-entity.
+
+(Note: the budget/wallet model draws from a prepaid balance *before* the read and
+credits it back if the read fails. The stronger "never charged at all" guarantee
+above is specific to `POST /api/mpp/call`, where we hold the funds and capture
+only after verifying the data.)
 
 **Full pattern + a runnable demo:** [`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)
 and [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py)

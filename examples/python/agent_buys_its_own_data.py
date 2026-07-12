@@ -103,8 +103,11 @@ def main() -> None:
         print("         --method POST -H 'Content-Type: application/json' \\")
         print(f'         --data \'{{"tool":"{TOOL}","arguments":{{"ticker":"{TICKER}"}}}}\' \\')
         print("         --spend-request-id lsrq_…\n")
-        print("     If the tool call fails after the charge settles, we refund it")
-        print("     before returning the error — never money without service.\n")
+        print("     THE PROMISE: paying does not move money. We HOLD the funds,")
+        print("     fetch the data, verify it is genuinely the paid tier — and only")
+        print("     then capture. A tool error, a bad ticker, or anything we cannot")
+        print("     verify RELEASES the hold: no charge is ever created. Not")
+        print("     refunded — never charged.\n")
 
         # If the caller has set up PAYG (a token + a saved card), point them at it.
         if os.environ.get("VALUEIN_API_KEY"):
