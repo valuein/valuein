@@ -110,7 +110,52 @@ Valuein supports **machine-to-machine pay-per-call** via the [Machine Payment Pr
 
 **Payment is card-only today.** Check `GET https://api.valuein.biz/api/mpp/well-known` for the live network list before attempting a payment.
 
-### Flow (single round-trip)
+### Flow A — canonical MPP (preferred: standard 402, no custom code)
+
+The paywall is advertised **on the resource**. Ask for the data; if payment is
+required you get a `402` with a `WWW-Authenticate: Payment …` challenge; pay and
+**retry the same request**, and the data comes back **inline**.
+
+```
+1. POST https://api.valuein.biz/api/mpp/call
+   {"tool":"get_company_fundamentals","arguments":{"ticker":"AAPL"}}
+
+   → 402 Payment Required
+     WWW-Authenticate: Payment id="…", realm="api.valuein.biz", method="stripe",
+                       intent="charge", expires="…", opaque="…", request="…"
+       request = base64url({"amount":"50","currency":"usd",
+                            "methodDetails":{"networkId":"profile_…"}})
+       NOTE: `amount` is a STRING of CENTS.
+
+2. Retry the SAME request with the credential:
+     Authorization: Payment <base64url({
+       "challenge": { …every challenge param, echoed verbatim… },
+       "payload":   { "spt": "spt_<your Shared Payment Token>" }
+     })>
+
+   → 200, the tool result inline
+     X-Valuein-Amount-Charged-Usd: 0.5000
+     X-Valuein-Charge-Id: ch_…
+```
+
+Any standards-compliant MPP client does both steps for you, e.g.:
+
+```bash
+npx @stripe/link-cli mpp pay https://api.valuein.biz/api/mpp/call \
+  --method POST -H 'Content-Type: application/json' \
+  --data '{"tool":"get_company_fundamentals","arguments":{"ticker":"AAPL"}}' \
+  --spend-request-id lsrq_…
+```
+
+**Subscribers:** the credential occupies `Authorization`, so send your Bearer in
+**`X-Valuein-Authorization`** — on both the initial request and the paid retry.
+
+**We never take money without serving the data.** If the call fails after the
+charge settles, the charge is refunded before the error is returned.
+
+### Flow B — our two-step rail (quote → charge → retry the MCP)
+
+Use this when you want to pay first and then call the MCP yourself.
 
 ```
 1. GET  https://api.valuein.biz/api/mpp/quote?tool=<tool>&tickers=<CSV>

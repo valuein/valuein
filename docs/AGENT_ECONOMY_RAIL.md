@@ -93,11 +93,60 @@ Base host: **`https://api.valuein.biz`**. Data + tools: **`https://mcp.valuein.b
 | Purpose | Endpoint | Notes |
 |---|---|---|
 | **Discover the rail** | `GET /api/mpp/well-known` | Unauthenticated. Returns the `mpp.dev` protocol version, `spt_enabled` / `crypto_enabled`, and the live `supported_networks`. Start here. |
-| **Paywall signal** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with `remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
-| **Quote (MPP, guest-OK)** | `GET /api/mpp/quote?tool=…&tier=pro\|full` | Returns `{ amount_usd, amount_usdc, nonce, accept[], expires_at, … }`. Amounts in **dollars**. No `quote_id` — correlate by `nonce`. |
-| **Pay (MPP, single round trip)** | `POST /api/mpp/charge` | Auth **is** the base64url `Payment:` header (guest-capable). Returns a `retry_token`. |
+| **⭐ Pay-per-call (canonical MPP)** | `POST /api/mpp/call` | **Use this.** Standard MPP: unpaid → `402` + `WWW-Authenticate: Payment …`; pay and **retry the same URL** with `Authorization: Payment <credential>` → `200` with the tool result **inline**. Guest-capable. Works with any MPP client, including `link-cli mpp pay`. |
+| **Paywall signal (MCP tools)** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with `remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
+| **Quote (our 2-step rail, guest-OK)** | `GET /api/mpp/quote?tool=…&tier=pro\|full` | Returns `{ amount_usd, amount_usdc, nonce, accept[], expires_at, … }`. Amounts in **dollars**. No `quote_id` — correlate by `nonce`. |
+| **Pay (our 2-step rail)** | `POST /api/mpp/charge` | Auth **is** the base64url `Payment:` header (guest-capable). Returns a `retry_token` you then present to the MCP. |
 | **Pay (legacy PAYG, Bearer, two-step)** | `POST /api/payg/quote` → `POST /api/payg/confirm` | Requires a Bearer token + a saved card. `confirm` returns the `retry_token`. Being sunset in favor of MPP (RFC 8594 `Sunset: 2026-11-10`). |
 | **Authorize a budget (Model A)** | your app / the human, not the agent | The human approves a session budget via the JIT consent UI; the server draws against it. (The budget-write endpoint is internal — the *human* authorizes, the *agent* spends.) |
+
+### The canonical flow (`POST /api/mpp/call`)
+
+This is the one an off-the-shelf MPP agent can discover **without reading these
+docs** — the paywall is advertised on the resource itself.
+
+```bash
+# 1. Ask for the data. No credential → 402 with the challenge.
+curl -i -X POST https://api.valuein.biz/api/mpp/call \
+  -H 'Content-Type: application/json' \
+  -d '{"tool":"get_company_fundamentals","arguments":{"ticker":"AAPL"}}'
+
+# HTTP/2 402
+# WWW-Authenticate: Payment id="…", realm="api.valuein.biz", method="stripe",
+#                   intent="charge", expires="…", opaque="…", request="…"
+#   request = base64url({"amount":"50","currency":"usd",
+#                        "methodDetails":{"networkId":"profile_…"}})
+#   NOTE: amount is a STRING of CENTS.
+
+# 2. Pay and retry the SAME request. Stripe's reference client does both for you:
+npx @stripe/link-cli mpp pay https://api.valuein.biz/api/mpp/call \
+  --method POST -H 'Content-Type: application/json' \
+  --data '{"tool":"get_company_fundamentals","arguments":{"ticker":"AAPL"}}' \
+  --spend-request-id lsrq_…
+
+# → 200, with the tool result in the body and a receipt in the headers:
+#   X-Valuein-Amount-Charged-Usd: 0.5000
+#   X-Valuein-Charge-Id: ch_…
+```
+
+The credential you send back is
+`Authorization: Payment base64url({"challenge":{…echoed verbatim…},"payload":{"spt":"spt_…"}})`.
+
+**Subscribers:** the credential occupies `Authorization`, so present your Bearer
+token in **`X-Valuein-Authorization`** instead to get your discounted rate — on
+**both** the initial request and the paid retry. The challenge is bound to the
+caller, so a guest challenge cannot be redeemed by an authenticated caller (or
+vice-versa).
+
+**Guarantees:**
+- **Never money without service.** If the tool call fails *after* the charge
+  settles, we refund it before returning the error.
+- **The challenge is tamper-proof.** Its `id` is an HMAC-signed nonce binding the
+  tool, amount, scope, ticker count, caller and expiry. Editing the amount or the
+  recipient in the echo is rejected, and the nonce is burned in a replay ledger
+  after one use.
+- **Scope-bound.** A credential minted for `{"ticker":"AAPL"}` cannot be redeemed
+  for a different — or a wider — request.
 
 **Retry token:** a 64-char single-use secret, claimed atomically (exactly one
 redeemer wins), valid ~5 minutes, redeemable **only for the exact tool + company
