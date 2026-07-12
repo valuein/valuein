@@ -24,6 +24,45 @@ per call, payable by an agent — over two live consent models.
 
 ---
 
+## The promise
+
+> **Ask → get a price → pay → get data.**
+> **You are only ever charged for data you actually received.**
+
+That second line is a guarantee, and it is enforced in code rather than in a
+support policy. On `POST /api/mpp/call`, paying does **not** move money:
+
+```
+1. AUTHORIZE   we place a HOLD on the funds. Nothing settles. Nothing
+               appears on a statement.
+2. VERIFY      we fetch your data and confirm it is genuinely the paid-tier
+               response you bought — not an error, not the free tier.
+3. CAPTURE     only now is the money taken. Once.
+```
+
+Anything less than a verified, paid-tier response **releases the hold**. Not
+refunded — **never charged**. No charge is created, so there is nothing to
+reconcile, nothing to dispute, and nothing for a human to ask about later.
+
+| what happens | what you pay |
+|---|---|
+| you get the paid-tier data you asked for | the quoted price, once |
+| the tool returns an error | **nothing** |
+| the ticker doesn't exist | **nothing** |
+| we cannot confirm the data was paid-tier | **nothing** |
+| the payment itself fails to complete | **nothing** |
+
+The uncertain case resolves in **your** favour by construction: if we cannot
+*prove* you received paid data, we do not capture. The worst outcome is that we
+serve data we failed to bill for — our loss, not yours. It is deliberately
+cheaper for us to lose a sale than to take a cent we cannot justify.
+
+*(The legacy two-step rail — `quote` → `charge` → retry — charges immediately and
+therefore cannot make this promise; it never sees whether the data reached you.
+Prefer `/api/mpp/call`.)*
+
+---
+
 ## Two live consent models (pick the one that fits your agent)
 
 Both models share the same invariant — **a human authorizes the _budget_, never
@@ -60,29 +99,35 @@ runaway loop hits the cap, not the card limit.
 ### Model B — Per-call payment (MPP / PAYG), for agents that carry a wallet
 
 For agents that _can_ carry payment headers — including tokenless / guest agents
-paying over **MPP (the open `mpp.dev` machine-payments protocol)** — the server
-answers a paywall with a machine-readable price, the agent pays in one round
-trip, and retries with a scoped, single-use token.
+paying over **MPP (the open `mpp.dev` machine-payments protocol)**. Ask for the
+data; the price comes back as a standard `402` challenge; pay and retry the same
+request; the data arrives inline.
 
 ```
-  agent calls a tool above its tier
-        │
+  agent asks for data it can't reach yet
+        │      POST /api/mpp/call  {"tool":…, "arguments":{…}}
         ▼
-  structured paywall envelope: { code: "LIMIT_EXCEEDED" | "ENTITLEMENT_DENIED",
-      subcode, current_plan, remediation: { options: [ pay_per_request_mpp, … ] } }
-        │   (machine-readable — the agent never guesses a price)
+  402 + WWW-Authenticate: Payment …          ← a PRICE, not a bill.
+        │                                       You have not been charged.
         ▼
-  GET /api/mpp/quote?tool=…&tier=full   →  { amount_usd, nonce, accept:[…], … }
-        │
+  retry the SAME request with the credential
+        │      Authorization: Payment <base64url({challenge, payload:{spt}})>
         ▼
-  POST /api/mpp/charge  with a base64url `Payment:` header  →  { retry_token, … }
-        │   (single round trip — no separate confirm step)
-        ▼
-  retry the SAME tool call with:  x-valuein-retry-token: <token>
-        │   (single-use, atomic, and bound to exactly that tool + company)
-        ▼
-  the data returns, promoted to the paid tier
+  ┌─ we HOLD the funds ─────────────────────────────────────────┐
+  │  fetch the data · verify it is genuinely the paid tier      │
+  │                                                             │
+  │   verified  → CAPTURE.  200 + data inline + a receipt       │
+  │   anything  → RELEASE.  no charge is ever created           │
+  │   else                                                      │
+  └─────────────────────────────────────────────────────────────┘
 ```
+
+This is the flow any standards-compliant MPP client speaks natively — including
+Stripe's own `link-cli mpp pay` — with no Valuein-specific code.
+
+*(A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with
+`remediation.options[]` is still what an MCP **tool call** returns when it hits a
+limit — it tells the agent the price and points it here.)*
 
 ---
 
@@ -139,8 +184,9 @@ caller, so a guest challenge cannot be redeemed by an authenticated caller (or
 vice-versa).
 
 **Guarantees:**
-- **Never money without service.** If the tool call fails *after* the charge
-  settles, we refund it before returning the error.
+- **Never money without service.** We authorize a hold, verify the paid-tier data
+  actually came back, and only then capture. Anything else releases the hold — no
+  charge is ever created, so there is nothing to refund. See *The promise* above.
 - **The challenge is tamper-proof.** Its `id` is an HMAC-signed nonce binding the
   tool, amount, scope, ticker count, caller and expiry. Editing the amount or the
   recipient in the echo is rejected, and the nonce is burned in a replay ledger
