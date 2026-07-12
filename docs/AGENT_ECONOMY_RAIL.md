@@ -52,6 +52,9 @@ reconcile, nothing to dispute, and nothing for a human to ask about later.
 | we cannot confirm the data was paid-tier | **nothing** |
 | the payment itself fails to complete | **nothing** |
 
+If our own infrastructure dies mid-payment, a sweep releases the hold within
+minutes — it never rots on your card waiting for Stripe's 7-day expiry.
+
 The uncertain case resolves in **your** favour by construction: if we cannot
 *prove* you received paid data, we do not capture. The worst outcome is that we
 serve data we failed to bill for — our loss, not yours. It is deliberately
@@ -139,6 +142,7 @@ Base host: **`https://api.valuein.biz`**. Data + tools: **`https://mcp.valuein.b
 |---|---|---|
 | **Discover the rail** | `GET /api/mpp/well-known` | Unauthenticated. Returns the `mpp.dev` protocol version, `spt_enabled` / `crypto_enabled`, and the live `supported_networks`. Start here. |
 | **⭐ Pay-per-call (canonical MPP)** | `POST /api/mpp/call` | **Use this.** Standard MPP: unpaid → `402` + `WWW-Authenticate: Payment …`; pay and **retry the same URL** with `Authorization: Payment <credential>` → `200` with the tool result **inline**. Guest-capable. Works with any MPP client, including `link-cli mpp pay`. |
+| **Receipt — "did I pay?"** | `GET /api/mpp/receipt?nonce=…` | Unauthenticated (the nonce is your secret). Answers `charged` (with the charge id), `not_charged` (with the reason), or `404` = you were not charged. Use it when a response is lost — do not guess, and do not retry a burned challenge. |
 | **Paywall signal (MCP tools)** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with `remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
 | **Quote (our 2-step rail, guest-OK)** | `GET /api/mpp/quote?tool=…&tier=pro\|full` | Returns `{ amount_usd, amount_usdc, nonce, accept[], expires_at, … }`. Amounts in **dollars**. No `quote_id` — correlate by `nonce`. |
 | **Pay (our 2-step rail)** | `POST /api/mpp/charge` | Auth **is** the base64url `Payment:` header (guest-capable). Returns a `retry_token` you then present to the MCP. |

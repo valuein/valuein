@@ -189,6 +189,20 @@ You never have to guess whether you were charged:
   explicitly ("You were not charged — …"). Retry when you can; there is nothing to
   reconcile and nothing to dispute.
 
+**Lost the response?** Ask:
+
+```
+GET https://api.valuein.biz/api/mpp/receipt?nonce=<the id from your challenge>
+
+→ {"status":"charged",     "amount_usd":0.5, "charge_id":"ch_…"}
+→ {"status":"not_charged", "reason":"…"}
+→ 404  — no record. You were not charged.
+```
+
+Never guess whether you paid. A dropped connection after payment is the one case
+where retrying would mislead you (the challenge is single-use, so the retry is
+rejected and looks like a failure) — so just ask.
+
 There is no outcome where money left your card and you have no data.
 
 ### Flow B — our two-step rail (quote → charge → retry the MCP)
