@@ -65,10 +65,20 @@ def load_manifest() -> dict:
 def update_server_json(manifest: dict) -> Tuple[str, str]:
     """Return (current_text, target_text) for server.json.
 
-    Surgical replacement of the four `tools_summary` integer fields only —
-    JSON round-tripping would reformat unrelated short arrays. Does NOT
-    auto-modify `version`; version bumps are a deliberate human decision
-    (they trigger registry republish). Drift is surfaced as a warning.
+    Surgical string replacement of the four `tools_summary` integer fields AND
+    the top-level `version` — never a JSON round-trip, which would reformat
+    unrelated short arrays.
+
+    On `version`: this reads the LIVE Worker manifest (mcp.valuein.biz), and this
+    sync is fired by the MCP's deploy workflow AFTER a successful prod deploy — so
+    at the moment it runs, the Worker is ALREADY live at this version. Writing it
+    into server.json is therefore documenting what is already shipped, which is
+    exactly when the public repo is supposed to move. (It previously left version
+    alone and only WARNED — and the registry drifted five versions behind the live
+    Worker as a result. A warning nobody reads is not a sync.)
+
+    The republish-to-registry that a version bump triggers reflects reality, not a
+    speculative claim, precisely because the deploy already happened upstream.
     """
     current_text = SERVER_JSON.read_text()
     counts = manifest["counts"]
@@ -88,6 +98,17 @@ def update_server_json(manifest: dict) -> Tuple[str, str]:
                 f'server.json: could not find tools_summary field "{field}"'
             )
         target_text = pattern.sub(rf"\g<1>{value}", target_text, count=1)
+
+    # Top-level version → the live Worker's. Anchored to the FIRST `"version"`
+    # (server.json's own), not a nested one inside packages[]/remotes[].
+    deployed_version = manifest["version"]
+    version_pattern = re.compile(r'("version"\s*:\s*")([^"]+)(")')
+    if not version_pattern.search(target_text):
+        raise RuntimeError('server.json: could not find a top-level "version" field')
+    target_text = version_pattern.sub(
+        rf"\g<1>{deployed_version}\g<3>", target_text, count=1
+    )
+
     return current_text, target_text
 
 
@@ -173,40 +194,33 @@ def main() -> int:
     server_current, server_target = update_server_json(manifest)
     readme_current, readme_target = update_readme(manifest)
 
-    # ── Version drift is a FAILURE, not a warning ────────────────────────────
+    # ── Version now AUTO-SYNCS, and drift is still a FAILURE in --check ───────
     #
-    # This used to print "⚠ version drift" and carry on. The nightly job then
-    # printed that line into a log nobody reads — every night — while the public
-    # registry advertised **v2.48.0 and the live Worker ran v2.53.0**. Five
-    # versions. The check saw it every single night and never once stopped
-    # anything.
+    # History: this used to leave `version` alone and print "⚠ version drift",
+    # then carry on. The nightly job printed that line into a log nobody reads —
+    # every night — while the public registry advertised v2.48.0 and the live
+    # Worker ran v2.53.0. Five versions. The check saw it nightly and stopped
+    # nothing.
     #
-    # A warning is not a gate. And this is not a cosmetic mismatch: `server.json`
-    # is what registry.modelcontextprotocol.io serves to every agent deciding
-    # whether to connect to us. A registry that describes a server we are not
-    # running is a claim about our own product that is false — which is exactly
-    # the trust we tell institutions never to extend to a data vendor.
+    # `server.json` is what registry.modelcontextprotocol.io serves to every agent
+    # deciding whether to connect. A registry describing a server we are not
+    # running is a false claim about our own product — the trust we tell
+    # institutions never to extend to a vendor.
     #
-    # Version is still NOT auto-modified: bumping it triggers a republish to a
-    # public registry, and an outward-facing publish stays a human decision. But
-    # the drift now turns the build RED, so the human is asked instead of the
-    # warning being buried.
+    # Two changes fixed it, and they compose:
+    #   1. `update_server_json` now rewrites `version` too. This sync is FIRED BY
+    #      the MCP's deploy workflow after a successful PROD deploy, so the Worker
+    #      is already live at this version — writing it is documenting what shipped,
+    #      not a speculative bump. In sync mode it is written + committed like any
+    #      other field, and the version bump republishes to the registry (which now
+    #      matches reality).
+    #   2. `--check` (the nightly + CI backstop) still returns non-zero on ANY
+    #      drift, so if the auto-sync ever fails to fire — a missing secret, a
+    #      dropped dispatch — a human is told LOUDLY instead of the warning being
+    #      buried again.
     deployed_version = manifest["version"]
     registry_version = json.loads(server_current).get("version")
-    version_drift = registry_version != deployed_version
-    if version_drift:
-        print(
-            f"\n✗ VERSION DRIFT — the public registry is lying about what is running.\n"
-            f"    server.json (published to the registry) : {registry_version}\n"
-            f"    live Worker (mcp.valuein.biz)           : {deployed_version}\n"
-            f"\n"
-            f"  Fix whichever is behind:\n"
-            f"    • Worker behind  → deploy the MCP.\n"
-            f"    • server.json behind → set version to {deployed_version} and push;\n"
-            f"      publish-mcp.yml republishes to the registry.\n"
-            f"    Do the deploy FIRST — the public repo documents what is ALREADY\n"
-            f"    shipped, and updating it early is a silent lie to the public."
-        )
+    version_behind = registry_version != deployed_version
 
     drift: list[str] = []
     if server_current != server_target:
@@ -216,11 +230,13 @@ def main() -> int:
 
     if check_mode:
         if drift:
+            if version_behind:
+                print(
+                    f"\n✗ VERSION DRIFT — server.json={registry_version}, "
+                    f"live Worker={deployed_version}."
+                )
             print(f"\n✗ stale: {', '.join(drift)}")
             print("  run: uv run python scripts/sync_mcp_manifest.py")
-            return 1
-        # A version mismatch is stale-ness too, even when every count agrees.
-        if version_drift:
             return 1
         print("\n✓ in sync")
         return 0
@@ -228,17 +244,11 @@ def main() -> int:
     if drift:
         SERVER_JSON.write_text(server_target)
         README.write_text(readme_target)
-        print(f"\n✓ updated: {', '.join(drift)}")
-    else:
-        print("\n✓ counts already in sync — no changes")
+        note = f" (version {registry_version}→{deployed_version})" if version_behind else ""
+        print(f"\n✓ updated: {', '.join(drift)}{note}")
+        return 0
 
-    # Counts can be perfectly in sync while the version is five releases behind —
-    # that is exactly how this drifted unnoticed. Fail AFTER writing the count
-    # fixes (they are correct and worth keeping) so the job is red until a human
-    # resolves the version, rather than green with a buried warning.
-    if version_drift:
-        return 1
-
+    print("\n✓ already in sync — no changes")
     return 0
 
 
