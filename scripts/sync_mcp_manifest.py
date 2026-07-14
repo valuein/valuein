@@ -173,15 +173,39 @@ def main() -> int:
     server_current, server_target = update_server_json(manifest)
     readme_current, readme_target = update_readme(manifest)
 
-    # Surface version drift as a warning rather than auto-modify — version
-    # bumps are intentional human decisions tied to registry republish.
+    # ── Version drift is a FAILURE, not a warning ────────────────────────────
+    #
+    # This used to print "⚠ version drift" and carry on. The nightly job then
+    # printed that line into a log nobody reads — every night — while the public
+    # registry advertised **v2.48.0 and the live Worker ran v2.53.0**. Five
+    # versions. The check saw it every single night and never once stopped
+    # anything.
+    #
+    # A warning is not a gate. And this is not a cosmetic mismatch: `server.json`
+    # is what registry.modelcontextprotocol.io serves to every agent deciding
+    # whether to connect to us. A registry that describes a server we are not
+    # running is a claim about our own product that is false — which is exactly
+    # the trust we tell institutions never to extend to a data vendor.
+    #
+    # Version is still NOT auto-modified: bumping it triggers a republish to a
+    # public registry, and an outward-facing publish stays a human decision. But
+    # the drift now turns the build RED, so the human is asked instead of the
+    # warning being buried.
     deployed_version = manifest["version"]
     registry_version = json.loads(server_current).get("version")
-    if registry_version != deployed_version:
+    version_drift = registry_version != deployed_version
+    if version_drift:
         print(
-            f"  ⚠ version drift: server.json={registry_version} "
-            f"vs deployed worker={deployed_version}. "
-            f"Either deploy the worker or edit server.json version manually."
+            f"\n✗ VERSION DRIFT — the public registry is lying about what is running.\n"
+            f"    server.json (published to the registry) : {registry_version}\n"
+            f"    live Worker (mcp.valuein.biz)           : {deployed_version}\n"
+            f"\n"
+            f"  Fix whichever is behind:\n"
+            f"    • Worker behind  → deploy the MCP.\n"
+            f"    • server.json behind → set version to {deployed_version} and push;\n"
+            f"      publish-mcp.yml republishes to the registry.\n"
+            f"    Do the deploy FIRST — the public repo documents what is ALREADY\n"
+            f"    shipped, and updating it early is a silent lie to the public."
         )
 
     drift: list[str] = []
@@ -195,16 +219,26 @@ def main() -> int:
             print(f"\n✗ stale: {', '.join(drift)}")
             print("  run: uv run python scripts/sync_mcp_manifest.py")
             return 1
+        # A version mismatch is stale-ness too, even when every count agrees.
+        if version_drift:
+            return 1
         print("\n✓ in sync")
         return 0
 
-    if not drift:
-        print("\n✓ already in sync — no changes")
-        return 0
+    if drift:
+        SERVER_JSON.write_text(server_target)
+        README.write_text(readme_target)
+        print(f"\n✓ updated: {', '.join(drift)}")
+    else:
+        print("\n✓ counts already in sync — no changes")
 
-    SERVER_JSON.write_text(server_target)
-    README.write_text(readme_target)
-    print(f"\n✓ updated: {', '.join(drift)}")
+    # Counts can be perfectly in sync while the version is five releases behind —
+    # that is exactly how this drifted unnoticed. Fail AFTER writing the count
+    # fixes (they are correct and worth keeping) so the job is red until a human
+    # resolves the version, rather than green with a buried warning.
+    if version_drift:
+        return 1
+
     return 0
 
 
