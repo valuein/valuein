@@ -141,7 +141,8 @@ Base host: **`https://api.valuein.biz`**. Data + tools: **`https://mcp.valuein.b
 | Purpose | Endpoint | Notes |
 |---|---|---|
 | **Discover the rail** | `GET /api/mpp/well-known` | Unauthenticated. Returns the `mpp.dev` protocol version, `spt_enabled` / `crypto_enabled`, and the live `supported_networks`. Start here. |
-| **⭐ Pay-per-call (canonical MPP)** | `POST /api/mpp/call` | **Use this.** Standard MPP: unpaid → `402` + `WWW-Authenticate: Payment …`; pay and **retry the same URL** with `Authorization: Payment <credential>` → `200` with the tool result **inline**. Guest-capable. Works with any MPP client, including `link-cli mpp pay`. |
+| **⭐ Discover what you can buy** | `GET /api/mpp/tools` | Unauthenticated. The **payable menu**: every per-call tool with its price, meter, and unit, priced through the same path as the real `402`. Call it once and you know the whole rate card — no probing. Tools not listed are free (call the MCP directly) or subscription-only. |
+| **⭐ Pay-per-call (canonical MPP)** | `POST /api/mpp/call` | **Use this.** Standard MPP: unpaid → `402` + `WWW-Authenticate: Payment …`; pay and **retry the same URL** with `Authorization: Payment <credential>` → `200` with the tool result **inline**. Guest-capable. Works with any MPP client, including `link-cli mpp pay`. Body is `{"tool":…,"arguments":{…}}` (`args`/`params` accepted as aliases). Ask for a free or subscription-only tool and you get a precise, actionable error — not a lumped one. |
 | **Receipt — "did I pay?"** | `GET /api/mpp/receipt?nonce=…` | Unauthenticated (the nonce is your secret). Answers `charged` (with the charge id), `not_charged` (with the reason), or `404` = you were not charged. Use it when a response is lost — do not guess, and do not retry a burned challenge. |
 | **Paywall signal (MCP tools)** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with `remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
 | **Quote (our 2-step rail, guest-OK)** | `GET /api/mpp/quote?tool=…&tier=pro\|full` | Returns `{ amount_usd, amount_usdc, nonce, accept[], expires_at, … }`. Amounts in **dollars**. No `quote_id` — correlate by `nonce`. |
@@ -211,12 +212,19 @@ agent a payment token.
   from a tier above yours. Promotion is **upward only**, and the server probes
   that the higher tier actually holds the company **before** charging — it never
   charges for data it can't serve.
-- **Rates.** Unlocking the **full (Institutional)** tier or any **smart-money**
-  tool is **$5 per company**. A breadth unlock to the **pro** tier is the tool's
-  base rate (e.g. `get_company_fundamentals` ≈ $0.10). Every single charge is
-  floored to Stripe's **$0.50** minimum. The **authoritative** price always comes
-  from the pay endpoint (`amount_usd` / `amount_cents`), after plan caps — the
-  MCP's inline numbers are indicative.
+- **Rates — three clean price points, per company (or per call for scans):**
+
+  | What you're buying | Price | Tools |
+  |---|---|---|
+  | Discovery · fundamentals · analytics | **$0.50** | `search_companies`, `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_peer_comparables`, `get_earnings_signals`, … |
+  | Compute · document generation | **$2.50** | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` |
+  | Universe scans · smart-money (13F / insider) | **$5.00** | `screen_universe`, `get_pit_universe`, `get_insider_transactions`, `get_institutional_holdings`, `get_smart_money_flow`, … |
+
+  Every charge is floored to Stripe's **$0.50** minimum (so the cheap tools all
+  land at $0.50). The **authoritative, machine-readable** rate card is
+  `GET /api/mpp/tools`; the exact charge for a specific call is the pay
+  endpoint's `amount_usd`, after plan caps. Don't infer a price from anything
+  else — read one of those two.
 - **PAYG is the occasional-buyer premium** — an agent that transacts a lot is
   nudged toward a subscription; one that needs a single company once pays a fair
   per-call price and moves on.
