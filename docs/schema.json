@@ -383,11 +383,11 @@
         },
         "confidence_score": {
           "type": "DOUBLE",
-          "description": "Composite per-fact confidence in [0, 1], populated by data-pipeline/services/quality/confidence.py from the outputs of scripts/QA/qa_layer.sql (postgres repo). Formula: 0.4 * identity_pass_rate + 0.2 * source_agreement + 0.2 * is_audited + 0.1 * (1 - restatement_density) + 0.1 * age_decay. Consumers filter `confidence_score >= 0.95` for Bloomberg-grade rows."
+          "description": "Per-fact confidence in [0, 1] (v2, penalty-from-evidence), populated by data-pipeline/services/quality/confidence.py. Every fact starts at 1.0 and is docked only for evidence we can point at: confidence_score = 1.0 - 0.40*min(identity_violation_count/3, 1) - 0.20*min(restatement_count/5, 1) - 0.05*(NOT is_audited). No source_agreement term and NO recency/age term (removing the age term was the point: on a point-in-time, survivorship-free dataset an age penalty turned `>= 0.95` into a recency filter). Read it as: >= 0.95 = we hold no evidence against this fact (most rows, all years); ~0.80 = a later filing revised it (see /radar); < 0.60 = an accounting identity FAILED on this filing. Every input (identity_violation_count, restatement_count, is_audited) ships beside it so a customer can recompute the score."
         },
         "reliability_code": {
           "type": "TINYINT",
-          "description": "Discrete reliability bucket (1-4) for Bloomberg PR / Refinitiv vendor parity: 1=preliminary (errors present), 2=announced (clean, unaudited), 3=audited (audited + clean), 4=restated (audited + clean + multiple versions on file)."
+          "description": "Discrete reliability bucket (1-4) for Bloomberg PR / Refinitiv vendor parity: 1=preliminary (errors present), 2=announced (clean, unaudited), 3=audited (audited + clean), 4=restated (audited + clean + multiple versions on file). NOMINAL, not ordinal: 4 (restated) is not \"better\" than 3 (audited, clean), so `WHERE reliability_code >= 3` silently includes restated facts. To rank by quality, order by confidence_score instead."
         },
         "identity_violation_count": {
           "type": "SMALLINT",
@@ -771,7 +771,7 @@
         },
         "confidence_score": {
           "type": "DOUBLE",
-          "description": "Entity-period data quality: average fact.confidence_score of the facts feeding this period. Filter Bloomberg-grade with >= 0.95. NULL for cross-sectional rank rows (e.g. *_sector_pctile)."
+          "description": "Entity-period data quality: average fact.confidence_score (v2, penalty-from-evidence) of the facts feeding this period. >= 0.95 means we hold no evidence against these facts (no failed accounting identity, no restatement); values fall only when a later filing revised a number (~0.80) or an accounting identity failed (< 0.60). NULL for cross-sectional rank rows (e.g. *_sector_pctile)."
         },
         "unit": {
           "type": "VARCHAR",
