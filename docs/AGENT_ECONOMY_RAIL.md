@@ -217,14 +217,17 @@ agent a payment token.
   | What you're buying | Price | Tools |
   |---|---|---|
   | Discovery · fundamentals · analytics | **$0.50** | `search_companies`, `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_peer_comparables`, `get_earnings_signals`, … |
-  | Compute · document generation | **$2.50** | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` |
+  | Compute · document generation | **$2.50** | `compute_dcf`, `compute_lbo`, `compute_accretion_dilution`, `project_three_statement`, `forensic_audit`, `generate_dcf_xlsx`, `generate_lbo_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` |
   | Universe scans · smart-money (13F / insider) | **$5.00** | `screen_universe`, `get_pit_universe`, `get_insider_transactions`, `get_institutional_holdings`, `get_smart_money_flow`, … |
 
   Every charge is floored to Stripe's **$0.50** minimum (so the cheap tools all
-  land at $0.50). The **authoritative, machine-readable** rate card is
-  `GET /api/mpp/tools`; the exact charge for a specific call is the pay
-  endpoint's `amount_usd`, after plan caps. Don't infer a price from anything
-  else — read one of those two.
+  land at $0.50 for a single company). Batching is cheaper per company: the
+  menu's `rate_usd` is the true marginal rate (fundamentals: $0.10/company —
+  50 companies' fundamentals cost $5, not $25) and `min_charge_usd` is the
+  floor; the charge is always `max(min_charge, rate × companies)`. The
+  **authoritative, machine-readable** rate card is `GET /api/mpp/tools`; the
+  exact charge for a specific call is the 402's `amount_usd`, stated **before**
+  you pay. Don't infer a price from anything else — read one of those two.
 - **PAYG is the occasional-buyer premium** — an agent that transacts a lot is
   nudged toward a subscription; one that needs a single company once pays a fair
   per-call price and moves on.
