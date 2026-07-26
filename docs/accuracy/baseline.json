@@ -2,7 +2,7 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-07-26T05:23:46Z",
+  "measured_at": "2026-07-26T20:14:03Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
@@ -22,35 +22,39 @@
     "overall": {
       "filings": 10990,
       "filings_in_universe": 19478,
-      "clean_filings": 8801,
-      "filings_with_errors": 2189,
-      "accuracy_pct": 80.08
+      "clean_filings": 10551,
+      "filings_with_errors": 439,
+      "accuracy_pct": 96.01
     },
     "by_era": {
       "modern_2010_onward": {
         "filings": 10719,
         "filings_in_universe": 11338,
-        "clean_filings": 8555,
-        "filings_with_errors": 2164,
-        "accuracy_pct": 79.81
+        "clean_filings": 10283,
+        "filings_with_errors": 436,
+        "accuracy_pct": 95.93
       },
       "legacy_pre_2010": {
         "filings": 271,
         "filings_in_universe": 8140,
-        "clean_filings": 246,
-        "filings_with_errors": 25,
-        "accuracy_pct": 90.77,
+        "clean_filings": 268,
+        "filings_with_errors": 3,
+        "accuracy_pct": 98.89,
         "_note": "Pre-2010 XBRL was optional, so most pre-2010 filings carry no facts. They are now EXCLUDED from this denominator (filings vs filings_in_universe shows how many); previously they were counted as passes, which inflated the legacy and overall figures."
       }
     },
     "top_remaining_pareto": [
       {
-        "identity_key": "is_10_comprehensive_income",
-        "filings_failed": 3181
-      },
-      {
         "identity_key": "bs_07_ppe_net",
         "filings_failed": 439
+      },
+      {
+        "identity_key": "is_10_comprehensive_income",
+        "filings_failed": 100
+      },
+      {
+        "identity_key": "is_11_comprehensive_income_consolidated",
+        "filings_failed": 92
       },
       {
         "identity_key": "is_01_gross_profit",
@@ -80,10 +84,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 40732504,
-    "correctly_unstandardized": 23471443,
+    "facts_with_standard_concept_other": 40753816,
+    "correctly_unstandardized": 23492755,
     "mapping_gaps": 17261061,
-    "accuracy_pct": 57.62
+    "accuracy_pct": 57.65
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
