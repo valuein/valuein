@@ -1,19 +1,59 @@
 name: Publish to MCP Registry
 
 on:
+  # Human path: a hand-authored server.json change merged to main.
   push:
     branches: [main]
     paths: ['server.json']
+
+  # Operator path: republish on demand.
   workflow_dispatch:
+
+  # Bot path: called directly by sync-mcp-manifest.yml.
+  #
+  # This is NOT redundant with the `push` trigger above.  GitHub deliberately
+  # does not start workflow runs from commits pushed with the default
+  # GITHUB_TOKEN (loop protection), and the sync workflow commits server.json
+  # with exactly that token.  So the sync's commit touches server.json and
+  # `push` above never fires.  That is how the public registry sat at 2.54.0
+  # while prod served 2.61.0 — server.json in the repo was correct the whole
+  # time, which is why inspecting the repo gave a false all-clear.
+  workflow_call:
+    inputs:
+      ref:
+        description: >-
+          Commit SHA to check out and publish.  The caller passes the SHA it
+          just pushed: with no ref, actions/checkout resolves to github.sha —
+          main as it stood when the CALLER was triggered, i.e. before the sync
+          commit existed — and this job would publish the pre-sync server.json.
+          Empty on push / workflow_dispatch, where checkout's default is
+          already the right commit.
+        type: string
+        required: false
+        default: ''
+
+# Registry versions are immutable: a second publish of an already-published
+# version is rejected, not ignored.  Serialise so two runs can never race on
+# the same version.
+concurrency:
+  group: publish-mcp-registry
+  cancel-in-progress: false
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # A workflow_call caller cannot have these inherited implicitly — the
+    # caller job must grant them, and a called workflow can only maintain or
+    # REDUCE what it was granted, never elevate.  See the `publish` job in
+    # sync-mcp-manifest.yml, which declares the identical pair.
     permissions:
-      id-token: write
-      contents: read
+      id-token: write   # mcp-publisher login github-oidc
+      contents: read    # actions/checkout
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Empty string on push / workflow_dispatch → checkout's own default.
+          ref: ${{ inputs.ref }}
 
       - uses: astral-sh/setup-uv@v8.2.0
 

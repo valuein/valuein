@@ -9,8 +9,24 @@ name: Sync MCP manifest
 #   - repository_dispatch type=mcp-manifest-updated (fired from the mcp repo
 #     after it commits a new manifest.json, for near-real-time sync)
 #
-# If anything diff'd, commit + push to main. Touching server.json then
-# triggers publish-mcp.yml to republish to registry.modelcontextprotocol.io.
+# If anything diff'd, commit + push to main, then CALL publish-mcp.yml directly
+# to republish to registry.modelcontextprotocol.io.
+#
+# The direct call is load-bearing, not a convenience. publish-mcp.yml also
+# triggers on `push` to server.json, and it is tempting to assume this job's
+# commit satisfies that. It does not: GitHub deliberately does not start
+# workflow runs from commits pushed with the default GITHUB_TOKEN (infinite-loop
+# protection), and that is the token this job pushes with. So the commit lands,
+# server.json is correct in the repo, and NOTHING republishes.
+#
+# That is exactly what happened: the public registry advertised 2.54.0
+# (2026-07-15) while prod served 2.60.1 and then 2.61.0, and it took a manual
+# workflow_dispatch to clear. Because server.json in the repo was correct the
+# whole time, reading the repo gave a false all-clear — the drift was only
+# visible by comparing the live registry against the live Worker.
+#
+# The alternative fix is pushing with a PAT (which DOES trigger workflows), but
+# that adds a long-lived credential to rotate. workflow_call needs none.
 
 on:
   schedule:
@@ -24,6 +40,12 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      # 'true' ONLY after a commit was successfully pushed to main.
+      changed: ${{ steps.commit.outputs.changed }}
+      # The SHA that was pushed — handed to publish-mcp.yml so it checks out
+      # the synced commit rather than pre-sync main.
+      sha: ${{ steps.commit.outputs.sha }}
     steps:
       - uses: actions/checkout@v7
 
@@ -35,10 +57,12 @@ jobs:
           MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
 
       - name: Commit + push if diff
+        id: commit
         run: |
           set -euo pipefail
           if git diff --quiet; then
             echo "✓ already in sync — nothing to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           git config user.name "github-actions[bot]"
@@ -46,3 +70,26 @@ jobs:
           git add server.json README.md
           git commit -m "chore: sync MCP manifest (server.json + README counts)"
           git push
+          # Written only AFTER a successful push. If the push is rejected
+          # (someone merged to main mid-run), this step fails and the publish
+          # job never runs against a commit that is not on main.
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # Republish to the MCP registry — see the header comment for why this cannot
+  # rely on publish-mcp.yml's own `push` trigger.
+  publish:
+    needs: sync
+    if: needs.sync.outputs.changed == 'true'
+    # A reusable workflow can only maintain or REDUCE the permissions its
+    # caller grants — it can never elevate them. publish-mcp.yml needs
+    # id-token:write (GitHub OIDC login for mcp-publisher) and contents:read
+    # (checkout), so this job must grant both explicitly. Omitting this block
+    # would leave the publish job without an OIDC token and it would fail at
+    # `mcp-publisher login github-oidc`.
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/publish-mcp.yml
+    with:
+      ref: ${{ needs.sync.outputs.sha }}
