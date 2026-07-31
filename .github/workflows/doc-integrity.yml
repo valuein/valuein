@@ -30,18 +30,47 @@ jobs:
       - name: (a) IP-leak gate — no proprietary signals in public docs
         run: |
           set -uo pipefail
-          PATTERN='factor_scores|earnings_signals|composite_rank|eps_trend_est'
-          FILES="docs/schema.json README.md docs/MCP_TOOLS.md"
-          echo "Scanning: $FILES"
-          if grep -rnE "$PATTERN" $FILES; then
+          # `(?<!get_)` is load-bearing. `get_earnings_signals` is a PUBLISHED
+          # MCP tool name that appears legitimately in AGENTS.md,
+          # docs/AGENT_ECONOMY_RAIL.md and docs/WORKSPACE_GUIDE.md. The
+          # proprietary thing is the derived TABLE, not the tool that serves a
+          # slice of it. Matching the bare substring would fail the build on
+          # correct, already-published content — and a gate that cries wolf is
+          # a gate someone disables.
+          PATTERN='(?<!get_)(factor_scores|earnings_signals|composite_rank|eps_trend_est)'
+
+          # Scan EVERY tracked file, not a hardcoded list.
+          #
+          # This gate used to name three paths (docs/schema.json, README.md,
+          # docs/MCP_TOOLS.md). That made it useless against the way a leak
+          # actually happens: someone adds a NEW public doc or example. A draft
+          # of docs/SDK_USE_CASES.md featured composite_rank, and this workflow
+          # would have gone GREEN on it — the file simply was not in the list.
+          # An allowlist gate on a repo whose whole purpose is publishing new
+          # documents is a gate that gets weaker every time the repo grows.
+          #
+          # Excluded: this workflow itself (it must contain the pattern to test
+          # for it) and .git. Binary files are skipped by grep -I. Lines that
+          # merely QUOTE the denylist while documenting this gate (AGENTS.md,
+          # CLAUDE.md) are dropped by the second filter — they are a
+          # description of the rule, not a leak of the thing it protects.
+          echo "Scanning every tracked file (excluding this workflow)"
+          HITS=$(git ls-files -z \
+            | grep -zZv '^\.github/workflows/doc-integrity\.yml$' \
+            | xargs -0 grep -InP "$PATTERN" 2>/dev/null \
+            | grep -vF 'factor_scores|earnings_signals|composite_rank|eps_trend_est' \
+            || true)
+
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
             echo ""
             echo "::error::IP-leak gate FAILED — proprietary derived-signal names"
-            echo "::error::found in public docs. Scrub them (see VA26). Do NOT"
+            echo "::error::found in public files. Scrub them (see VA26). Do NOT"
             echo "::error::regenerate docs/schema.json from parquet_schema.py"
             echo "::error::until an upstream denylist exists."
             exit 1
           fi
-          echo "✓ IP-leak gate passed (0 hits)"
+          echo "✓ IP-leak gate passed (0 hits across $(git ls-files | wc -l) tracked files)"
 
       - name: (b) Accuracy-drift gate — README/docs match baseline.json
         run: |

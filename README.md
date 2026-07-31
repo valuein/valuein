@@ -514,6 +514,7 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 | [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization, valuation models |
 | [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — measured source of truth is [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json) (current snapshot: see baseline.json for the latest figure on modern-era ≥2010 S&P 500 FY filings), citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
 | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | 20 copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
+| [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md) | The 10 most common SDK use cases, easiest → advanced — every example executed on the free tier with its **real captured output** |
 | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — parameters, tier gates, examples |
 | [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |
 | [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | Same catalog as a workbook — columns, types, sample values |
