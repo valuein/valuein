@@ -73,10 +73,14 @@ uv run python scripts/generate_catalog.py
 # Run from repo root — outputs to docs/data_catalog.md, data_catalog.json, DATA_CATALOG.xlsx
 
 # Publish the MCP server manifest to registry.modelcontextprotocol.io
-# This is automated: any push to main that changes server.json triggers .github/workflows/publish-mcp.yml
-# To trigger manually: bump "version" in server.json, commit, push main
-# server.json is also kept in lockstep with the mcp repo manifest by sync-mcp-manifest.yml
-# (nightly cron + repository_dispatch [mcp-manifest-updated]); its commits then trigger publish-mcp.yml
+# FULLY AUTOMATIC — there is nothing to do here by hand, and no approval step.
+# A prod deploy of the Worker dispatches [mcp-manifest-updated] to this repo;
+# sync-mcp-manifest.yml rewrites server.json + README counts from the LIVE
+# manifest, commits, and republishes. Nightly cron is the backstop if the
+# dispatch is ever missed. See "MCP registry publishing" below.
+#
+# Check what the registry is actually serving (never needed, but never lies):
+uv run python scripts/check_registry_sync.py
 
 # Open a Jupyter notebook
 uv run jupyter lab examples/notebooks/quickstart.ipynb
@@ -114,15 +118,31 @@ Publishing flow (`.github/workflows/publish-mcp.yml`):
 5. **Verifies the registry actually serves the published version** — a `publish`
    that exits 0 only means the API accepted the request
 
-Version bumps in `server.json` should match the Worker's deployed version in
-`~/WebstormProjects/mcp`. Bumping here without shipping the corresponding Worker change is a
-silent lie to the registry.
+### This propagates automatically. There is no approval step.
 
-**In practice you should never bump `server.json` by hand.** A prod deploy of the
-Worker dispatches `mcp-manifest-updated` here, `sync-mcp-manifest.yml` rewrites
-`server.json` + the README counts from the live manifest, commits, and republishes.
-Hand-editing races that bot, and registry versions are immutable — whichever
-publish loses the race fails on an already-published version.
+**A new version in MCP production updates this repo on its own — by design, and with
+no human in the loop.** The `push`-to-`main` trigger above is a fallback, not the
+normal path. The normal path is:
+
+```
+mcp prod deploy succeeds
+  → dispatches [mcp-manifest-updated] to this repo
+  → sync-mcp-manifest.yml rewrites server.json + README counts from the LIVE manifest
+  → commits to main
+  → publishes to registry.modelcontextprotocol.io
+  → verifies the registry actually serves it
+```
+
+Nightly cron (03:00 UTC) is the backstop if a dispatch is ever missed, and the publish
+is gated on the registry being stale rather than on a repo diff, so a failed publish
+retries itself the next night instead of stranding.
+
+**Never bump `server.json` by hand, and never gate this on a review.** Hand-editing
+races the bot, and registry versions are immutable — whichever publish loses the race
+fails on an already-published version. The version here must match the Worker's
+deployed version; bumping it ahead of a shipped Worker change is a silent lie to the
+registry, which is exactly why a machine reading the live manifest does it and a
+person does not.
 
 ### Drift is measured against the registry, never against this repo
 
