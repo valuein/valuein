@@ -104,3 +104,22 @@ jobs:
 
       - name: Publish
         run: mcp-publisher publish ./server.json
+
+      # Close the loop: assert the registry actually serves what we just sent.
+      #
+      # `mcp-publisher publish` exiting 0 means the API accepted the request,
+      # which is not the same as the catalog answering with the new version.
+      # Without this step a publish that half-lands is indistinguishable from
+      # one that worked, and the next nightly run would find server.json
+      # already correct and skip — which is how a stale registry survives.
+      #
+      # Compared against the version in server.json (`--expect server.json`),
+      # NOT against the live Worker. Those differ for a few minutes whenever a
+      # newer Worker deploys while a publish is in flight; failing this job for
+      # that would be a red build reporting a race nobody needs to act on. The
+      # nightly gate is what watches Worker-vs-registry drift.
+      #
+      # --wait-for tolerates propagation lag: a mismatch inside the window is
+      # not yet a failure, only a not-yet.
+      - name: Verify the registry serves the published version
+        run: uv run python scripts/check_registry_sync.py --check --expect server.json --wait-for 180

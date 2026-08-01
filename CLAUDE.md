@@ -19,7 +19,10 @@ Valuein. It is the landing page a prospective user hits from PyPI, Smithery, or 
 - `scripts/generate_catalog.py` — generator that writes `docs/data_catalog.md`, `data_catalog.json`,
   and updates `DATA_CATALOG.xlsx` from canonical concepts defined inline in the script
   (current output: `concept_count=292`, `ratio_count=164` — 77 FY+TTM, 87 annual-only)
-- `server.json` — MCP server manifest for registry.modelcontextprotocol.io (v2.45.1 — must match the deployed Worker)
+- `server.json` — MCP server manifest for registry.modelcontextprotocol.io. Version and tool
+  counts are written by `sync-mcp-manifest.yml` from the live Worker — never hand-edited, and
+  deliberately not restated here, since a number copied into prose is a number that goes stale
+  (this line used to claim v2.45.1 long after prod had moved on)
 - `.github/workflows/` — `publish-mcp.yml` (registry publish), `sync-mcp-manifest.yml`
   (nightly + `repository_dispatch` sync of `server.json` + README from the `mcp` repo manifest),
   `doc-integrity.yml` (CI gate: IP-leak + accuracy-drift, on every push/PR)
@@ -39,7 +42,7 @@ exists — SDK and MCP are now standalone repos.
 | If you're asked to… | Go to |
 |---|---|
 | Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/sdk` → `valuein_sdk/` |
-| Modify the MCP Worker code (`mcp.valuein.biz`, 95 live tools — incl. free publish/unpublish parity for reports + theses + claims; 3 paid report-marketplace tools stay hidden until launch — 28 agentic SOPs, 3 resources, auth) | `~/WebstormProjects/mcp` |
+| Modify the MCP Worker code (`mcp.valuein.biz` — tools, SOPs, resources, auth; free publish/unpublish parity for reports + theses + claims, with the 3 paid report-marketplace tools hidden until launch). Live counts: `curl -s https://mcp.valuein.biz/manifest.json \| jq .tools_summary` | `~/WebstormProjects/mcp` |
 | Change what `fact.standard_concept` values exist, or add a concept | `~/PycharmProjects/data-pipeline` → `services/accounting/definitions.py` (`STANDARD_DEFINITIONS`), **then** re-run `scripts/generate_catalog.py` here |
 | Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py` + `parquet_schema.py`; then propagate to the SDK + MCP (both read the schema from the R2 manifest at runtime — the SDK no longer bundles `schema.json` since v3.2.0), `cloudflare/edge-gateway` (validates tables dynamically from the manifest), and regenerate `docs/schema.json` here last |
 | Change token schema, gateway routing, Stripe webhook, agent-pay | `~/WebstormProjects/cloudflare` |
@@ -108,10 +111,39 @@ Publishing flow (`.github/workflows/publish-mcp.yml`):
 2. Installs the `mcp-publisher` binary from the official release
 3. `mcp-publisher login github` uses the workflow's OIDC `id-token: write` to authenticate
 4. `mcp-publisher publish ./server.json` pushes to registry.modelcontextprotocol.io
+5. **Verifies the registry actually serves the published version** — a `publish`
+   that exits 0 only means the API accepted the request
 
 Version bumps in `server.json` should match the Worker's deployed version in
 `~/WebstormProjects/mcp`. Bumping here without shipping the corresponding Worker change is a
 silent lie to the registry.
+
+**In practice you should never bump `server.json` by hand.** A prod deploy of the
+Worker dispatches `mcp-manifest-updated` here, `sync-mcp-manifest.yml` rewrites
+`server.json` + the README counts from the live manifest, commits, and republishes.
+Hand-editing races that bot, and registry versions are immutable — whichever
+publish loses the race fails on an already-published version.
+
+### Drift is measured against the registry, never against this repo
+
+`scripts/check_registry_sync.py` compares the **published registry** to the **live
+Worker**. Neither side is a file in this repo, and that is the point: every other
+guard (`sync_mcp_manifest.py --check` here, `check-version-sync.mjs` in the mcp
+repo) compares a file to the Worker, and all of them stay green while the registry
+advertises a version nobody is serving. That is not hypothetical — the registry sat
+at 2.54.0 while prod served 2.61.0, invisible because `server.json` was correct the
+whole time.
+
+```bash
+uv run python scripts/check_registry_sync.py            # report
+uv run python scripts/check_registry_sync.py --check    # exit 1 drift, 2 indeterminate
+```
+
+The publish job is gated on this check, **not** on a repo diff. Gating on a diff is
+only correct if no publish ever fails: once one does, `server.json` is already
+correct, so nothing diffs, so the publish is skipped — every night, forever, green.
+Asking the registry makes the nightly run self-healing. A registry outage reports
+`unknown` and falls back to the diff signal rather than publishing blind.
 
 ---
 
