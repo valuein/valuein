@@ -77,7 +77,7 @@ Valuein is MCP-first and agent-agnostic: the same typed tool surface works in Cl
 | **Fact-level lineage** | Every figure a tool returns carries a `fact_id` and its source filing; `verify_fact_lineage` round-trips any `fact_id` back to the exact SEC filing URL in one call. |
 | **Zero look-ahead** | Every time-series tool accepts `as_of_date` and reconstructs the information set as of that date — the same PIT discipline the Parquet layer enforces for backtests. |
 | **Reproducible runs** | Deterministic, idempotent tools: same inputs, same output. No rolling windows, no hidden "latest". Agents can cache, retry, and replay; you can reproduce a run later. |
-| **Agent-agnostic state** | Theses, claims, watchlists, alerts, and reports persist server-side across sessions *and across clients* — save a thesis from Claude today, list it from Cursor tomorrow. |
+| **Agent-agnostic state** | Theses, claims, watchlists, signals, and reports persist server-side across sessions *and across clients* — save a thesis from Claude today, list it from Cursor tomorrow. |
 | **Human-on-the-loop (HOTL)** | Mutating and outward-facing tool actions go through a staged-action approval ledger: the agent proposes, a human approves, and the decision lands in an immutable audit entry. Read-only tools never stage. |
 | **Governed managed runs** | Server-side managed agent runs execute at temperature 0 with a model allow-list and destructive-tool stripping — reproducible research, not improvisation. |
 | **Graded track records** | Saved theses and claims are scored against subsequent fundamentals and prices; publishing builds a public, verifiable track record — your agent keeps score. |
@@ -433,9 +433,9 @@ Research objects live server-side, keyed to your token — save from one AI clie
 | Family | Tools (representative) | What it does |
 |---|---|---|
 | Theses & claims | `save_thesis`, `save_claim`, `score_thesis_outcome`, `score_claim` | Time-stamped calls with provenance-bound claims, auto-graded against subsequent fundamentals **and prices** |
-| Watchlists & alerts | `save_watchlist`, `create_alert`, `list_alert_inbox` | Standing monitors on price moves, fundamental changes, and filings — delivered to email, webhook, dashboard inbox, or an `agent_run` that fires a standing agent team |
+| Watchlists & signals | `save_watchlist`, `create_signal`, `list_signal_inbox` | Standing monitors on price moves, fundamental changes, and filings — delivered to email, webhook, dashboard inbox, or an `agent_run` that fires a standing agent team |
 | Reports | `create_report`, `render_report`, `save_freeform_report` | Durable, versioned research artifacts with branded md/docx export |
-| Deferral & rules | `schedule_task`, `create_rule`, `test_rule` | "Re-check AAPL margins in 30 days" → a real scheduled re-run; trigger→action rules (alert fired, inbox item, task wake, schedule tick) |
+| Deferral & rules | `schedule_task`, `create_rule`, `test_rule` | "Re-check AAPL margins in 30 days" → a real scheduled re-run; trigger→action rules (signal fired, inbox item, task wake, schedule tick) |
 | Approvals (HOTL) | `stage_action`, `list_pending_approvals`, `approve_staged_action` | Mutating/destructive actions stage for human approval with an immutable audit entry |
 | Backtesting | `run_backtest`, `get_pit_valuation_ratios`, `get_price_history` | Bounded PIT factor grids and backtest-safe valuation multiples on any historical date |
 | Briefing | `get_morning_brief`, `list_agent_runs` | Read your daily brief and managed-run history from any MCP client |
