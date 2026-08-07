@@ -41,15 +41,15 @@ Five things live here, and they reinforce each other:
 
 | Building block | What it is | The job it does for you |
 |---|---|---|
-| **Chat** | BYO-LLM assistant with 95 SEC data tools + 28 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
+| **Chat** | BYO-LLM assistant with 118 SEC data tools + 30 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
 | **Watchlists** | Named ticker lists (≤500 tickers + a criteria note) | The universe everything else points at — coverage, portfolio, pipeline |
 | **Theses** | Time-stamped bull/bear/neutral calls (conviction 1–5, horizon) | Record what you thought *and when*; auto-graded against fundamentals |
-| **Alerts → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
+| **Signals → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
 | **Reports** | Editable research artifacts → shareable at `/r/[slug]` | Your deliverable + your public, SEO-indexed credibility |
 
 Plus four data channels behind **one Bearer token**: the in-app chat, the **MCP server** (Claude Desktop / Cursor / Codex), the **Python SDK**, and the **Bulk Data API**. Connect once, use everywhere.
 
-> **Mental model:** Watchlists define *what* you watch. Theses record *what you believe*. Alerts tell you *when something changed*. Chat + SOPs do *the analysis*. Reports are *what you ship*. Publishing reports builds *reputation*.
+> **Mental model:** Watchlists define *what* you watch. Theses record *what you believe*. Signals tell you *when something changed*. Chat + SOPs do *the analysis*. Reports are *what you ship*. Publishing reports builds *reputation*.
 
 ---
 
@@ -63,7 +63,7 @@ A checklist that takes you from zero to first real value. Tick these in order.
   > *"Give me a quick equity research brief on NVDA — fundamentals, valuation, and the one thing a skeptic would flag."*
   This invokes the `equity_research_brief` SOP at `quick` depth. You'll see cited, point-in-time data come back in ~30s.
 - [ ] **4. Create your first watchlist** (`/workspace/watchlists/new`). Paste 5–20 tickers you actually care about. Add a one-line criteria note (e.g. *"core coverage — quality compounders"*). This becomes the spine of your daily routine.
-- [ ] **5. Set one alert** (`/workspace/alerts/new`). Pick **Watchlist change** → your new watchlist → **Dashboard** channel. Now any 8-K/10-Q/10-K from those names lands in your Inbox. Hit **Test alert** to confirm it fires.
+- [ ] **5. Set one signal** (`/workspace/signals/new`). Pick **Watchlist change** → your new watchlist → **Dashboard** channel. Now any 8-K/10-Q/10-K from those names lands in your Inbox. Hit **Send test fire** to confirm it works.
 - [ ] **6. Record one thesis** (`/workspace/theses/new`). Take your highest-conviction name, set bull/bear/neutral, conviction, and horizon. This is the seed of your track record.
 - [ ] **7. Connect your desktop AI** (`/workspace/connect`). Copy the Claude Desktop / Cursor / Codex config (your token is pre-filled), paste it, restart the app, hit **Test connection**. Now Valuein is in the tool you already use all day.
 
@@ -84,7 +84,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 **One-time setup**
 - Watchlist **"Coverage"** — every name you cover (criteria: *"active coverage list"*).
 - Watchlist **"Earnings — this quarter"** — names reporting in the next ~6 weeks.
-- Alert: **Filing event** on Coverage tickers, form types `8-K, 10-Q, 10-K` → **Dashboard** (and **Email** for your top 5 names).
+- Signal: **Filing event** on Coverage tickers, form types `8-K, 10-Q, 10-K` → **Dashboard** (and **Email** for your top 5 names).
 - A **thesis** for each covered name so your view is on record and self-grades.
 
 **Daily (5–10 min)**
@@ -115,7 +115,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 **One-time setup**
 - Watchlist **"Portfolio"** — current positions (criteria: *"live book"*).
 - Watchlist **"Pipeline"** — researched candidates not yet sized.
-- Alerts: **Watchlist change** on Portfolio → Dashboard; plus **Ratio threshold** alerts on your levered names (e.g. `net_debt_to_ebitda > 4`, `interest_coverage < 2`) → Email.
+- Signals: **Watchlist change** on Portfolio → Dashboard; plus **Ratio threshold** signals on your levered names (e.g. `net_debt_to_ebitda > 4`, `interest_coverage < 2`) → Email.
 - A **thesis per position** with conviction + horizon — this *is* your book's memory.
 
 **Daily (5 min)**
@@ -215,9 +215,9 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **Price** | $0, no signup | $0, register | **$49/mo · $490/yr** | **$499/mo · $4,790/yr** | Custom |
 | **Universe** | S&P 500 | S&P 500 | **19,000+** | 19,000+ + foreign | Contract |
 | **History** | 5 yr | 1993→ | 15-yr rolling (2011→) | 1993→ | Contract |
-| **Workspace + 28 SOPs** | — | ✓ | ✓ | ✓ | ✓ |
+| **Workspace + 30 SOPs** | — | ✓ | ✓ | ✓ | ✓ |
 | **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
-| **Theses / Watchlists / Alerts / Reports** | — | ✓ | ✓ | ✓ | ✓ |
+| **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
 | **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
 | **DCF + forensic + DOCX/XLSX export** | — | — | — | ✓ | ✓ |
 | **Smart-money (insider + 13F + 13D/G)** | — | — | — | ✓ | ✓ |
@@ -230,7 +230,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 
 ## 6. Reference — the full toolkit
 
-### 28 SOPs (your ready-made playbooks)
+### 30 SOPs (your ready-made playbooks)
 
 **Flagships**
 - **`equity_research_brief`** — single-ticker institutional brief. Depth: `quick` / `full` / `forensic`.
@@ -251,7 +251,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 - **Screening:** `screen_universe`, `get_peer_comparables`, `get_pit_universe`, `get_compute_ready_stream`
 - **Valuation (Institutional):** `compute_dcf`, `forensic_audit`
 - **Smart money (Institutional):** `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`
-- **State (CRUD):** theses, watchlists, alerts, reports, inbox
+- **State (CRUD):** theses, watchlists, signals, reports, inbox
 - **Document generation (Institutional):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_research_brief_docx` (branded Word memo with citations), `generate_comps_xlsx` (peer comps table), `render_report` (Markdown/DOCX download)
 
 ### Connect once, use everywhere (`/workspace/connect`)
@@ -273,7 +273,7 @@ You'll know the Workspace is delivering when, by end of week one, you have:
 
 - [ ] A connected LLM key and your desktop AI wired to the MCP
 - [ ] At least one **watchlist** that mirrors your real attention
-- [ ] At least one **alert** firing into your Inbox
+- [ ] At least one **signal** firing into your Inbox
 - [ ] At least one **thesis** on record (so your track record has started)
 - [ ] One **research brief** run end-to-end and saved as a Report
 - [ ] One report **published** at `/r/[slug]` (your first credibility deposit)

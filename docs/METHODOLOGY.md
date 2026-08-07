@@ -151,7 +151,7 @@ The `data_quality` field on each valuation row indicates input reliability:
 | **Filings** | 12M+ — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
 | **Facts** | 111M+ standardized financial data points |
 | **XBRL coverage** | Facts that cannot be mapped to a canonical `standard_concept` are exposed under `'Other'` rather than dropped or imputed. The current measured mapping-gap rate is published in [`accuracy/baseline.json`](accuracy/baseline.json) (`unstandardized_facts`) and re-derivable with the open DuckDB script |
-| **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K alerts for Enterprise (custom contract) |
+| **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |
 
 ---
