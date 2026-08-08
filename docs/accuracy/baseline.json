@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-08-01T07:31:26Z",
+  "measured_at": "2026-08-08T05:46:11Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
     "entities": 1030,
-    "filings": 10990,
+    "filings": 10973,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,23 +20,23 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 10990,
-      "filings_in_universe": 19478,
-      "clean_filings": 10551,
-      "filings_with_errors": 439,
-      "accuracy_pct": 96.01
+      "filings": 10973,
+      "filings_in_universe": 19444,
+      "clean_filings": 10601,
+      "filings_with_errors": 372,
+      "accuracy_pct": 96.61
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 10719,
-        "filings_in_universe": 11338,
-        "clean_filings": 10283,
-        "filings_with_errors": 436,
-        "accuracy_pct": 95.93
+        "filings": 10702,
+        "filings_in_universe": 11326,
+        "clean_filings": 10333,
+        "filings_with_errors": 369,
+        "accuracy_pct": 96.55
       },
       "legacy_pre_2010": {
         "filings": 271,
-        "filings_in_universe": 8140,
+        "filings_in_universe": 8118,
         "clean_filings": 268,
         "filings_with_errors": 3,
         "accuracy_pct": 98.89,
@@ -46,11 +46,11 @@
     "top_remaining_pareto": [
       {
         "identity_key": "bs_07_ppe_net",
-        "filings_failed": 439
+        "filings_failed": 294
       },
       {
         "identity_key": "is_10_comprehensive_income",
-        "filings_failed": 100
+        "filings_failed": 97
       },
       {
         "identity_key": "is_11_comprehensive_income_consolidated",
@@ -84,10 +84,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 40753816,
-    "correctly_unstandardized": 23492755,
-    "mapping_gaps": 17261061,
-    "accuracy_pct": 57.65
+    "facts_with_standard_concept_other": 40695996,
+    "correctly_unstandardized": 23453332,
+    "mapping_gaps": 17242664,
+    "accuracy_pct": 57.63
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
