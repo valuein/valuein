@@ -3,7 +3,7 @@
   "name": "io.github.valuein/mcp-sec-edgar",
   "title": "Valuein — SEC EDGAR Fundamentals & Smart-Money Data",
   "description": "Point-in-time, survivorship-free SEC EDGAR fundamentals + smart-money signals for AI agents.",
-  "version": "2.82.0",
+  "version": "2.83.0",
   "websiteUrl": "https://valuein.biz",
   "icons": [
     {
@@ -93,7 +93,7 @@
     "io.github.valuein/tools_summary": {
       "live": 118,
       "stubs": 0,
-      "prompts": 30,
+      "prompts": 39,
       "resources": 3
     },
     "io.github.valuein/docs": "https://github.com/valuein/valuein/blob/main/docs/MCP_TOOLS.md"
