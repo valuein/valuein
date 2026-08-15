@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-08-11T08:18:56Z",
+  "measured_at": "2026-08-15T05:30:12Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 1033,
-    "filings": 11022,
+    "entities": 1035,
+    "filings": 11054,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,26 +20,26 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 11022,
-      "filings_in_universe": 19525,
-      "clean_filings": 10641,
+      "filings": 11054,
+      "filings_in_universe": 19574,
+      "clean_filings": 10673,
       "filings_with_errors": 381,
-      "accuracy_pct": 96.54
+      "accuracy_pct": 96.55
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 10752,
-        "filings_in_universe": 11382,
-        "clean_filings": 10374,
+        "filings": 10782,
+        "filings_in_universe": 11412,
+        "clean_filings": 10404,
         "filings_with_errors": 378,
-        "accuracy_pct": 96.48
+        "accuracy_pct": 96.49
       },
       "legacy_pre_2010": {
-        "filings": 270,
-        "filings_in_universe": 8143,
-        "clean_filings": 267,
+        "filings": 272,
+        "filings_in_universe": 8162,
+        "clean_filings": 269,
         "filings_with_errors": 3,
-        "accuracy_pct": 98.89,
+        "accuracy_pct": 98.9,
         "_note": "Pre-2010 XBRL was optional, so most pre-2010 filings carry no facts. They are now EXCLUDED from this denominator (filings vs filings_in_universe shows how many); previously they were counted as passes, which inflated the legacy and overall figures."
       }
     },
@@ -84,10 +84,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 32980668,
-    "correctly_unstandardized": 19163011,
-    "mapping_gaps": 13817657,
-    "accuracy_pct": 58.1
+    "facts_with_standard_concept_other": 33006627,
+    "correctly_unstandardized": 19179437,
+    "mapping_gaps": 13827190,
+    "accuracy_pct": 58.11
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
