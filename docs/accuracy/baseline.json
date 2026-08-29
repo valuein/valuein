@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-08-22T05:32:51Z",
+  "measured_at": "2026-08-29T11:32:52Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 1035,
-    "filings": 11058,
+    "entities": 1037,
+    "filings": 11086,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,23 +20,23 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 11058,
-      "filings_in_universe": 19575,
-      "clean_filings": 10677,
+      "filings": 11086,
+      "filings_in_universe": 19587,
+      "clean_filings": 10705,
       "filings_with_errors": 381,
-      "accuracy_pct": 96.55
+      "accuracy_pct": 96.56
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 10786,
-        "filings_in_universe": 11415,
-        "clean_filings": 10408,
+        "filings": 10814,
+        "filings_in_universe": 11429,
+        "clean_filings": 10436,
         "filings_with_errors": 378,
         "accuracy_pct": 96.5
       },
       "legacy_pre_2010": {
         "filings": 272,
-        "filings_in_universe": 8160,
+        "filings_in_universe": 8158,
         "clean_filings": 269,
         "filings_with_errors": 3,
         "accuracy_pct": 98.9,
@@ -84,10 +84,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 33070620,
-    "correctly_unstandardized": 19213938,
-    "mapping_gaps": 13856682,
-    "accuracy_pct": 58.1
+    "facts_with_standard_concept_other": 30326411,
+    "correctly_unstandardized": 17557030,
+    "mapping_gaps": 12769381,
+    "accuracy_pct": 57.89
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
