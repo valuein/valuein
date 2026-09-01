@@ -55,7 +55,7 @@ jobs:
           # Empty string on push / workflow_dispatch → checkout's own default.
           ref: ${{ inputs.ref }}
 
-      - uses: astral-sh/setup-uv@v8.2.0
+      - uses: astral-sh/setup-uv@v10.0.1
 
       - name: Verify server.json + README counts match the published MCP manifest
         run: uv run python scripts/sync_mcp_manifest.py --check
