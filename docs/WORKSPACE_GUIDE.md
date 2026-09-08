@@ -11,7 +11,7 @@
 111M+ point-in-time financial facts · 19,000+ US companies · 1993→present · zero survivorship bias
 
 [![Open the Workspace](https://img.shields.io/badge/Open-valuein.biz%2Fworkspace-2563EB?style=flat)](https://valuein.biz/workspace)
-[![Read online](https://img.shields.io/badge/Read_online-valuein.biz%2Fworkspace--guide-7C3AED?style=flat)](https://valuein.biz/workspace-guide)
+[![Read online](https://img.shields.io/badge/Read_online-valuein.biz%2Ftry--workspace-7C3AED?style=flat)](https://valuein.biz/try-workspace)
 [![MCP](https://img.shields.io/badge/MCP-mcp.valuein.biz-1E293B?style=flat)](https://mcp.valuein.biz/mcp)
 [![Pricing](https://img.shields.io/badge/Pricing-Free_%E2%86%92_%2449_%E2%86%92_%24499-16A34A?style=flat)](https://valuein.biz/pricing)
 
@@ -23,13 +23,13 @@
 
 ---
 
-> **111M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 95 data tools and 28 ready-to-run analyst playbooks.**
+> **111M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 118 data tools and 39 ready-to-run analyst playbooks.**
 
 This is a simple, cadence-based setup so the Workspace earns its keep in your *daily, weekly, and monthly* routine within the first week.
 
 Read the **15-minute setup** first. Then jump to the **one persona that matches you** (Analyst, PM, Quant, or Creator). Everything else is reference.
 
-> 📖 **Prefer it interactive?** This guide is live at **[valuein.biz/workspace-guide](https://valuein.biz/workspace-guide)** with a role selector.
+> 📖 **Prefer it interactive?** This guide is live at **[valuein.biz/try-workspace](https://valuein.biz/try-workspace)** with a role selector.
 
 ---
 
@@ -41,7 +41,7 @@ Five things live here, and they reinforce each other:
 
 | Building block | What it is | The job it does for you |
 |---|---|---|
-| **Chat** | BYO-LLM assistant with 118 SEC data tools + 30 SOPs | Ask anything about any US public company; get cited, point-in-time answers |
+| **Chat** | BYO-LLM assistant with 118 SEC data tools + 39 playbooks | Ask anything about any US public company; get cited, point-in-time answers |
 | **Watchlists** | Named ticker lists (≤500 tickers + a criteria note) | The universe everything else points at — coverage, portfolio, pipeline |
 | **Theses** | Time-stamped bull/bear/neutral calls (conviction 1–5, horizon) | Record what you thought *and when*; auto-graded against fundamentals |
 | **Signals → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
@@ -49,7 +49,7 @@ Five things live here, and they reinforce each other:
 
 Plus four data channels behind **one Bearer token**: the in-app chat, the **MCP server** (Claude Desktop / Cursor / Codex), the **Python SDK**, and the **Bulk Data API**. Connect once, use everywhere.
 
-> **Mental model:** Watchlists define *what* you watch. Theses record *what you believe*. Signals tell you *when something changed*. Chat + SOPs do *the analysis*. Reports are *what you ship*. Publishing reports builds *reputation*.
+> **Mental model:** Watchlists define *what* you watch. Theses record *what you believe*. Signals tell you *when something changed*. Chat + Playbooks do *the analysis*. Reports are *what you ship*. Publishing reports builds *reputation*.
 
 ---
 
@@ -58,14 +58,14 @@ Plus four data channels behind **one Bearer token**: the in-app chat, the **MCP 
 A checklist that takes you from zero to first real value. Tick these in order.
 
 - [ ] **1. Sign in & pick a handle** (`/onboarding`). This is your public identity (`valuein.biz/@yourhandle`). One-time, required before you can publish.
-- [ ] **2. Paste your LLM key into chat** (`/workspace`). Claude (`sk-ant-…`), OpenAI (`sk-…`), or OpenRouter (`sk-or-…`). It's sealed in an encrypted, httpOnly cookie — **never stored on our servers**, never sent to anyone but your provider. Disconnect wipes it.
+- [ ] **2. Paste your LLM key into chat** (`/workspace`). Claude (`sk-ant-…`), OpenAI (`sk-…`), or OpenRouter (`sk-or-…`). It's sealed with AES-GCM in a 24-hour httpOnly cookie, plus an encrypted vault so your scheduled agents can still run while you're away. Uncheck one box for strict zero-retention (cookie only, wiped on disconnect). Either way it is never sent to anyone but your provider and never used to train anything of ours.
 - [ ] **3. Run your first query.** Paste this into chat:
   > *"Give me a quick equity research brief on NVDA — fundamentals, valuation, and the one thing a skeptic would flag."*
-  This invokes the `equity_research_brief` SOP at `quick` depth. You'll see cited, point-in-time data come back in ~30s.
+  This invokes the `equity_research_brief` playbook at `quick` depth. You'll see cited, point-in-time data come back in ~30s.
 - [ ] **4. Create your first watchlist** (`/workspace/watchlists/new`). Paste 5–20 tickers you actually care about. Add a one-line criteria note (e.g. *"core coverage — quality compounders"*). This becomes the spine of your daily routine.
 - [ ] **5. Set one signal** (`/workspace/signals/new`). Pick **Watchlist change** → your new watchlist → **Dashboard** channel. Now any 8-K/10-Q/10-K from those names lands in your Inbox. Hit **Send test fire** to confirm it works.
 - [ ] **6. Record one thesis** (`/workspace/theses/new`). Take your highest-conviction name, set bull/bear/neutral, conviction, and horizon. This is the seed of your track record.
-- [ ] **7. Connect your desktop AI** (`/workspace/connect`). Copy the Claude Desktop / Cursor / Codex config (your token is pre-filled), paste it, restart the app, hit **Test connection**. Now Valuein is in the tool you already use all day.
+- [ ] **7. Connect your desktop AI** (`/account/settings/api`). Copy the Claude Desktop / Cursor / Codex config (your token is pre-filled), paste it, restart the app, hit **Test connection**. Now Valuein is in the tool you already use all day.
 
 **You're live.** Steps 1–3 are the "aha" (cited data in your chat). Steps 4–6 turn it into a *system* that works while you sleep. Step 7 meets you where you already work.
 
@@ -73,7 +73,7 @@ A checklist that takes you from zero to first real value. Tick these in order.
 
 ## 3. Pick your playbook
 
-Find the persona closest to you and follow its **Setup → Daily → Weekly → Monthly**. Each routine names the exact SOP or tool to use and gives a copy-paste prompt. Run SOPs either in the in-app chat ("run the X SOP on TICKER") or from Claude Desktop/Cursor once connected.
+Find the persona closest to you and follow its **Setup → Daily → Weekly → Monthly**. Each routine names the exact playbook or tool to use and gives a copy-paste prompt. Run playbooks either in the in-app chat ("run the X playbook on TICKER") or from Claude Desktop/Cursor once connected.
 
 ---
 
@@ -141,7 +141,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 *(your job is factors, backtests, and signals — and you want bulk data, not a UI.)*
 
 **One-time setup**
-- Connect the **MCP** (`/workspace/connect`) and grab your Bearer token from `/account/settings/api` for the **Python SDK** (`pip install valuein-sdk`).
+- Connect the **MCP** and grab your Bearer token from `/account/settings/api` for the **Python SDK** (`pip install valuein-sdk`).
 - One watchlist per factor sleeve if you want to monitor live screens.
 
 **Working loop (continuous)**
@@ -186,7 +186,7 @@ This is the highest-leverage path — your published work becomes an SEO/AEO-ind
 Publishing isn't just for creators — it's how *any* user turns work into reputation, and it's the engine of the whole platform. The flow:
 
 ```
-Form a view → save thesis (public) → research it (SOP → Report)
+Form a view → save thesis (public) → research it (Playbook → Report)
    → edit → Share (public) → valuein.biz/r/[slug]  ──┐
                                                        │ SEO / AEO indexed
    reputation builds as theses auto-grade  ◄───────────┘ citation-rich article
@@ -215,7 +215,7 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **Price** | $0, no signup | $0, register | **$49/mo · $490/yr** | **$499/mo · $4,790/yr** | Custom |
 | **Universe** | S&P 500 | S&P 500 | **19,000+** | 19,000+ + foreign | Contract |
 | **History** | 5 yr | 1993→ | 15-yr rolling (2011→) | 1993→ | Contract |
-| **Workspace + 30 SOPs** | — | ✓ | ✓ | ✓ | ✓ |
+| **Workspace + 39 playbooks** | — | ✓ | ✓ | ✓ | ✓ |
 | **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
 | **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
 | **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
@@ -230,7 +230,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 
 ## 6. Reference — the full toolkit
 
-### 30 SOPs (your ready-made playbooks)
+### 39 playbooks (your ready-made workflows)
 
 **Flagships**
 - **`equity_research_brief`** — single-ticker institutional brief. Depth: `quick` / `full` / `forensic`.
@@ -242,9 +242,9 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 **Ratio specialist** — `ratio_deep_dive` · `sector_ratio_screen`
 **Smart money*** — `smart_money_brief` · `activist_surveillance` · `activist_radar` · `peer_benchmarking_memo`
 
-*\* Smart-money SOPs require the Institutional tier.*
+*\* Smart-money playbooks require the Institutional tier.*
 
-### Key tools (57 total, behind chat + MCP)
+### Key tools (118 total, behind chat + MCP)
 
 - **Data:** `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_capital_allocation_profile`, `compare_periods`, `get_earnings_signals`, `get_sec_filing_links`
 - **Discovery / trust:** `search_companies`, `describe_schema`, `verify_fact_lineage`, citation overrides
@@ -254,7 +254,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
 - **State (CRUD):** theses, watchlists, signals, reports, inbox
 - **Document generation (Institutional):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_research_brief_docx` (branded Word memo with citations), `generate_comps_xlsx` (peer comps table), `render_report` (Markdown/DOCX download)
 
-### Connect once, use everywhere (`/workspace/connect`)
+### Connect once, use everywhere (`/account/settings/api`)
 
 | Client | Config file |
 |---|---|
@@ -284,7 +284,7 @@ Five minutes a day on the Inbox, thirty minutes a week on a brief, and one publi
 
 <div align="center">
 
-**[Open the Workspace →](https://valuein.biz/workspace)**  ·  **[Read this guide online →](https://valuein.biz/workspace-guide)**  ·  **[See pricing →](https://valuein.biz/pricing)**
+**[Open the Workspace →](https://valuein.biz/workspace)**  ·  **[Read this guide online →](https://valuein.biz/try-workspace)**  ·  **[See pricing →](https://valuein.biz/pricing)**
 
 <sub>Questions or friction? Email <a href="mailto:support@valuein.biz">support@valuein.biz</a> — we read every message.</sub>
 
