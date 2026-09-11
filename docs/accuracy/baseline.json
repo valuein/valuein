@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-09-11T03:23:20Z",
+  "measured_at": "2026-09-11T05:12:10Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
     "entities": 968,
-    "filings": 16497,
+    "filings": 16741,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,11 +20,11 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 16497,
+      "filings": 16741,
       "filings_in_universe": 19746,
-      "clean_filings": 16061,
+      "clean_filings": 16305,
       "filings_with_errors": 436,
-      "accuracy_pct": 97.36
+      "accuracy_pct": 97.4
     },
     "by_era": {
       "modern_2010_onward": {
@@ -35,11 +35,11 @@
         "accuracy_pct": 96.48
       },
       "legacy_pre_2010": {
-        "filings": 6198,
+        "filings": 6442,
         "filings_in_universe": 8880,
-        "clean_filings": 6125,
+        "clean_filings": 6369,
         "filings_with_errors": 73,
-        "accuracy_pct": 98.82,
+        "accuracy_pct": 98.87,
         "_note": "Pre-2010 XBRL was optional, so most pre-2010 filings carry no facts. They are now EXCLUDED from this denominator (filings vs filings_in_universe shows how many); previously they were counted as passes, which inflated the legacy and overall figures."
       }
     },
@@ -84,10 +84,10 @@
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 22631596,
-    "correctly_unstandardized": 14024884,
+    "facts_with_standard_concept_other": 22648100,
+    "correctly_unstandardized": 14041388,
     "mapping_gaps": 8606712,
-    "accuracy_pct": 61.97
+    "accuracy_pct": 62.0
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
