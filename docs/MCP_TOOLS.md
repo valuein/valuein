@@ -227,7 +227,7 @@ Beyond the data tools above, the server persists research objects server-side, k
 
 | Family | Representative tools | Notes |
 |---|---|---|
-| Price & market data | `get_stock_price`, `get_price_history`, `get_pit_valuation_ratios` | Daily OHLCV with `adjusted_close`; backtest-safe P/E, P/S, P/B, EV/EBITDA, FCF yield on any historical date |
+| Price & market data | `get_stock_price`, `get_price_history`, `get_pit_valuation_ratios` | Daily OHLCV with `total_return_index` (use it for total return; `adjusted_close` is a sparse vendor passthrough); backtest-safe P/E, P/S, P/B, EV/EBITDA, FCF yield on any historical date |
 | Theses | `save_thesis`, `list_theses`, `score_thesis_outcome`, `publish_thesis` | Time-stamped bull/bear/neutral calls, auto-graded against subsequent fundamentals and prices |
 | Claims ledger | `save_claim`, `link_claim_to_thesis`, `score_claim`, `publish_claim` | Provenance-bound, individually scoreable claims — the unit of a public track record |
 | Watchlists & signals | `save_watchlist`, `create_signal`, `test_signal`, `list_signal_inbox` | `price_move` and `fundamental_change` conditions; delivery via email, HMAC-signed webhook, dashboard inbox, or an `agent_run` that fires a standing agent team |

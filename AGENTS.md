@@ -37,7 +37,7 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 - **111M+ standardized financial facts** across **19,000+** active and delisted US public-company entities — including every bankruptcy, merger, and delisting since 1993
 - **12M+ filings** since **1993** — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS), and amendments
 - **11,966 raw XBRL tags** normalized to **292 canonical `standard_concept`** values, plus **164 materialized financial ratios** (FY + TTM)
-- **20 Parquet tables** (14 core + 6 smart-money on Institutional), including daily OHLCV price history (`stock_price_daily`) with adjusted close
+- **23 Parquet tables** (15 core + 6 smart-money + 2 Form ADV on Institutional), including daily OHLCV price history (`stock_price_daily`) with a forward-compounded total-return index
 - Distributed via four channels: **Python SDK**, **MCP server**, **Bulk Data API**, **web dashboard**
 - All four channels unlocked by a single Stripe-issued Bearer token at the user's tier
 
