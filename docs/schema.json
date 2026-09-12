@@ -1154,7 +1154,7 @@
       }
     },
     "stock_price": {
-      "description": "Coarse end-of-day market-price series per entity — period-end-aligned closes and monthly last-trading-day closes. Filter on 'observation' for grain.",
+      "description": "Coarse end-of-day market-price series per entity — period-end-aligned closes and monthly last-trading-day closes. Filter on 'observation' for grain. COVERAGE FLOOR: licensed market data (EODHD/Tiingo), NOT EDGAR — it does not start at EDGAR's 1993 floor. No bars exist in 1993; the earliest bar differs per security and is 1994 or later (measured against production 2026-09-12).",
       "columns": {
         "entity_id": {
           "type": "VARCHAR",
@@ -1191,7 +1191,7 @@
       }
     },
     "stock_price_daily": {
-      "description": "Daily end-of-day close series per entity — one row per trading day. Powers as-of-arbitrary-date price lookups. Schema v2.19.0.",
+      "description": "Daily end-of-day close series per entity — one row per trading day. Powers as-of-arbitrary-date price lookups. Schema v2.19.0. COVERAGE FLOOR: licensed market data (EODHD/Tiingo), NOT EDGAR — it does not start at EDGAR's 1993 floor. No bars exist in 1993; the earliest bar differs per security and is 1994 or later (measured against production 2026-09-12).",
       "columns": {
         "entity_id": {
           "type": "VARCHAR",
