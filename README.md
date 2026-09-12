@@ -49,7 +49,7 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 - **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1993**
 - **111M+ standardized facts** across **19,000+** US public companies — including every bankruptcy, merger, and delisting since 1993
 - **11,966 raw XBRL tags** normalized to **292 canonical `standard_concept`** values plus **164 materialized financial ratios** (FY + TTM); unmapped tags are exposed under `'Other'` rather than dropped
-- **20 Parquet tables** — 14 core (fundamentals, ratios, valuations, index membership, daily OHLCV price history with adjusted close) + 6 smart-money tables (Institutional tier)
+- **23 Parquet tables** — 15 core (fundamentals, ratios, valuations, index membership, restatement events, daily OHLCV price history with a total-return index) + 6 smart-money tables + 2 Form ADV adviser tables (Institutional tier)
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
 
@@ -304,7 +304,7 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `index_membership` | Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000) — keyed on `cik`, with `effective_date` / `removal_date` half-open windows | Reconstruct any index on any historical date. JOIN `references.cik = index_membership.cik` for company metadata. |
 | `standard_concept` | The canonical concept catalog itself — names, statements, mapping rules, CPA review status | The ground truth behind `fact.standard_concept`. |
 | `stock_price` | Latest end-of-day close per entity | Quick current-price joins on any tier. |
-| `stock_price_daily` | Full daily OHLCV bar series per entity, with `adjusted_close` and corporate-action factors | Backtest-safe price legs — pair with fundamentals for PIT valuation multiples. |
+| `stock_price_daily` | Full daily OHLCV bar series per listing, with `total_return_index` and the raw corporate-action factors (`div_cash`, `split_factor`) | Backtest-safe price legs — pair with fundamentals for PIT valuation multiples. Use `total_return_index` for total return: it is forward-compounded, so unlike a back-adjusted series a later split never restates it. `adjusted_close` is a vendor passthrough and is sparsely populated. Grain is one row per security per day — add `WHERE is_primary_listing` for one row per company. |
 
 ### Date columns — which to use when
 
