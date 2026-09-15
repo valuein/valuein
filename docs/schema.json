@@ -1,5 +1,5 @@
 {
-  "version": "3.0.0",
+  "version": "3.1.0",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
@@ -460,7 +460,7 @@
       }
     },
     "index_membership": {
-      "description": "Historical index constituents (SP500, RUSSELL1000, RUSSELL2000, RUSSELL3000).  Source of truth for ALL membership questions \u2014 current OR historical.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window.  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides \u2014 see migration 0015 for the rationale.",
+      "description": "Index constituents keyed on ``cik``.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window (half-open ``[)`` semantics).  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides \u2014 see migration 0015 for the rationale.\n\nHISTORICAL DEPTH DIFFERS BY INDEX \u2014 read this before using the table for point-in-time work.  **SP500** is survivorship-free back to 1996: ~1,000 entry/exit spells over 968 CIKs, including companies long delisted, with ``removal_date`` and ``removal_reason`` populated.  **RUSSELL1000 / RUSSELL2000 / RUSSELL3000** carry the CURRENT composition ONLY \u2014 every row is a single open spell stamped at the latest holdings snapshot date, ``removal_date`` is always NULL, and there is no pre-snapshot history.  A point-in-time query against a past date therefore returns ZERO rows for those three indices; they are a current-membership screen, not a backtest universe.  The ``source`` column is the discriminator: ``historical_seed`` / ``spglobal_press`` rows carry real history, ``ivv`` rows are a current-holdings snapshot.",
       "columns": {
         "id": {
           "type": "INTEGER",
@@ -472,7 +472,7 @@
         },
         "index_name": {
           "type": "VARCHAR",
-          "description": "Canonical short code: SP500 | NASDAQ100 | RUSSELL3000 | WILSHIRE5000."
+          "description": "Canonical short code.  Exactly four values are populated: SP500 | RUSSELL1000 | RUSSELL2000 | RUSSELL3000.  Only SP500 carries history \u2014 see the table description."
         },
         "effective_date": {
           "type": "DATE",
