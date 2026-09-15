@@ -1,7 +1,7 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-06-28  
-> **Standardized concepts**: 292  
+> **Last updated**: 2026-09-15  
+> **Standardized concepts**: 350  
 > **Historical coverage**: 1994 – present  
 > **Coverage target**: ≥ 95% of all SEC EDGAR financial facts
 
@@ -48,6 +48,12 @@ Combined accounts payable and accrued liabilities.
 
 IFRS trade & other current receivables.
 
+### `AccountsReceivableGross`
+
+**Category:** curated  ·  **Flow:** no
+
+Trade accounts receivable before the allowance for doubtful accounts.
+
 ### `AccruedExpenses`
 
 **Unit:** USD  ·  **Category:** working_capital  ·  **Flow:** no
@@ -71,6 +77,12 @@ Total accumulated depreciation on PP&E.
 **Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
 
 Excess of issue price over par value on equity issuances.
+
+### `AFSAmortizedCost`
+
+**Unit:** USD  ·  **Category:** investments  ·  **Flow:** no
+
+Amortized cost basis of available-for-sale securities — the pre-fair-value carrying basis, deliberately separate from AvailableForSaleSecurities (fair value).
 
 ### `AllowanceForDoubtfulAccounts`
 
@@ -109,11 +121,13 @@ expected useful life (typically 3–5 years).
 
 **Unit:** USD  ·  **Category:** liquidity  ·  **Flow:** no
 
-Cash, demand deposits, and highly liquid investments with original
-maturities ≤ 90 days.  Includes restricted cash variants disclosed
-by ASC 230 (US GAAP) and IAS 7 (IFRS) — both treated identically
-here since restricted balances still belong on the balance sheet
-and are not separable in cross-sectional analysis.
+Cash, demand deposits, and highly liquid investments with original maturities ≤ 90 days — UNRESTRICTED only (the ASC 210 balance-sheet line). Restricted balances live in RestrictedCash; the ASU 2016-18 cash-flow reconciliation total lives in CashIncludingRestricted.
+
+### `CashIncludingRestricted`
+
+**Unit:** USD  ·  **Category:** liquidity  ·  **Flow:** no
+
+Cash, cash equivalents, AND restricted cash — the ASU 2016-18 cash-flow-statement reconciliation total. Articulates: CashAndEquivalents + RestrictedCash.
 
 ### `CommonSharesAuthorized`
 
@@ -135,7 +149,7 @@ Common shares currently outstanding (issued minus treasury).
 
 ### `CommonStockParValue`
 
-**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** equity  ·  **Flow:** no
 
 Par or stated value per common share.
 
@@ -151,6 +165,12 @@ IFRS issued share capital — analogous to GAAP CommonStockValue.
 
 ASC 606 contract assets — earned but unbilled revenue. Common in
 multi-year SaaS contracts billed annually but recognized monthly.
+
+### `ConvertibleNotesPayable`
+
+**Category:** curated  ·  **Flow:** no
+
+Notes payable convertible into equity.
 
 ### `CurrentAssets`
 
@@ -197,6 +217,12 @@ Contract liabilities / deferred revenue (current).
 
 Long-term deferred revenue / contract liabilities.
 
+### `DeferredRevenueTotal`
+
+**Unit:** USD  ·  **Category:** deferred  ·  **Flow:** no
+
+Total contract liability / deferred revenue (current + noncurrent, ASC 606). Articulates: DeferredRevenueCurrent + DeferredRevenueNoncurrent.
+
 ### `DeferredTaxAssetsGross`
 
 **Unit:** USD  ·  **Category:** deferred  ·  **Flow:** no
@@ -237,6 +263,12 @@ Deferred tax assets from sources not separately disclosed.
 Total deferred tax liabilities (gross), before netting against
 deferred tax assets.  Net version is DeferredTaxLiabNoncurrent.
 
+### `DeferredTaxLiabilitiesCurrent`
+
+**Category:** curated  ·  **Flow:** no
+
+Deferred tax liabilities due within one year.
+
 ### `DeferredTaxLiabilitiesOther`
 
 **Unit:** USD  ·  **Category:** deferred  ·  **Flow:** no
@@ -262,6 +294,18 @@ Valuation allowance against deferred tax assets.
 Customer deposits (checking, savings, time deposits, money market).
 Largest liability on most bank balance sheets and the cheapest
 funding source.
+
+### `DepositsInterestBearing`
+
+**Unit:** USD  ·  **Category:** banking  ·  **Flow:** no
+
+Interest-bearing customer deposits — component of Deposits.
+
+### `DepositsNoninterestBearing`
+
+**Unit:** USD  ·  **Category:** banking  ·  **Flow:** no
+
+Noninterest-bearing customer deposits — component of Deposits.
 
 ### `DerivativeAssets`
 
@@ -305,11 +349,29 @@ Overnight loans of excess reserves to other banks.
 
 Wholesale funding from FHLB system.
 
+### `FiniteLivedIntangibles`
+
+**Unit:** USD  ·  **Category:** intangibles  ·  **Flow:** no
+
+Net finite-lived (amortizing) intangible assets — ASC 350 component of IntangibleAssetsNet.
+
 ### `Goodwill`
 
 **Unit:** USD  ·  **Category:** intangibles  ·  **Flow:** no
 
 IFRS goodwill.
+
+### `GoodwillGross`
+
+**Category:** curated  ·  **Flow:** no
+
+Goodwill before accumulated impairment.
+
+### `IndefiniteLivedIntangibles`
+
+**Unit:** USD  ·  **Category:** intangibles  ·  **Flow:** no
+
+Indefinite-lived intangible assets excluding goodwill (brands, licenses) — ASC 350 component of IntangibleAssetsNet.
 
 ### `IntangibleAssetsGross`
 
@@ -329,6 +391,12 @@ Intangible assets (patents, trademarks, etc.) net of amortization.
 
 Accrued interest on debt not yet paid.
 
+### `InterestReceivable`
+
+**Unit:** USD  ·  **Category:** working_capital  ·  **Flow:** no
+
+Accrued interest receivable.
+
 ### `Inventory`
 
 **Unit:** USD  ·  **Category:** working_capital  ·  **Flow:** no
@@ -347,11 +415,23 @@ Finished goods inventory (ready for sale).
 
 Raw material inventory (unprocessed inputs).
 
+### `InventoryReserve`
+
+**Category:** curated  ·  **Flow:** no
+
+Contra-asset reserve reducing inventory to net realisable value.
+
 ### `InventoryWIP`
 
 **Unit:** USD  ·  **Category:** working_capital  ·  **Flow:** no
 
 Work-in-process inventory (partially completed).
+
+### `Land`
+
+**Unit:** USD  ·  **Category:** fixed_assets  ·  **Flow:** no
+
+Land carried at cost (non-depreciating PP&E component).
 
 ### `LoanLossAllowance`
 
@@ -359,6 +439,12 @@ Work-in-process inventory (partially completed).
 
 Reserve held against probable / expected loan losses. CECL under
 US GAAP, ECL under IFRS 9. Contra-asset against gross loans.
+
+### `LoansPayableCurrent`
+
+**Category:** curated  ·  **Flow:** no
+
+Loans payable due within one year.
 
 ### `LoansReceivable`
 
@@ -376,6 +462,12 @@ deferred financing costs.  Excludes lease obligations (use
 OperatingLeaseLiabNoncurrent) and current maturities (use
 CurrentPortionLTD).
 
+### `LongTermDebtTotal`
+
+**Unit:** USD  ·  **Category:** leverage  ·  **Flow:** no
+
+Long-term debt INCLUDING current maturities (the us-gaap:LongTermDebt total). Articulates: LongTermDebt (noncurrent) + CurrentPortionLTD.
+
 ### `LongTermInvestments`
 
 **Unit:** USD  ·  **Category:** investments  ·  **Flow:** no
@@ -387,6 +479,12 @@ Non-current investment securities.
 **Unit:** USD  ·  **Category:** non_operating  ·  **Flow:** no
 
 IFRS non-controlling (minority) interests in equity.
+
+### `NoncurrentAssets`
+
+**Category:** curated  ·  **Flow:** no
+
+Total non-current assets.
 
 ### `NonperformingLoans`
 
@@ -401,6 +499,12 @@ Loans 90+ days past due or on non-accrual status. NPL ratio
 
 Short-term notes payable (typically < 12 months).  Distinct from
 accounts payable — these are formal promissory notes.
+
+### `NotesReceivableNet`
+
+**Category:** curated  ·  **Flow:** no
+
+Notes receivable, net of allowance.
 
 ### `OperatingLeaseLiabCurrent`
 
@@ -441,6 +545,12 @@ Current assets not classified elsewhere.
 
 Current liabilities not classified elsewhere.
 
+### `OtherEquity`
+
+**Category:** curated  ·  **Flow:** no
+
+Equity components not separately captured by another equity concept.
+
 ### `OtherLiabilities`
 
 **Unit:** USD  ·  **Category:** balance_sheet_other  ·  **Flow:** no
@@ -460,6 +570,12 @@ Non-current assets not classified elsewhere.
 **Unit:** USD  ·  **Category:** leverage  ·  **Flow:** no
 
 Non-current liabilities not classified elsewhere.
+
+### `OtherReceivables`
+
+**Category:** curated  ·  **Flow:** no
+
+Receivables other than trade accounts receivable.
 
 ### `PatentsCarryingValue`
 
@@ -499,15 +615,27 @@ PP&E at historical cost before accumulated depreciation.
 
 IFRS net PP&E.
 
+### `PreferredSharesAuthorized`
+
+**Unit:** shares  ·  **Category:** equity  ·  **Flow:** no
+
+Preferred shares authorized for issuance under the corporate charter.
+
+### `PreferredSharesIssued`
+
+**Unit:** shares  ·  **Category:** equity  ·  **Flow:** no
+
+Total preferred shares issued (including any held in treasury).
+
 ### `PreferredSharesOutstanding`
 
 **Unit:** shares  ·  **Category:** equity  ·  **Flow:** no
 
-Preferred shares outstanding / issued / authorized.
+Preferred shares currently outstanding (issued minus any held in treasury).
 
 ### `PreferredStockParValue`
 
-**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** equity  ·  **Flow:** no
 
 Par or stated value per preferred share.
 
@@ -529,12 +657,30 @@ Advance payments for future expenses.
 
 Pension / OPEB projected benefit obligation.
 
+### `RealEstateInvestments`
+
+**Unit:** USD  ·  **Category:** reit  ·  **Flow:** no
+
+Net real estate investment property (the REIT PP&E analog).
+
+### `RealEstateInvestmentsGross`
+
+**Unit:** USD  ·  **Category:** reit  ·  **Flow:** no
+
+Real estate investment property at cost, before accumulated depreciation.
+
 ### `ReinsuranceRecoverable`
 
 **Unit:** USD  ·  **Category:** insurance  ·  **Flow:** no
 
 Estimated amounts recoverable from reinsurers for ceded losses.
 Important credit exposure to reinsurer counterparties.
+
+### `RestrictedCash`
+
+**Unit:** USD  ·  **Category:** liquidity  ·  **Flow:** no
+
+Cash restricted as to withdrawal or use (collateral, escrow, regulatory deposits). Current and noncurrent variants included; excluded from CashAndEquivalents.
 
 ### `RestructuringReserve`
 
@@ -670,6 +816,12 @@ Cost of repurchased shares held in treasury (contra-equity).
 Premiums collected for coverage not yet provided — the deferred
 revenue analog for P&C insurers. Earned over the policy period.
 
+### `WarrantyAccrual`
+
+**Unit:** USD  ·  **Category:** balance_sheet_other  ·  **Flow:** no
+
+Product warranty accrual balance (standard + extended warranty obligations).
+
 ## cash_flow
 
 ### `AccountsPayableChange`
@@ -690,6 +842,12 @@ Working capital: accounts receivable change.
 
 Working capital: accrued liabilities change.
 
+### `AccruedCompensationChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Working-capital change in employee-related liabilities (accrued compensation and benefits).
+
 ### `Acquisitions`
 
 **Unit:** USD  ·  **Category:** cash_flow_investing  ·  **Flow:** yes
@@ -708,6 +866,12 @@ Credit loss provision (CF add-back).
 
 IFRS capital expenditure — PP&E purchases.
 
+### `CapitalContributions`
+
+**Category:** curated  ·  **Flow:** yes
+
+Cash received as capital contributions from owners.
+
 ### `CommonStockIssuance`
 
 **Unit:** USD  ·  **Category:** cash_flow_financing  ·  **Flow:** yes
@@ -715,6 +879,12 @@ IFRS capital expenditure — PP&E purchases.
 Cash proceeds from issuing common stock — IPO, follow-on offering,
 private placement.  Distinct from EquityIssuance (broader,
 includes non-cash issuances).
+
+### `ConvertibleDebtRepayment`
+
+**Category:** curated  ·  **Flow:** yes
+
+Cash used to repay convertible debt.
 
 ### `DebtIssuance`
 
@@ -746,6 +916,18 @@ Working capital: deferred revenue change.
 
 Non-cash deferred tax provision (CF add-back).
 
+### `DepositsChange`
+
+**Unit:** USD  ·  **Category:** banking  ·  **Flow:** yes
+
+Change in customer deposits (bank financing cash-flow line).
+
+### `DistributionsToNCI`
+
+**Category:** curated  ·  **Flow:** yes
+
+Cash distributed to non-controlling interests.
+
 ### `Divestitures`
 
 **Unit:** USD  ·  **Category:** cash_flow_investing  ·  **Flow:** yes
@@ -759,12 +941,6 @@ Acquisitions; together they bracket net M&A activity (the
 **Unit:** USD  ·  **Category:** shareholder_returns  ·  **Flow:** yes
 
 Cash dividends paid to shareholders.
-
-### `EffectOfExchangeRateOnCash`
-
-**Unit:** pct  ·  **Category:** liquidity  ·  **Flow:** yes
-
-Currency translation impact on cash position.
 
 ### `EquityIssuance`
 
@@ -783,6 +959,12 @@ Tax benefit realised on SBC in excess of grant-date expense.
 **Unit:** USD  ·  **Category:** liquidity  ·  **Flow:** yes
 
 IFRS financing cash flows.
+
+### `FinancingCashFlowContinuing`
+
+**Unit:** USD  ·  **Category:** cash_flow_financing  ·  **Flow:** yes
+
+Financing cash flow from CONTINUING operations only.
 
 ### `FXEffectOnCash`
 
@@ -828,6 +1010,12 @@ Working capital: inventory change.
 
 IFRS investing cash flows.
 
+### `InvestingCashFlowContinuing`
+
+**Unit:** USD  ·  **Category:** cash_flow_investing  ·  **Flow:** yes
+
+Investing cash flow from CONTINUING operations only.
+
 ### `InvestmentsPurchase`
 
 **Unit:** USD  ·  **Category:** investments  ·  **Flow:** yes
@@ -858,11 +1046,53 @@ IFRS net change in cash for the period.
 
 IFRS operating cash flows.
 
+### `OperatingCashFlowContinuing`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Operating cash flow from CONTINUING operations only — differs from OperatingCashFlow for filers with discontinued operations.
+
+### `OtherCurrentAssetsChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Working-capital change in other current assets.
+
+### `OtherCurrentLiabilitiesChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Working-capital change in other current liabilities.
+
 ### `OtherNonCashCharges`
 
 **Unit:** USD  ·  **Category:** liquidity  ·  **Flow:** yes
 
 Other non-cash adjustments to net income.
+
+### `OtherNoncurrentAssetsChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Change in other noncurrent assets (cash-flow adjustment line).
+
+### `OtherNoncurrentLiabilitiesChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Change in other noncurrent liabilities (cash-flow adjustment line).
+
+### `OtherOperatingAssetsChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Working-capital change in other operating assets (cash-flow adjustment line).
+
+### `OtherOperatingLiabilitiesChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Working-capital change in other operating liabilities (cash-flow adjustment line).
 
 ### `PPESale`
 
@@ -900,6 +1130,12 @@ Tax withholding payments related to equity award settlement.
 
 Cash spent repurchasing company shares.
 
+### `ShortTermDebtIssuance`
+
+**Category:** curated  ·  **Flow:** yes
+
+Cash proceeds from issuing short-term debt.
+
 ### `StockBasedCompensation`
 
 **Unit:** USD  ·  **Category:** stock_compensation  ·  **Flow:** yes
@@ -918,6 +1154,12 @@ from non-cash equity issuance disclosures.
 **Unit:** USD  ·  **Category:** tax  ·  **Flow:** yes
 
 Cash income taxes paid (supplemental disclosure).
+
+### `TaxesPayableChange`
+
+**Unit:** USD  ·  **Category:** cash_flow_operating  ·  **Flow:** yes
+
+Working-capital change in accrued income taxes payable.
 
 ## supplemental
 
@@ -983,6 +1225,12 @@ Long-term debt principal repayments due in year 5.
 
 401(k) and other defined contribution plan expense.
 
+### `DividendsDeclared`
+
+**Unit:** USD  ·  **Category:** shareholder_returns  ·  **Flow:** yes
+
+Cash dividends DECLARED in the period (the retained-earnings charge). Differs from Dividends (cash PAID, financing cash flow) by dividends-payable timing.
+
 ### `FundsFromOperations`
 
 **Unit:** USD  ·  **Category:** reit  ·  **Flow:** yes
@@ -990,6 +1238,12 @@ Long-term debt principal repayments due in year 5.
 NAREIT FFO: Net income + Real estate D&A − Gains on property sales.
 The standard REIT earnings proxy. AFFO subtracts recurring CapEx
 to approximate distributable cash.
+
+### `GrossChargeOffs`
+
+**Unit:** USD  ·  **Category:** banking  ·  **Flow:** yes
+
+Gross loan charge-offs (CECL allowance-rollforward write-off flow, before recoveries). NET charge-offs (net of recoveries) live in NetChargeOffs.
 
 ### `IncrementalDilutiveShares`
 
@@ -1191,7 +1445,7 @@ Stock options currently exercisable.
 
 ### `SBCOptionsExercisableWAExercisePrice`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Weighted-avg exercise price of options currently exercisable.
 
@@ -1203,7 +1457,7 @@ Stock options exercised during the period.
 
 ### `SBCOptionsExercisesWAExercisePrice`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Weighted-avg exercise price on options exercised in period.
 
@@ -1215,7 +1469,7 @@ Stock options forfeited during the period.
 
 ### `SBCOptionsForfeituresWAExercisePrice`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Weighted-avg exercise price on options forfeited/expired.
 
@@ -1227,13 +1481,13 @@ Stock options granted during the period.
 
 ### `SBCOptionsGrantsWAExercisePrice`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Weighted-avg exercise price on options granted in period.
 
 ### `SBCOptionsGrantsWAGrantDateFairValue`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Weighted-avg grant-date fair value of options granted.
 
@@ -1245,7 +1499,7 @@ Aggregate intrinsic value of outstanding options.
 
 ### `SBCOptionsOutstanding`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** shares  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Stock options currently outstanding.
 
@@ -1269,13 +1523,13 @@ Weighted-avg exercise price of options vested + expected to vest.
 
 ### `SBCOptionsWAPrice`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** USD/share  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 Weighted average exercise price of outstanding options.
 
 ### `SBCRSUsGranted`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** shares  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 RSUs granted during the period.
 
@@ -1293,7 +1547,7 @@ Restricted stock units (RSUs) currently outstanding.
 
 ### `SBCRSUsVested`
 
-**Category:** stock_compensation  ·  **Flow:** no
+**Unit:** shares  ·  **Category:** stock_compensation  ·  **Flow:** no
 
 RSUs vested during the period.
 
@@ -1337,17 +1591,23 @@ Total regulatory capital (Tier 1 + Tier 2) divided by
 risk-weighted assets. Basel III minimum is 10.5 % for
 well-capitalized banks.
 
+### `TreasurySharesAcquired`
+
+**Unit:** shares  ·  **Category:** equity  ·  **Flow:** yes
+
+Number of shares repurchased into treasury during the period.
+
+### `TreasuryStockAcquired`
+
+**Unit:** USD  ·  **Category:** shareholder_returns  ·  **Flow:** yes
+
+Value of treasury stock acquired in the period (equity-statement flow, accrual basis). The cash-settled counterpart is ShareBuyback (financing cash flow).
+
 ### `UnrecognizedTaxBenefits`
 
 **Category:** tax  ·  **Flow:** no
 
 Uncertain tax positions that could result in future obligations.
-
-### `WeightedAverageCommonShares`
-
-**Unit:** shares  ·  **Category:** equity  ·  **Flow:** yes
-
-IFRS weighted-average shares outstanding (basic).
 
 ## income
 
@@ -1406,6 +1666,12 @@ Foreign jurisdiction current income tax.
 
 State and local current income tax.
 
+### `DebtExtinguishmentGainLoss`
+
+**Unit:** USD  ·  **Category:** non_operating  ·  **Flow:** yes
+
+Gain (loss) on extinguishment or early retirement of debt — a financing P&L item, deliberately separate from GainLossOnAssetSale (operating asset disposals).
+
 ### `DeferredTaxExpense`
 
 **Unit:** USD  ·  **Category:** tax  ·  **Flow:** yes
@@ -1430,6 +1696,12 @@ IFRS D&A expense.
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
 Net income from discontinued business segments.
+
+### `DiscontinuedOpsIncomeIncludingNCI`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+Income from discontinued operations, net of tax, including the NCI portion (the un-suffixed FASB NetOfTax tag is the consolidated total — same triplet pattern as ProfitLoss). Parent-only scope: DiscontinuedOpsIncome.
 
 ### `DividendPerShare`
 
@@ -1499,12 +1771,6 @@ accounting choice matters here).
 
 Exploration costs for extractive industries (oil/gas, mining).
 
-### `FederalIncomeTax`
-
-**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
-
-US Federal income tax expense/benefit (current + deferred).
-
 ### `FeesAndCommissions`
 
 **Unit:** USD  ·  **Category:** banking  ·  **Flow:** yes
@@ -1516,12 +1782,6 @@ Fee income from deposit accounts, cards, advisory, custody.
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
 FX translation and transaction gains/losses.
-
-### `ForeignIncomeTax`
-
-**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
-
-Foreign income tax expense/benefit.
 
 ### `GainLossOnAssetSale`
 
@@ -1558,6 +1818,12 @@ Asset write-downs to fair value (goodwill, intangibles, PP&E).
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
 Net income from continuing operations.
+
+### `IncomeContinuingOpsIncludingNCI`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+Income from continuing operations including the portion attributable to noncontrolling interests (consolidated scope). Parent-only scope: IncomeContinuingOps.
 
 ### `IncomeTaxExpense`
 
@@ -1621,6 +1887,12 @@ Interest earned on loans and investment securities. Bank-specific.
 
 IFRS wages & salaries — maps to LaborExpense bucket.
 
+### `LitigationSettlementExpense`
+
+**Category:** curated  ·  **Flow:** yes
+
+Expense recognised for litigation settlements.
+
 ### `MilestonePaymentsRevenue`
 
 **Unit:** USD  ·  **Category:** pharma  ·  **Flow:** yes
@@ -1632,13 +1904,13 @@ collaboration agreements (often with big-pharma partners).
 
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
-IFRS profit/loss for the period.  Strict prevents OCI contamination.
+Bottom-line profit attributable to the parent.  Strict prevents OCI and per-share variants.
 
 ### `NetIncomeIncludingNCI`
 
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
-Net income including non-controlling interest — consolidated bottom line before the NCI deduction.
+Consolidated net income including non-controlling interest — institutional total. Additive to parent-only NetIncome.
 
 ### `NetIncomeNCI`
 
@@ -1659,6 +1931,12 @@ IFRS profit/loss attributable to parent-company owners.
 Total interest income on loans and investments minus interest
 expense on deposits and borrowings. Bank equivalent of gross
 profit — the core of bank profitability.
+
+### `NetInterestIncomeAfterProvision`
+
+**Unit:** USD  ·  **Category:** banking  ·  **Flow:** yes
+
+Net interest income AFTER provision for credit losses — the post-provision bank P&L subtotal. Pre-provision NII lives in NetInterestIncome.
 
 ### `NetPeriodicBenefitCost`
 
@@ -1732,6 +2010,24 @@ capitalized as Deferred Acquisition Costs and amortized.
 
 Earnings before income taxes (EBT).  Bloomberg: IS_INC_BEF_TAX.
 
+### `PretaxIncomeDomestic`
+
+**Unit:** USD  ·  **Category:** tax  ·  **Flow:** yes
+
+Pretax income from continuing operations attributable to DOMESTIC operations (ASC 740 disclosure component of PretaxIncome).
+
+### `PretaxIncomeForeign`
+
+**Unit:** USD  ·  **Category:** tax  ·  **Flow:** yes
+
+Pretax income from continuing operations attributable to FOREIGN operations (ASC 740 disclosure component of PretaxIncome).
+
+### `ProductRevenue`
+
+**Unit:** USD  ·  **Category:** revenue  ·  **Flow:** yes
+
+Revenue from sale of goods/products (pre-ASC-606 SalesRevenueGoodsNet line). Component of TotalRevenue; pairs with ServiceRevenue.
+
 ### `ProfessionalFees`
 
 **Unit:** USD  ·  **Category:** expenses  ·  **Flow:** yes
@@ -1745,6 +2041,18 @@ Legal, audit, consulting, and professional service costs.
 Charge to income for expected loan losses (CECL under US GAAP /
 ECL under IFRS 9). Negative impact on earnings; movement in
 LoanLossAllowance.
+
+### `RelatedPartyRevenue`
+
+**Category:** curated  ·  **Flow:** yes
+
+Revenue earned from related parties.
+
+### `RentalRevenue`
+
+**Unit:** USD  ·  **Category:** reit  ·  **Flow:** yes
+
+Lessor rental / lease income (ASC 842 lessor and legacy operating-lease revenue lines). The REIT top line; component of TotalRevenue.
 
 ### `RentAndOccupancy`
 
@@ -1784,11 +2092,17 @@ Sales, marketing, and advertising costs.
 
 SG&A — combined selling, general and administrative overhead.
 
-### `StateAndLocalIncomeTax`
+### `ServiceRevenue`
 
-**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+**Unit:** USD  ·  **Category:** revenue  ·  **Flow:** yes
 
-State and local income tax expense/benefit.
+Revenue from services (pre-ASC-606 SalesRevenueServicesNet line). Component of TotalRevenue; pairs with ProductRevenue.
+
+### `ShortTermLeaseCost`
+
+**Unit:** USD  ·  **Category:** leases  ·  **Flow:** yes
+
+Short-term lease cost (ASC 842 component — leases ≤ 12 months, off-balance-sheet). Component of TotalLeaseCost.
 
 ### `StatutoryTaxRate`
 
@@ -1810,6 +2124,12 @@ reachable through the cost-of-revenue product/service split.
 
 Total costs and expenses before non-operating items.
 
+### `TotalLeaseCost`
+
+**Unit:** USD  ·  **Category:** leases  ·  **Flow:** yes
+
+Total ASC 842 lease cost: operating lease cost + finance-lease amortization and interest + variable + short-term. Broader than RentAndOccupancy (rent economics only).
+
 ### `TotalRevenue`
 
 **Unit:** USD  ·  **Category:** revenue  ·  **Flow:** yes
@@ -1821,6 +2141,12 @@ IFRS top-line revenue.  IFRS 15 / ASC 606 converged.
 **Unit:** USD  ·  **Category:** banking  ·  **Flow:** yes
 
 Realized + unrealized gains/losses from trading book activity.
+
+### `VariableLeaseCost`
+
+**Unit:** USD  ·  **Category:** leases  ·  **Flow:** yes
+
+Variable lease cost (ASC 842 component — usage/index-linked payments not in the lease liability). Component of TotalLeaseCost.
 
 ### `WeightedAvgSharesBasic`
 
@@ -1840,7 +2166,13 @@ Weighted average diluted shares outstanding.
 
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
-Net income + OCI.  Total change in equity from non-owner sources.
+Comprehensive income attributable to the PARENT (net income + OCI). Pairs with NetIncome + OtherComprehensiveIncome, which are both parent-scope.
+
+### `ComprehensiveIncomeIncludingNCI`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+CONSOLIDATED comprehensive income including non-controlling interest. Pairs with NetIncomeIncludingNCI + OtherComprehensiveIncomeIncludingNCI.
 
 ### `ComprehensiveIncomeNCI`
 
@@ -1876,7 +2208,19 @@ OCI — unrealized gains/losses on available-for-sale securities.
 
 **Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
 
-Total OCI net of tax.
+Total OCI net of tax attributable to the PARENT. Parent-scope so it pairs with NetIncome, matching the analyst default set by the NetIncome / NetIncomeIncludingNCI split.
+
+### `OtherComprehensiveIncomeIncludingNCI`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+CONSOLIDATED total OCI net of tax, including the portion attributable to non-controlling interest.
+
+### `OtherComprehensiveIncomeNCI`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+OCI attributable to non-controlling interests. Exists to CLAIM this tag; with no rule of its own it fell through the starts-with tier into the OtherComprehensiveIncome TOTAL, booking a component as a consolidated total.
 
 ### `ReclassificationFromAOCI`
 
