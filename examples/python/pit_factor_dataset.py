@@ -23,8 +23,9 @@ What you'll learn:
 
 Run:
     # Install (either workflow):  pip install valuein-sdk  |  uv pip install valuein-sdk
-    # The FREE S&P 500 tier (1993+, 500 names) needs only a free lead-capture
-    # token. Without any token the SDK runs in SAMPLE mode (~50 tickers, 2020+).
+    # The free Benchmark tier (S&P 500 constituents, 1993+, 500 names) needs
+    # only a free lead-capture token. Without any token the SDK runs in SAMPLE
+    # mode (~50 tickers, 2020+).
     export VALUEIN_API_KEY="your_token_here"
     python examples/python/pit_factor_dataset.py
 """
@@ -61,8 +62,8 @@ OUT_CSV = "pit_factor_dataset.csv"
 token = os.getenv("VALUEIN_API_KEY", "").strip()
 if not token:
     print(
-        "No VALUEIN_API_KEY found. This example needs the FREE S&P 500 tier "
-        "(1993+, 500 names). Get a free token in ~30s at "
+        "No VALUEIN_API_KEY found. This example needs the free Benchmark tier "
+        "(S&P 500 constituents, 1993+, 500 names). Get a free token in ~30s at "
         "https://valuein.biz/pricing, then:  export VALUEIN_API_KEY=<token>",
         file=sys.stderr,
     )
