@@ -63,7 +63,7 @@ Return the columns, types, and descriptions for any table. Useful when an agent 
 
 | Parameter | Type | Required |
 |---|---|---|
-| `table` | string | yes — any published table, e.g. `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `valuation`, `taxonomy_guide`, `index_membership`, `standard_concept`, `stock_price`, `stock_price_daily` (+ the smart-money tables on Institutional). The valid set is resolved from the live manifest — see [`schema.json`](schema.json). |
+| `table` | string | yes — any published table, e.g. `references`, `entity`, `security`, `filing`, `fact`, `ratio`, `taxonomy_guide`, `index_membership`, `standard_concept`, `stock_price`, `stock_price_daily` (Pro and Institutional only) (+ the smart-money tables on Institutional). The valid set is resolved from the live manifest — see [`schema.json`](schema.json). |
 
 Returns: `{table, description, columns: [{name, type, description, primary_key?, references?}]}`.
 

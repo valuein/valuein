@@ -101,7 +101,7 @@ from valuein_sdk import ValueinClient
 client = ValueinClient(tables=[])
 
 CORE = ["entity", "security", "references", "filing", "fact", "ratio",
-        "index_membership", "stock_price_daily", "restatement_events"]
+        "index_membership", "stock_price", "restatement_events"]
 
 print("Snapshot :", client.manifest()["snapshot"])
 print("Plan     :", client.me()["plan"])
@@ -116,8 +116,8 @@ for col in ("ticker", "standard_concept", "first_value", "current_value", "discl
 ```
 Snapshot : snapshot_20260731
 Plan     : sample
-Tables   : 15 available
-Core     : entity, security, references, filing, fact, ratio, index_membership, stock_price_daily, restatement_events
+Tables   : 13 available
+Core     : entity, security, references, filing, fact, ratio, index_membership, stock_price, restatement_events
 
   ticker               VARCHAR
   standard_concept     VARCHAR
@@ -495,6 +495,11 @@ Membership is stored as **spells** (`effective_date` → `removal_date`), back t
 ## 8. Prices and total return
 
 **Question:** *"What did I actually earn holding this, dividends included?"*
+
+> **Pro and Institutional only.** `stock_price_daily` is not published to the
+> free tiers. On Sample and Benchmark, use the coarse `stock_price` table
+> instead: its month-end rows carry the same `total_return_index`, so the
+> ratio below works unchanged at monthly grain.
 
 ```python
 from valuein_sdk import ValueinClient
