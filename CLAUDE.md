@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+> The picture: `ARCHITECTURE.md` — a one-screen map of this repo. Its purpose, goals and guardrails mirror this file; change both in the same PR.
+
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ---
