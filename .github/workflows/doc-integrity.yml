@@ -13,8 +13,12 @@ name: Doc integrity
 #       honest modern-era figure fails the build, so the headline can never
 #       silently diverge from the JSON again (the root cause of VA25).
 #
+#   (c) Publish-guard tests — scripts/sync_mcp_manifest.py refuses to sync or
+#       publish a manifest that exposes a hidden tool; tests/ pins that.
+#
 # Triggers: every push + PR, plus manual workflow_dispatch for testing.
-# No external services — pure bash + the Python that ships with the runner.
+# No external services — pure bash + the Python that ships with the runner
+# (the guard tests add pytest through uv).
 
 on:
   push:
@@ -131,3 +135,13 @@ jobs:
 
           print("✓ Accuracy-drift gate passed — no drifting percents")
           PY
+
+  publish-guard-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.0.1
+
+      - name: (c) Publish-guard tests
+        run: uv run --with pytest pytest tests -q

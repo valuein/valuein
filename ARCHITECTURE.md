@@ -6,7 +6,7 @@
 
 ## Purpose
 
-`github.com/valuein/valuein` is the public-facing docs, examples, and MCP-registry manifest for Valuein — the landing page a prospective user hits from PyPI, Smithery, or a Show HN post. Its readers are analysts, quants, AI agents and integrators learning what Valuein ships, plus the public MCP registry, which is fed from `server.json`. It contains no SDK, no MCP server, no pipeline and no tests — those live in sibling repos, and this hub only documents what they have already shipped.
+`github.com/valuein/valuein` is the public-facing docs, examples, and MCP-registry manifest for Valuein — the landing page a prospective user hits from PyPI, Smithery, or a Show HN post. Its readers are analysts, quants, AI agents and integrators learning what Valuein ships, plus the public MCP registry, which is fed from `server.json`. It contains no SDK, no MCP server, no pipeline and no product tests (only the publish-guard tests in `tests/`) — those live in sibling repos, and this hub only documents what they have already shipped.
 
 ## Goals
 
@@ -97,7 +97,7 @@ All three are runnable by hand via `workflow_dispatch`.
 - Never bump or hand-edit `server.json`, and never gate its publish on a review: the bot writes version and counts from the live Worker manifest, and a hand edit races it on an immutable registry version.
 - Never reintroduce a scrubbed proprietary signal name in `docs/schema.json`, `README.md` or `docs/MCP_TOOLS.md` — the IP-leak gate fails the build.
 - Never hardcode an accuracy percentage that is not taken from the current `docs/accuracy/baseline.json` — the accuracy-drift gate fails the build.
-- No source code, no tests, no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
+- No source code, no product tests (only `tests/` for the publish guard), no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
 - Examples: `snake_case.py`, under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; the notebook mirrors the script in the same PR.
 - No CUSIPs anywhere (licensing risk) — use FIGI and LEI; `concept_mapping` is internal and never shown.
 - Always `uv run python …`, never bare `python`; run `ruff` check + format on `examples/` and `scripts/` before a PR.
