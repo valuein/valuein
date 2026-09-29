@@ -311,10 +311,12 @@ budget or wallet).
 | Bump MCP registry version | `server.json` `version` | GHA `.github/workflows/publish-mcp.yml` republishes on push |
 
 `server.json` + README are auto-synced from the `mcp` repo manifest by `.github/workflows/sync-mcp-manifest.yml`
-(nightly + `repository_dispatch`). Every push/PR also runs `.github/workflows/doc-integrity.yml`:
+(nightly + `repository_dispatch`); the sync refuses (exit 3, nothing written) any manifest that exposes one of the
+three hidden marketplace tools or that it cannot judge. Every push/PR also runs `.github/workflows/doc-integrity.yml`:
 (a) an **IP-leak gate** that fails if proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`)
-appear in `docs/schema.json`, `README.md`, or `docs/MCP_TOOLS.md`; and (b) an **accuracy-drift gate** that
-fails if any `NN.NN%` in `README.md` / `docs/accuracy/*` drifts >1pt from `docs/accuracy/baseline.json`.
+appear in `docs/schema.json`, `README.md`, or `docs/MCP_TOOLS.md`; (b) an **accuracy-drift gate** that
+fails if any `NN.NN%` in `README.md` / `docs/accuracy/*` drifts >1pt from `docs/accuracy/baseline.json`; and
+(c) the publish-guard tests in `tests/`.
 Do not reintroduce scrubbed signal names or edit a public accuracy figure away from the measured baseline.
 
 ### Conventions

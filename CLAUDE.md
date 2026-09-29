@@ -27,10 +27,11 @@ Valuein. It is the landing page a prospective user hits from PyPI, Smithery, or 
   (this line used to claim v2.45.1 long after prod had moved on)
 - `.github/workflows/` — `publish-mcp.yml` (registry publish), `sync-mcp-manifest.yml`
   (nightly + `repository_dispatch` sync of `server.json` + README from the `mcp` repo manifest),
-  `doc-integrity.yml` (CI gate: IP-leak + accuracy-drift, on every push/PR)
+  `doc-integrity.yml` (CI gate: IP-leak + accuracy-drift + publish-guard tests, on every push/PR)
+- `tests/` — pytest for the publish guard in `scripts/sync_mcp_manifest.py` (the only tests here)
 - `.github/ISSUE_TEMPLATE/` — data-quality report, feature request, outage, question
 
-**This repo does NOT contain** the SDK, the MCP server, the pipeline, or any tests.
+**This repo does NOT contain** the SDK, the MCP server, the pipeline, or their tests.
 If a request mentions those, the target repo is almost certainly a sibling (see below).
 
 ---
@@ -90,17 +91,19 @@ uv run jupyter lab examples/notebooks/quickstart.ipynb
 
 **Always** use `uv run python …`, never bare `python` / `python3`.
 
-There is no `pyproject.toml`, no `tests/`, no `release.sh`, no `pytest` suite in this repo. Tests
+There is no `pyproject.toml` and no `release.sh` here. The only tests are `tests/` (the publish guard;
+`uv run --with pytest pytest tests -q`, run by `doc-integrity.yml`). Tests
 for the SDK live in `~/PycharmProjects/sdk` (the `valuein-sdk` PyPI package). Treat example scripts
 as the smoke test — if `getting_started.py` runs cleanly on the sample tier, the published SDK
 version is healthy from a user's perspective.
 
 **CI gate — `doc-integrity.yml`** runs on every push/PR (plus `workflow_dispatch`) and is the
-front-door's guardrail. Two checks: (a) **IP-leak gate** — greps `docs/schema.json`, `README.md`,
+front-door's guardrail. Two content checks plus a test job: (a) **IP-leak gate** — greps `docs/schema.json`, `README.md`,
 and `docs/MCP_TOOLS.md` for proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`)
 and fails the build if any appear; (b) **accuracy-drift gate** — parses every `NN.NN%` in `README.md`
 and `docs/accuracy/*` and fails if it drifts >1.0pt from the honest measured figures in
-`docs/accuracy/baseline.json`. Never reintroduce a scrubbed signal name and never inflate an
+`docs/accuracy/baseline.json`; (c) **publish-guard tests** — pytest over `tests/`, which pins the
+hidden-tool guard in `scripts/sync_mcp_manifest.py`. Never reintroduce a scrubbed signal name and never inflate an
 accuracy headline — both are mechanically blocked.
 
 ---
@@ -138,6 +141,11 @@ mcp prod deploy succeeds
 Nightly cron (03:00 UTC) is the backstop if a dispatch is ever missed, and the publish
 is gated on the registry being stale rather than on a repo diff, so a failed publish
 retries itself the next night instead of stranding.
+
+**Publish guard.** `sync_mcp_manifest.py` (write and `--check`) exits 3 and writes nothing if the
+manifest lists `purchase_report`, `list_my_purchases` or `connect_stripe_account` (any status), cannot
+be judged (bad `tools`, `counts.tools_live` disagreeing with the live tools), or `server.json`
+already names one. Remove a name from `HIDDEN_TOOLS` only when that tool is released.
 
 **Never bump `server.json` by hand, and never gate this on a review.** Hand-editing
 races the bot, and registry versions are immutable — whichever publish loses the race

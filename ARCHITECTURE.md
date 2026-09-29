@@ -6,7 +6,7 @@
 
 ## Purpose
 
-`github.com/valuein/valuein` is the public-facing docs, examples, and MCP-registry manifest for Valuein — the landing page a prospective user hits from PyPI, Smithery, or a Show HN post. Its readers are analysts, quants, AI agents and integrators learning what Valuein ships, plus the public MCP registry, which is fed from `server.json`. It contains no SDK, no MCP server, no pipeline and no tests — those live in sibling repos, and this hub only documents what they have already shipped.
+`github.com/valuein/valuein` is the public-facing docs, examples, and MCP-registry manifest for Valuein — the landing page a prospective user hits from PyPI, Smithery, or a Show HN post. Its readers are analysts, quants, AI agents and integrators learning what Valuein ships, plus the public MCP registry, which is fed from `server.json`. It contains no SDK, no MCP server, no pipeline and no product tests (only the publish-guard tests in `tests/`) — those live in sibling repos, and this hub only documents what they have already shipped.
 
 ## Goals
 
@@ -15,6 +15,7 @@
 | Be the front door: a reader gets from landing page to live data without a token | `README.md` quickstart; every example runs on the sample tier with no API key | `uv run python examples/python/getting_started.py` |
 | Examples double as the smoke test for the published SDK | Standalone `examples/python/*.py` that `import valuein_sdk`, mirrored one-to-one by `examples/notebooks/` | `getting_started.py` runs clean on the sample tier → the SDK release is healthy |
 | The public MCP registry advertises exactly the version production serves | `sync-mcp-manifest.yml` rewrites `server.json` from the live Worker manifest; `publish-mcp.yml` verifies the registry serves it | `uv run python scripts/check_registry_sync.py --check` |
+| Tools hidden until their launch never reach the registry | The publish guard in `scripts/sync_mcp_manifest.py` (`HIDDEN_TOOLS`) refuses the sync and the publish, exit 3, nothing written | `uv run --with pytest pytest tests -q` |
 | Public docs never leak proprietary signal names or inflate accuracy | `doc-integrity.yml` IP-leak gate + accuracy-drift gate on every push and PR | The workflow run; `docs/accuracy/baseline.json` |
 | The data catalog mirrors the pipeline's canonical concept list | `scripts/generate_catalog.py` (`CONCEPTS`) writes `docs/data_catalog.{md,json}` + `DATA_CATALOG.xlsx` | `uv run python scripts/generate_catalog.py`, then diff `docs/` |
 | Every example preserves PIT and survivorship discipline | `filing_date <= trade_date`, delisted entities kept, membership via `references.cik = index_membership.cik` | `CLAUDE.md` "Data primer"; `examples/python/pit_factor_dataset.py` |
@@ -85,9 +86,9 @@ flowchart LR
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| Doc integrity (`doc-integrity.yml`) | every `push` and `pull_request`; `workflow_dispatch` | IP-leak gate (greps `docs/schema.json`, `README.md`, `docs/MCP_TOOLS.md` for scrubbed signal names) + accuracy-drift gate against `docs/accuracy/baseline.json` |
-| Sync MCP manifest (`sync-mcp-manifest.yml`) | `repository_dispatch` `mcp-manifest-updated` from a Worker prod deploy; cron 03:00 UTC nightly (backstop); `workflow_dispatch` | Rewrites `server.json` + README counts from the live Worker manifest, commits to `main`, calls the publish workflow when the registry is stale |
-| Publish to MCP Registry (`publish-mcp.yml`) | `workflow_call` from the sync (normal path); `push` to `main` touching `server.json` (human fallback); `workflow_dispatch` | Installs `mcp-publisher`, logs in via OIDC, publishes `server.json`, then verifies the registry serves that version; runs are serialised because registry versions are immutable |
+| Doc integrity (`doc-integrity.yml`) | every `push` and `pull_request`; `workflow_dispatch` | IP-leak gate (greps `docs/schema.json`, `README.md`, `docs/MCP_TOOLS.md` for scrubbed signal names) + accuracy-drift gate against `docs/accuracy/baseline.json` + publish-guard tests (`tests/`) |
+| Sync MCP manifest (`sync-mcp-manifest.yml`) | `repository_dispatch` `mcp-manifest-updated` from a Worker prod deploy; cron 03:00 UTC nightly (backstop); `workflow_dispatch` | Rewrites `server.json` + README counts from the live Worker manifest, commits to `main`, calls the publish workflow when the registry is stale; refuses (exit 3, nothing written) if the manifest exposes a hidden tool or cannot be judged |
+| Publish to MCP Registry (`publish-mcp.yml`) | `workflow_call` from the sync (normal path); `push` to `main` touching `server.json` (human fallback); `workflow_dispatch` | Runs the same guard first (exit 3 stops the job), installs `mcp-publisher`, logs in via OIDC, publishes `server.json`, then verifies the registry serves that version; runs are serialised because registry versions are immutable |
 
 All three are runnable by hand via `workflow_dispatch`.
 
@@ -97,7 +98,7 @@ All three are runnable by hand via `workflow_dispatch`.
 - Never bump or hand-edit `server.json`, and never gate its publish on a review: the bot writes version and counts from the live Worker manifest, and a hand edit races it on an immutable registry version.
 - Never reintroduce a scrubbed proprietary signal name in `docs/schema.json`, `README.md` or `docs/MCP_TOOLS.md` — the IP-leak gate fails the build.
 - Never hardcode an accuracy percentage that is not taken from the current `docs/accuracy/baseline.json` — the accuracy-drift gate fails the build.
-- No source code, no tests, no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
+- No source code, no product tests (only `tests/` for the publish guard), no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
 - Examples: `snake_case.py`, under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; the notebook mirrors the script in the same PR.
 - No CUSIPs anywhere (licensing risk) — use FIGI and LEI; `concept_mapping` is internal and never shown.
 - Always `uv run python …`, never bare `python`; run `ruff` check + format on `examples/` and `scripts/` before a PR.
