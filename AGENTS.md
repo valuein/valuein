@@ -239,8 +239,8 @@ Use this when you want to pay first and then call the MCP yourself.
      x-valuein-retry-token: <retry_token>
 ```
 
-Always pay the amount `/api/mpp/quote` returns (it already applies plan caps and the
-$0.50 Stripe card minimum) — don't hardcode prices.
+Always pay the amount `/api/mpp/quote` returns (it already applies the $0.50 Stripe
+card minimum) — don't hardcode prices.
 
 ### Indicative rate card
 
@@ -257,7 +257,6 @@ call is whatever `/api/mpp/quote` returns; the table below is indicative.
 | Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
 | Smart-money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
 
-Daily spend caps apply per identity as abuse protection (raisable on request).
 Subscribers buying overflow within their tier get a discount on non-premium tools.
 
 The smart-money dataset (insider transactions on Forms 3/4/5/144 + institutional

@@ -147,7 +147,7 @@ Base host: **`https://api.valuein.biz`**. Data + tools: **`https://mcp.valuein.b
 | **Paywall signal (MCP tools)** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with `remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
 | **Quote (our 2-step rail, guest-OK)** | `GET /api/mpp/quote?tool=…&tier=pro\|full` | Returns `{ amount_usd, amount_usdc, nonce, accept[], expires_at, … }`. Amounts in **dollars**. No `quote_id` — correlate by `nonce`. |
 | **Pay (our 2-step rail)** | `POST /api/mpp/charge` | Auth **is** the base64url `Payment:` header (guest-capable). Returns a `retry_token` you then present to the MCP. |
-| **Pay (legacy PAYG, Bearer, two-step)** | `POST /api/payg/quote` → `POST /api/payg/confirm` | Requires a Bearer token + a saved card. `confirm` returns the `retry_token`. Being sunset in favor of MPP (RFC 8594 `Sunset: 2026-11-10`). |
+| **Pay (legacy PAYG, Bearer, two-step)** | `POST /api/payg/quote` → `POST /api/payg/confirm` | Requires a Bearer token; `confirm` takes the `payment_method_id` to charge (no card is charged without it) and returns the `retry_token`. Being sunset in favor of MPP (RFC 8594 `Sunset: 2026-11-10`). |
 | **Authorize a budget (Model A)** | your app / the human, not the agent | The human approves a session budget via the JIT consent UI; the server draws against it. (The budget-write endpoint is internal — the *human* authorizes, the *agent* spends.) |
 
 ### The canonical flow (`POST /api/mpp/call`)
