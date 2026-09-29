@@ -11,6 +11,13 @@ updates:
       github-actions:
         patterns:
           - "*"
+      # Security advisories ship as ONE PR (immediately, not on the monthly
+      # cadence above). Security updates always target the default branch and
+      # need repo settings "Dependabot alerts" + "Dependabot security updates".
+      github-actions-security:
+        applies-to: security-updates
+        patterns:
+          - "*"
     labels:
       - dependencies
       - github-actions
