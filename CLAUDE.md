@@ -102,7 +102,8 @@ front-door's guardrail. Two content checks plus a test job: (a) **IP-leak gate**
 and `docs/MCP_TOOLS.md` for proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`)
 and fails the build if any appear; (b) **accuracy-drift gate** — parses every `NN.NN%` in `README.md`
 and `docs/accuracy/*` and fails if it drifts >1.0pt from the honest measured figures in
-`docs/accuracy/baseline.json`. Never reintroduce a scrubbed signal name and never inflate an
+`docs/accuracy/baseline.json`; (c) **publish-guard tests** — pytest over `tests/`, which pins the
+hidden-tool guard in `scripts/sync_mcp_manifest.py`. Never reintroduce a scrubbed signal name and never inflate an
 accuracy headline — both are mechanically blocked.
 
 ---

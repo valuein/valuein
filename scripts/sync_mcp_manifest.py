@@ -16,8 +16,8 @@ this script keeps them honest.
 Publish guard (both modes, before anything is written): the run is refused with
 exit code 3 if the manifest lists any tool in HIDDEN_TOOLS (whatever its status),
 if the manifest cannot be judged (no usable `tools` list, a tool without a string
-`name`, or `counts.tools_live` disagreeing with the number of live tools), or if
-`server.json` already names a hidden tool. Nothing is written when it refuses.
+`name`, or `counts.tools` / `tools_live` / `tools_stub` disagreeing with the tools
+listed), or if `server.json` already names a hidden tool. Nothing is written when it refuses.
 
 Source resolution order:
 1. Sibling local checkout (`~/WebstormProjects/mcp/manifest.json`) — for dev
@@ -89,6 +89,7 @@ def _guard_manifest_problems(manifest: object) -> list[str]:
     problems: list[str] = []
     found: set[str] = set()
     live = 0
+    stub = 0
     for index, tool in enumerate(tools):
         name = tool.get("name") if isinstance(tool, dict) else None
         if not isinstance(name, str) or not name.strip():
@@ -98,20 +99,36 @@ def _guard_manifest_problems(manifest: object) -> list[str]:
             found.add(name.strip().lower())
         if tool.get("status") == "live":
             live += 1
+        elif tool.get("status") == "stub":
+            stub += 1
     if found:
         problems.append(
             "manifest exposes hidden tool(s): " + ", ".join(sorted(found)) + " (status is ignored)"
         )
 
+    # Every count the README and server.json are written from must agree with
+    # the tools actually listed, so a tool cannot be counted without being named.
     counts = manifest.get("counts")
-    declared = counts.get("tools_live") if isinstance(counts, dict) else None
-    if not isinstance(declared, int) or isinstance(declared, bool) or declared < 0:
-        problems.append("manifest `counts.tools_live` is missing or not a non-negative integer")
-    elif declared != live:
-        problems.append(
-            f"manifest `counts.tools_live` is {declared} but {live} tool(s) have status 'live'"
-        )
+    expected = {"tools": len(tools), "tools_live": live, "tools_stub": stub}
+    for key, actual in expected.items():
+        declared = counts.get(key) if isinstance(counts, dict) else None
+        if not isinstance(declared, int) or isinstance(declared, bool) or declared < 0:
+            problems.append(f"manifest `counts.{key}` is missing or not a non-negative integer")
+        elif declared != actual:
+            problems.append(
+                f"manifest `counts.{key}` is {declared} but the tools list gives {actual}"
+            )
     return problems
+
+
+def _names_in_text(text: str) -> list[str]:
+    """Return the hidden tool names that appear in `text` as whole identifiers."""
+    lowered = text.lower()
+    return sorted(
+        name
+        for name in HIDDEN_TOOLS
+        if re.search(rf"(?<![a-z0-9_]){re.escape(name)}(?![a-z0-9_])", lowered)
+    )
 
 
 def guard_problems(manifest: object, server_json_text: str) -> list[str]:
@@ -128,7 +145,7 @@ def guard_problems(manifest: object, server_json_text: str) -> list[str]:
         Human-readable problems; an empty list when it is safe to proceed.
     """
     problems = _guard_manifest_problems(manifest)
-    in_server_json = sorted(name for name in HIDDEN_TOOLS if name in server_json_text.lower())
+    in_server_json = _names_in_text(server_json_text)
     if in_server_json:
         problems.append("server.json names hidden tool(s): " + ", ".join(in_server_json))
     return problems

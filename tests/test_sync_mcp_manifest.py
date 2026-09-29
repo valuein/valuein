@@ -57,6 +57,8 @@ def with_tool(manifest: dict[str, Any], name: str, status: str = "live") -> dict
     out["counts"]["tools"] += 1
     if status == "live":
         out["counts"]["tools_live"] += 1
+    elif status == "stub":
+        out["counts"]["tools_stub"] += 1
     return out
 
 
@@ -83,6 +85,10 @@ def run_main(monkeypatch: pytest.MonkeyPatch, manifest: Any, argv: list[str]) ->
 
 def test_hidden_tools_constant_names_exactly_the_three_tools() -> None:
     assert set(sync.HIDDEN_TOOLS) == set(HIDDEN)
+
+
+def test_guard_exit_code_is_the_documented_3() -> None:
+    assert sync.EXIT_GUARD_REFUSED == 3
 
 
 # ── manifest guard: pure function ────────────────────────────────────────────
@@ -189,11 +195,24 @@ def test_non_live_tools_are_not_counted_as_live() -> None:
     assert sync.guard_problems(manifest, SERVER_JSON_TEXT)
 
 
+@pytest.mark.parametrize("key", ["tools", "tools_live", "tools_stub"])
 @pytest.mark.parametrize("bad", [None, "2", 2.0, True, -1])
-def test_unusable_tools_live_fails_closed(bad: Any) -> None:
+def test_unusable_count_fails_closed(key: str, bad: Any) -> None:
     manifest = clean_manifest()
-    manifest["counts"]["tools_live"] = bad
+    manifest["counts"][key] = bad
     assert sync.guard_problems(manifest, SERVER_JSON_TEXT)
+
+
+def test_a_tool_counted_as_a_stub_but_not_listed_fails() -> None:
+    manifest = clean_manifest()
+    manifest["counts"]["tools_stub"] = 3
+    assert "tools_stub" in "\n".join(sync.guard_problems(manifest, SERVER_JSON_TEXT))
+
+
+def test_total_count_that_disagrees_with_the_tools_list_fails() -> None:
+    manifest = clean_manifest()
+    manifest["counts"]["tools"] = 5
+    assert "counts.tools`" in "\n".join(sync.guard_problems(manifest, SERVER_JSON_TEXT))
 
 
 @pytest.mark.parametrize("counts", [None, [], "x", {}])
@@ -224,6 +243,11 @@ def test_server_json_hidden_name_is_found_anywhere_in_the_text() -> None:
     assert sync.guard_problems(clean_manifest(), text)
 
 
+def test_server_json_longer_identifier_is_not_a_false_positive() -> None:
+    text = SERVER_JSON_TEXT.replace('"version"', '"note": "list_my_purchases_v2",\n  "version"')
+    assert sync.guard_problems(clean_manifest(), text) == []
+
+
 # ── main(): both modes, exit codes, and nothing is written on failure ────────
 
 
@@ -237,7 +261,7 @@ def test_main_refuses_a_hidden_tool_in_both_modes(
     argv: list[str],
 ) -> None:
     code = run_main(monkeypatch, with_tool(clean_manifest(), name), argv)
-    assert code not in (0, 1)  # 1 already means "stale"; the guard has its own code
+    assert code == sync.EXIT_GUARD_REFUSED
     assert name in capsys.readouterr().err
     assert repo["server_json"].read_text() == SERVER_JSON_TEXT
     assert repo["readme"].read_text() == README_TEXT
@@ -249,7 +273,7 @@ def test_main_fails_closed_on_a_malformed_manifest_and_writes_nothing(
 ) -> None:
     manifest = clean_manifest()
     manifest["tools"] = []
-    assert run_main(monkeypatch, manifest, argv) not in (0, 1)
+    assert run_main(monkeypatch, manifest, argv) == sync.EXIT_GUARD_REFUSED
     assert repo["server_json"].read_text() == SERVER_JSON_TEXT
     assert repo["readme"].read_text() == README_TEXT
 
@@ -263,7 +287,7 @@ def test_main_refuses_when_server_json_contains_a_hidden_name(
 ) -> None:
     dirty = SERVER_JSON_TEXT.replace('"version"', '"note": "purchase_report",\n  "version"')
     repo["server_json"].write_text(dirty)
-    assert run_main(monkeypatch, clean_manifest(), argv) not in (0, 1)
+    assert run_main(monkeypatch, clean_manifest(), argv) == sync.EXIT_GUARD_REFUSED
     assert "purchase_report" in capsys.readouterr().err
     assert repo["server_json"].read_text() == dirty
     assert repo["readme"].read_text() == README_TEXT
