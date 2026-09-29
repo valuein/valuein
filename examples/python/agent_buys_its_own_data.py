@@ -109,14 +109,15 @@ def main() -> None:
         print("     verify RELEASES the hold: no charge is ever created. Not")
         print("     refunded — never charged.\n")
 
-        # If the caller has set up PAYG (a token + a saved card), point them at it.
+        # If the caller has a token, point them at the legacy Bearer two-step.
         if os.environ.get("VALUEIN_API_KEY"):
             print("   You have VALUEIN_API_KEY set — you can run the legacy "
                   "Bearer PAYG two-step live:")
             print(f"     POST {API}/api/payg/quote   {{'tool': '{TOOL}', "
                   f"'tickers': ['{TICKER}']}}")
-            print(f"     POST {API}/api/payg/confirm {{'quote_id': '<from quote>'}}"
-                  "   # charges your saved card, returns a retry_token\n")
+            print(f"     POST {API}/api/payg/confirm {{'quote_id': '<from quote>', "
+                  "'payment_method_id': 'pm_…'}"
+                  "   # charges that card, returns a retry_token\n")
 
         print("Once paid (either model), the previously-paywalled data returns, "
               "promoted to the paid tier — and every fetch is logged, scope-bound "

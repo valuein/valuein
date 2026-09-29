@@ -414,7 +414,7 @@ Valuein supports **machine-to-machine pay-per-call** via the [Machine Payment Pr
      x-valuein-retry-token: <retry_token from step 2>
 ```
 
-Pay whatever `/api/mpp/quote` returns (it applies plan caps + the $0.50 Stripe minimum) — don't hardcode prices.
+Pay whatever `/api/mpp/quote` returns (it applies the $0.50 Stripe minimum) — don't hardcode prices.
 
 ### Per-call rate card (indicative — the authoritative price is `/api/mpp/quote`)
 
@@ -428,7 +428,7 @@ Pay whatever `/api/mpp/quote` returns (it applies plan caps + the $0.50 Stripe m
 | Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
 | Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
 
-Daily spend caps apply per identity as abuse protection (raisable on request); subscribers buying overflow within their tier get a discount on non-premium tools.
+Subscribers buying overflow within their tier get a discount on non-premium tools.
 
 For steady-state agent usage a [Pro or Institutional subscription](https://valuein.biz/pricing) is significantly cheaper — a single Stripe token unlocks every channel at the subscribed tier.
 

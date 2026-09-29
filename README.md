@@ -131,7 +131,7 @@ Autonomous AI agents that hit a rate or tier limit can pay per request using **S
 | Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
 | Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
 
-PAYG is priced at 5× the subscription-equivalent rate — steady-state agent usage is almost always cheaper with a [Pro or Institutional subscription](https://valuein.biz/pricing). Daily spend caps exist per token as abuse protection; caps are raisable on request. See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
+PAYG is priced at 5× the subscription-equivalent rate — steady-state agent usage is almost always cheaper with a [Pro or Institutional subscription](https://valuein.biz/pricing). See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
 
 **The whole pattern — an agent that buys its own data, safely** — is written up as a reference implementation in **[`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)**: the two live consent models (a human-authorized bounded budget that auto-charges and serves inline; or per-call MPP for wallet-holding agents), why it's the safe default, and a runnable demo — [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) — that discovers the rail and reads back a live quote for free.
 
