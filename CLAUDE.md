@@ -1,266 +1,81 @@
 # CLAUDE.md
 
-> The picture: `ARCHITECTURE.md` — a one-screen map of this repo. Its purpose, goals and guardrails mirror this file; change both in the same PR.
+Public hub of Valuein: docs, examples, notebooks, MCP-registry manifest; no SDK, MCP, pipeline or app code. Cross-repo rules and approvals live in `~/.claude/CLAUDE.md`. Every rule below names the code or test that makes it true; if the code moves, fix the rule. Repo map: `ARCHITECTURE.md` (its purpose, goals and guardrails mirror this file: change both in one PR).
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+⚠️ PUBLIC repo: nothing internal or unannounced (tokens, infrastructure ids, customer data, unshipped products). The SDK, MCP, pipeline and infrastructure repos are private: never link them (`CONTRIBUTING.md` "What goes here vs. upstream"). Updated LAST: it documents what shipped.
 
----
+## Read before you touch (on demand, not auto-loaded)
 
-## What this repo is (and isn't)
-
-`github.com/valuein/valuein` is the **public-facing docs, examples, and MCP-registry manifest** for
-Valuein. It is the landing page a prospective user hits from PyPI, Smithery, or a Show HN post.
-
-**This repo contains:**
-- `README.md` / `CONTRIBUTING.md` / `LICENSE` / `NOTICE` — marketing + OSS governance
-- `docs/` — methodology, compliance/DDQ, SLA, data catalog (md / json / xlsx), `schema.json`,
-  `MCP_TOOLS.md`, `QUERY_COOKBOOK.md`, `WORKSPACE_GUIDE.md`, `accuracy/` (measured accuracy proof),
-  and `arelle_config/arelle/` (XBRL tooling config, not code)
-- `examples/python/` — 12 standalone scripts that `import valuein_sdk`
-- `examples/notebooks/` — 8 Jupyter notebooks mirroring the Python examples
-- `scripts/generate_catalog.py` — generator that writes `docs/data_catalog.md`, `data_catalog.json`,
-  and updates `DATA_CATALOG.xlsx` from canonical concepts defined inline in the script
-  (current output: `concept_count=292`, `ratio_count=164` — 77 FY+TTM, 87 annual-only)
-- `server.json` — MCP server manifest for registry.modelcontextprotocol.io. Version and tool
-  counts are written by `sync-mcp-manifest.yml` from the live Worker — never hand-edited, and
-  deliberately not restated here, since a number copied into prose is a number that goes stale
-  (this line used to claim v2.45.1 long after prod had moved on)
-- `.github/workflows/` — `publish-mcp.yml` (registry publish), `sync-mcp-manifest.yml`
-  (nightly + `repository_dispatch` sync of `server.json` + README from the `mcp` repo manifest),
-  `doc-integrity.yml` (CI gate: IP-leak + accuracy-drift + publish-guard tests, on every push/PR)
-- `tests/` — pytest for the publish guard in `scripts/sync_mcp_manifest.py` (the only tests here)
-- `.github/ISSUE_TEMPLATE/` — data-quality report, feature request, outage, question
-
-**This repo does NOT contain** the SDK, the MCP server, the pipeline, or their tests.
-If a request mentions those, the target repo is almost certainly a sibling (see below).
-
----
-
-## Sibling repos — where the actual code lives
-
-The examples here are consumers of code published from other repos. Cross-cutting changes usually
-need to start upstream, then propagate here. The legacy `~/PycharmProjects/quants` repo no longer
-exists — SDK and MCP are now standalone repos.
-
-| If you're asked to… | Go to |
+| Touching | Read first |
 |---|---|
-| Modify SDK internals (`ValueinClient`, `transport.py`, alpha factors, SQL templates) | `~/PycharmProjects/sdk` → `valuein_sdk/` |
-| Modify the MCP Worker code (`mcp.valuein.biz` — tools, SOPs, resources, auth; free publish/unpublish parity for reports + theses + claims, with the 3 paid report-marketplace tools hidden until launch). Live counts: `curl -s https://mcp.valuein.biz/manifest.json \| jq .tools_summary` | `~/WebstormProjects/mcp` |
-| Change what `fact.standard_concept` values exist, or add a concept | `~/PycharmProjects/data-pipeline` → `services/accounting/definitions.py` (`STANDARD_DEFINITIONS`), **then** re-run `scripts/generate_catalog.py` here |
-| Change R2 layout, add/rename tables | `~/PycharmProjects/data-pipeline` → `run_exports.py` + `parquet_schema.py`; then propagate to the SDK + MCP (both read the schema from the R2 manifest at runtime — the SDK no longer bundles `schema.json` since v3.2.0), `cloudflare/edge-gateway` (validates tables dynamically from the manifest), and regenerate `docs/schema.json` here last |
-| Change token schema, gateway routing, Stripe webhook, agent-pay | `~/WebstormProjects/cloudflare` |
-| Edit the frontend dashboard | `~/WebstormProjects/frontend` |
-| Bump the MCP server version listed in the public registry | `server.json` here — push to main triggers `.github/workflows/publish-mcp.yml` |
+| `server.json`, README `GEN:mcp-summary` block, registry publish | header comments of `.github/workflows/sync-mcp-manifest.yml` + `publish-mcp.yml`; docstrings of `scripts/sync_mcp_manifest.py`, `scripts/check_registry_sync.py` |
+| A public number or accuracy claim, `docs/accuracy/*` | `docs/accuracy/README.md`, `docs/accuracy/baseline.json` (`_definition`, `measured_at`) |
+| An example or notebook | `CONTRIBUTING.md` "Examples — contribution rules", `docs/QUERY_COOKBOOK.md` |
+| `docs/schema.json`, the data catalog | `scripts/generate_catalog.py` docstring; `data-pipeline:parquet_schema.py` (authoritative) |
 
-When a user adds or renames a canonical concept in the pipeline, the flow here is:
-pipeline `STANDARD_DEFINITIONS` → update `CONCEPTS` in `scripts/generate_catalog.py` → re-run it →
-commit regenerated `docs/data_catalog.{md,json}` and `DATA_CATALOG.xlsx` (sheet "5. Standardized
-Concepts" and the Overview "generated on" date are updated in place; other sheets preserved).
+## Stack & layout
 
----
+- Docs, examples and CI only: no pyproject, no app code; `tests/` holds only the publish guard.
+- `README.md` · `AGENTS.md` · `CONTRIBUTING.md` · `docs/` (guides, `schema.json`, data catalog, `accuracy/`, `arelle_config/` XBRL tool config) · `examples/python/` + `examples/notebooks/` · `scripts/` · `server.json`.
+- Four channels, one Bearer token: SDK (PyPI `valuein-sdk`), MCP, Bulk Data API, web dashboard (no Excel/Power Query channel). Plans, prices, limits: `cloudflare:shared/plans.ts`, live `https://data.valuein.biz/v1/plans`; never copy them.
 
-## Commands
+## Commands — run off the dev box (`~/.claude/CLAUDE.md`)
 
 ```bash
-# Lint + format examples and scripts (line length 100; ruff config inherited from ~/.claude defaults)
-uv run ruff check examples/ scripts/ --fix && uv run ruff format examples/ scripts/
-
-# Run an example end-to-end (sample tier works without a token)
-uv run python examples/python/getting_started.py
-
-# With a paid/sp500 token
-VALUEIN_API_KEY=xxx uv run python examples/python/pit_backtest.py
-
-# Regenerate the data catalog (md + json + xlsx) from inline CONCEPTS
-uv run python scripts/generate_catalog.py
-# Run from repo root — outputs to docs/data_catalog.md, data_catalog.json, DATA_CATALOG.xlsx
-
-# Publish the MCP server manifest to registry.modelcontextprotocol.io
-# FULLY AUTOMATIC — there is nothing to do here by hand, and no approval step.
-# A prod deploy of the Worker dispatches [mcp-manifest-updated] to this repo;
-# sync-mcp-manifest.yml rewrites server.json + README counts from the LIVE
-# manifest, commits, and republishes. Nightly cron is the backstop if the
-# dispatch is ever missed. See "MCP registry publishing" below.
-#
-# Check what the registry is actually serving (never needed, but never lies):
-uv run python scripts/check_registry_sync.py
-
-# Open a Jupyter notebook
-uv run jupyter lab examples/notebooks/quickstart.ipynb
+# always uv run, never bare python; no ruff config is checked in, so pass the line length (CONTRIBUTING.md: 100)
+uv run ruff check examples/ scripts/ --fix --line-length 100 && uv run ruff format examples/ scripts/ --line-length 100
+uv run --with 'pytest>=8,<10' pytest tests -q            # publish guard, as in CI
+uv run python scripts/generate_catalog.py                # network; rewrites docs/data_catalog.{md,json} + DATA_CATALOG.xlsx
+uv run python scripts/sync_mcp_manifest.py --check       # exit 1 stale, 3 publish guard refused
+uv run python scripts/check_registry_sync.py --check     # exit 1 registry drift, 2 indeterminate
 ```
 
-**Always** use `uv run python …`, never bare `python` / `python3`.
+## Branches, CI, deploy
 
-There is no `pyproject.toml` and no `release.sh` here. The only tests are `tests/` (the publish guard;
-`uv run --with pytest pytest tests -q`, run by `doc-integrity.yml`). Tests
-for the SDK live in `~/PycharmProjects/sdk` (the `valuein-sdk` PyPI package). Treat example scripts
-as the smoke test — if `getting_started.py` runs cleanly on the sample tier, the published SDK
-version is healthy from a user's perspective.
+- Branch `feat|fix|docs/short-description` from `main`, PR to `main`, squash merge, conventional commits; never push to `main` (only the sync bot does). There is no deploy: a merge is public at once and the registry publish is the only release.
+- `.github/workflows/doc-integrity.yml` (every push/PR, `workflow_dispatch`):
+  - IP-leak: greps EVERY tracked file for the proprietary-signal denylist `factor_scores|earnings_signals|composite_rank|eps_trend_est`; only lines quoting that exact string are exempt (the published tool `get_earnings_signals` passes). ⚠️ Never regenerate `docs/schema.json` wholesale from `data-pipeline:parquet_schema.py` (the gate says so).
+  - Accuracy drift: any `NN.NN%` (two decimals, 50 to 100) in `README.md` or `docs/accuracy/*.{md,json}` must sit within 1 pt of `baseline.json` `overall`, `modern_2010_onward` or `unstandardized_facts` (pre-2010 is deliberately excluded). Whole-number percents are not checked: cite the file.
+- `server.json` is bot-written: `sync-mcp-manifest.yml` (cron 03:00 UTC, `repository_dispatch` `mcp-manifest-updated` from the MCP prod deploy, `workflow_dispatch`) rewrites `version`, `tools_summary` and the README block from `https://mcp.valuein.biz/manifest.json`. ⚠️ Never hand-edit them: a registry version is immutable (a second publish is rejected), and a hand bump falsely claims what is deployed. ⚠️ A local `sync_mcp_manifest.py` run prefers a sibling `~/WebstormProjects/mcp/manifest.json` over the live manifest (`load_manifest`): never commit its output.
+- ⚠️ A `GITHUB_TOKEN` push never fires `publish-mcp.yml`'s `push` trigger, so the sync calls it via `workflow_call` with the pushed SHA, only when `check_registry_sync.py` reports the registry stale. Never gate publishing on a repo diff: after one failed publish nothing diffs and publishing is skipped forever. Drift is registry vs live Worker, never file vs Worker.
+- Publish guard (`doc-integrity.yml` runs `pytest tests`; `tests/test_sync_mcp_manifest.py`): `HIDDEN_TOOLS` in `scripts/sync_mcp_manifest.py`: a manifest listing one (any status), unjudgeable counts, or a `server.json` naming one exits 3 and writes nothing. Remove a name only when that tool ships.
 
-**CI gate — `doc-integrity.yml`** runs on every push/PR (plus `workflow_dispatch`) and is the
-front-door's guardrail. Two content checks plus a test job: (a) **IP-leak gate** — greps `docs/schema.json`, `README.md`,
-and `docs/MCP_TOOLS.md` for proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`)
-and fails the build if any appear; (b) **accuracy-drift gate** — parses every `NN.NN%` in `README.md`
-and `docs/accuracy/*` and fails if it drifts >1.0pt from the honest measured figures in
-`docs/accuracy/baseline.json`; (c) **publish-guard tests** — pytest over `tests/`, which pins the
-hidden-tool guard in `scripts/sync_mcp_manifest.py`. Never reintroduce a scrubbed signal name and never inflate an
-accuracy headline — both are mechanically blocked.
+## Accuracy and data claims
 
----
+- Accuracy figures come only from `docs/accuracy/baseline.json`, quoted with its qualifiers: S&P 500 universe, evaluable filings only, "clean" = passes every active error-severity identity (`standardized_facts._definition`). `data-pipeline:.github/workflows/publish-accuracy-baseline.yml` rewrites it after each successful pipeline run (weekly, not nightly); a missed publish is silent: check `measured_at`.
+- ⚠️ `docs/accuracy/identities.json` lags `data-pipeline:scripts/QA/identities.sql`: `baseline.json` `top_remaining_pareto` names identity keys (`bs_07_ppe_net`) the catalog lacks. Never call it "exactly the set evaluated".
+- ⚠️ The "95% coverage target" strings in `scripts/generate_catalog.py` (`_write_markdown`, `_write_json`) contradict the measured figures: never repeat them.
+- `scripts/generate_catalog.py` takes concept names from the live manifest (`DEFAULT_MANIFEST_URL`, override `VALUEIN_MANIFEST_URL`); only ratios are inline (`RATIOS`).
+- No CUSIP/CINS/ISIN anywhere: FIGI and LEI (`docs/METHODOLOGY.md`, `sdk:tests/test_identifier_policy.py`). `concept_mapping` is internal: never document it.
+- Restatement `disclosure_class` is `non_reliance` | `amended` | `undisclosed`; never call the third "silent" or "hidden" (`docs/schema.json`, `frontend:src/lib/workspace/radar.test.ts`).
 
-## MCP registry publishing
+## Data primer — what examples and docs assume
 
-`server.json` lists the remote MCP server at `https://mcp.valuein.biz/mcp` with the identifier
-`io.github.valuein/mcp-sec-edgar`. The Worker code lives in `~/WebstormProjects/mcp` (the
-retired `quants/mcp/` path is gone); this file just tells the public MCP registry where to
-find it.
+Columns: `docs/schema.json` (public subset); query patterns: `docs/QUERY_COOKBOOK.md`.
 
-Publishing flow (`.github/workflows/publish-mcp.yml`):
-1. Workflow triggers on `push` to `main` that touches `server.json`
-2. Installs the `mcp-publisher` binary from the official release
-3. `mcp-publisher login github` uses the workflow's OIDC `id-token: write` to authenticate
-4. `mcp-publisher publish ./server.json` pushes to registry.modelcontextprotocol.io
-5. **Verifies the registry actually serves the published version** — a `publish`
-   that exits 0 only means the API accepted the request
+- Start cross-company queries from `references` (one row per security: `cik`, `symbol`, `name`, `sector`, `status`, `is_active`), never the 3-table join.
+- ⚠️ No `is_sp500` flag: membership is `JOIN index_membership ON cik`, half-open (`effective_date <= D < removal_date`; NULL `removal_date` = current).
+- ⚠️ PIT: filter `filing_date <= trade_date` (`accepted_at` for intraday), never `report_date`/`period_end`. `ratio.accepted_at` is the vintage (append-on-restatement): filter `<= as_of`, then keep the latest vintage.
+- ⚠️ `ratio` holds FY and TTM rows: filter `is_ttm`/`fiscal_period` or screens double-count (`scripts/generate_catalog.py` `_RATIO_FY_TTM_NOTE`).
+- ⚠️ `fact.restated` is computed on the warehouse's current state, not PIT: informational only (`docs/schema.json`).
+- Survivorship-free: keep non-`ACTIVE` `entity.status` rows and securities with `valid_to IS NOT NULL`; do not restrict history to `is_active`.
+- ⚠️ `stock_price_daily` is per SECURITY: filter `security_id` (or `is_primary_listing`), use `total_return_index`, never `close`. Prices are licensed data from 1994 at the earliest, not EDGAR's 1993 floor.
+- Use canonical `fact.standard_concept` names (`TotalRevenue`, `NetIncome`, `OperatingCashFlow`, `CAPEX`, `StockholdersEquity`; list in `docs/data_catalog.md`), not raw tags (`fact.concept`). `COALESCE(derived_quarterly_value, numeric_value)` for cash flow, `ABS(capex)`, `NULLIF(denominator, 0)`.
+- ⚠️ The `valuation` table is gone (schema 3.0.0, `data-pipeline:parquet_schema.py`): write no example against it; DCFs come from MCP `compute_dcf`.
 
-### This propagates automatically. There is no approval step.
+## Examples and notebooks
 
-**A new version in MCP production updates this repo on its own — by design, and with
-no human in the loop.** The `push`-to-`main` trigger above is a fallback, not the
-normal path. The normal path is:
+- One concept per file, snake_case names (no numeric prefix), under 150 lines, `from valuein_sdk import ValueinClient`, `with ValueinClient() as client:`, `tables=[...]`, module docstring, no keys, bucket names or internal URLs (`CONTRIBUTING.md`).
+- Standalone on the sample tier, or the docstring states the minimum tier (`smart_money_screen.py` needs `full`; `pit_factor_dataset.py` exits without a free token). ⚠️ `ValueinClient()` silently picks up `VALUEIN_API_KEY` or a `.env` found upward from the cwd: pass `api_key=""` to force the sample tier (`sdk:valuein_sdk/client.py`).
+- `client.run_query(sql)`, `client.run_template(name, **kwargs)`: kwargs only, bare ticker; `client.query()` is gone (SDK 3.0.0); pinned by `sdk:tests/test_run_template.py` `TestCallingConvention`.
+- A script with a same-named notebook changes with it in one PR (`quickstart.ipynb` = `getting_started.py`, `fundamental_analysis.ipynb` = `financial_analysis.py`).
+- Only `pit_factor_dataset.py` runs in automation (`sdk:.github/workflows/example-live-smoke.yml`, non-blocking): run any other example you touch.
 
-```
-mcp prod deploy succeeds
-  → dispatches [mcp-manifest-updated] to this repo
-  → sync-mcp-manifest.yml rewrites server.json + README counts from the LIVE manifest
-  → commits to main
-  → publishes to registry.modelcontextprotocol.io
-  → verifies the registry actually serves it
-```
+## AGENTS.md
 
-Nightly cron (03:00 UTC) is the backstop if a dispatch is ever missed, and the publish
-is gated on the registry being stale rather than on a repo diff, so a failed publish
-retries itself the next night instead of stranding.
+External-agent-facing product document, not Claude instructions: `cloudflare:workers/agent-pay/src/routes/discovery.ts` (`AGENTS_MD_URL`) links agents to its GitHub URL, so keep its path, purpose and audience. Sources: tiers, prices, rate card `cloudflare:shared/plans.ts` (`PLANS`, `PAYG_TOOL_PRICING`); payment behaviour `cloudflare:workers/agent-pay/src/routes/mpp-{call,receipt}.ts`; MCP tools `mcp:manifest.json`; SDK calls `sdk:valuein_sdk/client.py`. No hardcoded counts or versions, no internal repos. Never promise "not charged" beyond `mpp-call` (`PAYMENT_STATE_UNKNOWN`, receipt `unconfirmed`). It moves with `CONTRIBUTING.md`.
 
-**Publish guard.** `sync_mcp_manifest.py` (write and `--check`) exits 3 and writes nothing if the
-manifest lists `purchase_report`, `list_my_purchases` or `connect_stripe_account` (any status), cannot
-be judged (bad `tools`, `counts.tools_live` disagreeing with the live tools), or `server.json`
-already names one. Remove a name from `HIDDEN_TOOLS` only when that tool is released.
+## Docs & git
 
-**Never bump `server.json` by hand, and never gate this on a review.** Hand-editing
-races the bot, and registry versions are immutable — whichever publish loses the race
-fails on an already-published version. The version here must match the Worker's
-deployed version; bumping it ahead of a shipped Worker change is a silent lie to the
-registry, which is exactly why a machine reading the live manifest does it and a
-person does not.
-
-### Drift is measured against the registry, never against this repo
-
-`scripts/check_registry_sync.py` compares the **published registry** to the **live
-Worker**. Neither side is a file in this repo, and that is the point: every other
-guard (`sync_mcp_manifest.py --check` here, `check-version-sync.mjs` in the mcp
-repo) compares a file to the Worker, and all of them stay green while the registry
-advertises a version nobody is serving. That is not hypothetical — the registry sat
-at 2.54.0 while prod served 2.61.0, invisible because `server.json` was correct the
-whole time.
-
-```bash
-uv run python scripts/check_registry_sync.py            # report
-uv run python scripts/check_registry_sync.py --check    # exit 1 drift, 2 indeterminate
-```
-
-The publish job is gated on this check, **not** on a repo diff. Gating on a diff is
-only correct if no publish ever fails: once one does, `server.json` is already
-correct, so nothing diffs, so the publish is skipped — every night, forever, green.
-Asking the registry makes the nightly run self-healing. A registry outage reports
-`unknown` and falls back to the diff signal rather than publishing blind.
-
----
-
-## Examples — contribution rules (from `CONTRIBUTING.md`)
-
-- Filename: `snake_case.py`, no numeric prefix
-- Must import `from valuein_sdk import ValueinClient` (public PyPI package)
-- Use `tables=[...]` to load only what's needed
-- Must run standalone: `VALUEIN_API_KEY=xxx uv run python examples/python/file.py`
-- Keep under 150 lines, one concept per file
-- No hardcoded API keys, bucket names, or internal URLs
-- `print()` is fine in `examples/` and `scripts/` (unlike the SDK repo, which requires `logging`)
-- Before PR: `uv run ruff check examples/ --fix && uv run ruff format examples/`
-
-When the SDK publishes a new public method or template, add an example here that exercises it —
-this repo is how users discover SDK features.
-
----
-
-## Data primer — what the examples assume
-
-The examples query data shaped by the pipeline and exposed by the SDK. The schema contract here is
-`docs/schema.json` (machine-readable, regenerated from `parquet_schema.py`) and `docs/data_catalog.md`
-(human-readable). The SDK/MCP read the live schema from the R2 manifest at runtime — `docs/schema.json`'s
-own `version` field (currently **2.16.0**) tracks the manifest/regeneration, not `parquet_schema.py`'s semver.
-
-### Tables surfaced to users
-
-`docs/schema.json` lists **16 tables**: `references` · `entity` · `security` · `filing` · `fact` ·
-`valuation` · `index_membership` · `standard_concept` · `taxonomy_guide` · `ratio` + the 6
-smart-money tables (`insider_party` · `insider_filing` · `insider_transaction` ·
-`institutional_filing` · `institutional_holding` · `insider_ownership`, Institutional/`full` tier).
-The `ratio` table carries `accepted_at` (PIT vintage, append-on-restatement) — filter
-`accepted_at <= as_of` for look-ahead-safe, restatement-aware ratios.
-
-Start cross-company queries from `references` (denormalized entity + security flat join, one row per
-security; carries `cik`, `symbol`, `name`, `sector`, `is_active`). Never start from the 3-table join.
-
-The `references.is_sp500` flag was **dropped in 2026-05-02** (data-pipeline commit `2a9ff95` —
-"Path B: rename entity_id→cik, drop is_sp500"). For ANY membership question — current OR
-historical — JOIN with `index_membership` ON `references.cik = im.cik` (same column name on both
-sides post-migration 0015). This is a single-index, snapshot-only footgun that we explicitly
-removed.
-
-### PIT and survivorship discipline — preserve in every example
-
-- Filter by `filing_date <= trade_date`, **never** `report_date` (look-ahead bias)
-- Use `accepted_at` for millisecond-precision PIT in intraday research
-- Survivorship-bias-free → include delisted/acquired; use `status != 'ACTIVE'` (other values exist
-  beyond `'INACTIVE'`/`'DELISTED'`) and `security.valid_to IS NOT NULL` for historical tickers
-- Current SP500 membership: `JOIN index_membership im ON r.cik = im.cik WHERE im.index_name = 'SP500' AND im.removal_date IS NULL`
-- Historical membership on a date: `WHERE $date >= im.effective_date AND ($date < im.removal_date OR im.removal_date IS NULL)`
-
-### `fact.standard_concept` — canonical names only
-
-Examples must use canonical names (e.g. `'TotalRevenue'`, `'NetIncome'`, `'OperatingCashFlow'`,
-`'CAPEX'`, `'StockholdersEquity'`), not raw XBRL tags (`'Revenues'`, `'NetIncomeLoss'`, `'Assets'`).
-The raw tag is in `fact.concept`; the canonical form is in `fact.standard_concept`. Both columns are
-on the same table — no mapping join needed, and `concept_mapping` is **internal, never show it**.
-
-See `docs/data_catalog.md` for the canonical concept list. The source of truth is `CONCEPTS` in
-`scripts/generate_catalog.py`, which must mirror `STANDARD_DEFINITIONS` in the pipeline.
-
-### Accuracy — measured, not aspirational
-
-There is **no hard 95% coverage gate** — unmapped raw tags fall through to `Other`. The honest,
-reproducible accuracy figures live in `docs/accuracy/baseline.json` — regenerated nightly from a
-production run and re-derivable via `duckdb scripts/accuracy/accuracy_check.sql`. NEVER hardcode an
-accuracy percentage in public docs that isn't taken from the current `baseline.json`; the
-`doc-integrity.yml` accuracy gate pins every public `NN.NN%` to within 1pt of the baseline. The legacy "≥95% coverage target" string still lingering in
-`scripts/generate_catalog.py` / the catalog is aspirational and contradicts these measured figures —
-do not amplify it.
-
-### DuckDB query patterns examples should follow
-
-- `LATERAL (… ORDER BY filing_date DESC LIMIT 1)` for latest filing per company
-- `MAX(CASE WHEN standard_concept = '…' THEN … END)` to pivot multiple concepts in one `fact` scan
-- `QUALIFY ROW_NUMBER() OVER (…) = 1` for latest-row filtering
-- `COALESCE(derived_quarterly_value, numeric_value)` for cash flow metrics (Q2/Q3 10-Qs report YTD)
-- `ABS(capex)` (sign varies by filer) and `NULLIF(denominator, 0)` on every ratio
-
----
-
-## Style
-
-- Python 3.10+, line length 100, ruff for lint + format, Google-style docstrings
-- Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
-- No CUSIPs anywhere (licensing risk); use FIGI and LEI
-- Notebooks must mirror the matching Python script — if you change `pit_backtest.py`, update
-  `pit_backtest.ipynb` in the same PR
+- Update `README.md` only for upstream changes; its MCP counts are bot-written.
+- Conventional commits; a PR says what was wrong, what is right now, and the source of truth.
