@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-09-14T01:36:47Z",
+  "measured_at": "2026-10-05T13:40:37Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 968,
-    "filings": 17105,
+    "entities": 1098,
+    "filings": 18155,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,74 +20,78 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 17105,
-      "filings_in_universe": 19759,
-      "clean_filings": 16663,
-      "filings_with_errors": 442,
-      "accuracy_pct": 97.42
+      "filings": 18155,
+      "filings_in_universe": 21276,
+      "clean_filings": 16466,
+      "filings_with_errors": 1689,
+      "accuracy_pct": 90.7
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 10306,
-        "filings_in_universe": 10872,
-        "clean_filings": 9943,
-        "filings_with_errors": 363,
-        "accuracy_pct": 96.48
+        "filings": 10601,
+        "filings_in_universe": 11222,
+        "clean_filings": 9219,
+        "filings_with_errors": 1382,
+        "accuracy_pct": 86.96
       },
       "legacy_pre_2010": {
-        "filings": 6799,
-        "filings_in_universe": 8887,
-        "clean_filings": 6720,
-        "filings_with_errors": 79,
-        "accuracy_pct": 98.84,
+        "filings": 7554,
+        "filings_in_universe": 10054,
+        "clean_filings": 7247,
+        "filings_with_errors": 307,
+        "accuracy_pct": 95.94,
         "_note": "Pre-2010 XBRL was optional, so most pre-2010 filings carry no facts. They are now EXCLUDED from this denominator (filings vs filings_in_universe shows how many); previously they were counted as passes, which inflated the legacy and overall figures."
       }
     },
     "top_remaining_pareto": [
       {
-        "identity_key": "bs_07_ppe_net",
-        "filings_failed": 293
+        "identity_key": "is_04_continuing_ops",
+        "filings_failed": 825
+      },
+      {
+        "identity_key": "eps_01_basic_eps_consistency",
+        "filings_failed": 744
       },
       {
         "identity_key": "is_01_gross_profit",
-        "filings_failed": 102
+        "filings_failed": 465
+      },
+      {
+        "identity_key": "bs_01_accounting_equation",
+        "filings_failed": 352
+      },
+      {
+        "identity_key": "bs_07_ppe_net",
+        "filings_failed": 318
       },
       {
         "identity_key": "is_11_comprehensive_income_consolidated",
-        "filings_failed": 91
+        "filings_failed": 103
       },
       {
         "identity_key": "is_10_comprehensive_income",
-        "filings_failed": 90
+        "filings_failed": 97
       },
       {
         "identity_key": "eps_03_diluted_shares_ge_basic",
-        "filings_failed": 33
+        "filings_failed": 38
       },
       {
         "identity_key": "bs_02_assets_partition",
-        "filings_failed": 32
+        "filings_failed": 34
       },
       {
         "identity_key": "sp_08_gross_profit_le_revenue",
-        "filings_failed": 26
-      },
-      {
-        "identity_key": "sp_09_cogs_nonnegative",
-        "filings_failed": 14
-      },
-      {
-        "identity_key": "sp_01_total_assets_positive",
-        "filings_failed": 3
+        "filings_failed": 29
       }
     ]
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 23790714,
-    "correctly_unstandardized": 15180525,
-    "mapping_gaps": 8610189,
-    "accuracy_pct": 63.81
+    "facts_with_standard_concept_other": 22936611,
+    "correctly_unstandardized": 14695271,
+    "mapping_gaps": 8241340,
+    "accuracy_pct": 64.07
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
