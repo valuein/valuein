@@ -102,8 +102,17 @@ jobs:
       - name: Login (GitHub OIDC, non-interactive)
         run: mcp-publisher login github-oidc
 
+      # A re-run for a version the registry already has is a no-op, not a
+      # failure: the registry refuses the duplicate ("cannot publish duplicate
+      # version", the 2026-09-18 re-dispatch of v3.1.3), and the next step
+      # still proves the registry serves this version. Any other error fails.
       - name: Publish
-        run: mcp-publisher publish ./server.json
+        run: |
+          set -o pipefail
+          if ! mcp-publisher publish ./server.json 2>&1 | tee "$RUNNER_TEMP/publish.log"; then
+            grep -q "cannot publish duplicate version" "$RUNNER_TEMP/publish.log" || exit 1
+            echo "::notice::server.json's version is already published; verifying the registry serves it."
+          fi
 
       # Close the loop: assert the registry actually serves what we just sent.
       #
