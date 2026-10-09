@@ -320,8 +320,8 @@ ORDER  BY im.removal_date DESC
 
 ### 13. Factor screen (Quality + Growth + Efficiency)
 
-**Use when:** you want a multi-factor fundamental ranking. Full script:
-[`examples/python/factor_screen.py`](../examples/python/factor_screen.py).
+**Use when:** you want a multi-factor fundamental ranking. See
+notebook [`03_survivorship_free_screening.ipynb`](../examples/notebooks/03_survivorship_free_screening.ipynb) (screen as of a date) and [`examples/python/factor_backtest.py`](../examples/python/factor_backtest.py) (test it).
 
 ```sql
 WITH latest AS (
@@ -435,8 +435,8 @@ LIMIT  3
 ### 15. Earnings momentum (YoY acceleration)
 
 **Use when:** classic momentum factor — rank by YoY growth of revenue and
-earnings. Full script:
-[`examples/python/earnings_momentum.py`](../examples/python/earnings_momentum.py).
+earnings. To test it, use
+[`examples/python/factor_backtest.py`](../examples/python/factor_backtest.py) (swap the signal for a growth ratio such as `revenue_cagr_1y`).
 
 ```sql
 -- See recipe 13 for the `latest` / `prior` CTEs (same skeleton).
@@ -600,6 +600,6 @@ LIMIT  20
 - [`examples/python/getting_started.py`](../examples/python/getting_started.py) — first run
 - [`examples/python/financial_analysis.py`](../examples/python/financial_analysis.py) — intermediate patterns
 - [`examples/python/pit_backtest.py`](../examples/python/pit_backtest.py) — PIT discipline in depth
-- [`examples/python/factor_screen.py`](../examples/python/factor_screen.py) — full factor screen
+- [`examples/python/entity_screening.py`](../examples/python/entity_screening.py) — screen as of a past date
 - [`examples/python/dcf_inputs.py`](../examples/python/dcf_inputs.py) — DCF assembly
-- [`examples/python/earnings_momentum.py`](../examples/python/earnings_momentum.py) — momentum screen
+- [`examples/python/factor_backtest.py`](../examples/python/factor_backtest.py) — point-in-time factor backtest

@@ -34,7 +34,7 @@ uv pip install valuein-sdk
 uv run python examples/python/getting_started.py
 
 # With a paid tier (either workflow):
-VALUEIN_API_KEY=xxx python examples/python/factor_screen.py
+VALUEIN_API_KEY=xxx python examples/python/factor_backtest.py
 ```
 
 There is no `pyproject.toml`, no test suite, and no build step in this repo. The example scripts are themselves the smoke test — if `getting_started.py` runs cleanly on the Sample tier, the published SDK is healthy.
@@ -59,11 +59,11 @@ There is no `pyproject.toml`, no test suite, and no build step in this repo. The
 
 These are stricter than typical OSS examples because the scripts are **the way users learn the product**. Inconsistency here costs every reader.
 
-- **Filename:** `snake_case.py`, no numeric prefix
+- **Filename:** scripts are `snake_case.py` with no numeric prefix; notebooks are `NN_snake_case.ipynb`, the prefix giving their place in the learning path (`examples/README.md`)
 - **One concept per file**, kept under 150 lines — split if needed
 - **Import:** `from valuein_sdk import ValueinClient` (the published PyPI package)
 - **Context manager:** `with ValueinClient() as client:` — never bare construction
-- **Tables:** `tables=[...]` to load only what's needed (faster startup)
+- **Tables:** no `tables=[...]` needed: the client downloads each table on first use; passing `tables=` forces an eager load
 - **Standalone:** `uv run python examples/python/your_file.py` must succeed on the Sample tier without a token, or document the minimum required tier in the docstring
 - **Module docstring:** required — state what the script does, who it's for, the SDK methods used, and the tables loaded
 - **No secrets:** no hardcoded tokens, internal URLs, or bucket names
@@ -74,7 +74,7 @@ These are stricter than typical OSS examples because the scripts are **the way u
 - **Quarterly cash flows:** use `COALESCE(derived_quarterly_value, numeric_value)`
 - **Cross-company queries:** start from the `references` table (zero joins)
 
-If you add a Python script, **add the matching notebook** in the same PR. The notebook should produce the same output as the script.
+A matching notebook is optional. If a script has a paired notebook (listed in `examples/README.md`), change both in the same PR. Commit notebooks with their outputs, executed on the Sample tier.
 
 ---
 

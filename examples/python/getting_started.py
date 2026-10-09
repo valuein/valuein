@@ -1,62 +1,66 @@
-"""Valuein US Core Fundamentals — Getting Started
+"""Getting started: connect, resolve a ticker, run a first query.
 
-The first script every new user should run. Confirms your token works,
-loads two lightweight tables, and shows you how to look up a company
-by ticker. Completes in under 30 seconds.
+What it does: connects to Valuein, prints the plan and data snapshot you are reading,
+resolves a ticker to its SEC CIK, and prints the company's annual revenue and net income.
+Who it is for: anyone trying the SDK for the first time.
+Plan: none. Runs on the free sample tier (S&P 500 companies, last five years) with no API
+key. Set VALUEIN_API_KEY to read your own plan's data with the same code.
+SDK methods: ValueinClient, ValueinClient.resolve, ValueinClient.run_query.
+Tables: references, fact (each is fetched the first time a query needs it).
+Notebook: examples/notebooks/01_quickstart.ipynb
 
-Run (no token required — falls back to the SAMPLE tier automatically):
-    pip install valuein-sdk      # or: uv pip install valuein-sdk
+Run:
+    pip install valuein-sdk
     python examples/python/getting_started.py
-
-Add a token only when you need full universe / full history:
-    export VALUEIN_API_KEY="your_token_here"
 """
+
+from __future__ import annotations
+
+import pandas as pd
 
 from valuein_sdk import ValueinClient
 
-# ── Step 1: Connect and verify ────────────────────────────────────────────────
-# tables=[] skips all data downloads — instant auth check.
-print("Connecting to Valuein gateway...")
-client = ValueinClient(tables=[])
+TICKER = "AAPL"
 
-me = client.me()
-snap = client.manifest().get("snapshot", "unknown")
-print(f"  Plan     : {me.get('plan', 'unknown')}")
-print(f"  Status   : {me.get('status', 'unknown')}")
-print()
 
-# ── Step 2: Load entity + security (lightweight, no financials) ───────────────
-print("Loading entity and security tables...")
-client = ValueinClient(tables=["entity", "security"])
+def annual_series(client: ValueinClient, cik: str, concepts: list[str]) -> pd.DataFrame:
+    """Return one row per fiscal year end and one column per concept, in USD billions.
 
-counts = client.run_query("""
-    SELECT
-        (SELECT count(*) FROM entity)   AS entities,
-        (SELECT count(*) FROM security) AS securities
-""")
-print(f"  Entities  : {counts['entities'].iloc[0]:,}")
-print(f"  Securities: {counts['securities'].iloc[0]:,}")
-print()
+    A 10-K repeats prior years as comparatives and a later filing can revise a value, so
+    the same fiscal year appears in several rows. Keep the latest vintage per period.
+    """
+    concept_list = ", ".join(f"'{c}'" for c in concepts)
+    long = client.run_query(f"""
+        SELECT period_end, standard_concept, numeric_value / 1e9 AS usd_bn
+        FROM fact
+        WHERE entity_id = '{cik}'
+          AND standard_concept IN ({concept_list})
+          AND fiscal_period = 'FY'
+          AND period_span_days BETWEEN 350 AND 380
+        QUALIFY ROW_NUMBER() OVER (
+            PARTITION BY standard_concept, period_end ORDER BY accepted_at DESC, priority DESC
+        ) = 1
+    """)
+    return long.pivot(index="period_end", columns="standard_concept", values="usd_bn").sort_index()
 
-# ── Step 3: Look up a company by ticker ───────────────────────────────────────
-print("Looking up AAPL...")
-df = client.run_query("""
-    SELECT
-        e.cik,
-        e.name,
-        e.sector,
-        e.industry,
-        e.status,
-        s.symbol,
-        s.exchange
-    FROM security s
-    JOIN entity   e ON s.entity_id = e.cik
-    WHERE s.symbol    = 'AAPL'
-      AND s.is_active = TRUE
-    LIMIT 1
-""")
-print(df.to_string(index=False))
-print()
 
-print("Setup complete. You're ready to query US Core Fundamentals.")
-print("Next step → python examples/usage.py")
+def main() -> None:
+    """Connect, resolve the ticker and print its annual fundamentals."""
+    with ValueinClient() as client:
+        print(f"plan     : {client.plan}")
+        print(f"as_of    : {client.as_of:%Y-%m-%d %H:%M} UTC")
+        print(f"snapshot : {client.manifest().get('snapshot')}")
+
+        # A ticker can be retired and reused; the CIK is the stable key every table joins on.
+        match = client.resolve(TICKER).iloc[0]
+        print(f"\n{TICKER} -> CIK {match['cik']} ({match['name']})")
+
+        table = annual_series(client, match["cik"], ["TotalRevenue", "NetIncome"])
+        print(f"\n{match['name']}: annual revenue and net income, USD billions")
+        print(table.round(1).to_string())
+
+        print("\nNext: python examples/python/financial_analysis.py")
+
+
+if __name__ == "__main__":
+    main()

@@ -13,7 +13,7 @@
 | Goal | How this repo delivers it | Where to verify |
 |---|---|---|
 | Be the front door: a reader gets from landing page to live data without a token | `README.md` quickstart; every example runs on the sample tier with no API key | `uv run python examples/python/getting_started.py` |
-| Examples double as the smoke test for the published SDK | Standalone `examples/python/*.py` that `import valuein_sdk`; several have a same-named notebook in `examples/notebooks/` | `getting_started.py` runs clean on the sample tier → the SDK release is healthy |
+| Examples double as the smoke test for the published SDK | Standalone `examples/python/*.py` that `import valuein_sdk`; most pair with a numbered notebook in `examples/notebooks/` (index: `examples/README.md`) | `getting_started.py` runs clean on the sample tier → the SDK release is healthy |
 | The public MCP registry advertises exactly the version production serves | `sync-mcp-manifest.yml` rewrites `server.json` from the live Worker manifest; `publish-mcp.yml` verifies the registry serves it | `uv run python scripts/check_registry_sync.py --check` |
 | Tools hidden until their launch never reach the registry | The publish guard in `scripts/sync_mcp_manifest.py` (`HIDDEN_TOOLS`) refuses the sync and the publish, exit 3, nothing written | `uv run --with pytest pytest tests -q` |
 | Public docs never leak proprietary signal names or inflate accuracy | `doc-integrity.yml` IP-leak gate + accuracy-drift gate on every push and PR | The workflow run; `docs/accuracy/baseline.json` |
@@ -76,7 +76,7 @@ flowchart LR
 | `docs/accuracy/` | `baseline.json` (the measured accuracy figures), `identities.json`, `methodology.md`, `README.md` | Never by hand — `baseline.json` comes from a production run; re-derive it with `scripts/accuracy/accuracy_check.sql` |
 | `docs/arelle_config/` | XBRL tooling configuration for Arelle (config, not code) | XBRL tooling setup changes |
 | `examples/python/` | Standalone scripts that `import valuein_sdk`, one concept each, sample tier, no token | The SDK publishes a new public method or template — add an example that exercises it |
-| `examples/notebooks/` | Jupyter mirrors of several Python scripts (Colab-ready) | The matching script changes — same PR |
+| `examples/notebooks/` | `NN_`-numbered learning path, committed with outputs executed on the sample tier (Colab-ready) | The paired script changes — same PR |
 | `scripts/generate_catalog.py` | Catalog generator: concept names come from the live manifest, ratios are the inline `RATIOS` | A ratio changes, or an upstream concept change is live in the manifest (re-run it) |
 | `scripts/sync_mcp_manifest.py` · `scripts/check_registry_sync.py` | The bot's rewrite step, and the registry-vs-live-Worker drift check (`--check`: exit 1 drift, 2 indeterminate) | Diagnosing registry drift; the Worker manifest shape changes |
 | `server.json` | MCP registry manifest: `io.github.valuein/mcp-sec-edgar` at `https://mcp.valuein.biz/mcp` | Never by hand — written by `sync-mcp-manifest.yml` |
@@ -99,7 +99,7 @@ All three are runnable by hand via `workflow_dispatch`.
 - Never reintroduce a scrubbed proprietary signal name in any tracked file — the IP-leak gate fails the build. This repo is PUBLIC: nothing internal or unannounced, and never link the private repos.
 - Never hardcode an accuracy percentage that is not taken from the current `docs/accuracy/baseline.json` — the accuracy-drift gate fails the build.
 - No source code, no product tests (only `tests/` for the publish guard), no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
-- Examples: `snake_case.py`, under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; the notebook mirrors the script in the same PR.
+- Examples: scripts `snake_case.py`, notebooks `NN_snake_case.ipynb`; scripts under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; a script and its paired notebook change in the same PR.
 - No CUSIPs anywhere (licensing risk) — use FIGI and LEI; `concept_mapping` is internal and never shown.
 - Always `uv run python …`, never bare `python`; run `ruff` check + format on `examples/` and `scripts/` before a PR.
 

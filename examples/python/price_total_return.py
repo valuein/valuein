@@ -1,70 +1,80 @@
-"""Valuein US Core Fundamentals — Prices and Total Return
+"""Prices and total return: why returns come from total_return_index, never raw close.
 
-Two traps live in this table, and both are silent.
-
-TRAP 1 — the grain of `stock_price_daily` is (security, day), NOT (company, day).
-A CIK is an *issuer*. DTE Energy files one set of financials but has five listed
-securities (common plus four baby bonds). Partition price data on `entity_id`
-alone and you are alternating between unrelated price series for roughly 6% of
-issuers. The discriminator is `security_id` — never `symbol`, never `entity_id`.
-Use `is_primary_listing` when you want the common stock.
-
-TRAP 2 — do not recompound total return by hand. `total_return_index` is
-prepopulated and dividend/split adjusted. Rebuilding it from `close`, `div_cash`
-and `split_factor` is how people quietly drop a dividend.
-
-What you'll learn:
-- How to detect multi-security issuers before they corrupt a backtest
-- How to compute price return vs total return correctly
-- How much of long-run equity return is dividends (spoiler: for KO, a lot)
+What it does: shows NVIDIA's 10-for-1 split in June 2024 breaking a return computed from raw
+`close` while `total_return_index` stays correct, then shows how much of five dividend payers'
+return was the dividend. On Pro and Institutional it also calls the daily-bar helpers.
+Who it is for: anyone computing returns, from a single chart to a backtest.
+Plan: none for the month-end examples (free sample tier, table `stock_price`). The daily
+helpers (`client.prices`, `client.total_return`) need `stock_price_daily`, included with Pro
+and Institutional; on other plans the script says so instead of calling them.
+SDK methods: ValueinClient.run_query, ValueinClient.prices, ValueinClient.total_return.
+Tables: stock_price (all plans), stock_price_daily (Pro, Institutional).
+Notebook: examples/notebooks/05_prices_and_total_return.ipynb
 
 Run:
-    # Install (either workflow):  pip install valuein-sdk   |   uv pip install valuein-sdk
-    # Token is OPTIONAL — without it, the SDK runs in SAMPLE mode (S&P 500, last 5 years).
-    # only when you want full universe / full history
-    export VALUEIN_API_KEY="your_token_here"
+    pip install valuein-sdk
     python examples/python/price_total_return.py
 """
 
+from __future__ import annotations
+
+import pandas as pd
+
 from valuein_sdk import ValueinClient
 
-client = ValueinClient(tables=["references", "stock_price_daily"])
+DIVIDEND_PAYERS = ["KO", "PG", "PEP", "JNJ", "VZ"]
 
-# ── 1. Find the issuers that will break a naive entity_id partition ───────────
-print("Issuers in this snapshot with three or more listed securities:")
-print(
-    client.run_query("""
-    SELECT entity_id, count(DISTINCT security_id) AS securities,
-           string_agg(DISTINCT symbol, ', ' ORDER BY symbol) AS symbols
-    FROM stock_price_daily
-    GROUP BY entity_id HAVING count(DISTINCT security_id) > 2
-    ORDER BY securities DESC, entity_id
-""").to_string(index=False)
-)
 
-# ── 2. Price return vs total return, partitioned on security_id ───────────────
-print(
-    "\nTotal return by SECURITY (dividends + splits already inside total_return_index):"
-)
-print(
-    client.run_query("""
-    WITH bounds AS (
-        SELECT security_id, symbol,
-               first_value(total_return_index) OVER w AS tri_start,
-               last_value(total_return_index)  OVER w AS tri_end,
-               first_value(close) OVER w              AS px_start,
-               last_value(close)  OVER w              AS px_end
-        FROM stock_price_daily
-        WHERE symbol IN ('AAPL','MSFT','KO') AND price_date >= DATE '2023-01-01'
-        WINDOW w AS (PARTITION BY security_id ORDER BY price_date
-                     ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
-    )
-    SELECT DISTINCT symbol, security_id,
-           round((px_end / px_start - 1) * 100, 1)   AS price_return_pct,
-           round((tri_end / tri_start - 1) * 100, 1) AS total_return_pct
-    FROM bounds ORDER BY total_return_pct DESC
-""").to_string(index=False)
-)
+def month_end_bars(client: ValueinClient, symbols: list[str]) -> pd.DataFrame:
+    """Month-end close and total-return index for the given symbols."""
+    names = ", ".join(f"'{s}'" for s in symbols)
+    return client.run_query(f"""
+        SELECT symbol, price_date, close, total_return_index
+        FROM stock_price
+        WHERE observation = 'monthly' AND symbol IN ({names})
+        ORDER BY symbol, price_date
+    """)
 
-print("\nThe gap between the two columns is the dividend. Drop it and you have")
-print("understated the return on every income-paying stock you hold.")
+
+def main() -> None:
+    """Print the split example, the dividend table and, if available, the daily helpers."""
+    with ValueinClient() as client:
+        bars = month_end_bars(client, ["NVDA", *DIVIDEND_PAYERS])
+        bars["price_date"] = pd.to_datetime(bars["price_date"])
+
+        nvda = bars[
+            (bars["symbol"] == "NVDA") & bars["price_date"].between("2024-04-01", "2024-07-31")
+        ].copy()
+        nvda["return_from_close"] = nvda["close"].pct_change()
+        nvda["return_from_tri"] = nvda["total_return_index"].pct_change()
+        print("NVIDIA around its June 2024 10-for-1 split (month-end bars):")
+        print(nvda.drop(columns="symbol").round(3).to_string(index=False))
+
+        payers = bars[bars["symbol"].isin(DIVIDEND_PAYERS)]
+        first, last = payers.groupby("symbol").first(), payers.groupby("symbol").last()
+        table = pd.DataFrame(
+            {
+                "from": first["price_date"].dt.date,
+                "to": last["price_date"].dt.date,
+                "price_return": last["close"] / first["close"] - 1,
+                "total_return": last["total_return_index"] / first["total_return_index"] - 1,
+            }
+        )
+        table["from_dividends"] = table["total_return"] - table["price_return"]
+        print("\nPrice return vs total return (never add div_cash on top of the index):")
+        print(table.round(3).to_string())
+
+        if "stock_price_daily" in client.tables():
+            daily = client.prices("NVDA").between("2024-06-01", "2024-06-30").to_pandas()
+            print("\nDaily bars:\n", daily.head().to_string(index=False))
+            year = client.total_return("NVDA", "2024-01-01", "2024-12-31")
+            print(f"NVDA 2024 total return: {year:+.1%}")
+        else:
+            print(
+                f"\nPlan '{client.plan}' has no daily bars; with Pro or Institutional run "
+                "client.prices('NVDA').between(...).to_pandas() and client.total_return(...)."
+            )
+
+
+if __name__ == "__main__":
+    main()
