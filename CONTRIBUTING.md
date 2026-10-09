@@ -25,12 +25,12 @@ cd valuein
 
 # pip (universal):
 python -m venv .venv && source .venv/bin/activate
-pip install valuein-sdk
+pip install "valuein-sdk>=7.0.0"
 python examples/python/getting_started.py     # Sample tier — no token, no signup
 
 # uv (faster, recommended for contributors — https://docs.astral.sh/uv/):
 uv venv && source .venv/bin/activate
-uv pip install valuein-sdk
+uv pip install "valuein-sdk>=7.0.0"
 uv run python examples/python/getting_started.py
 
 # With a paid tier (either workflow):

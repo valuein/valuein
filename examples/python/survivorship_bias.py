@@ -11,7 +11,7 @@ Tables: index_membership, references, stock_price.
 Notebook: examples/notebooks/03_survivorship_free_screening.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/survivorship_bias.py
 """
 

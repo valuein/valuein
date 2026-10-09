@@ -17,7 +17,7 @@ Tables: fact, filing, references.
 Notebook: examples/notebooks/08_verify_a_number.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/filing_provenance.py
 """
 

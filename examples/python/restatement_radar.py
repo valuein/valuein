@@ -14,7 +14,7 @@ Tables: restatement_events.
 Notebook: examples/notebooks/06_restatements.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/restatement_radar.py
 """
 

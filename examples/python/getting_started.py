@@ -10,7 +10,7 @@ Tables: references, fact (each is fetched the first time a query needs it).
 Notebook: examples/notebooks/01_quickstart.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/getting_started.py
 """
 

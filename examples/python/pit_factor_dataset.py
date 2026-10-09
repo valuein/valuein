@@ -13,7 +13,7 @@ Tables: index_membership, references, ratio.
 Notebook: examples/notebooks/04_pit_factor_backtest.ipynb
 
 Run:
-    pip install valuein-sdk pyarrow
+    pip install "valuein-sdk>=7.0.0" pyarrow
     python examples/python/pit_factor_dataset.py
 """
 

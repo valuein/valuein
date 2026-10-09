@@ -12,7 +12,7 @@ Tables: stock_price (all plans), stock_price_daily (Pro, Institutional).
 Notebook: examples/notebooks/05_prices_and_total_return.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/price_total_return.py
 """
 

@@ -10,7 +10,7 @@ shows the real results. Open any of them in Colab with the badge at its top.
 ## Run them
 
 ```bash
-pip install valuein-sdk matplotlib        # or: uv pip install valuein-sdk matplotlib
+pip install "valuein-sdk>=7.0.0" matplotlib        # or: uv pip install "valuein-sdk>=7.0.0" matplotlib
 python examples/python/getting_started.py
 ```
 
@@ -37,7 +37,7 @@ Research workflows built on the path:
 
 | # | Notebook | What you learn | Plan |
 |---|---|---|---|
-| 10 | [DCF valuation](notebooks/10_dcf_valuation.ipynb) | FCF, cash, debt and shares from filings; two-stage DCF, sensitivity, reverse DCF | none |
+| 10 | [DCF valuation](notebooks/10_dcf_valuation.ipynb) | `client.dcf()`: a two-stage DCF with every input traced to its filing; sensitivity, reverse DCF, the same DCF on a past date, peers | none |
 | 11 | [Piotroski F-score screen](notebooks/11_piotroski_screen.ipynb) | Screen on the published F-score as of a date; rebuild its nine tests from facts | none |
 | 12 | [Earnings quality](notebooks/12_earnings_quality.ipynb) | Sloan accruals across the S&P 500 and a point-in-time backtest of the anomaly | none |
 | 13 | [Sector comparison](notebooks/13_sector_comparison.ipynb) | DuPont decomposition of ROE by sector; outliers within a sector | none |
@@ -64,7 +64,7 @@ and how to run it. Most pair with a notebook.
 | [`smart_money_screen.py`](python/smart_money_screen.py) | Insider trades, 13F holders, blockholders, a manager's portfolio | 07 | **Institutional** |
 | [`filing_provenance.py`](python/filing_provenance.py) | A number, its recomputed `fact_id`, and the links to its filing | 08 | none |
 | [`agent_buys_its_own_data.py`](python/agent_buys_its_own_data.py) | An agent discovers the payment rail and reads a live price quote | 09 | none (paying needs a budget or wallet) |
-| [`dcf_inputs.py`](python/dcf_inputs.py) | DCF inputs from filings, value per share, implied growth | 10 | none |
+| [`dcf_inputs.py`](python/dcf_inputs.py) | `client.dcf()` with traced inputs, value per share, implied growth | 10 | none |
 | [`production_service.py`](python/production_service.py) | A scheduled point-in-time extract to Parquet with limits, logging and exit codes | | none |
 
 ## Conventions the examples follow (copy them, or tell your AI assistant to)

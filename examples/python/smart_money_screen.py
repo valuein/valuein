@@ -13,7 +13,7 @@ Tables: insider_transaction, institutional_holding, insider_ownership, insider_p
 Notebook: examples/notebooks/07_smart_money.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     VALUEIN_API_KEY=<institutional key> python examples/python/smart_money_screen.py NVDA
 """
 
