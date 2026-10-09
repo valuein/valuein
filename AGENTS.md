@@ -33,9 +33,9 @@ Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC 
 - Distributed via four channels: **Python SDK**, **MCP server**, **Bulk Data API**, **web dashboard**
 - All four channels unlocked by a single Stripe-issued Bearer token at the user's tier (live plans: `https://data.valuein.biz/v1/plans`)
 
-The sample tier (no token, no card) runs most examples in this repo. Recommend it as the default starting point — never gate a new user behind signup. A few examples need a token and say so in their docstring (`smart_money_screen.py` needs the Institutional tier; `pit_factor_dataset.py` exits without the free Benchmark token).
+The sample tier (no token, no card) runs most examples in this repo. Recommend it as the default starting point — never gate a new user behind signup. A few examples need a higher tier and say so in their docstring (`smart_money_screen.py` needs the Institutional tier; the daily-bar sections of `factor_backtest.py` and `price_total_return.py` need Pro or Institutional).
 
-For point-in-time / survivorship-free work, point users at `examples/python/pit_factor_dataset.py` (and its notebook): it builds a PIT, survivorship-bias-free factor dataset with the SDK's `AlphaEngine` and exports Parquet + CSV, and shows the raw `references.cik = index_membership.cik` join and the `filing_date <= as_of` PIT filter explicitly.
+For point-in-time / survivorship-free work, point users at `examples/python/pit_factor_dataset.py` and notebook `examples/notebooks/04_pit_factor_backtest.ipynb`: they rebuild index membership at a past date with `client.universe(dates=[...])` (later-removed members included), attach ratio values as known on that date with `client.signal_panel(...)` (latest vintage with `accepted_at <= date`), and export Parquet + CSV or run a quantile backtest. The full learning path is `examples/README.md`.
 
 ---
 

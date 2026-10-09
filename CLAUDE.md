@@ -65,10 +65,11 @@ Columns: `docs/schema.json` (public subset); query patterns: `docs/QUERY_COOKBOO
 
 ## Examples and notebooks
 
-- One concept per file, snake_case names (no numeric prefix), under 150 lines, `from valuein_sdk import ValueinClient`, `with ValueinClient() as client:`, `tables=[...]`, module docstring, no keys, bucket names or internal URLs (`CONTRIBUTING.md`).
-- Standalone on the sample tier, or the docstring states the minimum tier (`smart_money_screen.py` needs `full`; `pit_factor_dataset.py` exits without a free token). ⚠️ `ValueinClient()` silently picks up `VALUEIN_API_KEY` or a `.env` found upward from the cwd: pass `api_key=""` to force the sample tier (`sdk:valuein_sdk/client.py`).
+- Scripts: one concept per file, snake_case names (no numeric prefix), under 150 lines, `from valuein_sdk import ValueinClient`, `with ValueinClient() as client:`, module docstring, no keys, bucket names or internal URLs (`CONTRIBUTING.md`). The client is lazy (a table downloads on first use); `tables=[...]` forces an eager load, so do not add it for speed.
+- Notebooks: `NN_snake_case.ipynb` (the numeric prefix is the learning-path order indexed in `examples/README.md`), committed with outputs executed on the sample tier.
+- Standalone on the sample tier, or the docstring states the minimum tier (`smart_money_screen.py` needs `full`; daily-bar sections need Pro). ⚠️ `ValueinClient()` silently picks up `VALUEIN_API_KEY` or a `.env` found upward from the cwd: pass `api_key=""` to force the sample tier (`sdk:valuein_sdk/client.py`).
 - `client.run_query(sql)`, `client.run_template(name, **kwargs)`: kwargs only, bare ticker; `client.query()` is gone (SDK 3.0.0); pinned by `sdk:tests/test_run_template.py` `TestCallingConvention`.
-- A script with a same-named notebook changes with it in one PR (`quickstart.ipynb` = `getting_started.py`, `fundamental_analysis.ipynb` = `financial_analysis.py`).
+- A script and its paired notebook (pairs listed in `examples/README.md`, e.g. `01_quickstart.ipynb` = `getting_started.py`) change together in one PR.
 - Only `pit_factor_dataset.py` runs in automation (`sdk:.github/workflows/example-live-smoke.yml`, non-blocking): run any other example you touch.
 
 ## AGENTS.md

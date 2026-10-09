@@ -260,19 +260,19 @@ Reference: [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) (DuckDB recipes) �
 
 ## Recipes by role
 
-Every link below points to a runnable script in [`examples/python/`](examples/python/) (mirror notebook in [`examples/notebooks/`](examples/notebooks/)). The Sample tier runs every example — no token, no signup.
+Every link below points to a runnable script in [`examples/python/`](examples/python/); most pair with a notebook in [`examples/notebooks/`](examples/notebooks/). The Sample tier runs every example except the Institutional smart-money screen — no token, no signup.
 
 | You are a… | Start with | What you'll see |
 |---|---|---|
 | **Financial analyst** | [`financial_analysis.py`](examples/python/financial_analysis.py) | Revenue trend, margin walk, peer comparison from one ticker |
-| **Quant / researcher** | [`pit_backtest.py`](examples/python/pit_backtest.py) | PIT-correct factor query, restatement impact, common mistakes |
-| **Portfolio manager** | [`factor_screen.py`](examples/python/factor_screen.py) | Quality + Growth + Efficiency composite z-score over the S&P 500 |
-| **Trader / signals** | [`earnings_momentum.py`](examples/python/earnings_momentum.py) | YoY revenue & earnings acceleration ranking |
+| **Quant / researcher** | [`factor_backtest.py`](examples/python/factor_backtest.py) | Point-in-time, survivorship-free quantile backtest with costs and IC |
+| **Portfolio manager** | [`entity_screening.py`](examples/python/entity_screening.py) | Screen the S&P 500 as it stood on a past date, including later-removed members |
+| **Forensic analyst** | [`restatement_radar.py`](examples/python/restatement_radar.py) | Every restated number, how it was disclosed, both filings to verify |
 | **Asset manager** | [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Quantify how survivorship bias inflates returns |
-| **Valuation modeler** | [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Free-cash-flow assembly, balance sheet, Valuein's pre-computed DCF |
+| **Valuation modeler** | [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Free-cash-flow assembly, balance sheet, a two-stage DCF with your assumptions |
 | **Auditor / compliance** | [`filing_provenance.py`](examples/python/filing_provenance.py) | Click-through SEC EDGAR links per filing — open the iXBRL viewer on the exact source document behind a number |
-| **Data engineer** | [`production-ready.py`](examples/python/production-ready.py) | Service pattern for FastAPI / Celery / Airflow |
-| **First-time user** | [`getting_started.py`](examples/python/getting_started.py) | First query, token check, sector counts |
+| **Data engineer** | [`production_service.py`](examples/python/production_service.py) | Scheduled point-in-time extract to Parquet: limits, logging, exit codes |
+| **First-time user** | [`getting_started.py`](examples/python/getting_started.py) | Plan check, ticker → CIK, first fundamentals query |
 | **Building an AI agent** | [MCP for AI agents](#mcp-for-ai-agents) | Use natural language — no SDK required |
 
 Run any of them:
@@ -282,7 +282,7 @@ Run any of them:
 python examples/python/getting_started.py
 
 # Paid tier
-VALUEIN_API_KEY=xxx python examples/python/factor_screen.py
+VALUEIN_API_KEY=xxx python examples/python/factor_backtest.py
 ```
 
 ---
@@ -475,32 +475,49 @@ Same URL + Bearer token works for any MCP client that supports Streamable HTTP r
 
 Every script and notebook works against the SDK published on PyPI. The Sample tier runs without a token; add `VALUEIN_API_KEY` to use a paid tier.
 
+The full learning path, with who each item is for and the plan it needs: [`examples/README.md`](examples/README.md).
+
 ### Python scripts ([`examples/python/`](examples/python/))
 
 | Script | Level | What it shows |
 |---|---|---|
-| [`getting_started.py`](examples/python/getting_started.py) | Beginner | First query, auth check, entity counts by sector |
-| [`usage.py`](examples/python/usage.py) | Reference | Every public SDK method demonstrated end-to-end |
-| [`entity_screening.py`](examples/python/entity_screening.py) | Beginner | Screen by sector, SIC code, active vs inactive |
-| [`financial_analysis.py`](examples/python/financial_analysis.py) | Intermediate | Revenue trends, margins, concept normalization, peer comparison |
-| [`pit_backtest.py`](examples/python/pit_backtest.py) | Intermediate | PIT discipline, restatement impact, `filing_date` vs `report_date` |
-| [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Intermediate | Delisted companies, index membership, bias quantification |
-| [`factor_screen.py`](examples/python/factor_screen.py) | Intermediate | Composite Quality + Growth + Efficiency z-score ranking |
-| [`earnings_momentum.py`](examples/python/earnings_momentum.py) | Intermediate | YoY revenue & earnings acceleration across the S&P 500 |
-| [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Intermediate | FCF history, balance sheet, Valuein's pre-computed DCF |
-| [`production-ready.py`](examples/python/production-ready.py) | Advanced | Service pattern for FastAPI / Celery / Airflow integrations |
+| [`getting_started.py`](examples/python/getting_started.py) | Beginner | Plan, snapshot, ticker → CIK, annual revenue and net income |
+| [`financial_analysis.py`](examples/python/financial_analysis.py) | Beginner | Income statement and margins, single-quarter cash flow, peer ratios |
+| [`pit_backtest.py`](examples/python/pit_backtest.py) | Intermediate | The same query at two `as_of` dates gives two answers (a real restatement) |
+| [`entity_screening.py`](examples/python/entity_screening.py) | Intermediate | Screen the S&P 500 as it stood on a past date |
+| [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Intermediate | Honest vs survivor-only equal-weight return |
+| [`factor_backtest.py`](examples/python/factor_backtest.py) | Advanced | Universe → signal → forward returns → quantile backtest with costs |
+| [`pit_factor_dataset.py`](examples/python/pit_factor_dataset.py) | Advanced | Point-in-time, survivorship-free factor file to Parquet and CSV |
+| [`price_total_return.py`](examples/python/price_total_return.py) | Intermediate | Split and dividend effects on returns; daily helpers on Pro |
+| [`restatement_radar.py`](examples/python/restatement_radar.py) | Intermediate | Disclosure mix, one verified revision, recent Item 4.02 revisions |
+| [`smart_money_screen.py`](examples/python/smart_money_screen.py) | Intermediate | Insider trades, 13F holders, blockholders (Institutional) |
+| [`filing_provenance.py`](examples/python/filing_provenance.py) | Beginner | A number, its recomputed `fact_id`, and links to its SEC filing |
+| [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Intermediate | DCF inputs from filings, value per share, implied growth |
+| [`production_service.py`](examples/python/production_service.py) | Advanced | Scheduled point-in-time extract to Parquet with limits, logging, exit codes |
+| [`agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) | Advanced | An agent discovers the payment rail and reads a live price quote |
 
 ### Jupyter notebooks ([`examples/notebooks/`](examples/notebooks/))
 
+Executed on the free sample tier and committed with their output.
+
 | Notebook | Open in Colab |
 |---|---|
-| [Quickstart](examples/notebooks/quickstart.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/quickstart.ipynb) |
-| [Fundamental Analysis](examples/notebooks/fundamental_analysis.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/fundamental_analysis.ipynb) |
-| [PIT Backtest](examples/notebooks/pit_backtest.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/pit_backtest.ipynb) |
-| [Survivorship Bias](examples/notebooks/survivorship_bias.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/survivorship_bias.ipynb) |
-| [Factor Screen](examples/notebooks/factor_screen.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/factor_screen.ipynb) |
-| [Earnings Momentum](examples/notebooks/earnings_momentum.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/earnings_momentum.ipynb) |
-| [DCF Inputs](examples/notebooks/dcf_inputs.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/dcf_inputs.ipynb) |
+| [Quickstart](examples/notebooks/01_quickstart.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/01_quickstart.ipynb) |
+| [Fundamentals as of a date](examples/notebooks/02_fundamentals_as_of_a_date.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/02_fundamentals_as_of_a_date.ipynb) |
+| [Survivorship-free screening](examples/notebooks/03_survivorship_free_screening.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/03_survivorship_free_screening.ipynb) |
+| [Point-in-time factor backtest](examples/notebooks/04_pit_factor_backtest.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/04_pit_factor_backtest.ipynb) |
+| [Prices and total return](examples/notebooks/05_prices_and_total_return.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/05_prices_and_total_return.ipynb) |
+| [Restatements](examples/notebooks/06_restatements.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/06_restatements.ipynb) |
+| [Smart money (Institutional)](examples/notebooks/07_smart_money.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/07_smart_money.ipynb) |
+| [Verify a number](examples/notebooks/08_verify_a_number.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/08_verify_a_number.ipynb) |
+| [Use it from an AI assistant](examples/notebooks/09_ai_assistant.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/09_ai_assistant.ipynb) |
+| [DCF valuation](examples/notebooks/10_dcf_valuation.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/10_dcf_valuation.ipynb) |
+| [Piotroski F-score screen](examples/notebooks/11_piotroski_screen.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/11_piotroski_screen.ipynb) |
+| [Earnings quality](examples/notebooks/12_earnings_quality.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/12_earnings_quality.ipynb) |
+| [Sector comparison](examples/notebooks/13_sector_comparison.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/13_sector_comparison.ipynb) |
+| [Restatement alpha](examples/notebooks/14_restatement_alpha.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/14_restatement_alpha.ipynb) |
+| [Capital allocation](examples/notebooks/15_capital_allocation.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/15_capital_allocation.ipynb) |
+| [Filing delay](examples/notebooks/16_filing_delay.ipynb) | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/valuein/valuein/blob/main/examples/notebooks/16_filing_delay.ipynb) |
 
 ---
 
