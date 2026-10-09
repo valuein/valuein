@@ -12,7 +12,7 @@ ValueinClient.manifest, exceptions ValueinAuthError / ValueinPlanError / Valuein
 Tables: references, fact.
 
 Run:
-    pip install valuein-sdk pyarrow
+    pip install "valuein-sdk>=7.0.0" pyarrow
     python examples/python/production_service.py --as-of 2026-06-30 --out ./extract
 """
 

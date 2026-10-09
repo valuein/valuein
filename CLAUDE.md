@@ -61,7 +61,7 @@ Columns: `docs/schema.json` (public subset); query patterns: `docs/QUERY_COOKBOO
 - Survivorship-free: keep non-`ACTIVE` `entity.status` rows and securities with `valid_to IS NOT NULL`; do not restrict history to `is_active`.
 - ⚠️ `stock_price_daily` is per SECURITY: filter `security_id` (or `is_primary_listing`), use `total_return_index`, never `close`. Prices are licensed data from 1994 at the earliest, not EDGAR's 1993 floor.
 - Use canonical `fact.standard_concept` names (`TotalRevenue`, `NetIncome`, `OperatingCashFlow`, `CAPEX`, `StockholdersEquity`; list in `docs/data_catalog.md`), not raw tags (`fact.concept`). `COALESCE(derived_quarterly_value, numeric_value)` for cash flow, `ABS(capex)`, `NULLIF(denominator, 0)`.
-- ⚠️ The `valuation` table is gone (schema 3.0.0, `data-pipeline:parquet_schema.py`): write no example against it; DCFs come from MCP `compute_dcf`.
+- ⚠️ The `valuation` table is gone (schema 3.0.0, `data-pipeline:parquet_schema.py`): write no example against it; DCFs come from `client.dcf()` (local, every input traced; notebook 10) or MCP `compute_dcf`. SDK 7.0 removed the `generate_*` document proxies: files come from the Workspace or the MCP tools.
 
 ## Examples and notebooks
 

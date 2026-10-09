@@ -7,9 +7,9 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 - **Registry:** `io.github.valuein/mcp-sec-edgar` on [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)
 - **Manifest in this repo:** [`server.json`](../server.json)
 
-The server registers **118 live tools** across its data-lookup, screening, price & market data, smart-money, persisted-state (theses / claims / watchlists / citation-overrides / signals CRUD / reports / scheduled tasks / rules / staged-action approvals / morning brief & agent runs), report-publishing, compute (DCF / forensic audit / bounded PIT backtest), and document-generation categories. Free visibility-toggle tools let any user build a public `@handle` profile and reputation: `publish_report` / `unpublish_report` / `search_reports` for reports, plus matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` parity for theses and claims. Reports are discovered via keyword catalog search (`search_reports`, pure-D1) — there is no semantic search yet. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. **30 analyst SOP prompts** (three flagship cross-persona workflows + specialised chains, daily flows, and state-lifecycle playbooks) and **3 reference resources** round out the surface. Tier gating happens at the data layer — Sample / Benchmark tokens see the Sample / Benchmark slices (S&P 500 constituents); Pro sees the full 19,000+-entity US universe with a 15-year rolling point-in-time window (2011 → present, 10-K / 10-Q / 8-K / 20-F / 40-F + amendments); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited fundamentals history back to 1993 (prices are licensed market data with their own floor, 1994 onward), filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+The server registers live tools across its data-lookup, screening, price & market data, smart-money, persisted-state (theses / claims / watchlists / citation-overrides / signals CRUD / reports / scheduled tasks / rules / staged-action approvals / morning brief & agent runs), report-publishing, compute (DCF / forensic audit / bounded PIT backtest), and document-generation categories. Free visibility-toggle tools let any user build a public `@handle` profile and reputation: `publish_report` / `unpublish_report` / `search_reports` for reports, plus matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` parity for theses and claims. Reports are discovered via keyword catalog search (`search_reports`, pure-D1) — there is no semantic search yet. A separate selling category (3 tools — `purchase_report`, `list_my_purchases`, `connect_stripe_account`) ships hidden until the paid report marketplace launches. Analyst SOP prompts (flagship cross-persona workflows + specialised chains, daily flows, and state-lifecycle playbooks) and reference resources round out the surface. Live counts: `curl -s https://mcp.valuein.biz/manifest.json | jq .counts` (mirrored, by a daily sync, in [`server.json`](../server.json)). Tier gating happens at the data layer — Sample / Benchmark tokens see the Sample / Benchmark slices (S&P 500 constituents); Pro sees the full active + delisted US universe with a rolling point-in-time window (10-K / 10-Q / 8-K / 20-F / 40-F + amendments; live window and universe size: `https://data.valuein.biz/v1/plans`); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited fundamentals history back to 1993 (prices are licensed market data with their own floor, 1994 onward), filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
-This document covers the core data tools in detail; the full 118-tool surface (including the persisted-state, approval-ledger, scheduled-task, and rule-engine families summarised below) is advertised by the live server's `tools/list` and mirrored in [`server.json`](../server.json).
+This document covers the core data tools in detail; the full tool surface (including the persisted-state, approval-ledger, scheduled-task, and rule-engine families summarised below) is advertised by the live server's `tools/list` and mirrored in [`server.json`](../server.json).
 
 ---
 
@@ -209,15 +209,14 @@ Returns: `[{ticker, name, sector, scores: {...}}]`.
 
 ### `get_compute_ready_stream`
 
-Issue a signed, expiring download URL for direct Parquet streaming — bypass the gateway when the agent needs to push data into its own DuckDB or PyArrow context. The URL is Range-enabled, so DuckDB / Polars `httpfs` can read it like any remote Parquet file.
+Issue a short-lived, signed download URL for one bulk Parquet object — for computation that exceeds the MCP context window, piped straight into the agent's own DuckDB, Polars or PyArrow. The URL is Range-enabled, so `duckdb.read_parquet(url)` / `pl.read_parquet(url)` read it without downloading the whole file. It is scoped to the caller's tier and cannot list the bucket or read other objects.
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `table` | string | yes | One of the partitioned tables: `fact`, `ratio`, `filing`, `valuation` |
-| `entity_ids` | string[] | optional | Limit to specific CIKs |
-| `expires_in_seconds` | integer | optional | Default 600, max 3600 |
+| `dataset_type` | string | yes | `fact` (one company's partition), `ratio` (every computed ratio, including the `valuation` category: price multiples, `graham_number`, `ncav_per_share`), `filing`, `references`, `index_membership` |
+| `ticker` | string | for `fact` | Ticker or CIK; resolves to that company's `fact` partition |
 
-Returns: `{download_url, expires_at, schema_url}`. The agent should fetch the schema URL too — it lists column types and the partition layout.
+Returns the signed `url`, its `expires_at` / `expires_in_seconds`, the `object_key`, the URL's `scope`, and usage notes. There is no stored intrinsic-value table: for a DCF call `compute_dcf` with the assumptions you state.
 
 ---
 
@@ -372,11 +371,13 @@ All tools are callable on every paid tier. **What changes is the data the tool c
 
 | Tier | Data the agent sees |
 |---|---|
-| Sample (anonymous) | S&P 500 sample · 5-year window |
-| Free | S&P 500 · 1993 – present |
-| Pro | Full 19,000+-entity US universe · 15-year rolling window (2011 → present) · 24h freshness · fundamentals only |
+| Sample (anonymous) | S&P 500 sample · recent years |
+| Benchmark (free, registered) | S&P 500 · 1993 – present |
+| Pro | Full active + delisted US universe · rolling point-in-time window · fundamentals only |
 | Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · redistribution license |
 | Enterprise | Negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
+
+Live universe sizes and history windows: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`; each tool's minimum plan is `min_plan` in `https://mcp.valuein.biz/manifest.json`.
 
 A `ValueinPlanError`-equivalent MCP error is raised when a tool call needs data outside the bound tier — the agent should suggest the user upgrade at [valuein.biz/pricing](https://valuein.biz/pricing).
 

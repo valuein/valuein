@@ -273,7 +273,7 @@ needs your own budget/wallet) — is in
 [`examples/python/agent_buys_its_own_data.py`](../examples/python/agent_buys_its_own_data.py).
 
 ```bash
-pip install valuein-sdk httpx
+pip install "valuein-sdk>=7.0.0" httpx
 python examples/python/agent_buys_its_own_data.py    # discovery + paywall + quote, no card
 ```
 

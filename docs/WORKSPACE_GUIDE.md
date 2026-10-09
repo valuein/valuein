@@ -8,12 +8,12 @@
 
 **Your SEC research desk, run by an AI analyst.**
 
-111M+ point-in-time financial facts · 19,000+ US companies · 1993→present · zero survivorship bias
+Point-in-time financial facts · every SEC-reporting US company, active and delisted · 1993→present · zero survivorship bias
 
 [![Open the Workspace](https://img.shields.io/badge/Open-valuein.biz%2Fworkspace-2563EB?style=flat)](https://valuein.biz/workspace)
 [![Read online](https://img.shields.io/badge/Read_online-valuein.biz%2Ftry--workspace-7C3AED?style=flat)](https://valuein.biz/try-workspace)
 [![MCP](https://img.shields.io/badge/MCP-mcp.valuein.biz-1E293B?style=flat)](https://mcp.valuein.biz/mcp)
-[![Pricing](https://img.shields.io/badge/Pricing-Free_%E2%86%92_%2449_%E2%86%92_%24499-16A34A?style=flat)](https://valuein.biz/pricing)
+[![Pricing](https://img.shields.io/badge/Pricing-valuein.biz%2Fpricing-16A34A?style=flat)](https://valuein.biz/pricing)
 
 <br/>
 
@@ -23,7 +23,7 @@
 
 ---
 
-> **111M+ point-in-time financial facts across 19,000+ US companies (1993→present, zero survivorship bias) — wired into a chat-first workspace with 118 data tools and 39 ready-to-run analyst playbooks.**
+> **Point-in-time financial facts for every SEC-reporting US company (1993→present, zero survivorship bias) — wired into a chat-first workspace with the full Valuein MCP tool set and ready-to-run analyst playbooks.**
 
 This is a simple, cadence-based setup so the Workspace earns its keep in your *daily, weekly, and monthly* routine within the first week.
 
@@ -104,7 +104,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - **`restatement_radar`** across Coverage (`since` = last month) — catch quiet 10-K/A and 10-Q/A amendments.
 - Re-score theses: *"Score all my theses past their horizon and tell me which broke."* (`score_due_theses`).
 
-**Upgrade path:** **Pro** unlocks the full 19,000+ universe (cover anything, not just S&P 500) and your public analyst profile + reputation. **Institutional** adds DCF, forensic audit, and one-click **DOCX/XLSX export** of briefs and models for client/IC deliverables.
+**Upgrade path:** **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500) and your public analyst profile + reputation. **Institutional** adds DCF, forensic audit, and one-click **DOCX/XLSX export** of briefs and models for client/IC deliverables.
 
 ---
 
@@ -141,14 +141,14 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 *(your job is factors, backtests, and signals — and you want bulk data, not a UI.)*
 
 **One-time setup**
-- Connect the **MCP** and grab your Bearer token from `/account/settings/api` for the **Python SDK** (`pip install valuein-sdk`).
+- Connect the **MCP** and grab your Bearer token from `/account/settings/api` for the **Python SDK** (`pip install "valuein-sdk>=7.0.0"`).
 - One watchlist per factor sleeve if you want to monitor live screens.
 
 **Working loop (continuous)**
 - **`survivorship_free_backtest`** → *"Set up a survivorship-free backtest from 2010-01-01 to 2024-12-31."* Returns the historical universe definition + Parquet URLs, ready for DuckDB.
 - **`pit_factor_constructor`** → build Quality / Value / Momentum factor scores cross-sectionally, point-in-time correct.
 - **`get_pit_universe`** → exact index/sector membership on any historical date (no lookahead).
-- **`get_compute_ready_stream`** → presigned Parquet URLs for `fact`, `ratio`, `valuation`, `index_membership`, etc. → stream into the SDK's out-of-core DuckDB.
+- **`get_compute_ready_stream`** → presigned Parquet URLs for `fact`, `ratio`, `filing`, `references`, `index_membership` → stream into the SDK's out-of-core DuckDB.
 - **`screen_to_thesis`** → screen → forensic audit → auto-save theses on the top names (closes the loop from signal to tracked call).
 
 **Why it matters here:** every PIT-tabled value is filtered at `as_of` — no survivorship bias, no restatement leakage. That's the difference between a backtest you can trust and one you can't.
@@ -212,10 +212,10 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 
 | | **Sample** | **S&P 500** (free) | **Pro** | **Institutional** | **Enterprise** |
 |---|---|---|---|---|---|
-| **Price** | $0, no signup | $0, register | **$49/mo · $490/yr** | **$499/mo · $4,790/yr** | Custom |
-| **Universe** | S&P 500 | S&P 500 | **19,000+** | 19,000+ + foreign | Contract |
-| **History** | 5 yr | 1993→ | 15-yr rolling (2011→) | 1993→ | Contract |
-| **Workspace + 39 playbooks** | — | ✓ | ✓ | ✓ | ✓ |
+| **Price** | Free, no signup | Free, register | Paid | Paid | Custom |
+| **Universe** | S&P 500 | S&P 500 | **Full US, delisted included** | Full US + foreign issuers | Contract |
+| **History** | Recent years | 1993→ | Rolling window | 1993→ | Contract |
+| **Workspace + playbooks** | — | ✓ | ✓ | ✓ | ✓ |
 | **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
 | **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
 | **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
@@ -224,13 +224,13 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **Webhooks · priority freshness · redistribution · SLA** | — | — | — | ✓ | ✓ |
 | **Dedicated infra · zero-retention** | — | — | — | — | ✓ |
 
-See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown.
+See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; prices, universe sizes and history windows are also served live: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.
 
 ---
 
 ## 6. Reference — the full toolkit
 
-### 39 playbooks (your ready-made workflows)
+### Playbooks (your ready-made workflows)
 
 **Flagships**
 - **`equity_research_brief`** — single-ticker institutional brief. Depth: `quick` / `full` / `forensic`.

@@ -15,7 +15,7 @@ Steps 1–3 run right now, for free, against the LIVE production endpoints (no
 card, no token). Step 4 needs your own budget or wallet, so this demo PRINTS the
 exact next call rather than spending your money.
 
-    pip install valuein-sdk httpx
+    pip install "valuein-sdk>=7.0.0" httpx
     python examples/python/agent_buys_its_own_data.py
 
 Design note: deliberately a plain httpx script, not a framework demo, so the

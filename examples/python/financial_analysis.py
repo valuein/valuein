@@ -11,7 +11,7 @@ Tables: references, fact, ratio, index_membership.
 Notebook: examples/notebooks/02_fundamentals_as_of_a_date.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/financial_analysis.py
 """
 

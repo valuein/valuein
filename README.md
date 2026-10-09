@@ -15,7 +15,7 @@
 This repository is the **public home and discovery hub** for the Valuein data platform. It hosts the documentation, examples, notebooks, and the [MCP registry manifest](server.json) used by AI agents to find us. Source code for the SDK, MCP server, and data pipeline lives in dedicated repositories — this is the front door.
 
 ```bash
-pip install valuein-sdk          # data for code
+pip install "valuein-sdk>=7.0.0" # data for code
 # or add this URL to any MCP-capable AI client:
 # https://mcp.valuein.biz/mcp     # data for agents
 ```
@@ -46,12 +46,13 @@ pip install valuein-sdk          # data for code
 
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
-- **12M+ filings** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments since **1993**
-- **111M+ standardized facts** across **19,000+** US public companies — including every bankruptcy, merger, and delisting since 1993
-- **11,966 raw XBRL tags** normalized to **292 canonical `standard_concept`** values plus **164 materialized financial ratios** (FY + TTM); unmapped tags are exposed under `'Other'` rather than dropped
-- **23 Parquet tables** — 15 core (fundamentals, ratios, valuations, index membership, restatement events, daily OHLCV price history with a total-return index) + 6 smart-money tables + 2 Form ADV adviser tables (Institutional tier)
+- **Every SEC-reporting US public company since 1993** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments, for active and delisted companies alike: every bankruptcy, merger, and delisting stays in
+- **Raw XBRL tags normalized to canonical `standard_concept` names** plus materialized financial ratios (FY + TTM); unmapped tags are exposed under `'Other'` rather than dropped
+- **Parquet tables** — fundamentals, ratios, index membership, restatement events, price history with a total-return index, plus the smart-money and Form ADV adviser tables on the Institutional tier
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
 - **PIT-correct** — every fact carries `filing_date` and millisecond-precision `accepted_at`
+
+Counts move with every snapshot, so this page does not copy them; read them live. `client.manifest()` returns the snapshot id, `last_updated` and your plan's tables; `curl -s https://data.valuein.biz/v1/sample/manifest.json | jq .schema_version` prints the live schema version; `https://data.valuein.biz/v1/plans` gives each plan's universe size and history window; [`docs/data_catalog.md`](docs/data_catalog.md) lists the canonical concepts and ratios.
 
 ### Why it's different
 
@@ -105,13 +106,20 @@ A single Stripe-issued token unlocks every channel at your tier — no per-chann
 
 Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuein.biz/pricing) — the website is the source of truth and our checkout flow routes to the correct Stripe product.
 
-| Plan | Universe | History | Data freshness | Price | Get it |
-|---|---|---|---|---|---|
-| **Sample** | S&P 500 (~500 tickers) | 5-year window | Quarterly snapshots | **Free** · no signup | Just `pip install valuein-sdk` |
-| **Free** | S&P 500 (~500 tickers) | 1993 – present | Daily | **Free** · register | [Register](https://valuein.biz/signup/free) |
-| **Pro** | Full active + delisted US universe (19,000+ entities) — fundamentals dataset only | 15-year rolling (2011 → present) | 24h after SEC | **$49 / mo** · $490 / yr | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
-| **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | 1993 – present (unlimited) | 4h priority + filing-event webhooks | **$499 / mo** · $4,790 / yr | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
-| **Enterprise** | Negotiated · dedicated infrastructure · expanded redistribution scope | Custom | Real-time 8-K + zero-retention option | Talk to us | [sales@valuein.biz](mailto:sales@valuein.biz) |
+| Plan | Universe | History | Get it |
+|---|---|---|---|
+| **Sample** | S&P 500 companies | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.0.0"` |
+| **Benchmark** | S&P 500 companies | Full history | **Free**, [register](https://valuein.biz/register) |
+| **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
+| **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
+| **Enterprise** | Negotiated · dedicated infrastructure · expanded redistribution scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
+
+Prices, universe sizes, history windows and rate limits are served live; read them instead of a copy:
+
+```bash
+curl -s https://data.valuein.biz/v1/plans \
+  | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear, perMinute, perHour}'
+```
 
 Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and a commercial redistribution license under a business-hours SLA; Enterprise adds dedicated infrastructure and bespoke contracts.
 
@@ -121,28 +129,21 @@ Autonomous AI agents that hit a rate or tier limit can pay per request using **S
 
 **Payment is card-only today.** Fetch `https://api.valuein.biz/api/mpp/well-known` to see which networks are live before paying.
 
-| Category | Examples | Price |
+| Category | Examples | Billed |
 |---|---|---|
 | Provenance / schema | `describe_schema`, `verify_fact_lineage` | Free |
-| Discovery | `search_companies`, `get_sec_filing_links` | **$0.01 / entity** |
-| Fundamentals | `get_company_fundamentals`, `get_financial_ratios` | **$0.10 / entity** |
-| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile` | **$0.50 / entity** |
-| Compute | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` | **$2.50 / call** |
-| Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
-| Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
+| Discovery | `search_companies`, `get_sec_filing_links` | per entity |
+| Fundamentals | `get_company_fundamentals`, `get_financial_ratios` | per entity |
+| Analytics | `get_valuation_metrics`, `get_peer_comparables`, `compare_periods`, `get_capital_allocation_profile` | per entity |
+| Compute | `compute_dcf`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` | per call |
+| Screens / universe | `screen_universe`, `get_pit_universe` | per call |
+| Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | per entity |
 
-PAYG is priced at 5× the subscription-equivalent rate — steady-state agent usage is almost always cheaper with a [Pro or Institutional subscription](https://valuein.biz/pricing). See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
+Live prices: `curl -s https://data.valuein.biz/v1/plans | jq '.paygRates, .toolToMeter'` (the meter each tool bills to, and its USD rate); a `402` quotes the exact price before anything is authorized. Per call, PAYG costs more than a subscription, so steady-state agent usage is almost always cheaper on a [Pro or Institutional subscription](https://valuein.biz/pricing). See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
 
 **The whole pattern — an agent that buys its own data, safely** — is written up as a reference implementation in **[`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)**: the two live consent models (a human-authorized bounded budget that auto-charges and serves inline; or per-call MPP for wallet-holding agents), why it's the safe default, and a runnable demo — [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) — that discovers the rail and reads back a live quote for free.
 
-Rate limits per tier (canonical at `https://data.valuein.biz/v1/plans`):
-
-| Plan | Per minute | Per hour |
-|---|---:|---:|
-| Sample (anonymous) | 60 | 600 |
-| Free | 60 | 1,000 |
-| Pro | 100 | 3,000 |
-| Institutional / Enterprise | 300 | 10,000 |
+Rate limits per tier are the `perMinute` / `perHour` fields of `https://data.valuein.biz/v1/plans` (the `jq` command under [Plans & access](#plans--access) prints them).
 
 ---
 
@@ -153,13 +154,13 @@ Pick whichever Python workflow you already use — both work in any virtual envi
 ```bash
 # Option A — pip (universal, ships with Python)
 python -m venv .venv && source .venv/bin/activate
-pip install valuein-sdk
+pip install "valuein-sdk>=7.0.0"
 ```
 
 ```bash
 # Option B — uv (10–100× faster; install from https://docs.astral.sh/uv/)
 uv venv && source .venv/bin/activate
-uv pip install valuein-sdk
+uv pip install "valuein-sdk>=7.0.0"
 ```
 
 > **Zero-friction by design.** No `VALUEIN_API_KEY`? No problem. The SDK detects the missing token and falls back to the SAMPLE dataset (S&P 500, last 5 years); the edge gateway does the same — `GET /v1/{sp500,pro,full}/:table` with no `Authorization` header automatically 302-redirects to `/v1/sample/:table`. The snippet below runs as-is.
@@ -170,7 +171,7 @@ from valuein_sdk import ValueinClient
 with ValueinClient() as client:
     print(client.me())               # {plan, status, email, createdAt}
     print(client.manifest())         # snapshot id, last_updated, tables
-    print(client.tables())           # currently loaded tables
+    print(client.tables())           # tables your plan can read (they load on first use)
 
     df = client.run_query("""
         SELECT r.symbol, r.name, r.sector
@@ -246,7 +247,7 @@ except Exception as e:
     print(f"Initialization failed: {e}")
 ```
 
-The SDK ships **60 named SQL templates** for the most common screens, ratios, and PIT backtests. List them:
+The SDK ships named SQL templates for the most common screens, ratios, and PIT backtests. List the ones your installed version carries:
 
 ```python
 from valuein_sdk import ValueinClient
@@ -269,7 +270,7 @@ Every link below points to a runnable script in [`examples/python/`](examples/py
 | **Portfolio manager** | [`entity_screening.py`](examples/python/entity_screening.py) | Screen the S&P 500 as it stood on a past date, including later-removed members |
 | **Forensic analyst** | [`restatement_radar.py`](examples/python/restatement_radar.py) | Every restated number, how it was disclosed, both filings to verify |
 | **Asset manager** | [`survivorship_bias.py`](examples/python/survivorship_bias.py) | Quantify how survivorship bias inflates returns |
-| **Valuation modeler** | [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Free-cash-flow assembly, balance sheet, a two-stage DCF with your assumptions |
+| **Valuation modeler** | [`dcf_inputs.py`](examples/python/dcf_inputs.py) | `client.dcf()`: a two-stage DCF with your assumptions, every input traced to its filing |
 | **Auditor / compliance** | [`filing_provenance.py`](examples/python/filing_provenance.py) | Click-through SEC EDGAR links per filing — open the iXBRL viewer on the exact source document behind a number |
 | **Data engineer** | [`production_service.py`](examples/python/production_service.py) | Scheduled point-in-time extract to Parquet: limits, logging, exit codes |
 | **First-time user** | [`getting_started.py`](examples/python/getting_started.py) | Plan check, ticker → CIK, first fundamentals query |
@@ -289,7 +290,7 @@ VALUEIN_API_KEY=xxx python examples/python/factor_backtest.py
 
 ## Data model
 
-Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concept names). The snapshot ships **20 Parquet tables** — the core tables below plus 6 smart-money tables on the Institutional tier (`insider_party` / `insider_filing` / `insider_transaction` / `institutional_filing` / `institutional_holding` / `insider_ownership`).
+Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concept names). Every tier reads the core tables below; the Institutional tier adds the smart-money tables (`insider_party` / `insider_filing` / `insider_transaction` / `institutional_filing` / `institutional_holding` / `insider_ownership`) and the Form ADV adviser tables. `client.tables()` lists what your plan reads; `curl -s https://data.valuein.biz/v1/sample/manifest.json | jq .schema_version` prints the live schema version.
 
 | Table | What it is | Why it matters |
 |---|---|---|
@@ -299,8 +300,7 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `filing` | Filing metadata — `accession_id`, `filing_date`, `report_date`, form type, amendment flag | The "what was filed when" dimension. |
 | `fact` | Standardized financial facts — both raw `concept` and canonical `standard_concept` on every row | The numbers. PIT-safe via `accepted_at`. |
 | `ratio` | Pipeline-computed financial ratios per filing | Skip the SQL — margins, returns, leverage, efficiency pre-calculated. |
-| `valuation` | Two-stage DCF + DDM intrinsic values per entity per period | Cross-check your model against ours. |
-| `taxonomy_guide` | 2026 US GAAP Taxonomy | Definitions for every `standard_concept`. |
+| `taxonomy_guide` | The US GAAP taxonomy guide | Definitions for every `standard_concept`. |
 | `index_membership` | Index constituents keyed on `cik`, with `effective_date` / `removal_date` half-open windows. **SP500 is survivorship-free back to 1996** (`confidence='high'`) — real entry/exit spells including long-delisted registrants. **RUSSELL1000 / RUSSELL2000 / RUSSELL3000 go back to 2000-09-30** (`confidence='medium'`, `source='fund_holdings'`) — reconstructed from the publicly disclosed portfolio holdings of large funds tracking each index, so a fund proxies rather than defines the index, and a join or leave date is only as precise as the interval between observations (roughly one to four a year through 2006, monthly from 2007). Graded against the index provider's published reconstitution lists, which we use to measure and never redistribute: **recall 96.5–98.3%, precision 93.6–98.6%**. No Russell data before 2000-09-30, and no holdings observation between 2016-12-30 and 2017-07-31. | Reconstruct the **S&P 500** or a **Russell** index on a historical date. Branch on `confidence` — `medium` means approximate, not authoritative. JOIN `references.cik = index_membership.cik` for company metadata. |
 | `standard_concept` | The canonical concept catalog itself — names, statements, mapping rules, CPA review status | The ground truth behind `fact.standard_concept`. |
 | `stock_price` | Coarse price series per entity — one close per fiscal period-end and per month-end, with `total_return_index` on every row (every tier) | Value-vs-price overlays and monthly-rebalanced backtests on any tier: `tri_b / tri_a - 1` between two month-end rows is the holder's total return for that span, dividends included. |
@@ -353,7 +353,7 @@ GROUP  BY accession_id
 
 > Quarterly cash flows: use `COALESCE(derived_quarterly_value, numeric_value)` — Q2/Q3 10-Qs report YTD; this column isolates the single quarter. CAPEX sign varies by filer — always `ABS(capex)`.
 
-The full cookbook — 20 recipes, 8 anti-patterns, end-to-end factor screen — lives in [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md).
+The full cookbook — recipes, anti-patterns, an end-to-end factor screen — lives in [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md).
 
 ### Canonical concept names
 
@@ -390,7 +390,7 @@ The server exposes **121 live tools**, plus **39 agentic SOP prompts** (two flag
 |---|---|
 | `get_company_fundamentals` | Income statement, balance sheet, cash flow per ticker per period |
 | `get_financial_ratios` | Margins, returns, leverage, efficiency, FCF yield (per category) |
-| `get_valuation_metrics` | Margins + ROIC + DCF inputs + Valuein's pre-computed valuations |
+| `get_valuation_metrics` | What a company trades at, plus parameter-free reference points; intrinsic value comes from `compute_dcf` with assumptions you state |
 | `get_capital_allocation_profile` | CapEx intensity, buyback yield, dividend history |
 
 **Filings & lineage**
@@ -492,7 +492,7 @@ The full learning path, with who each item is for and the plan it needs: [`examp
 | [`restatement_radar.py`](examples/python/restatement_radar.py) | Intermediate | Disclosure mix, one verified revision, recent Item 4.02 revisions |
 | [`smart_money_screen.py`](examples/python/smart_money_screen.py) | Intermediate | Insider trades, 13F holders, blockholders (Institutional) |
 | [`filing_provenance.py`](examples/python/filing_provenance.py) | Beginner | A number, its recomputed `fact_id`, and links to its SEC filing |
-| [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Intermediate | DCF inputs from filings, value per share, implied growth |
+| [`dcf_inputs.py`](examples/python/dcf_inputs.py) | Intermediate | `client.dcf()` with traced inputs, value per share, implied growth |
 | [`production_service.py`](examples/python/production_service.py) | Advanced | Scheduled point-in-time extract to Parquet with limits, logging, exit codes |
 | [`agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) | Advanced | An agent discovers the payment rail and reads a live price quote |
 
@@ -528,10 +528,10 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 | Document | What's in it |
 |---|---|
 | [`docs/WORKSPACE_GUIDE.md`](docs/WORKSPACE_GUIDE.md) | Workspace welcome guide — 15-minute setup + daily/weekly/monthly playbooks per role (analyst, PM, quant, creator) |
-| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization, valuation models |
+| [`docs/METHODOLOGY.md`](docs/METHODOLOGY.md) | Sourcing, PIT architecture, restatement handling, XBRL normalization, the DCF model |
 | [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — measured source of truth is [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json) (current snapshot: see baseline.json for the latest figure on modern-era ≥2010 S&P 500 FY filings), citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
-| [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | 20 copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
-| [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md) | The 10 most common SDK use cases, easiest → advanced — every example executed on the free tier with its **real captured output** |
+| [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | Copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
+| [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md) | The most common SDK use cases, easiest → advanced, each linked to a notebook executed on the free tier |
 | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — parameters, tier gates, examples |
 | [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |
 | [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | Same catalog as a workbook — columns, types, sample values |

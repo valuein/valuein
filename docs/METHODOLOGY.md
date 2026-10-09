@@ -2,7 +2,7 @@
 
 Transparency is foundational to the Valuein product. This document describes how raw SEC EDGAR XBRL data is processed into standardized, point-in-time accurate financial time series.
 
-The data product covers **19,000+** active and delisted US public-company entities, **12M+** filings, and **111M+** standardized facts since **1993**. Accuracy is measured, published, and re-derivable — see [`accuracy/`](accuracy/) for the identity catalog, the CI-gated baseline, and the one-command DuckDB reproduction. The fundamentals dataset (10-K / 10-Q / 8-K / 20-F + amendments) is exposed on every paid tier; the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 and institutional ownership on Forms 13F / 13D / 13G) is exposed on the Institutional tier only. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
+The data product covers every active and delisted US public company that files with the SEC, from **1993** on. Counts grow with every snapshot, so they are read live rather than printed here: `client.manifest()` (snapshot and tables), `curl -s https://data.valuein.biz/v1/sample/manifest.json | jq .schema_version` and `https://data.valuein.biz/v1/plans` (universe size and history window per plan). Accuracy is measured, published, and re-derivable — see [`accuracy/`](accuracy/) for the identity catalog, the CI-gated baseline, and the one-command DuckDB reproduction. The fundamentals dataset (10-K / 10-Q / 8-K / 20-F + amendments) is exposed on every paid tier; the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 and institutional ownership on Forms 13F / 13D / 13G) is exposed on the Institutional tier only. The full schema is in [`schema.json`](schema.json) (machine-readable) and [`data_catalog.md`](data_catalog.md) (canonical concept names).
 
 ---
 
@@ -99,46 +99,43 @@ Use this whenever you need quarterly cash flow, change in working capital, or an
 
 ---
 
-## 7. Valuation models
+## 7. DCF valuation
 
-Valuein computes three intrinsic value estimates per entity per fiscal period. All inputs and outputs are stored on the `valuation` table for auditability.
+Valuein publishes the reported inputs of a valuation, not an opinion of value: there is no
+stored intrinsic-value table (the `valuation` table was removed in schema 3.0.0). A DCF is
+computed on request, with assumptions the caller states, by the SDK's `client.dcf()` (locally,
+on the tables the client reads) and by the MCP `compute_dcf` tool. Both run the same model.
 
-### Two-stage DCF
+### Inputs
 
-Both DCF variants share the same discounting framework — a high-growth stage of 5 years at the observed historical CAGR followed by perpetuity at a fixed terminal growth rate. They differ only in the earnings input.
-
-| `model_type` | Earnings input | Philosophy |
-|---|---|---|
-| `dcf` | Owner earnings per diluted share | Conservative — Buffett / Greenwald |
-| `dcf_fcf` | Free cash flow per diluted share | Wall Street consensus |
-
-**Owner earnings** (Valuein proprietary) adjusts net income for the cash economics of the business:
+All inputs come from the latest annual filing (10-K / 20-F) accepted on or before the as-of
+date, and each one carries its `fact_id` and filing accession so it can be traced to the filing:
 
 ```
-owner_earnings = net_income + D&A + SBC + Δ working_capital − maintenance_capex
+fcf_base  = OperatingCashFlow − |CAPEX|
+net_debt  = TotalDebt − (CashAndEquivalents + ShortTermInvestments)
+shares    = CommonSharesOutstanding   (else NetIncome / EPSDiluted)
 ```
 
-**Free cash flow** uses the conventional formula:
+When an input is missing the result says so instead of inventing it: `net_debt_basis` is
+`reported`, `cash_assumed_zero` (debt reported, no cash line) or `debt_undisclosed` (net debt
+taken as 0, not a reported zero), and `shares_source` names where the share count came from.
+A missing operating cash flow or share count raises rather than reading as zero.
 
-```
-fcf = operating_cash_flow − |capital_expenditures|
-```
+### Model
 
-For most companies `dcf_fcf > dcf`. A large gap signals heavy reinvestment needs (growth capex embedded in CapEx that the FCF model does not strip out).
+A two-stage forward DCF. Stage 1 grows `fcf_base` at the caller's `stage1_growth_rate` for
+`stage1_years` years, each year discounted at `wacc`. The terminal value is the following
+year's FCF divided by `wacc − terminal_growth_rate`, discounted back `stage1_years`.
+`equity = enterprise value − net_debt`; `value per share = equity / shares`.
 
-### Dividend Discount Model (DDM)
+The growth rate is required: the model never guesses one. `wacc`, `terminal_growth_rate` and
+`stage1_years` have defaults, and the result flags every default it used. A non-positive FCF
+base is not valued (the value fields are empty and `reason` says why) rather than reported as
+zero. The result also carries a 5×5 sensitivity grid over the discount rate and terminal
+growth, and the SDK adds the last close and the implied upside.
 
-Applied only to dividend-paying entities. Uses the Gordon Growth Model with the 5-year average dividend per diluted share and the 5-year dividend CAGR. Intrinsic value reflects only the present value of future dividends.
-
-### Data quality flag
-
-The `data_quality` field on each valuation row indicates input reliability:
-
-| Value | Meaning |
-|---|---|
-| `reported` | Growth rate derived from observed historical data |
-| `estimated` | Growth rate unavailable; defaulted to 0% (conservative floor) |
-| `provisional` | Inputs are preliminary and may be revised |
+Walk-through: [`examples/notebooks/10_dcf_valuation.ipynb`](../examples/notebooks/10_dcf_valuation.ipynb).
 
 ---
 
@@ -146,10 +143,10 @@ The `data_quality` field on each valuation row indicates input reliability:
 
 | Dimension | Detail |
 |---|---|
-| **Entities** | 19,000+ active and delisted US + Canadian public-company entities (the `entity_type='us_public_filer'` subset — CIKs with at least one 10-K / 10-Q / 8-K / 20-F / 40-F filing). The full `entity` table is larger because per-filing parsers (SC 13D/G, Form 3/4/5, Form 144, 13F-HR) emit stub rows for issuers named in smart-money filings; those rows are labelled `entity_type='smart_money_subject'` and are excluded from the universe count. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro = 15-year rolling; Institutional = full 1993→present) and access to the smart-money dataset. |
-| **History** | Pro: 15-year rolling (2011 → present). Institutional: 1993 → present. |
-| **Filings** | 12M+ — 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
-| **Facts** | 111M+ standardized financial data points |
+| **Entities** | Every active and delisted US + Canadian public-company entity (the `entity_type='us_public_filer'` subset — CIKs with at least one 10-K / 10-Q / 8-K / 20-F / 40-F filing). The full `entity` table is larger because per-filing parsers (SC 13D/G, Form 3/4/5, Form 144, 13F-HR) emit stub rows for issuers named in smart-money filings; those rows are labelled `entity_type='smart_money_subject'` and are excluded from the universe count. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro = a rolling window; Institutional = full 1993→present) and access to the smart-money dataset. Live universe size: `universeSize` in `https://data.valuein.biz/v1/plans`. |
+| **History** | Pro: a rolling window (its current first year is `earliestYear` in `https://data.valuein.biz/v1/plans`). Institutional: 1993 → present. |
+| **Filings** | 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
+| **Facts** | Standardized financial data points: every fact of every filing above, under its canonical `standard_concept` ([`data_catalog.md`](data_catalog.md)) |
 | **XBRL coverage** | Facts that cannot be mapped to a canonical `standard_concept` are exposed under `'Other'` rather than dropped or imputed. The current measured mapping-gap rate is published in [`accuracy/baseline.json`](accuracy/baseline.json) (`unstandardized_facts`) and re-derivable with the open DuckDB script |
 | **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |

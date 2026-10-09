@@ -15,7 +15,7 @@ Tables: index_membership, references, ratio, stock_price (or stock_price_daily).
 Notebook: examples/notebooks/04_pit_factor_backtest.ipynb
 
 Run:
-    pip install valuein-sdk
+    pip install "valuein-sdk>=7.0.0"
     python examples/python/factor_backtest.py
 """
 

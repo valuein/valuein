@@ -25,6 +25,7 @@ prices. With `VALUEIN_API_KEY` set, the same code reads your plan's data. Plans:
 | 10 | [Verify a number](#10-verify-a-number) | none | [`filing_provenance.py`](../examples/python/filing_provenance.py) | [08](../examples/notebooks/08_verify_a_number.ipynb) |
 | 11 | [From an AI assistant](#11-from-an-ai-assistant) | none | [`agent_buys_its_own_data.py`](../examples/python/agent_buys_its_own_data.py) | [09](../examples/notebooks/09_ai_assistant.ipynb) |
 | 12 | [Production extracts](#12-production-extracts) | none | [`production_service.py`](../examples/python/production_service.py) | |
+| 13 | [Value a company](#13-value-a-company) | none | [`dcf_inputs.py`](../examples/python/dcf_inputs.py) | [10](../examples/notebooks/10_dcf_valuation.ipynb) |
 
 Research workflows (DCF, Piotroski, earnings quality, DuPont by sector, restatement event study,
 capital allocation, filing delay) are notebooks 10 to 16; see
@@ -178,6 +179,21 @@ call. Notebook 09 shows a tool function that returns each value with its `fact_i
 `production_service.py` shows a scheduled job: resource limits with `ValueinConfig`, a fixed
 `as_of` so re-runs reproduce the same data, typed errors mapped to exit codes, Parquet output
 with a manifest of the plan and snapshot read.
+
+## 13. Value a company
+
+```python
+result = client.dcf("MSFT", stage1_growth_rate=0.08)     # the growth rate is yours, never guessed
+result.value_per_share, result.price, result.upside
+result.inputs_frame()       # every input with its fact_id and filing accession
+result.sensitivity_frame()  # value per share over discount rate x terminal growth
+client.peers("MSFT", n=5)   # peers by SIC code with their ratios as of the client's as_of
+```
+
+A two-stage DCF computed locally from the latest annual filing known at `as_of`; defaults for
+`wacc`, `terminal_growth_rate` and `stage1_years` are flagged in `result.assumptions`. The same
+model is the MCP `compute_dcf` tool. Excel and Word files come from the Workspace or the MCP
+`generate_*` tools, not the SDK.
 
 ---
 

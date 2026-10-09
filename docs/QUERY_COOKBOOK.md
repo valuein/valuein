@@ -2,8 +2,8 @@
 
 A collection of copy-pasteable **DuckDB** recipes for the Valuein SEC EDGAR
 fundamentals dataset. Every query in this document runs against the tables
-exposed by the SDK (`references`, `entity`, `security`, `filing`, `fact`,
-`valuation`, `taxonomy_guide`, `index_membership`).
+exposed by the SDK (`references`, `entity`, `security`, `filing`, `fact`, `ratio`,
+`taxonomy_guide`, `index_membership`; `client.tables()` lists the rest).
 
 > All examples here work on the **Sample tier** (no token required) unless
 > noted otherwise. Upgrade to **S&P 500** or **Pro** for full history and the
@@ -418,17 +418,18 @@ ORDER  BY fiscal_year DESC
 LIMIT  5
 ```
 
-Cross-check against Valuein's pre-computed DCF:
+There is no stored DCF to cross-check against: a valuation needs your assumptions. The SDK
+runs the full model on these inputs (plus net debt and shares) from the latest annual filing
+known at the client's `as_of`, and returns every input with its `fact_id` and accession:
 
-```sql
-SELECT period_end, dcf_value_per_share, wacc, terminal_growth_rate,
-       stage1_growth_rate, stage1_years, fcf_base
-FROM   valuation v
-JOIN   "references" r ON v.entity_id = r.cik
-WHERE  r.symbol = 'MSFT'
-ORDER  BY v.period_end DESC
-LIMIT  3
+```python
+result = client.dcf("MSFT", stage1_growth_rate=0.08, wacc=0.09, terminal_growth_rate=0.025)
+result.value_per_share, result.price, result.upside
+result.inputs_frame()[["name", "value", "fact_id", "accession_id"]]
 ```
+
+The MCP `compute_dcf` tool runs the same model from an AI assistant. Walk-through:
+[`examples/notebooks/10_dcf_valuation.ipynb`](../examples/notebooks/10_dcf_valuation.ipynb).
 
 ---
 
