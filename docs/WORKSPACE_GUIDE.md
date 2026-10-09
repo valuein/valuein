@@ -104,7 +104,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - **`restatement_radar`** across Coverage (`since` = last month) — catch quiet 10-K/A and 10-Q/A amendments.
 - Re-score theses: *"Score all my theses past their horizon and tell me which broke."* (`score_due_theses`).
 
-**Upgrade path:** **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500) and your public analyst profile + reputation. **Institutional** adds DCF, forensic audit, and one-click **DOCX/XLSX export** of briefs and models for client/IC deliverables.
+**Upgrade path:** DCF, three-statement projection, LBO and forensic audit already run on the free S&P 500 tier. **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500), your public analyst profile + reputation, and one-click **XLSX/DOCX deliverables** (DCF, comps and LBO workbooks; Word research briefs) for client and IC work. **Institutional** adds the smart-money layer, filing-event webhooks and full history back to 1993.
 
 ---
 
@@ -153,7 +153,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 
 **Why it matters here:** every PIT-tabled value is filtered at `as_of` — no survivorship bias, no restatement leakage. That's the difference between a backtest you can trust and one you can't.
 
-**Upgrade path:** **Pro** unlocks the full universe; **Institutional** adds the smart-money tables for ownership-based factors.
+**Upgrade path:** **Pro** unlocks the full universe, daily prices and the in-server `run_backtest`; **Institutional** adds the smart-money tables for ownership-based factors.
 
 ---
 
@@ -219,12 +219,15 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
 | **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
 | **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
-| **DCF + forensic + DOCX/XLSX export** | — | — | — | ✓ | ✓ |
+| **DCF · three-statement · LBO · forensic audit** | — | ✓ | ✓ | ✓ | ✓ |
+| **XLSX/DOCX deliverables (DCF, comps, LBO, research brief)** | — | — | ✓ | ✓ | ✓ |
 | **Smart-money (insider + 13F + 13D/G)** | — | — | — | ✓ | ✓ |
-| **Webhooks · priority freshness · redistribution · SLA** | — | — | — | ✓ | ✓ |
+| **Webhooks · priority freshness** | — | — | — | ✓ | ✓ |
+| **Uptime SLA** | — | — | 99.5% | 99.9% | Bespoke |
+| **Redistribution · display · white-label** | — | — | — | — | Commercial licence |
 | **Dedicated infra · zero-retention** | — | — | — | — | ✓ |
 
-See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; prices, universe sizes and history windows are also served live: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.
+See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; each tool's minimum plan is `min_plan` in `https://mcp.valuein.biz/manifest.json`; prices, universe sizes and history windows are also served live: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.
 
 ---
 
@@ -244,15 +247,15 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; 
 
 *\* Smart-money playbooks require the Institutional tier.*
 
-### Key tools (118 total, behind chat + MCP)
+### Key tools (behind chat + MCP)
 
 - **Data:** `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_capital_allocation_profile`, `compare_periods`, `get_earnings_signals`, `get_sec_filing_links`
 - **Discovery / trust:** `search_companies`, `describe_schema`, `verify_fact_lineage`, citation overrides
 - **Screening:** `screen_universe`, `get_peer_comparables`, `get_pit_universe`, `get_compute_ready_stream`
-- **Valuation (Institutional):** `compute_dcf`, `forensic_audit`
+- **Valuation (S&P 500 free tier and up):** `compute_dcf`, `project_three_statement`, `compute_lbo`, `compute_accretion_dilution`, `forensic_audit`
 - **Smart money (Institutional):** `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`
 - **State (CRUD):** theses, watchlists, signals, reports, inbox
-- **Document generation (Institutional):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_research_brief_docx` (branded Word memo with citations), `generate_comps_xlsx` (peer comps table), `render_report` (Markdown/DOCX download)
+- **Document generation (Pro):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_comps_xlsx` (peer comps table), `generate_lbo_xlsx` (LBO model), `generate_research_brief_docx` (branded Word memo with citations); `render_report` (Markdown/DOCX download of a saved report) runs on every tier
 
 ### Connect once, use everywhere (`/account/settings/api`)
 
