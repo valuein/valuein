@@ -235,8 +235,8 @@ Beyond the data tools above, the server persists research objects server-side, k
 | Rules engine | `create_rule`, `list_rules`, `test_rule` | Trigger→action automation; live triggers: `alert_fired`, `inbox_item`, `scheduled_task_wake`, `schedule_tick` (each rule reports its `trigger_wiring_status`) |
 | Approvals (HOTL) | `stage_action`, `list_pending_approvals`, `approve_staged_action`, `reject_staged_action` | Mutating/destructive actions stage for human approval; every decision is an immutable audit entry |
 | Briefing & runs | `get_morning_brief`, `list_agent_runs`, `get_agent_run` | Read your daily brief and managed-run history from any MCP client |
-| Compute | `compute_dcf`, `forensic_audit`, `run_backtest` | Deterministic in-server compute; `run_backtest` is a bounded PIT factor grid with an honest stream-fallback over threshold |
-| Document generation | `generate_dcf_xlsx`, `generate_comps_xlsx`, `generate_research_brief_docx` | Pro+; branded OOXML artifacts with server-side figure verification |
+| Compute | `compute_dcf`, `project_three_statement`, `compute_lbo`, `compute_accretion_dilution`, `forensic_audit`, `run_backtest` | Benchmark+ (`run_backtest`: Pro+); deterministic in-server compute; `run_backtest` is a bounded PIT factor grid with an honest stream-fallback over threshold |
+| Document generation | `generate_dcf_xlsx`, `generate_comps_xlsx`, `generate_lbo_xlsx`, `generate_research_brief_docx` | Pro+; branded OOXML artifacts with server-side figure verification |
 
 ---
 
@@ -367,7 +367,7 @@ Resources are cheaper to read than tool calls — agents that just need schema o
 
 ## Tier matrix at a glance
 
-All tools are callable on every paid tier. **What changes is the data the tool can see:**
+Most tools are callable from the Sample tier up, and **what changes is the data the tool can see**. A few tools have a higher floor: the tools that save theses, watchlists, signals and reports, and the compute tools (`compute_dcf`, `project_three_statement`, `compute_lbo`, `compute_accretion_dilution`, `forensic_audit`) need Benchmark; prices (`get_stock_price`, `get_price_history`, `get_pit_valuation_ratios`), `run_backtest` and the `generate_*` deliverables need Pro; the smart-money tools need Institutional. Each tool's floor is `min_plan` in the manifest (link below).
 
 | Tier | Data the agent sees |
 |---|---|
