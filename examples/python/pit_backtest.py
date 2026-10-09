@@ -1,132 +1,85 @@
-"""Valuein US Core Fundamentals — Point-in-Time (PIT) Backtesting
+"""Point-in-time discipline: the same query, asked at two dates, gives two answers.
 
-THE critical example for quant practitioners.
-
-The problem: companies restate earnings. If Apple filed Q3 2023 earnings
-in October 2023, then restated them in February 2024, most data providers
-silently overwrite the original number. Your backtest now uses data you
-didn't have at the time — that's look-ahead bias.
-
-Valuein preserves every version of every fact with an accepted_at timestamp.
-You can ask: "What did the market know on date X?"
-
-What you'll learn:
-- How the same period can have multiple versions over time (restatements)
-- How to write a PIT-correct query using filing_date
-- Why filtering by report_date instead of filing_date leaks future data
-- The institutional standard for survivorship-bias-free backtesting
+What it does: asks for Monolithic Power Systems' fiscal 2024 net income twice, once with the
+client's cutoff set to 2025-06-30 and once as of today. The company restated that figure in a
+later 10-K (after an 8-K Item 4.02 non-reliance notice), so the two answers differ. A backtest
+dated mid-2025 must use the first one. The script also shows how far `accepted_at` (when a
+number became public) trails `period_end` (the period it describes).
+Who it is for: quants building backtests; anyone who needs "what was known on date D".
+Plan: none. Runs on the free sample tier with no API key.
+SDK methods: ValueinClient(as_of=...), ValueinClient.resolve, ValueinClient.run_query.
+Tables: references, fact.
+Notebook: examples/notebooks/02_fundamentals_as_of_a_date.ipynb
 
 Run:
-    # Install (either workflow):  pip install valuein-sdk   |   uv pip install valuein-sdk
-    # Token is OPTIONAL — without it, the SDK runs in SAMPLE mode (S&P 500, last 5 years).
-    # only when you want full universe / full history
-    export VALUEIN_API_KEY="your_token_here"
+    pip install valuein-sdk
     python examples/python/pit_backtest.py
 """
 
+from __future__ import annotations
+
+from datetime import datetime, timezone
+
+import pandas as pd
+
 from valuein_sdk import ValueinClient
 
-client = ValueinClient(tables=["security", "filing", "fact"])
+TICKER = "MPWR"
+PERIOD_END = "2024-12-31"
+PAST = datetime(2025, 6, 30, tzinfo=timezone.utc)  # as_of must be timezone-aware
 
-TICKER = "NVDA"
-TRADE_DATE = "2024-01-15"
+QUESTION = """
+    SELECT numeric_value / 1e9 AS net_income_bn, accession_id, accepted_at
+    FROM fact
+    WHERE entity_id = '{cik}'
+      AND standard_concept = 'NetIncome'
+      AND fiscal_period = 'FY'
+      AND period_end = DATE '{period_end}'
+    QUALIFY ROW_NUMBER() OVER (ORDER BY accepted_at DESC, priority DESC) = 1
+"""
 
-# ── 1. The restatement problem ────────────────────────────────────────────────
-print("=" * 60)
-print("1. Restatements — same period, multiple knowledge dates")
-print("=" * 60)
-print(
-    f"  Each row below is a version of {TICKER}'s annual revenue.\n"
-    "  A new row appears each time the company files an amendment.\n"
-    "  Most providers keep only the latest — destroying history.\n"
-)
-df = client.run_query(f"""
-    SELECT
-        fa.period_end,
-        fa.fiscal_year,
-        f.form_type,
-        f.filing_date,
-        fa.accepted_at,
-        round(fa.numeric_value / 1e9, 2) AS revenue_bn
-    FROM   fact    fa
-    JOIN   filing  f  ON fa.accession_id = f.accession_id
-    JOIN   security s ON f.entity_id     = s.entity_id
-    WHERE  s.symbol            = '{TICKER}'
-      AND  s.is_active         = TRUE
-      AND  fa.standard_concept = 'TotalRevenue'
-      AND  f.form_type         IN ('10-K', '10-K/A')
-    ORDER  BY fa.period_end DESC, fa.accepted_at ASC
-    LIMIT  15
-""")
-print(df.to_string(index=False))
-print()
 
-# ── 2. PIT-correct query ──────────────────────────────────────────────────────
-print("=" * 60)
-print(f"2. PIT-correct: What did the market know about {TICKER} on {TRADE_DATE}?")
-print("   CORRECT: filter by filing_date <= trade_date")
-print("=" * 60)
-df_pit = client.run_query(f"""
-    SELECT
-        fa.standard_concept,
-        fa.fiscal_year,
-        f.filing_date,
-        round(fa.numeric_value / 1e9, 2) AS value_bn
-    FROM   fact    fa
-    JOIN   filing  f  ON fa.accession_id = f.accession_id
-    JOIN   security s ON f.entity_id     = s.entity_id
-    WHERE  s.symbol            = '{TICKER}'
-      AND  s.is_active         = TRUE
-      AND  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
-      AND  f.form_type          = '10-K'
-      AND  f.filing_date       <= '{TRADE_DATE}'     -- ← PIT filter
-    ORDER  BY f.filing_date DESC, fa.standard_concept
-    LIMIT  10
-""")
-print(df_pit.to_string(index=False))
-print()
+def ask(as_of: datetime | None, cik: str) -> pd.Series:
+    """Run QUESTION with the client's point-in-time cutoff at `as_of` (None = now)."""
+    with ValueinClient(as_of=as_of) as client:
+        return client.run_query(QUESTION.format(cik=cik, period_end=PERIOD_END)).iloc[0]
 
-# ── 3. The anti-pattern ───────────────────────────────────────────────────────
-print("=" * 60)
-print("3. WRONG: filtering by report_date introduces look-ahead bias")
-print("   report_date is the fiscal period end, NOT when you learned it")
-print("=" * 60)
-df_wrong = client.run_query(f"""
-    SELECT
-        fa.standard_concept,
-        fa.fiscal_year,
-        fa.period_end   AS report_date,   -- ← fiscal period end
-        f.filing_date,                    -- ← when market actually learned it
-        round(fa.numeric_value / 1e9, 2) AS value_bn
-    FROM   fact    fa
-    JOIN   filing  f  ON fa.accession_id = f.accession_id
-    JOIN   security s ON f.entity_id     = s.entity_id
-    WHERE  s.symbol            = '{TICKER}'
-      AND  s.is_active         = TRUE
-      AND  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
-      AND  f.form_type          = '10-K'
-      AND  fa.period_end       <= '{TRADE_DATE}'     -- ← WRONG: not when you knew it
-    ORDER  BY fa.period_end DESC, fa.standard_concept
-    LIMIT  10
-""")
-print(df_wrong.to_string(index=False))
 
-pit_rows = len(df_pit)
-wrong_rows = len(df_wrong)
-if wrong_rows > pit_rows:
-    print(
-        f"\n  PIT-correct returned {pit_rows} rows. "
-        f"The wrong query returned {wrong_rows} rows.\n"
-        f"  Those extra {wrong_rows - pit_rows} rows contain data "
-        "you couldn't have had at the trade date."
-    )
-print()
+def publication_lag(cik: str) -> pd.DataFrame:
+    """Days from period end to SEC acceptance for the company's annual net income."""
+    with ValueinClient() as client:
+        rows = client.run_query(f"""
+            SELECT period_end, min(accepted_at) AS first_public
+            FROM fact
+            WHERE entity_id = '{cik}' AND standard_concept = 'NetIncome' AND fiscal_period = 'FY'
+            GROUP BY period_end ORDER BY period_end
+        """)
+    rows["days_until_public"] = (
+        pd.to_datetime(rows["first_public"], utc=True).dt.tz_localize(None)
+        - pd.to_datetime(rows["period_end"])
+    ).dt.days
+    return rows
 
-print("=" * 60)
-print("This is why institutional quants pay for PIT data.")
-print(
-    "\nRule: ALWAYS filter by filing_date <= trade_date.\n"
-    "      NEVER filter by report_date alone.\n"
-    "      Use accepted_at for millisecond-precision PIT filtering."
-)
-print("=" * 60)
+
+def main() -> None:
+    """Ask the question at both dates and print the difference."""
+    with ValueinClient() as client:
+        cik = client.resolve(TICKER)["cik"].iloc[0]
+
+    then = ask(PAST, cik)
+    now = ask(None, cik)
+    print(f"{TICKER} net income for the fiscal year ended {PERIOD_END}:")
+    for label, row in [(f"known on {PAST:%Y-%m-%d}", then), ("known today      ", now)]:
+        print(
+            f"  {label}: {row['net_income_bn']:.4f} bn  "
+            f"(filing {row['accession_id']}, accepted {row['accepted_at']:%Y-%m-%d})"
+        )
+    print(f"  change: {now['net_income_bn'] / then['net_income_bn'] - 1:+.1%}")
+
+    print("\nA number exists at period end but becomes public only at SEC acceptance:")
+    print(publication_lag(cik).tail(4).to_string(index=False))
+    print("\nRule: gate on accepted_at (ValueinClient(as_of=...)), never on period_end.")
+
+
+if __name__ == "__main__":
+    main()

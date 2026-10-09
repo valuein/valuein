@@ -1,197 +1,79 @@
-"""Valuein US Core Fundamentals — Survivorship-Bias-Free Data
+"""Survivorship bias, measured: today's index members vs the index as it really was.
 
-Most financial databases quietly delete companies that went bankrupt,
-were acquired, or were delisted. What's left is a graveyard of winners.
-Backtest a momentum strategy on that universe and your Sharpe looks
-great — because you never tested it on the companies that blew up.
-
-We kept them. Every last one.
-
-What you'll learn:
-- How many inactive/delisted companies are in the dataset
-- How to find former index members that departed (via index_membership)
-- How to query their financials in the years before failure
-- Why omitting these companies overstates backtested returns
+What it does: takes every S&P 500 member on a start date, computes each company's total return
+to the latest month-end (holding companies that stopped trading to their last close), and
+compares the equal-weight return of the honest universe with that of today's survivors only.
+The gap is the survivorship bias of the window.
+Who it is for: anyone backtesting on an index; risk and research leads reviewing backtests.
+Plan: none. Runs on the free sample tier with no API key (month-end prices).
+SDK methods: ValueinClient.pit_universe, ValueinClient.run_query.
+Tables: index_membership, references, stock_price.
+Notebook: examples/notebooks/03_survivorship_free_screening.ipynb
 
 Run:
-    # Install (either workflow):  pip install valuein-sdk   |   uv pip install valuein-sdk
-    # Token is OPTIONAL — without it, the SDK runs in SAMPLE mode (S&P 500, last 5 years).
-    # only when you want full universe / full history
-    export VALUEIN_API_KEY="your_token_here"
+    pip install valuein-sdk
     python examples/python/survivorship_bias.py
 """
 
+from __future__ import annotations
+
+import pandas as pd
+
 from valuein_sdk import ValueinClient
 
-client = ValueinClient(
-    tables=["entity", "security", "fact", "filing", "index_membership"]
-)
+START = "2022-06-30"
 
-# ── 1. Scale of inactive entities ────────────────────────────────────────────
-print("=" * 60)
-print("1. The companies most providers deleted")
-print("=" * 60)
-df = client.run_query("""
-    SELECT
-        status,
-        count(*)                                              AS companies,
-        round(100.0 * count(*) / sum(count(*)) OVER (), 1)   AS pct_of_universe
-    FROM entity
-    GROUP BY status
-    ORDER BY companies DESC
-""")
-print(df.to_string(index=False))
-print()
 
-# ── 2. Former S&P 500 members that departed (survivorship in action) ──────────
-# index_membership tracks every company that ever joined an index.
-# removal_date IS NOT NULL means they left — acquired, delisted, or went bankrupt.
-# Since migration 0015, index_membership keys on cik and uses
-# effective_date / removal_date (half-open [) intervals).
-print("=" * 60)
-print("2. Former S&P 500 members that left the index")
-print("   (acquired, delisted, or bankrupt — data others deleted)")
-print("=" * 60)
-df = client.run_query("""
-    SELECT
-        e.name,
-        e.status,
-        r.symbol,
-        im.effective_date AS joined_index,
-        im.removal_date   AS left_index,
-        im.removal_reason
-    FROM   index_membership im
-    JOIN   "references" r ON r.cik = im.cik
-    JOIN   entity        e ON e.cik = im.cik
-    WHERE  im.index_name  = 'SP500'
-      AND  im.removal_date IS NOT NULL
-    QUALIFY row_number() OVER (PARTITION BY e.cik ORDER BY im.removal_date DESC) = 1
-    ORDER BY im.removal_date DESC
-    LIMIT 20
-""")
-print(df.to_string(index=False))
-print()
-
-# ── 3. Financials for a departed company in the years before exit ─────────────
-# Pick the most recent departure with fact data, then show its income trend.
-print("=" * 60)
-print("3. Revenue and net income for a former index member (pre-exit)")
-print("=" * 60)
-df = client.run_query("""
-    WITH departed AS (
-        SELECT
-            e.cik,
-            e.name,
-            im.removal_date
-        FROM   index_membership im
-        JOIN   entity e ON e.cik = im.cik
-        WHERE  im.index_name  = 'SP500'
-          AND  im.removal_date IS NOT NULL
-        ORDER  BY im.removal_date DESC
-        LIMIT  1
-    )
-    SELECT
-        d.name,
-        fa.fiscal_year,
-        fa.standard_concept,
-        round(fa.numeric_value / 1e9, 3) AS value_bn
-    FROM   fact   fa
-    JOIN   filing f ON fa.accession_id = f.accession_id
-    JOIN   departed d ON fa.entity_id  = d.cik
-    WHERE  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
-      AND  f.form_type = '10-K'
-      AND  fa.fiscal_period = 'FY'
-    QUALIFY row_number() OVER (
-        PARTITION BY fa.fiscal_year, fa.standard_concept
-        ORDER BY fa.period_end DESC
-    ) = 1
-    ORDER  BY fa.fiscal_year DESC, fa.standard_concept
-    LIMIT  20
-""")
-if not df.empty:
-    company = df["name"].iloc[0]
-    print(f"  Company: {company}")
-    print(df[["fiscal_year", "standard_concept", "value_bn"]].to_string(index=False))
-else:
-    # Fallback: any inactive entity with facts
-    df = client.run_query("""
-        WITH target AS (
-            SELECT e.cik, e.name
-            FROM   entity e
-            WHERE  e.status != 'ACTIVE'
-              AND  e.sector IS NOT NULL
-            LIMIT  1
+def member_returns(client: ValueinClient, start: str) -> pd.DataFrame:
+    """Return one row per member on `start` with its total return to its last month-end close."""
+    members = client.pit_universe(start)[["cik", "company_name", "removal_date"]]
+    members = members.drop_duplicates("cik")
+    prices = client.run_query(f"""
+        WITH bars AS (
+            SELECT entity_id, price_date, total_return_index AS tri
+            FROM stock_price
+            WHERE observation = 'monthly'
+            -- two share classes are two series under one CIK: keep one per month
+            QUALIFY ROW_NUMBER() OVER (PARTITION BY entity_id, price_date ORDER BY security_id) = 1
         )
-        SELECT
-            t.name,
-            fa.fiscal_year,
-            fa.standard_concept,
-            round(fa.numeric_value / 1e9, 3) AS value_bn
-        FROM   fact   fa
-        JOIN   filing f ON fa.accession_id = f.accession_id
-        JOIN   target t ON fa.entity_id    = t.cik
-        WHERE  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
-          AND  f.form_type = '10-K'
-          AND  fa.fiscal_period = 'FY'
-        QUALIFY row_number() OVER (
-            PARTITION BY fa.fiscal_year, fa.standard_concept
-            ORDER BY fa.period_end DESC
-        ) = 1
-        ORDER  BY fa.fiscal_year DESC, fa.standard_concept
-        LIMIT  20
+        SELECT entity_id AS cik,
+               arg_max(tri, price_date) FILTER (WHERE price_date <= DATE '{start}') AS tri_start,
+               arg_max(tri, price_date) AS tri_end,
+               max(price_date) AS last_bar
+        FROM bars GROUP BY entity_id
     """)
-    if not df.empty:
-        company = df["name"].iloc[0]
-        print(f"  Company: {company}")
-        print(
-            df[["fiscal_year", "standard_concept", "value_bn"]].to_string(index=False)
-        )
-    else:
-        print("  (No inactive companies with fact data in this plan tier)")
-print()
+    out = members.merge(prices, on="cik", how="left")
+    out["total_return"] = out["tri_end"] / out["tri_start"] - 1
+    out["still_member"] = out["removal_date"].isna()
+    return out
 
-# ── 4. Why it matters (Refined Logic) ─────────────────────────────────────────
-print("=" * 60)
-# 1. Total Universe Stats
-total_stats = client.run_query("""
-    SELECT 
-        count(*) as total,
-        count(*) FILTER (WHERE status != 'ACTIVE') as inactive
-    FROM entity
-""").iloc[0]
 
-# 2. Index Exit Stats - Distinguished by Status
-exit_stats = client.run_query("""
-    SELECT
-        e.status,
-        count(DISTINCT im.cik) AS n
-    FROM index_membership im
-    JOIN entity e ON e.cik = im.cik
-    WHERE im.index_name   = 'SP500'
-      AND im.removal_date IS NOT NULL
-    GROUP BY e.status
-""")
+def main() -> None:
+    """Print the honest, survivor-only and departed-only equal-weight returns."""
+    with ValueinClient() as client:
+        returns = member_returns(client, START)
 
-# Parse numbers for the summary
-total_count = total_stats["total"]
-dead_count = total_stats["inactive"]
-pct_dead = round(100.0 * dead_count / total_count, 1)
+    priced = returns.dropna(subset=["total_return"])
+    honest = priced["total_return"].mean()
+    survivors = priced.loc[priced["still_member"], "total_return"].mean()
+    departed = priced.loc[~priced["still_member"], "total_return"].mean()
 
-departed_active = exit_stats[exit_stats["status"] == "ACTIVE"]["n"].sum()
-departed_inactive = exit_stats[exit_stats["status"] != "ACTIVE"]["n"].sum()
-total_departed = departed_active + departed_inactive
+    print(f"S&P 500 members on {START}: {len(returns)}; with prices at both ends: {len(priced)}")
+    print(f"left the index since: {int((~returns['still_member']).sum())}")
+    print(f"\nEqual-weight total return from {START} to each company's last month-end close:")
+    print(f"  all members on {START} (honest) : {honest:+.1%}")
+    print(f"  today's survivors only            : {survivors:+.1%}")
+    print(f"  companies that left               : {departed:+.1%}")
+    print(f"\nSurvivor-only minus honest: {(survivors - honest) * 100:+.1f} percentage points")
 
-print("  DATASET OVERVIEW:")
-print(f"  - Total Entities: {total_count:,}")
-print(f"  - Truly Inactive/Dead: {dead_count:,} ({pct_dead}%)")
-print("\n  S&P 500 SURVIVORSHIP:")
-print(f"  - {total_departed:,} companies left the S&P 500 index.")
-print(
-    f"    └─ {departed_active:,} are still trading (likely demoted to MidCap/SmallCap)."
-)
-print(
-    f"    └─ {departed_inactive:,} are the true 'Survivorship Bias' cases (delisted/bankrupt)."
-)
-print("\n  A backtest that ignores the 'Inactive' subset is fundamentally flawed,")
-print("  as it ignores the 100% losses that occur when a company ceases to exist.")
-print("=" * 60)
+    worst = priced.loc[~priced["still_member"]].nsmallest(5, "total_return")
+    print("\nWeakest departed members (what a survivor-only universe never sees):")
+    print(
+        worst[["company_name", "removal_date", "last_bar", "total_return"]]
+        .round(3)
+        .to_string(index=False)
+    )
+
+
+if __name__ == "__main__":
+    main()
