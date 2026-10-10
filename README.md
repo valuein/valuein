@@ -15,7 +15,7 @@
 This repository is the **public home and discovery hub** for the Valuein data platform. It hosts the documentation, examples, notebooks, and the [MCP registry manifest](server.json) used by AI agents to find us. Source code for the SDK, MCP server, and data pipeline lives in dedicated repositories — this is the front door.
 
 ```bash
-pip install "valuein-sdk>=7.0.0" # data for code
+pip install "valuein-sdk>=7.1.0" # data for code
 # or add this URL to any MCP-capable AI client:
 # https://mcp.valuein.biz/mcp     # data for agents
 ```
@@ -108,7 +108,7 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 
 | Plan | Universe | History | Get it |
 |---|---|---|---|
-| **Sample** | S&P 500 companies | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.0.0"` |
+| **Sample** | S&P 500 companies | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
 | **Benchmark** | S&P 500 companies | Full history | **Free**, [register](https://valuein.biz/register) |
 | **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
@@ -154,13 +154,13 @@ Pick whichever Python workflow you already use — both work in any virtual envi
 ```bash
 # Option A — pip (universal, ships with Python)
 python -m venv .venv && source .venv/bin/activate
-pip install "valuein-sdk>=7.0.0"
+pip install "valuein-sdk>=7.1.0"
 ```
 
 ```bash
 # Option B — uv (10–100× faster; install from https://docs.astral.sh/uv/)
 uv venv && source .venv/bin/activate
-uv pip install "valuein-sdk>=7.0.0"
+uv pip install "valuein-sdk>=7.1.0"
 ```
 
 > **Zero-friction by design.** No `VALUEIN_API_KEY`? No problem. The SDK detects the missing token and falls back to the SAMPLE dataset (S&P 500, last 5 years); the edge gateway does the same — `GET /v1/{sp500,pro,full}/:table` with no `Authorization` header automatically 302-redirects to `/v1/sample/:table`. The snippet below runs as-is.
@@ -254,6 +254,22 @@ from valuein_sdk import ValueinClient
 with ValueinClient() as c:
     print(c.list_templates())
 ```
+
+### Statements and screens, every number traced to its filing
+
+```python
+from valuein_sdk import ValueinClient
+
+with ValueinClient() as client:  # no token: free sample tier
+    fin = client.financials("AAPL")  # income, balance sheet, cash flow as known at as_of
+    print(fin.income)
+    print(fin.lineage.head())  # each number's fact_id, filing accession and acceptance time
+
+    screen = client.screen("2024-06-28", universe="SP500").where("return_on_equity > 0.15")
+    print(screen.top(10, by="gpoa").to_pandas().summary())  # members on that date, delisted included
+```
+
+The same client runs factor backtests with tear sheets, compares a factor on point-in-time, as-filed and restated numbers, counts your trials (deflated Sharpe), and mirrors or pins a data snapshot: [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md).
 
 Reference: [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) (DuckDB recipes) · [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concepts) · [PyPI README](https://pypi.org/project/valuein-sdk/) (SDK quickstart).
 
