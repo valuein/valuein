@@ -27,14 +27,6 @@
     {
       "type": "streamable-http",
       "url": "https://mcp.valuein.biz/mcp"
-    },
-    {
-      "type": "streamable-http",
-      "url": "https://mcp.valuein.biz/chatgpt/mcp"
-    },
-    {
-      "type": "streamable-http",
-      "url": "https://mcp.valuein.biz/claude/mcp"
     }
   ],
   "_meta": {
@@ -110,18 +102,6 @@
         "audience": "Any MCP client",
         "auth": "Bearer token; no token reads the sample dataset",
         "tools": "Full catalog, by plan"
-      },
-      {
-        "url": "https://mcp.valuein.biz/chatgpt/mcp",
-        "audience": "ChatGPT apps",
-        "auth": "None",
-        "tools": "Read-only research tools over the sample dataset"
-      },
-      {
-        "url": "https://mcp.valuein.biz/claude/mcp",
-        "audience": "Claude connectors",
-        "auth": "None",
-        "tools": "Read-only research tools over the sample dataset"
       }
     ],
     "io.github.valuein/docs": "https://github.com/valuein/valuein/blob/main/docs/MCP_TOOLS.md"
