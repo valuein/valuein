@@ -1,9 +1,8 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-09-15  
-> **Standardized concepts**: 350  
-> **Historical coverage**: 1994 – present  
-> **Coverage target**: ≥ 95% of all SEC EDGAR financial facts
+> **Last updated**: 2026-10-16  
+> **Standardized concepts**: 351  
+> **Historical coverage**: fundamentals from 1993 (EDGAR floor) – present
 
 ---
 
@@ -1574,6 +1573,12 @@ Revenue / operating profit by reportable segment.
 **Category:** shareholder_returns  ·  **Flow:** no
 
 Board-authorized share repurchase program amount.
+
+### `SharesOutstandingCover`
+
+**Unit:** shares  ·  **Category:** equity  ·  **Flow:** no
+
+Common shares outstanding as stated on the filing's cover page (dei:EntityCommonStockSharesOutstanding), at the cover's "latest practicable date", not the balance-sheet date.
 
 ### `TierOneCapitalRatio`
 
