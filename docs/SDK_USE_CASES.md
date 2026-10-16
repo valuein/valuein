@@ -178,7 +178,7 @@ and liquidity filters need daily bars (Pro and Institutional).
 from valuein_sdk import ValueinClient
 from valuein_sdk import backtest
 
-client = ValueinClient()  # reads VALUEIN_API_KEY from the environment; no key = free sample
+client = ValueinClient()  # reads VALUEIN_API_KEY; forward_returns reads daily bars: Pro or Institutional
 
 dates = ["2019-12-31", "2020-12-31", "2021-12-31", "2022-12-31"]  # rebalance dates
 panel = client.signal_panel(
@@ -189,8 +189,8 @@ result = backtest(panel, signal="return_on_equity", quantiles=5, cost_bps=10.0)
 print(result.summary())
 ```
 
-On Pro and Institutional, `client.factor_backtest("return_on_equity", start=..., end=...,
-freq="QE")` runs all steps in one call. On the free tiers the script and notebook build forward
+On Pro and Institutional, `client.factor_backtest("return_on_equity", start="2015-01-01",
+end="2024-12-31", freq="QE")` runs all steps in one call. On the free tiers the script and notebook build forward
 returns from month-end closes instead; the backtest is the same.
 
 Beyond the pipeline ratios, `signal_panel(..., library=["ep", "gpoa", "mom_12_1", "vol_1y"])`
