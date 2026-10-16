@@ -189,11 +189,11 @@ with ValueinClient() as client:
 That's a real query against the live S&P 500 sample. Add a token only when you need full universe or full history:
 
 ```bash
-# optional — sample tier works without a key
-echo 'VALUEIN_API_KEY="your_token_here"' >> .env
+# optional — the sample tier works without a key
+export VALUEIN_API_KEY="your_token_here"      # or add this line to a .env file
 ```
 
-The same code now reads from your tier — no other changes.
+The same code now reads from your tier — no other changes. `ValueinClient()` reads `VALUEIN_API_KEY` from the environment, or from the first `.env` it finds walking up from the working directory; `ValueinClient(api_key="")` forces the free sample whatever the environment holds. The `curl` and DuckDB examples in this repo keep the same token in `$VALUEIN_TOKEN`: it is the same token under a shell-variable name, and the SDK does not read that one.
 
 ### Production pattern — context manager, typed errors, pre-built templates
 
@@ -269,6 +269,40 @@ with ValueinClient() as client:  # no token: free sample tier
     print(screen.top(10, by="gpoa").to_pandas().summary())  # members on that date, delisted included
 ```
 
+### The main verbs
+
+| You want… | Call | Plan |
+|---|---|---|
+| Raw SQL over point-in-time views | `client.run_query(sql)`, `client.duckdb()` | all |
+| Statements as known on a date | `client.financials("AAPL", freq="FY")` (`"Q"`, `"TTM"`; `.as_filed()`) | all |
+| Index members on a past date (delisted included) | `client.universe(dates=[...])`, `client.pit_universe("2022-06-30")` | all |
+| Ratios known on those dates | `client.signal_panel(members, ratios=[...], include_price=False)` | all |
+| A point-in-time screen | `client.screen("2024-06-28").where("return_on_equity > 0.15")` | all (price fields: Pro) |
+| A two-stage DCF with traced inputs | `client.dcf("MSFT", stage1_growth_rate=0.08)` | all |
+| Peers and restatements | `client.peers("MSFT", n=5)`, `client.restatements(ticker="MPWR")` | all |
+| Quantile backtest, vintages, trial counting | `client.factor_backtest(...)`, `client.restatement_impact(...)`, `client.study(...)` | daily bars: Pro and Institutional |
+| Mirror or pin the data | `client.sync(path)`, `ValueinClient.from_bundle(path)` | plan-limited |
+
+```python
+from valuein_sdk import ValueinClient
+
+client = ValueinClient()  # reads VALUEIN_API_KEY; no key = free sample
+
+# S&P 500 members on a past date, later-removed companies included
+members = client.universe(dates=["2022-06-30"])
+
+# Return on equity as it was known on that date
+panel = client.signal_panel(members, ratios=["return_on_equity"], include_price=False)
+print(panel.head())
+
+# A DCF with your growth assumption; every input traced to its filing
+dcf = client.dcf("MSFT", stage1_growth_rate=0.08)
+print(dcf.value_per_share, dcf.price, dcf.upside)
+
+# Numbers a later filing changed, with both filings
+print(client.restatements(ticker="MPWR").head())
+```
+
 The same client runs factor backtests with tear sheets, compares a factor on point-in-time, as-filed and restated numbers, counts your trials (deflated Sharpe), and mirrors or pins a data snapshot: [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md).
 
 Reference: [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) (DuckDB recipes) · [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concepts) · [PyPI README](https://pypi.org/project/valuein-sdk/) (SDK quickstart).
@@ -306,7 +340,7 @@ VALUEIN_API_KEY=xxx python examples/python/factor_backtest.py
 
 ## Data model
 
-Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concept names). Every tier reads the core tables below; the Institutional tier adds the smart-money tables (`insider_party` / `insider_filing` / `insider_transaction` / `institutional_filing` / `institutional_holding` / `insider_ownership`) and the Form ADV adviser tables. `client.tables()` lists what your plan reads; `curl -s https://data.valuein.biz/v1/sample/manifest.json | jq .schema_version` prints the live schema version.
+Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concept names). Every tier reads the core tables below; paid tiers also read `filing_registrant`; the Institutional tier adds the smart-money tables (`insider_party` / `insider_filing` / `insider_transaction` / `insider_ownership` / `insider_footnote` / `insider_ownership_purpose` / `institutional_filing` / `institutional_holding` / `institutional_other_manager`) and the Form ADV adviser tables (`investment_adviser`, `investment_adviser_private_fund`). `client.tables()` lists what your plan reads; `curl -s https://data.valuein.biz/v1/sample/manifest.json | jq .schema_version` prints the live schema version.
 
 | Table | What it is | Why it matters |
 |---|---|---|
@@ -315,12 +349,31 @@ Full schema in [`docs/schema.json`](docs/schema.json) (machine-readable) and [`d
 | `security` | Ticker history (SCD Type 2 with `valid_from` / `valid_to`) | Resolve historical tickers, share classes, exchanges. |
 | `filing` | Filing metadata — `accession_id`, `filing_date`, `report_date`, form type, amendment flag | The "what was filed when" dimension. |
 | `fact` | Standardized financial facts — both raw `concept` and canonical `standard_concept` on every row | The numbers. PIT-safe via `accepted_at`. |
+| `filing_registrant` | Every registrant of an accession (paid tiers; not in the free sample manifest) | `filing` keeps one row per `accession_id`, so a combined co-registrant filing appears under one CIK only. Join `filing_registrant` to `filing` on `accession_id` to list a company's filings including the combined ones. |
 | `ratio` | Pipeline-computed financial ratios per filing | Skip the SQL — margins, returns, leverage, efficiency pre-calculated. |
 | `taxonomy_guide` | The US GAAP taxonomy guide | Definitions for every `standard_concept`. |
 | `index_membership` | Index constituents keyed on `cik`, with `effective_date` / `removal_date` half-open windows. **SP500 is survivorship-free back to 1996** (`confidence='high'`) — real entry/exit spells including long-delisted registrants. **RUSSELL1000 / RUSSELL2000 / RUSSELL3000 go back to 2000-09-30** (`confidence='medium'`, `source='fund_holdings'`) — reconstructed from the publicly disclosed portfolio holdings of large funds tracking each index, so a fund proxies rather than defines the index, and a join or leave date is only as precise as the interval between observations (roughly one to four a year through 2006, monthly from 2007). Graded against the index provider's published reconstitution lists, which we use to measure and never redistribute: **recall 96.5–98.3%, precision 93.6–98.6%**. No Russell data before 2000-09-30, and no holdings observation between 2016-12-30 and 2017-07-31. | Reconstruct the **S&P 500** or a **Russell** index on a historical date. Branch on `confidence` — `medium` means approximate, not authoritative. JOIN `references.cik = index_membership.cik` for company metadata. |
 | `standard_concept` | The canonical concept catalog itself — names, statements, mapping rules, CPA review status | The ground truth behind `fact.standard_concept`. |
 | `stock_price` | Coarse price series per entity — one close per fiscal period-end and per month-end, with `total_return_index` on every row (every tier) | Value-vs-price overlays and monthly-rebalanced backtests on any tier: `tri_b / tri_a - 1` between two month-end rows is the holder's total return for that span, dividends included. |
+| `insider_footnote` · `insider_ownership_purpose` · `institutional_other_manager` | **Institutional only** — Form 3/4/5 footnotes (the receipt behind a 10b5-1 plan or a weighted-average price), the verbatim Item 4 "Purpose of Transaction" of a Schedule 13D, and the 13F manager lists | The text behind a transaction, a stake or a combined 13F; join `insider_footnote` and `insider_ownership_purpose` to `insider_filing`, and `institutional_other_manager` to `institutional_filing`, on `accession_id`. |
 | `stock_price_daily` | **Institutional and Pro only** — full daily OHLCV bar series per listing, with `total_return_index` and the raw corporate-action factors (`div_cash`, `split_factor`) | Backtest-safe price legs — pair with fundamentals for PIT valuation multiples. Use `total_return_index` for total return: it is forward-compounded, so unlike a back-adjusted series a later split never restates it. `adjusted_close` is a vendor passthrough and is null on the large majority of bars. Grain is one row per security per day — add `WHERE is_primary_listing` for one row per company. Prices are licensed market data, not EDGAR, so they do NOT share the 1993 fundamentals floor: no bars exist in 1993 and the earliest bar differs per security, 1994 onward. |
+
+### Reading the Parquet files directly
+
+Tables are plain Parquet over HTTPS. The free sample needs no token and no file extension; paid tiers send the Bearer token. A request without a token to a paid route redirects (302) to the sample copy.
+
+```bash
+# Free sample — no token, no card
+curl -sL https://data.valuein.biz/v1/sample/entity -o entity.parquet
+
+# Paid tiers: sp500 | pro | full — the same Bearer token as the SDK, kept here in $VALUEIN_TOKEN
+curl -sL -H "Authorization: Bearer $VALUEIN_TOKEN" https://data.valuein.biz/v1/pro/references -o references.parquet
+
+# One company's partition of a large table (10-digit CIK)
+curl -sL -H "Authorization: Bearer $VALUEIN_TOKEN" https://data.valuein.biz/v1/pro/fact/0000320193.parquet -o aapl_fact.parquet
+```
+
+`https://data.valuein.biz/v1/sample/manifest.json` lists the tables and the schema version of the sample.
 
 ### Date columns — which to use when
 
@@ -346,7 +399,7 @@ WHERE  im.index_name = 'SP500'
   AND  r.sector ILIKE '%technology%'
 ```
 
-**2. `LATERAL` for the latest filing per company:**
+**2. `LATERAL` for the latest filing per company** (an excerpt: add this join to pattern 1's query, which defines `r`):
 
 ```sql
 JOIN LATERAL (

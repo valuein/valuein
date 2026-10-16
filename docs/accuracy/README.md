@@ -16,6 +16,8 @@ README and pricing page. Three files, all citable, all runnable:
 
 ```bash
 # Get a free token first (lead-capture, 30 seconds): https://valuein.biz/register
+# VALUEIN_TOKEN is just the shell variable these DuckDB commands read (the SDK reads VALUEIN_API_KEY);
+# both hold the same token.
 export VALUEIN_TOKEN="your_token"
 
 duckdb -c "

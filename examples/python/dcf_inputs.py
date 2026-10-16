@@ -12,7 +12,7 @@ Tables: fact, filing, references, stock_price.
 Notebook: examples/notebooks/10_dcf_valuation.ipynb
 
 Run:
-    pip install "valuein-sdk>=7.0.0"
+    pip install "valuein-sdk>=7.1.0"
     python examples/python/dcf_inputs.py
 """
 

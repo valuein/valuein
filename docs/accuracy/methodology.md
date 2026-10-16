@@ -94,6 +94,8 @@ The sample tier is free, but a Bearer token is required to fetch its Parquet fil
 # 1. Install DuckDB (one binary, zero deps): https://duckdb.org/docs/installation
 # 2. Export your free token and run the script:
 
+# VALUEIN_TOKEN is just the shell variable these DuckDB commands read (the SDK reads VALUEIN_API_KEY);
+# both hold the same token.
 export VALUEIN_TOKEN="your_free_token_here"
 
 duckdb -c "
