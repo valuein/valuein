@@ -3,7 +3,35 @@
 A collection of copy-pasteable **DuckDB** recipes for the Valuein SEC EDGAR
 fundamentals dataset. Every query in this document runs against the tables
 exposed by the SDK (`references`, `entity`, `security`, `filing`, `fact`, `ratio`,
-`taxonomy_guide`, `index_membership`; `client.tables()` lists the rest).
+`taxonomy_guide`, `index_membership`, `standard_concept`, `restatement_events`,
+`stock_price`; `filing_registrant` and `stock_price_daily` on paid tiers, the
+smart-money and Form ADV tables on Institutional; `client.tables()` lists what your
+plan reads).
+
+**Running a recipe.** Every recipe is plain SQL for `client.run_query(sql)`. Recipes that
+contain `:cik` or `:trade_date` are parameterised templates: replace the placeholder with a
+literal (a CIK is a 10-digit string, `client.resolve("AAPL")` gives it). Recipes marked
+*excerpt* continue an earlier recipe's CTEs and are not standalone.
+
+```python
+from valuein_sdk import ValueinClient
+
+client = ValueinClient()  # reads VALUEIN_API_KEY; no key = free sample
+cik = client.resolve("AAPL")["cik"].iloc[0]  # ticker -> 10-digit CIK
+
+sql = """
+    SELECT fa.standard_concept, fa.fiscal_year, f.filing_date, fa.numeric_value
+    FROM   fact fa
+    JOIN   filing f ON fa.accession_id = f.accession_id
+    WHERE  f.entity_id = :cik
+      AND  f.form_type = '10-K'
+      AND  f.filing_date <= DATE '2024-01-31'
+      AND  fa.standard_concept IN ('TotalRevenue', 'NetIncome')
+    ORDER  BY f.filing_date DESC
+    LIMIT  10
+""".replace(":cik", f"'{cik}'")  # bind the placeholder
+print(client.run_query(sql))
+```
 
 > All examples here work on the **Sample tier** (no token required) unless
 > noted otherwise. Upgrade to **S&P 500** or **Pro** for full history and the
@@ -132,6 +160,7 @@ GROUP BY fa.accession_id
 
 **Use when:** any ratio. Zero denominators raise, and CAPEX sign varies by
 filer — wrap every divisor in `NULLIF(x, 0)` and CAPEX in `ABS()`.
+*Excerpt:* `p` is a pivoted `fact` CTE such as the one in recipe 3.
 
 ```sql
 SELECT
@@ -139,7 +168,7 @@ SELECT
     name,
     round(100.0 * net_income / NULLIF(revenue, 0),       1) AS net_margin_pct,
     round(ocf - ABS(capex),                              2) AS free_cash_flow
-FROM   /* pivoted fact cte */ p
+FROM   p  -- the pivoted fact CTE from recipe 3
 ```
 
 > Why: dividing by zero crashes the query; `NULLIF` makes it `NULL` so the
@@ -423,9 +452,12 @@ runs the full model on these inputs (plus net debt and shares) from the latest a
 known at the client's `as_of`, and returns every input with its `fact_id` and accession:
 
 ```python
+from valuein_sdk import ValueinClient
+
+client = ValueinClient()  # reads VALUEIN_API_KEY; no key = free sample
 result = client.dcf("MSFT", stage1_growth_rate=0.08, wacc=0.09, terminal_growth_rate=0.025)
-result.value_per_share, result.price, result.upside
-result.inputs_frame()[["name", "value", "fact_id", "accession_id"]]
+print(result.value_per_share, result.price, result.upside)
+print(result.inputs_frame()[["name", "value", "fact_id", "accession_id"]])
 ```
 
 The MCP `compute_dcf` tool runs the same model from an AI assistant. Walk-through:
@@ -440,7 +472,8 @@ earnings. To test it, use
 [`examples/python/factor_backtest.py`](../examples/python/factor_backtest.py) (swap the signal for a growth ratio such as `revenue_cagr_1y`).
 
 ```sql
--- See recipe 13 for the `latest` / `prior` CTEs (same skeleton).
+-- Excerpt: continues recipe 13, which defines the `latest` / `prior` CTEs (same skeleton);
+-- `latest_pivot` / `prior_pivot` are its `latest_facts` / `prior_facts` CTEs.
 SELECT
     l.symbol, l.name, l.sector,
     round(100.0 * (lp.revenue    - pp.revenue)    / NULLIF(pp.revenue, 0),    1) AS rev_yoy_pct,

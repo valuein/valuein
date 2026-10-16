@@ -89,7 +89,7 @@ A retailer whose Q4 ends January 31, 2024 shows `fiscal_year='2024' fiscal_perio
 
 ## 6. Quarterly vs YTD cash flows
 
-10-Q filings report cash flows on a year-to-date basis: Q2 reports H1, Q3 reports the first nine months, Q4 (10-K) reports the full year. To get the isolated quarter the pipeline pre-computes `derived_quarterly_value` on every `fact` row that needs it. The recommended pattern in DuckDB:
+10-Q filings report cash flows on a year-to-date basis: Q2 reports H1, Q3 reports the first nine months, Q4 (10-K) reports the full year. To get the isolated quarter the pipeline pre-computes `derived_quarterly_value` on every `fact` row that needs it. The recommended pattern in DuckDB (an expression to use inside a `SELECT` over `fact`, not a whole query):
 
 ```sql
 COALESCE(derived_quarterly_value, numeric_value) AS quarterly
@@ -155,7 +155,7 @@ Walk-through: [`examples/notebooks/10_dcf_valuation.ipynb`](../examples/notebook
 
 ## 9. Survivorship-bias-free design
 
-Every snapshot retains all historical filings, including those from delisted, bankrupt, merged, or acquired entities. No entity is ever removed from the archive. Common universe filters:
+Every snapshot retains all historical filings, including those from delisted, bankrupt, merged, or acquired entities. No entity is ever removed from the archive. Common universe filters (`WHERE` clauses to add to a query over `"references"` joined to `index_membership`, with `:as_of` replaced by a date literal; excerpts, not whole queries):
 
 ```sql
 -- Active companies only (NOT survivorship-bias-free)

@@ -1,9 +1,9 @@
 {
-  "version": "3.3.0",
+  "version": "4.4.0",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
-      "description": "Denormalized flat join of entity + security.  One row per security — covers the company universe (CIK + primary identifiers + sector + ticker).  For ANY membership question (current or historical, SP500 or Russell), JOIN with index_membership on cik = cik.  The join column has the same name on both sides — this view does NOT carry index-membership flags because they're inherently snapshot-only and single-index, both of which are footguns the index_membership table avoids by design.",
+      "description": "Denormalized flat join of entity + security.  One row per security — covers the company universe (CIK + primary identifiers + sector + ticker) — plus one row with NULL security_id / symbol for every reporting company that has no security (e.g. a wholly-owned subsidiary that files only because it issues public debt, or a delisted registrant).  Filter symbol IS NOT NULL for listed securities only.  For ANY membership question (current or historical, SP500 or Russell), JOIN with index_membership on cik = cik.  The join column has the same name on both sides — this view does NOT carry index-membership flags because they're inherently snapshot-only and single-index, both of which are footguns the index_membership table avoids by design.",
       "columns": {
         "cik": {
           "type": "VARCHAR"
@@ -21,7 +21,8 @@
           "type": "VARCHAR"
         },
         "status": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "description": "ACTIVE when the registrant has a ticker in SEC's company_tickers.json on the day the pipeline read that file, else INACTIVE.  This is a statement about the TICKER FILE, not about whether the company still files with the SEC: use `listed today` semantics for it (see `is_public` for the classified view) and `is_active` (on this table `is_entity_active`) for `still alive`.  The two legitimately disagree: a non-traded REIT or a debt-only registrant files every quarter but has no ticker (INACTIVE + is_active TRUE); a company whose ticker lingers in the file after it stopped filing is ACTIVE + is_active FALSE.  Pipeline source: SecProcessor.process_submissions_data (`ACTIVE` iff the CIK is in the ticker map)."
         },
         "entity_type": {
           "type": "VARCHAR"
@@ -45,7 +46,8 @@
           "type": "DATE"
         },
         "is_active": {
-          "type": "BOOLEAN"
+          "type": "BOOLEAN",
+          "description": "The SECURITY's ticker spell is open (security.valid_to IS NULL); NULL on a company with no security.  Says nothing about the registrant: for `still alive` use `is_entity_active`."
         },
         "figi": {
           "type": "VARCHAR"
@@ -59,6 +61,18 @@
         "is_primary_ticker": {
           "type": "BOOLEAN",
           "description": "Propagated from security.is_primary_ticker.  TRUE for the entity's primary listing.  Multi-share-class issuers (BRK-A/BRK-B, GOOG/GOOGL) emit multiple rows here; default consumer queries (and the MCP universe dedup) filter is_primary_ticker=TRUE for one row per CIK."
+        },
+        "is_public": {
+          "type": "BOOLEAN",
+          "description": "Propagated from entity.is_public: the registrant is exchange-listed TODAY.  NULL = never classified, not FALSE.  Not the same as `is_active` on this table, which describes the SECURITY's ticker spell."
+        },
+        "is_entity_active": {
+          "type": "BOOLEAN",
+          "description": "Propagated from entity.is_active (the entity_status activity spell, else latest filing within DORMANCY_DAYS = 400): the registrant still files with the SEC.  Use it for `still alive`; `status` only says whether the CIK is on SEC's ticker file today, and the two can disagree in both directions (non-traded REIT: status INACTIVE, is_entity_active TRUE).  NULL = never classified.  Not the same as `is_active` on this table, which describes the SECURITY's ticker spell."
+        },
+        "succeeded_by_cik": {
+          "type": "VARCHAR",
+          "description": "Propagated from entity.succeeded_by_cik: the DECLARED corporate-succession link, NULL for almost every row. When present, the registrant on THIS row was reorganised into the CIK named here — a curated, evidence-gated fact (configs/security_successions.csv in data-pipeline), never a ticker-recycling coincidence. A ticker resolver should follow this link instead of guessing succession from which CIK holds more facts."
         }
       }
     },
@@ -107,7 +121,8 @@
           "type": "VARCHAR"
         },
         "status": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "description": "ACTIVE when the registrant has a ticker in SEC's company_tickers.json on the day the pipeline read that file, else INACTIVE.  This is a statement about the TICKER FILE, not about whether the company still files with the SEC: use `listed today` semantics for it (see `is_public` for the classified view) and `is_active` (references: `is_entity_active`) for `still alive`.  The two legitimately disagree: a non-traded REIT or a debt-only registrant files every quarter but has no ticker (INACTIVE + is_active TRUE); a company whose ticker lingers in the file after it stopped filing is ACTIVE + is_active FALSE.  Pipeline source: SecProcessor.process_submissions_data (`ACTIVE` iff the CIK is in the ticker map)."
         },
         "entity_type": {
           "type": "VARCHAR"
@@ -159,15 +174,29 @@
           "type": "BOOLEAN",
           "description": "SEC declares this CIK itself owns insider holdings."
         },
+        "is_public": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the registrant's CURRENT listing spell is 'public' (exchange-listed); FALSE for non_traded / unregistered; NULL when no evidence classifies it.  Derived from the entity_status replay classifier (Form 25 / 15, 8-K items, insider / 13D-G / price evidence)."
+        },
+        "is_active": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the registrant still files with the SEC: its CURRENT entity_status activity spell is 'active'; FALSE when inactive (deregistered, acquired, dormant); with no spell, TRUE iff its latest filing is within DORMANCY_DAYS (400) of today; NULL when it was never classified and has no filing.  Independent of `status`, which only says whether the CIK is on SEC's ticker file: a delisted-but-still-filing company is status INACTIVE + is_active TRUE, a ticker that outlived the company is status ACTIVE + is_active FALSE.  Use this column for `still alive / still reporting`, `status` or `is_public` for `listed today`."
+        },
         "former_names": {
           "type": "JSON",
           "description": "SEC ``formerNames[]`` history — JSON array of ``{name, from, to}`` objects.  Useful for ticker-history queries and merger lineage (e.g. tracing FB → META, GOOG → GOOGL share splits, or a former subsidiary's prior name).  Empty array when the issuer has never renamed."
         },
         "last_seen_at": {
-          "type": "DATE"
+          "type": "DATE",
+          "description": "Pipeline bookkeeping, not a company fact: the date of the last pipeline run that refreshed this row from SEC's submissions file.  After a full run every company carries the same date; it says nothing about when the company last filed — use MAX(filing.filing_date) for that, and is_active for \"still reporting\"."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        },
+        "succeeded_by_cik": {
+          "type": "VARCHAR",
+          "references": "entity.cik",
+          "description": "The DECLARED corporate-succession link: NULL for the overwhelmingly common case, else the CIK of the registrant this one was reorganised into (a redomestication, holdco inversion, or similar SEC-issued-a-new-CIK event). Written by SecuritySuccessionService from ``configs/security_successions.csv``, which only accepts a pair whose successor RESTATES the predecessor's numbers (>= 25 identical fact tuples). Never a ticker-recycling coincidence (DEC, AMR, ARC), never inferred from which CIK holds more facts — that proxy is exactly what this column replaces for consumers. Propagated onto ``references`` at export."
         }
       }
     },
@@ -338,13 +367,16 @@
           "references": "filing.accession_id"
         },
         "concept": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "description": "The RAW XBRL tag as filed (bare local name, e.g. 'Revenues').  Look it up in ``taxonomy_guide.standard_concept``."
         },
         "standard_concept": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "description": "Valuein's curated canonical concept (e.g. 'Revenue'; 'Other' when unmapped or not CPA-reviewed).  Look it up in the ``standard_concept`` table."
         },
         "priority": {
-          "type": "SMALLINT"
+          "type": "SMALLINT",
+          "description": "Primary-row flag, computed at export: within each filing (accession_id), 1 on the row of the raw tag elected for this (entity_id, standard_concept, period_end, unit, duration) fact, 0 on sibling tags that map to the same standard concept.  Every filing therefore has exactly one priority-1 row per fact.  Election order: source tier (XBRL first), mapping accuracy (exact tag match first), a tag whose every value is 0 loses to one that is not, CONCEPT_PRECEDENCE rank, tag name.  Filter ``priority = 1`` for one row per fact per filing."
         },
         "label": {
           "type": "VARCHAR"
@@ -370,7 +402,8 @@
           "type": "DATE"
         },
         "fiscal_year": {
-          "type": "INTEGER"
+          "type": "INTEGER",
+          "description": "Fiscal year the fact's ``period_end`` belongs to, derived from the entity's fiscal-year end (not SEC's cover-page fy): a comparative in a later 10-K keeps its own period's year.  Group by ``period_end`` when exactness matters."
         },
         "fiscal_period": {
           "type": "VARCHAR"
@@ -409,11 +442,11 @@
         },
         "is_estimated": {
           "type": "BOOLEAN",
-          "description": "TRUE when part of the published value was INFERRED rather than read from the source. In practice this means a monetary SCALE: the EX-27 Financial Data Schedules that carry our 1994-2001 history omit their <MULTIPLIER> tag on ~27% of schedules, and a missing scale is invisible to every accounting identity because every line is wrong by the same factor. Where the scale was pinned by an anchor outside the monetary block (the filer's own declaration on another schedule, or the EPS-implied share count) the fact ships with this flag set and a confidence_score deduction; where it could not be pinned, the monetary fact was not published at all. FALSE on every XBRL-sourced fact."
+          "description": "TRUE when part of the published value was INFERRED rather than read from the source. In practice this means a monetary SCALE: the EX-27 Financial Data Schedules that carry our 1994-2001 history omit their <MULTIPLIER> tag on ~27% of schedules, and a missing scale is invisible to every accounting identity because every line is wrong by the same factor. Where the scale was pinned by an anchor outside the monetary block (the filer's own declaration on another schedule, or the EPS-implied share count) the fact ships with this flag set and a confidence_score deduction; where it could not be pinned, the monetary fact was not published at all. On XBRL-sourced facts it is FALSE except for a share count or EPS the pipeline's magnitude guard touched: a filer's own units slip (e.g. 59,711,000,000 diluted shares typed for 59,711,000) is either corrected by an exact power of 1000 against independent evidence (EPS = net income / weighted shares, another filing's value for the same period, the company's own share-count series; `numeric_value` is the corrected figure and `value` keeps the filer's string) or, when nothing corroborates a fix, left as filed and flagged. Both carry TRUE and the same confidence_score deduction."
         },
         "data_quality": {
           "type": "VARCHAR",
-          "description": "How this number was obtained. 'standard' = read from an XBRL exhibit the filer tagged (2009-present; the overwhelming majority of the table). 'ex27_fds' = parsed from an SEC EX-27 Financial Data Schedule, the tagged machine-readable summary that Reg S-T Rules 401/402 required on every 10-K and 10-Q from 1994-09-01 until the rescission effective 2001-01-01 — still the filer's own tagged number, one layer of our parsing away. 'html_derived' = extracted by us from the filing's rendered financial statements (2001-2008, where no machine-readable exhibit exists). 'sgml_derived' = extracted by us from the fixed-width SGML statements of a pre-2003 filing, sliced at the filer's own column offsets. 'human_verified' = a value a named reviewer read off the filing by hand and recorded with the page/line evidence and a sec.gov link (the evidence is in `label`; the raw tag is 'human:<concept>'); it replaces the parser lanes' value for that series, is never estimated, ships at confidence 1.0, and is still outranked by an XBRL value for the same series. Filter on this column to restrict a backtest to XBRL-era facts; the confidence_score already carries a deduction for the other two, and the raw source tag is preserved in `concept` (an 'fds5:'-style prefix) so any recovered value traces to a specific line of a specific exhibit."
+          "description": "How this number was obtained. 'standard' = read from an XBRL exhibit the filer tagged (2009-present; the overwhelming majority of the table). 'ex27_fds' = parsed from an SEC EX-27 Financial Data Schedule, the tagged machine-readable summary that Reg S-T Rules 401/402 required on every 10-K and 10-Q from 1994-09-01 until the rescission effective 2001-01-01 — still the filer's own tagged number, one layer of our parsing away. 'html_derived' = extracted by us from the filing's rendered financial statements (2001-2008, where no machine-readable exhibit exists). 'sgml_derived' = extracted by us from the fixed-width SGML statements of a pre-2003 filing, sliced at the filer's own column offsets. 'human_verified' = a value a named reviewer read off the filing by hand and recorded with the page/line evidence and a sec.gov link (the evidence is in `label`; the raw tag is 'human:<concept>'); it replaces the parser lanes' value for that series, is never estimated, ships at confidence 1.0, and is still outranked by an XBRL value for the same series. Filter on this column to restrict a backtest to XBRL-era facts; the confidence_score already carries a deduction for the other two, and the raw source tag is preserved in `concept` (an 'fds5:'-style prefix) so any recovered value traces to a specific line of a specific exhibit. 'period_after_filing' = a statement or cover-page fact (revenue, net income, assets, equity, cash, shares outstanding, public float, ...) whose period ends more than a day AFTER the filing was accepted: a date the filer mistyped (cover shares dated a year ahead). The value is kept, never dropped; `data_quality = 'standard'` excludes it. Forward-looking concepts (future minimum rents, amortisation schedules, declared dividends) end after the filing by nature and are not flagged."
         },
         "accepted_at": {
           "type": "TIMESTAMPTZ"
@@ -459,6 +492,22 @@
         }
       }
     },
+    "filing_registrant": {
+      "description": "Every registrant of an SEC accession.  ``filing`` has ONE row per ``accession_id``, owned by the first registrant, so a combined (co-registrant) filing appears under only one CIK there; ``fact.entity_id`` still names each registrant.  Join this table to ``filing`` on ``accession_id`` to list a company's filings including the combined ones: ``SELECT f.* FROM filing f JOIN filing_registrant r ON r.accession_id = f.accession_id WHERE r.entity_id = :cik``.  A registrant that filed no numeric fact under its own CIK may be absent.",
+      "columns": {
+        "accession_id": {
+          "type": "VARCHAR",
+          "primary_key": true,
+          "references": "filing.accession_id"
+        },
+        "entity_id": {
+          "type": "VARCHAR",
+          "primary_key": true,
+          "references": "entity.cik",
+          "description": "One registrant of the accession (10-digit CIK)."
+        }
+      }
+    },
     "index_membership": {
       "description": "Index constituents keyed on ``cik``.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window (half-open ``[)`` semantics).  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides — see migration 0015 for the rationale.\n\nHISTORICAL DEPTH AND PROVENANCE DIFFER BY INDEX — read this before using the table for point-in-time work.  The ``source`` and ``confidence`` columns are the discriminators, and they are the ones to branch on.\n* **SP500 — from 1996-01-02, ``high`` confidence.**  1,014 entry/exit spells over 968 CIKs, 510 of them closed, including companies long delisted, with ``removal_date`` and ``removal_reason`` populated.  ``source`` is ``historical_seed`` / ``public_constituent_list`` / ``succession_config``.\n* **RUSSELL1000 / RUSSELL2000 / RUSSELL3000 — from 2000-09-30, ``medium`` confidence, ``source='fund_holdings'``.**  3,051 / 10,130 / 11,025 spells, of which 2,059 / 8,214 / 8,117 are closed.  Reconstructed from the publicly disclosed portfolio holdings of large funds tracking each index, NOT from the index provider's own constituent lists, which are licensed IP we do not redistribute.\n\nThree bounds follow from that derivation and must be carried into any conclusion drawn from the Russell rows.  (1) OBSERVATION SPACING VARIES — roughly one to four observations a year from 2000 through 2006, monthly from 2007 on — so a join or leave date is only as precise as the interval between observations, and is never exact to the day in the early years.  (2) A tracking fund only PROXIES its index — a few holdings sit outside it and a sampled fund can miss members — so these are our derived membership, not the index.  (3) There is NO Russell data before 2000-09-30; an earlier date returns zero rows because we do not carry it, which is not a statement that the index was empty.  Confidence is therefore ``medium`` and never ``high``, which correctly leaves the MCP's ``pit_safe`` false.\n\nMEASURED against the index provider's 13 published reconstitution lists (used to grade, never published): recall 96.5%–98.3% per year on RUSSELL3000, worst 96.5%.  Precision is 93.6%–98.6% once the official list's ~22-character truncated company names are accounted for; the unadjusted floor reads 87.3%–97.7% and understates early years, because a company renamed since the list date cannot be matched at all.\n\nKNOWN GAP — no holdings observation exists anywhere between 2016-12-30 and 2017-07-31, a 213-day window, for any fund read.  Russell membership cannot be observed there, so departures collapse onto 2016-12-31 and arrivals onto 2017-07-31, and the June 2017 reconstitution therefore appears to happen on 31 July.  A year-end 2016 point-in-time query returns 2,623 RUSSELL3000 members rather than ~2,900 for this reason alone.  SP500 is unaffected.\n\nSP500 pre-2007 coverage rises 1996 ≈341 members → 2006 ≈454 against a real ~500.  That shortfall is a CIK RESOLUTION ceiling, not the index's size: pre-XBRL delisted members were never ingested into ``entity``, and this table's ``cik`` is an FK to it.",
       "columns": {
@@ -480,7 +529,7 @@
         },
         "announcement_date": {
           "type": "DATE",
-          "description": "Date the index provider publicly announced the addition — intended for inclusion-arb work, where the news-public date matters rather than the first trading day.  Typically 5–10 trading days before ``effective_date``.\n\n⚠️ CURRENTLY NULL ON EVERY ROW — 25,220 of 25,220, verified 2026-09-16.  No announcement source has ever contributed a row, so ``get_pit_universe`` with ``as_of_basis='announcement'`` returns ZERO members for EVERY index and every date.  It fails silently — an empty universe, not an error.  **Use the default effective basis.**  Treat this column as reserved-but-unpopulated until a source fills it; the Russell rows could not carry it in any case, being derived from a fund holdings panel that has no announcement concept at all."
+          "description": "Date the index provider publicly announced the addition — intended for inclusion-arb work, where the news-public date matters rather than the first trading day.  Typically 5–10 trading days before ``effective_date``.\n\n⚠️ NULL ON EVERY ROW, AND NOTHING WILL FILL IT — 25,220 of 25,220, verified 2026-09-16.  The only layer that ever set out to populate it scraped an index provider's press archive; it never contributed a row and was REMOVED on 2026-09-17, so this column is now reserved-but-unpopulated by decision, not by backlog.  ``get_pit_universe`` with ``as_of_basis='announcement'`` therefore returns ZERO members for EVERY index and every date — an empty universe reads to a backtest as 'the index had no members', which is worse than an error.  **Use the default effective basis.**  The Russell rows could not carry an announcement date in any case, being derived from a fund holdings panel that has no announcement concept at all.  Filling this column needs a LICENSED announcement feed."
         },
         "removal_date": {
           "type": "DATE",
@@ -488,7 +537,7 @@
         },
         "removal_announcement_date": {
           "type": "DATE",
-          "description": "Date the removal was publicly announced; symmetric with announcement_date.  NULL when only the public-constituent-list / fund-snapshot layers wrote the row."
+          "description": "Date the removal was publicly announced; symmetric with ``announcement_date`` — and, like it, NULL on every row with no source that will fill it."
         },
         "removal_reason": {
           "type": "VARCHAR",
@@ -500,7 +549,7 @@
         },
         "source": {
           "type": "VARCHAR",
-          "description": "Provenance — the column to branch on for how far a row can be trusted.  Live values with row counts (2026-09-16): ``fund_holdings`` 24,206 — publicly disclosed portfolio holdings of funds tracking each index, sole source of RUSSELL1000 / RUSSELL2000 / RUSSELL3000, always confidence='medium'; ``historical_seed`` 528 — curated S&P 500 spells 1996+; ``public_constituent_list`` 484 — current S&P 500 members, read from a public constituent list; ``succession_config`` 2 — curated reorg predecessor spells.  Valid but currently EMPTY: ``fund_snapshot``, ``manual``.  ⚠️ Every value names the MECHANISM that produced the row, never a publisher, fund or site — two were renamed on that principle (the Russell lane to ``fund_holdings`` on 2026-09-16, the current-members lane to ``public_constituent_list`` on 2026-09-17), so a snapshot cached before those dates carries a superseded string."
+          "description": "Provenance — the column to branch on for how far a row can be trusted.  Every value names the MECHANISM that produced the row, never a firm or a website; that is a deliberate naming rule, so do not read a value as an attribution.  Live values with row counts (2026-09-17): ``fund_holdings`` 24,206 — publicly disclosed portfolio holdings of funds tracking each index, sole source of RUSSELL1000 / RUSSELL2000 / RUSSELL3000, always confidence='medium'; ``historical_seed`` 528 — curated S&P 500 spells 1996+; ``public_constituent_list`` 484 — current S&P 500 members, from a publicly maintained list of the index's constituents; ``succession_config`` 2 — curated reorg predecessor spells.  Valid but currently EMPTY: ``fund_snapshot``, ``manual``.  ⚠️ SUPERSEDED VALUES a cached older snapshot may still carry: earlier releases named the fund, list or publisher a row was read from instead of the mechanism.  Those values were renamed between 2026-09-15 and 2026-09-17 onto the mechanism names above — ``fund_holdings`` / ``fund_snapshot`` for the holdings-derived lanes, ``public_constituent_list`` for the current-members lane — and one belonged to a layer that was removed on 2026-09-17 having never written a row.  Treat any value not in the live list above as a stale snapshot, not as a fifth lane."
         },
         "confidence": {
           "type": "VARCHAR",
@@ -605,7 +654,7 @@
       }
     },
     "taxonomy_guide": {
-      "description": "Human-readable definitions for all standard_concept values used in the fact table.",
+      "description": "SEC us-gaap taxonomy tag reference (one row per raw tag, synced yearly from the FASB taxonomy) — the dictionary for ``fact.concept``, joined on ``fact.concept = taxonomy_guide.standard_concept``.  Not the dictionary for ``fact.standard_concept``: that is the curated ``standard_concept`` table.",
       "columns": {
         "standard_concept": {
           "type": "VARCHAR",
@@ -628,23 +677,23 @@
         },
         "level": {
           "type": "SMALLINT",
-          "description": "Concept tier: 1 = L1 universal statement line, 2 = L2 sector-pack sub-line."
+          "description": "Not populated (always NULL) for the raw us-gaap tag reference; the L1/L2 tier lives in the ``standard_concept`` table."
         },
         "statement_type": {
           "type": "VARCHAR",
-          "description": "Statement the concept belongs to (income | balance_sheet | cash_flow | supplemental | …)."
+          "description": "Not populated (NULL) for the raw us-gaap tag reference; statement placement lives in the ``standard_concept`` table."
         },
         "display_order": {
           "type": "SMALLINT",
-          "description": "Suggested ordering within a statement for human-facing renders."
+          "description": "Not populated (constant 0); carries no ordering."
         },
         "is_active": {
           "type": "BOOLEAN",
-          "description": "FALSE for retired concepts kept for historical fact lookups."
+          "description": "Always TRUE today: rows from earlier taxonomy vintages are kept, not deactivated."
         },
         "gaap_ifrs_comparable": {
           "type": "BOOLEAN",
-          "description": "TRUE when the concept maps cleanly across US-GAAP and IFRS filers."
+          "description": "Reserved; not populated by any writer (always FALSE)."
         },
         "created_at": {
           "type": "TIMESTAMPTZ"
@@ -812,6 +861,14 @@
           "type": "VARCHAR",
           "description": "Primary document of the RESTATING filing.  See first_primary_doc — a diff has two sides and both should open on the page the number is actually printed on."
         },
+        "first_is_inline_xbrl": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the AS-REPORTED filing is Inline XBRL (filing.is_inline_xbrl, the SEC-declared flag).  TRUE → link SEC's viewer: https://www.sec.gov/ix?doc=/Archives/edgar/data/{cik}/{accn}/{doc}.  FALSE → link the document directly (/Archives/edgar/data/{cik}/{accn}/{doc}), or {accession}-index.htm when first_primary_doc is NULL or the filing predates 2001 — the /ix viewer renders nothing for a non-iXBRL document (≈2009–2019 classic XBRL and everything earlier).  Use this stored flag, never a date heuristic.  NOT NULL: FALSE when the filing row is unknown."
+        },
+        "current_is_inline_xbrl": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the RESTATING filing is Inline XBRL.  Same link rules as first_is_inline_xbrl, applied to current_accession / current_primary_doc.  NOT NULL: FALSE when the filing row is unknown."
+        },
         "disclosure_class": {
           "type": "VARCHAR",
           "description": "HOW the company told the market — 'non_reliance' | 'amended' | 'undisclosed'.  'non_reliance': an 8-K carrying Item 4.02 ('Non-Reliance on Previously Issued Financial Statements') was filed between the original and the restating filing — the company formally telling the SEC not to rely on what it had already reported.  The loudest signal in US disclosure, and rare (6 companies in the whole S&P 500 slice).  'amended': corrected in a 10-K/A or 10-Q/A.  'undisclosed': the value changed inside a ROUTINE periodic filing — no 4.02, no amendment; the old number is simply gone.  94.5% of events are 'undisclosed', which is the whole point of the column.  NOT NULL (defaults to 'undisclosed'): a missing disclosure is exactly what 'undisclosed' means, so there is no third state.  ⚠ It is NOT named 'silent' on purpose — see the 2.24.0 note at the top of this file.  It is a statement about the filing chain, not about the filer's intent."
@@ -831,7 +888,7 @@
       }
     },
     "stock_price": {
-      "description": "Coarse end-of-day market-price series per entity — period-end-aligned closes (one per fiscal period_end, for value-vs-price overlays) AND a monthly last-trading-day close history (for charting/backtest scaffolding).  Filter on ``observation`` to pick the grain.  RAW closes (never split/dividend-adjusted — split-invariant ratios need no adjustment); ``div_cash`` / ``split_factor`` carry the corporate-action factors for query-time total-return adjustment.  Point-in-time: ``accepted_at`` = the market-close timestamp, so an ``as_of`` before the close never sees that bar. GRAIN: one row per (entity_id, observation, period_end-or-month) — this table is joined to per-CIK fundamentals, so an issuer with several listed securities is resolved to its PRIMARY listing before alignment; ``security_id`` / ``symbol`` record which one, so a P/E is auditable back to the share class it was computed from.  For every listing of a multi-class issuer, or for total-return math at daily grain, read ``stock_price_daily`` instead (Institutional and Pro); at monthly grain use ``total_return_index`` on this table.  Derived at export from the internal licensed price archive.  ⚠️ COVERAGE FLOOR: licensed market data, NOT EDGAR — it does NOT start at EDGAR's 1993 floor.  No bars exist in 1993; the earliest bar differs per security and is 1994 or later (measured 2026-09-12).  Since schema 3.3.0 every row also carries ``total_return_index``, so the month-end rows are a total-return series on every tier — the free tiers' price series (the daily table ships to Institutional and Pro only).",
+      "description": "Coarse end-of-day market-price series per entity — period-end-aligned closes (one per fiscal period_end, for value-vs-price overlays) AND a monthly last-trading-day close history (for charting/backtest scaffolding).  Filter on ``observation`` to pick the grain.  RAW closes (never split/dividend-adjusted — split-invariant ratios need no adjustment); ``div_cash`` / ``split_factor`` carry the corporate-action factors for query-time total-return adjustment.  Point-in-time: ``accepted_at`` = the market-close timestamp, so an ``as_of`` before the close never sees that bar. GRAIN: one row per (entity_id, observation, period_end-or-month) — this table is joined to per-CIK fundamentals, so an issuer with several listed securities is resolved to its PRIMARY listing before alignment; ``security_id`` / ``symbol`` record which one, so a P/E is auditable back to the share class it was computed from.  ``total_return_index`` (3.3.0) is that listing's daily total-return index sampled at these closes, so the ratio of two month-end rows is the total return between them — dividends between the two month-ends included — and a monthly-rebalanced backtest needs nothing finer.  Every tier carries this table.  For every listing of a multi-class issuer, and for daily bars, read ``stock_price_daily`` — Institutional and Pro only.  Derived at export from the internal licensed price archive.  ⚠️ COVERAGE FLOOR: licensed market data, NOT EDGAR — it does NOT start at EDGAR's 1993 floor.  No bars exist in 1993; the earliest bar differs per security and is 1994 or later (measured 2026-09-12).",
       "columns": {
         "entity_id": {
           "type": "VARCHAR",
@@ -876,12 +933,12 @@
         },
         "total_return_index": {
           "type": "DOUBLE",
-          "description": "The priced listing's total-return index at this close — the same series as ``stock_price_daily.total_return_index`` (forward-compounded from the listing's first archived bar, arbitrary base ≈ 1.0, dividends reinvested, splits neutralized, PIT-immutable), sampled at the coarse grain. Only RATIOS are meaningful: ``tri_b / tri_a - 1`` between two ``monthly`` rows is the holder's total return for that span, INCLUDING every dividend whose ex-date fell between them — which ``div_cash`` on a month-end row cannot tell you. NULL only where the daily series is NULL. Present on EVERY tier. Added 3.3.0."
+          "description": "The priced listing's total-return index at this close — the same series as ``stock_price_daily.total_return_index`` (forward-compounded from the listing's first archived bar, arbitrary base ≈ 1.0, dividends reinvested, splits neutralized, PIT-immutable), sampled at the coarse grain.  Only RATIOS are meaningful: ``tri_b / tri_a - 1`` between two ``monthly`` rows is the holder's total return for that span, INCLUDING every dividend whose ex-date fell between them — which ``div_cash`` on a month-end row cannot tell you, because it names only that day's dividend.  NULL only where the daily index is NULL for the listing.  Added 3.3.0."
         }
       }
     },
     "stock_price_daily": {
-      "description": "Daily OHLCV bar series — one row per (SECURITY, trading day), NOT downsampled (unlike the coarse ``stock_price`` table).  Powers as-of-arbitrary-date price lookups (latest close on-or-before any calendar date) and total-return backtests.  ⚠️ GRAIN IS PER SECURITY, NOT PER COMPANY: an issuer with several listed securities (GOOG + GOOGL, a tracking stock, a contingent value right) contributes one row per listing, and both are real prices.  Partition or filter on ``security_id`` — a window function partitioned on ``entity_id`` alone alternates between two unrelated price series.  For one row per company per day, add ``WHERE is_primary_listing``.  TOTAL RETURN: use ``total_return_index``, not ``adjusted_close`` (which the vendor populates on only ~2% of bars) and never raw ``close`` (which drops ~75% on a 4-for-1 split).  Point-in-time: ``accepted_at`` = the market-close timestamp, so an ``as_of`` filter before the close never sees that bar.  Derived at export time from the internal licensed price archive via the same date-aware ticker→CIK resolution as ``stock_price``.  ⚠️ INSTITUTIONAL AND PRO ONLY (since schema 3.3.0): published to the ``full`` (all history) and ``pro`` (15-year window) buckets, sliced and per-CIK partitioned like the coarse table; NOT published to the Benchmark or Sample buckets, which carry only the coarse ``stock_price`` table and the price-derived valuation multiples in ``ratio``.  ⚠️ COVERAGE FLOOR: this is licensed market data, NOT EDGAR, so it does NOT start at EDGAR's 1993 floor.  No bars exist in 1993; the earliest bar differs per security and is 1994 or later (measured against production 2026-09-12).  A range before a security's first bar returns no rows on EVERY tier, Institutional included — that is data coverage, not a plan limit.",
+      "description": "Daily OHLCV bar series — one row per (SECURITY, trading day), NOT downsampled (unlike the coarse ``stock_price`` table).  Powers as-of-arbitrary-date price lookups (latest close on-or-before any calendar date) and total-return backtests.  ⚠️ GRAIN IS PER SECURITY, NOT PER COMPANY: an issuer with several listed securities (GOOG + GOOGL, a tracking stock, a contingent value right) contributes one row per listing, and both are real prices.  Partition or filter on ``security_id`` — a window function partitioned on ``entity_id`` alone alternates between two unrelated price series.  For one row per company per day, add ``WHERE is_primary_listing``.  TOTAL RETURN: use ``total_return_index``, not ``adjusted_close`` (which carries NO history before 2026-06-29, so it truncates a backtest instead of failing it) and never raw ``close`` (which drops ~75% on a 4-for-1 split).  Point-in-time: ``accepted_at`` = the market-close timestamp, so an ``as_of`` filter before the close never sees that bar.  Derived at export time from the internal licensed price archive via the same date-aware ticker→CIK resolution as ``stock_price``.  ⚠️ INSTITUTIONAL AND PRO ONLY (since 3.3.0, 2026-09-17): sliced + per-CIK partitioned for full (all history) and pro (15y); NOT published to the free tiers, whose manifests do not list it.  The archive is licensed market data on terms that cover derived measures, not redistribution of the series, and the free tiers are read without a contract.  On those tiers use the coarse ``stock_price`` table (period-end + month-end closes with ``total_return_index``), and the valuation multiples in ``ratio``.  ⚠️ COVERAGE FLOOR: this is licensed market data, NOT EDGAR, so it does NOT start at EDGAR's 1993 floor.  No bars exist in 1993; the earliest bar differs per security and is 1994 or later (measured against production 2026-09-12).  A range before a security's first bar returns no rows on EVERY tier, Institutional included — that is data coverage, not a plan limit.",
       "columns": {
         "entity_id": {
           "type": "VARCHAR",
@@ -922,7 +979,7 @@
         },
         "adjusted_close": {
           "type": "DOUBLE",
-          "description": "⚠️ SPARSE — the vendor populates this on roughly 2% of bars, so a query that depends on it returns mostly NULL.  Prefer ``total_return_index``, which is derived from columns that are complete.  Kept because where it IS present it is the vendor's own series and agrees with ours to r = 0.9999937.  Also note it is back-adjusted, so it is retroactively restated by every later corporate action and is NOT PIT-immutable."
+          "description": "⚠️ DO NOT BACKTEST ON THIS COLUMN — use ``total_return_index``.  It is not sparse, it is TRUNCATED: measured over 136,728 bars of ten large caps (2026-09-12) it is populated on 100% of bars from 2026-06-29 onward and on 0% of every bar before, because the column was added in schema 2.20.0 and older archive files are backfilled all-null.  So ``WHERE adjusted_close IS NOT NULL`` does not sample history — it silently cuts a 60-year series down to the most recent few weeks and returns a result with no error.  ``total_return_index`` is derived from ``close`` / ``div_cash`` / ``split_factor``, which are complete, and is PIT-immutable; this column is back-adjusted, so every later corporate action retroactively rewrites it and a backtest run last year no longer reproduces.  Kept only because where it IS present it is the vendor's own series and agrees with ours to r = 0.9999937."
         },
         "total_return_index": {
           "type": "DOUBLE",
@@ -1017,10 +1074,44 @@
           "type": "SMALLINT"
         },
         "superseded_by": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "nullable": true,
+          "description": "Accession of the AMENDMENT (3/A, 4/A, 5/A) that replaces this filing, the next link in the chain; NULL on the latest version.  Matched by reporting owner + issuer + earliest transaction date (Form 3: owner + issuer) and ONLY when exactly one original fits: an ambiguous or unmatched amendment stays NULL.  Drop superseded filings (and their insider_transaction rows) with ``superseded_by IS NULL`` to avoid counting a corrected trade twice.  Forms 3/4/5 /A: owner + issuer + original filing date, else + earliest transaction date.  Form 144/A: the explicit previous accession, else filer + issuer + approximate sale date.  SC 13D/G (filing grain): the same primary reporting person's next SC 13D/G on the same subject (original or amendment, either schedule); see ``insider_ownership.superseded_by`` for positions."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "'exact' | 'date_only'.  'date_only' means accepted_at is 22:00 America/New_York of filing_date (an upper bound)."
+        },
+        "accepted_at_source": {
+          "type": "VARCHAR",
+          "description": "sgml_header | submissions_json | sentinel_feed | filing_date_22et."
+        },
+        "source_format": {
+          "type": "VARCHAR",
+          "description": "How the row was extracted: xml | dataset | html | text.  NULL = ingested before 2026-10."
+        },
+        "original_filing_date": {
+          "type": "DATE",
+          "description": "Forms 3/4/5 /A: dateOfOriginalSubmission, the filing date of the amended filing."
+        },
+        "amends_accession_id": {
+          "type": "VARCHAR",
+          "description": "Explicit pointer filed by the amendment (Form 144/A and SC 13D/G XML previousAccessionNumber). Soft reference: the amended filing may not be in this table."
+        },
+        "is_rule_10b5_1": {
+          "type": "BOOLEAN",
+          "description": "Form 4/5 Rule 10b5-1 checkbox (schema 2023-04+).  NULL = the form version has no checkbox."
+        },
+        "plan_adoption_date": {
+          "type": "DATE",
+          "description": "Form 144 planAdoptionDates.  NULL = none filed, or several distinct dates."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the superseded_by filing, the instant this filing stops being current.  NULL while it is the latest version.  Filter ``superseded_at IS NULL OR superseded_at > :as_of`` for a point-in-time view."
         }
       }
     },
@@ -1051,7 +1142,7 @@
         },
         "transaction_type": {
           "type": "VARCHAR",
-          "description": "transaction | initial_holding | proposed_sale"
+          "description": "transaction | initial_holding | proposed_sale.  (holding and reported_sale arrive with 5.0.0; they are not published yet.)  Flow aggregates use transaction_type = 'transaction'."
         },
         "transaction_date": {
           "type": "DATE"
@@ -1069,7 +1160,8 @@
           "type": "DOUBLE"
         },
         "price_per_share": {
-          "type": "DOUBLE"
+          "type": "DOUBLE",
+          "description": "Price per share as filed, in dollars.  NULL when the filed value is above $1,000,000 per share, which is an aggregate dollar amount typed into the per-share field (for example AMD 2017-08-04: 525,600,000 for 40,000,000 shares); shares and the filing itself are unchanged, so the dollar total stays derivable from the filing."
         },
         "post_transaction_shares": {
           "type": "DOUBLE"
@@ -1101,7 +1193,8 @@
           "description": "Form 144 only."
         },
         "accepted_at": {
-          "type": "TIMESTAMPTZ"
+          "type": "TIMESTAMPTZ",
+          "description": "The parent filing's SEC acceptance instant (UTC), joined from insider_filing at export."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
@@ -1113,6 +1206,62 @@
         "insider_cik": {
           "type": "VARCHAR",
           "description": "DENORMALIZED from insider_party.cik (see insider_name)."
+        },
+        "acquired_disposed_code": {
+          "type": "VARCHAR",
+          "description": "A | D as filed (transactionAcquiredDisposedCode): the only unambiguous sign for codes J/G/M/C/X.  NULL on holdings, Form 3 and Form 144 rows."
+        },
+        "conversion_or_exercise_price": {
+          "type": "DOUBLE",
+          "description": "Table II derivative conversion or exercise price as filed.  NULL when the box holds only a footnote reference."
+        },
+        "exercise_date": {
+          "type": "DATE",
+          "description": "Table II date exercisable.  NULL when footnote-only."
+        },
+        "expiration_date": {
+          "type": "DATE",
+          "description": "Table II expiration date.  NULL when footnote-only."
+        },
+        "underlying_security_title": {
+          "type": "VARCHAR",
+          "description": "Table II underlying security title."
+        },
+        "underlying_security_shares": {
+          "type": "DOUBLE",
+          "description": "Table II underlying security amount."
+        },
+        "footnote_refs": {
+          "type": "ARRAY<VARCHAR>",
+          "description": "Footnote references of this line, one '<column>:<footnote_id>' token each ('price_per_share:F1', 'row:F3').  Resolve against insider_footnote.  NULL = none."
+        },
+        "gross_proceeds": {
+          "type": "DOUBLE",
+          "description": "Form 144 reported sales only."
+        },
+        "seller_name": {
+          "type": "VARCHAR",
+          "description": "Form 144 reported sales only."
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "DERIVED from the parent filing: 'exact' | 'date_only' (accepted_at is then 22:00 America/New_York of the filing date, an upper bound)."
+        },
+        "is_amendment": {
+          "type": "BOOLEAN",
+          "description": "DERIVED: the parent filing is a /A."
+        },
+        "superseded_by": {
+          "type": "VARCHAR",
+          "description": "DERIVED: accession of the amendment that replaces this row's filing; NULL when current."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the superseding filing.  A row is current as of D when accepted_at <= D AND (superseded_at IS NULL OR superseded_at > D)."
+        },
+        "is_rule_10b5_1": {
+          "type": "BOOLEAN",
+          "description": "DERIVED from the parent filing's Rule 10b5-1 checkbox (Forms 4/5, 2023-04+)."
         }
       }
     },
@@ -1153,18 +1302,77 @@
           "type": "BOOLEAN"
         },
         "amendment_no": {
-          "type": "SMALLINT"
+          "type": "SMALLINT",
+          "description": "The cover page's amendment number (0 on an original)."
         },
         "superseded_by": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "nullable": true,
+          "description": "Accession of the 13F-HR/A RESTATEMENT that replaces this filing (the first restatement filed after it for the same manager and period); NULL on the latest version.  A NEW HOLDINGS amendment only adds positions: it supersedes nothing and stays live beside its original.  A manager's book for a period is the holdings of the filings with ``superseded_by IS NULL`` (summing every filing double counts a restated report)."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "'exact' | 'date_only' (accepted_at is then 22:00 America/New_York of filing_date)."
+        },
+        "accepted_at_source": {
+          "type": "VARCHAR",
+          "description": "sgml_header | submissions_json | sentinel_feed | filing_date_22et."
+        },
+        "source_format": {
+          "type": "VARCHAR",
+          "description": "xml | dataset | text.  NULL = ingested before 2026-10."
+        },
+        "report_type": {
+          "type": "VARCHAR",
+          "description": "13F HOLDINGS REPORT | 13F NOTICE | 13F COMBINATION REPORT (cover page)."
+        },
+        "amendment_type": {
+          "type": "VARCHAR",
+          "description": "RESTATEMENT | NEW HOLDINGS on an amendment; NULL on an original or when unreadable."
+        },
+        "table_entry_total": {
+          "type": "INTEGER",
+          "description": "Summary page: number of information-table entries."
+        },
+        "value_total_usd": {
+          "type": "DOUBLE",
+          "description": "Summary page: value total, in WHOLE dollars (scaled by value_units like institutional_holding.market_value_usd)."
+        },
+        "other_included_managers_count": {
+          "type": "SMALLINT",
+          "description": "Summary page count."
+        },
+        "is_confidential_omitted": {
+          "type": "BOOLEAN",
+          "description": "Cover page: confidential information omitted."
+        },
+        "value_units": {
+          "type": "VARCHAR",
+          "description": "Units of every VALUE in this filing as filed: thousands | dollars.  The export scales to whole dollars from this verdict.  NULL on a notice (13F-NT) and on filings not yet classified (the export then falls back to the filing date)."
+        },
+        "filer_crd_number": {
+          "type": "VARCHAR",
+          "description": "The manager's FINRA/IARD CRD number (1-12 digits), as filed on the 13F cover.  Joins to investment_adviser.crd_number (Form ADV, also FULL tier) to link a 13F manager to its adviser record.  NULL when not stated.  A public registration number, not a security identifier."
+        },
+        "form13f_file_number": {
+          "type": "VARCHAR",
+          "description": "The manager's Form 13F file number (028-NNNNN), as filed.  NULL when not stated."
+        },
+        "reconciliation_status": {
+          "type": "VARCHAR",
+          "description": "Text-era filings: reconciled | unreconciled | no_totals (the filing's own totals check).  Holdings rows are published only for reconciled filings."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the superseded_by filing; NULL while current."
         }
       }
     },
     "institutional_holding": {
-      "description": "Form 13F-HR holdings — institutional managers' quarterly position disclosures.  One row per (filing, CUSIP, share-class, put/call).  Joins to ``institutional_filing`` via accession_id (the 13F filing record); ``filer_cik`` is the manager CIK (denormalised — same value as institutional_filing.filer_cik). ``subject_entity_id`` is the issuer CIK (NULL until the CUSIP→CIK lookup resolves).  FULL bucket only — enterprise tier.",
+      "description": "Form 13F-HR holdings — institutional managers' quarterly position disclosures.  One row per filed information-table line (``holding_line_no``): a filing may list one security on several lines (per investment discretion or other manager), and the position is their sum.  ``shares_or_principal_type = 'PRN'`` rows are bonds / convertible notes whose ``shares`` is a face amount in dollars: filter ``shares_or_principal_type = 'SH'`` before summing shares.  Joins to ``institutional_filing`` via accession_id (the 13F filing record); ``filer_cik`` is the manager CIK (denormalised — same value as institutional_filing.filer_cik). ``subject_entity_id`` is the issuer CIK (NULL until the internal issuer resolution succeeds).  FULL bucket only — enterprise tier.",
       "columns": {
         "id": {
           "type": "BIGINT",
@@ -1176,7 +1384,7 @@
         },
         "filer_cik": {
           "type": "VARCHAR",
-          "description": "Manager CIK (denormalised from institutional_filing.filer_cik for query convenience)."
+          "description": "Manager CIK (denormalised from institutional_filing.filer_cik for query convenience). BY DESIGN this does NOT resolve against ``entity`` for most filers (measured 2026-09-22: 296 of 13,229 distinct filer CIKs, 2.2%) — a 13F filer is the MONEY MANAGER (an investment adviser required to file because it exercises >= $100M discretionary AUM), not an SEC-registered company issuer, so its CIK is drawn from the same namespace as ``entity`` but is rarely a member of it. Since the 2026-05-14 filer redesign, filer identity (name, cik) lives in ``insider_party`` (``party_type='entity'``, ``JOIN insider_party ON insider_party.cik = institutional_holding.filer_cik``) rather than in ``entity`` — entity is deliberately kept scoped to the issuer/fundamentals universe. Do not treat a filer_cik orphan against ``entity`` as a data-quality defect."
         },
         "filer_name": {
           "type": "VARCHAR",
@@ -1186,13 +1394,14 @@
           "type": "DATE",
           "description": "Reporting quarter-end."
         },
-        "cusip": {
-          "type": "VARCHAR"
+        "share_class_figi": {
+          "type": "VARCHAR",
+          "description": "OpenFIGI share-class FIGI (12 characters, e.g. BBG001S5N8V8) of the security held; joins directly to ``references.share_class_figi`` / ``security.share_class_figi``.  Replaces the CUSIP, which Valuein does not publish.  NULL when the security has no share-class FIGI (debt, munis, notes), when the mapping is ambiguous, or when OpenFIGI does not know the security (about 15% of all-history rows, about 2-4% of recent ones).  Option rows carry the underlying security's FIGI; ``put_call`` disambiguates."
         },
         "subject_entity_id": {
           "type": "VARCHAR",
           "references": "entity.cik",
-          "description": "Resolved issuer CIK; NULL until CUSIP→CIK lookup completes."
+          "description": "Resolved issuer CIK; NULL until Valuein's issuer resolution step maps the holding to a company. A genuine share of NULLs is expected (options/derivatives, ETFs and funds-of-funds, foreign issuers outside the ``entity`` universe — none of these have a company CIK to resolve to). Separately, until 2026-09-22 the backfill's own SELECT was unbounded (one ``fetch()`` over the whole NULL set) and OOM-killed the resolve phase on every scheduled run for >= 5 consecutive weeks (2026-08-16 → 2026-09-13) before resolving a single row — see the issuer-resolver module for the fix (keyset-paginated by id). Coverage should climb from its 2026-09-22 baseline (65.7% NULL) once the paginated backfill actually completes on a live run; a coverage figure quoted before that run should not be read as the resolver's ceiling."
         },
         "name_of_issuer": {
           "type": "VARCHAR"
@@ -1204,7 +1413,8 @@
           "type": "DOUBLE"
         },
         "market_value_usd": {
-          "type": "DOUBLE"
+          "type": "DOUBLE",
+          "description": "Position value in WHOLE US dollars, as published.  Filers reported 13F VALUE in thousands of dollars before 2023-01-03 (and a minority for months after); the export multiplies the filings whose institutional_filing.value_units is 'thousands' by 1,000 (a filing without a verdict falls back to its filing date; domain/thirteenf_units.py), so this column is always whole dollars."
         },
         "put_call": {
           "type": "VARCHAR",
@@ -1224,10 +1434,39 @@
           "type": "DOUBLE"
         },
         "accepted_at": {
-          "type": "TIMESTAMPTZ"
+          "type": "TIMESTAMPTZ",
+          "description": "The parent 13F filing's SEC acceptance instant (UTC), joined from institutional_filing at export."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        },
+        "shares_or_principal_type": {
+          "type": "VARCHAR",
+          "description": "SH = shares | PRN = principal amount in dollars (then ``shares`` holds the principal as filed: a face amount, not a share count).  PRN rows are published from 4.4.0; filter ``shares_or_principal_type = 'SH'`` before summing shares."
+        },
+        "other_managers": {
+          "type": "VARCHAR",
+          "description": "Sequence numbers this line cites from the filing's 'Other Included Managers' list (institutional_other_manager, list_kind = 'included'), normalised '1,2,4'.  NULL = none."
+        },
+        "holding_line_no": {
+          "type": "INTEGER",
+          "description": "The filing's own line sequence, 1-based: the filed XML information table's document order (canonical); SEC's data-set INFOTABLE_SK rank only for a filing whose XML is not held.  One source per filing.  (accession_id, holding_line_no) identifies the row.  NULL on rows stored before 2026-10, whose line order was not kept."
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "DERIVED from the parent filing: 'exact' | 'date_only'."
+        },
+        "is_amendment": {
+          "type": "BOOLEAN",
+          "description": "DERIVED: the parent filing is a 13F-HR/A."
+        },
+        "superseded_by": {
+          "type": "VARCHAR",
+          "description": "DERIVED: accession of the 13F-HR/A RESTATEMENT that replaces this row's filing; NULL when current."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the superseding restatement.  A book as of D is the rows with accepted_at <= D AND (superseded_at IS NULL OR superseded_at > D)."
         }
       }
     },
@@ -1289,10 +1528,178 @@
           "type": "DOUBLE"
         },
         "accepted_at": {
-          "type": "TIMESTAMPTZ"
+          "type": "TIMESTAMPTZ",
+          "description": "The parent filing's SEC acceptance instant (UTC), joined from insider_filing at export."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        },
+        "superseded_by": {
+          "type": "VARCHAR",
+          "description": "Accession of the SAME reporting person's next SC 13D/G on the same subject (original or amendment, either schedule, in (accepted_at, accession_id) order); NULL on that person's latest filing.  Use this grain for positions: a group filing that drops a member leaves that member's last row current until the member files again."
+        },
+        "reporting_person_type": {
+          "type": "ARRAY<VARCHAR>",
+          "description": "Cover 'Type of Reporting Person' codes as filed (BD, BK, IC, IV, IA, EP, HC, SA, CP, CO, PN, IN, FI, OO); multi-valued."
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "DERIVED from the parent filing: 'exact' | 'date_only'."
+        },
+        "is_amendment": {
+          "type": "BOOLEAN",
+          "description": "DERIVED: the parent filing is an SC 13D/A or 13G/A."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the superseded_by filing; NULL while current."
+        }
+      }
+    },
+    "insider_footnote": {
+      "description": "Form 3 / 4 / 5 footnotes — the receipt behind a 10b5-1 plan, a weighted-average price or a plan adoption date, which the extraction never parses out of the text.  Lines cite them through ``insider_transaction.footnote_refs``.  Joins to ``insider_filing`` via accession_id.  FULL bucket only; monolithic parquet only (no per-CIK partitions).",
+      "columns": {
+        "accession_id": {
+          "type": "VARCHAR",
+          "references": "insider_filing.accession_id"
+        },
+        "footnote_id": {
+          "type": "VARCHAR",
+          "description": "F1, F2, ... (text era '(1)' -> 'F1')."
+        },
+        "subject_cik": {
+          "type": "VARCHAR",
+          "description": "Issuer CIK (denormalised from insider_filing)."
+        },
+        "footnote_text": {
+          "type": "VARCHAR",
+          "description": "Verbatim footnote text; security identifiers redacted."
+        },
+        "is_truncated": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the source capped the text (the SEC data set caps at 1,023 characters)."
+        },
+        "source_format": {
+          "type": "VARCHAR",
+          "description": "xml | dataset | html | text."
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the parent filing's SEC acceptance instant (UTC)."
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "DERIVED: 'exact' | 'date_only'."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the amendment that replaces the parent filing; NULL while current."
+        }
+      }
+    },
+    "institutional_other_manager": {
+      "description": "13F manager lists.  list_kind 'included' = the summary page's 'List of Other Included Managers' (numbered; cited by ``institutional_holding.other_managers``); 'reporting_for' = the cover page's 'Other Managers Reporting for this Manager'.  Public SEC / FINRA numbers only.  Joins to ``institutional_filing`` via accession_id.  FULL bucket only; monolithic parquet only.",
+      "columns": {
+        "accession_id": {
+          "type": "VARCHAR",
+          "references": "institutional_filing.accession_id"
+        },
+        "list_kind": {
+          "type": "VARCHAR",
+          "description": "included | reporting_for."
+        },
+        "ordinal": {
+          "type": "SMALLINT",
+          "description": "1-based position in the list as filed."
+        },
+        "filer_cik": {
+          "type": "VARCHAR",
+          "description": "The filing manager's CIK (denormalised)."
+        },
+        "sequence_number": {
+          "type": "SMALLINT",
+          "description": "'included' lists only."
+        },
+        "cik": {
+          "type": "VARCHAR",
+          "description": "The listed manager's CIK."
+        },
+        "form13f_file_number": {
+          "type": "VARCHAR",
+          "description": "028-NNNNN."
+        },
+        "crd_number": {
+          "type": "VARCHAR"
+        },
+        "sec_file_number": {
+          "type": "VARCHAR",
+          "description": "801-NNNNN."
+        },
+        "name": {
+          "type": "VARCHAR",
+          "description": "Manager name as filed; security identifiers redacted."
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the parent filing's SEC acceptance instant (UTC)."
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "DERIVED: 'exact' | 'date_only'."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the restatement that replaces the parent filing; NULL while current."
+        }
+      }
+    },
+    "insider_ownership_purpose": {
+      "description": "Schedule 13D Item 4 'Purpose of Transaction', verbatim: raw filed text only, no summary and no classification.  13D / 13D/A only (13G has no Item 4); an amendment that does not restate Item 4 has NO row (never carried forward).  Joins to ``insider_filing`` via accession_id.  FULL bucket only; monolithic parquet only.",
+      "columns": {
+        "accession_id": {
+          "type": "VARCHAR",
+          "references": "insider_filing.accession_id"
+        },
+        "subject_cik": {
+          "type": "VARCHAR",
+          "description": "Issuer CIK whose shares the 13D concerns."
+        },
+        "purpose_text": {
+          "type": "VARCHAR",
+          "description": "Whitespace-normalised Item 4 text, capped at 100,000 characters; security identifiers redacted."
+        },
+        "char_count": {
+          "type": "INTEGER",
+          "description": "Length of the full item before the cap."
+        },
+        "is_truncated": {
+          "type": "BOOLEAN",
+          "description": "TRUE when char_count exceeds the published text."
+        },
+        "source_format": {
+          "type": "VARCHAR",
+          "description": "xml | html | text."
+        },
+        "ingested_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the parent filing's SEC acceptance instant (UTC)."
+        },
+        "accepted_at_precision": {
+          "type": "VARCHAR",
+          "description": "DERIVED: 'exact' | 'date_only'."
+        },
+        "superseded_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "DERIVED: the accepted_at of the filing that replaces the parent; NULL while current."
         }
       }
     },
@@ -1334,7 +1741,7 @@
         "cik": {
           "type": "VARCHAR",
           "references": "entity.cik",
-          "description": "SOFT link to the EDGAR issuer universe (Item 1.D.(3)).  NULL for most advisers — they are not EDGAR filers — so a NULL is expected, not an error.  Populated only from the monthly FOIA bundles (~26% of filers); the daily XML feed never carries it.  This is the ONLY bridge from an adviser to entity / institutional_holding."
+          "description": "SOFT link the adviser self-disclosed to EDGAR (Item 1.D.(3)).  NULL for most advisers — so a NULL is expected, not an error.  Populated only from the monthly FOIA bundles, which are a filing-event stream needing ~12 months to converge on the full ~23.6K-adviser population; only 2 months have ever been ingested, so the measured population rate is ~4.55% (1,075 of 23,602 as of 2026-09-22) — the ``~26% of filers`` figure elsewhere describes the CIK CSV member's disclosure share WITHIN one monthly bundle, not the share of ``investment_adviser`` rows carrying a CIK; do not conflate the two.  ⚠️ Even where populated this rarely resolves to ``entity``: most self-disclosed CIKs belong to SEC filers with no public ticker (broker-dealer subsidiaries, holding entities) that fall outside the ``entity`` table's tickered-issuer scope — measured 6 of 1,075 (0.56%) actually join.  This is a real but rare bridge from an adviser to entity / institutional_holding, not a guaranteed one."
         },
         "main_address": {
           "type": "VARCHAR",

@@ -1,8 +1,7 @@
 {
-  "generated": "2026-09-15",
+  "generated": "2026-10-16",
   "source": "https://data.valuein.biz/v1/sample/manifest",
-  "concept_count": 350,
-  "coverage_target": ">=95%",
+  "concept_count": 351,
   "accuracy_score_guide": {
     "1.00": "human_verified",
     "0.70-0.85": "taxonomy_rule",
@@ -5011,6 +5010,22 @@
       "level": "L1",
       "is_flow": false,
       "definition": "Board-authorized share repurchase program amount.",
+      "bloomberg_equivalent": "",
+      "factset_equivalent": "",
+      "gaap_ifrs_comparable": "False",
+      "reviewed": true,
+      "reviewed_by": "",
+      "reviewed_at": "",
+      "review_confidence": 1
+    },
+    {
+      "name": "SharesOutstandingCover",
+      "statement": "supplemental",
+      "category": "equity",
+      "unit": "shares",
+      "level": "L1",
+      "is_flow": false,
+      "definition": "Common shares outstanding as stated on the filing's cover page (dei:EntityCommonStockSharesOutstanding), at the cover's \"latest practicable date\", not the balance-sheet date.",
       "bloomberg_equivalent": "",
       "factset_equivalent": "",
       "gaap_ifrs_comparable": "False",

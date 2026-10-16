@@ -10,13 +10,13 @@ shows the real results. Open any of them in Colab with the badge at its top.
 ## Run them
 
 ```bash
-pip install "valuein-sdk>=7.0.0" matplotlib        # or: uv pip install "valuein-sdk>=7.0.0" matplotlib
+pip install "valuein-sdk>=7.1.0" matplotlib        # or: uv pip install "valuein-sdk>=7.1.0" matplotlib
 python examples/python/getting_started.py
 ```
 
 **No API key is needed to start.** Without `VALUEIN_API_KEY` the SDK reads the public sample:
 S&P 500 companies (including the ones that later left the index), last five years, month-end
-prices. With a key in the environment (or a `.env` file) the same code reads your plan's data.
+prices. With `VALUEIN_API_KEY` in the environment (or a `.env` file found upward from the working directory) the same code reads your plan's data; `ValueinClient(api_key="")` forces the sample whatever the environment holds.
 Plans: [valuein.biz/pricing](https://valuein.biz/pricing).
 
 ## The learning path

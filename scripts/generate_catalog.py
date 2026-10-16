@@ -670,8 +670,7 @@ def _write_markdown(path: str, concepts: list[dict], source: str) -> None:
         "",
         f"> **Last updated**: {today}  ",
         f"> **Standardized concepts**: {len(concepts)}  ",
-        "> **Historical coverage**: 1994 – present  ",
-        "> **Coverage target**: ≥ 95% of all SEC EDGAR financial facts",
+        "> **Historical coverage**: fundamentals from 1993 (EDGAR floor) – present",
         "",
         "---",
         "",
@@ -797,7 +796,6 @@ def _write_json(path: str, concepts: list[dict], source: str) -> None:
         "generated": date.today().isoformat(),
         "source": source,
         "concept_count": len(concepts),
-        "coverage_target": ">=95%",
         "accuracy_score_guide": {
             "1.00": "human_verified",
             "0.70-0.85": "taxonomy_rule",

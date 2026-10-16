@@ -53,6 +53,7 @@ uv run python scripts/check_registry_sync.py --check     # exit 1 registry drift
 
 Columns: `docs/schema.json` (public subset); query patterns: `docs/QUERY_COOKBOOK.md`.
 
+- Tables: `docs/schema.json` carries the public subset of the exported Parquet tables (schema version in the file). `filing_registrant` (every registrant of an `accession_id`, joins to `filing`; not in the free sample manifest) is on paid tiers; `insider_footnote`, `insider_ownership_purpose` and `institutional_other_manager` are Institutional-only, monolithic (no per-CIK partitions). URL shapes: `/v1/sample/{table}` (no `.parquet`, no token), `/v1/{sp500|pro|full}/{table}` with a Bearer token (no token: 302 to sample), per-CIK `/{table}/{cik}.parquet`. Env: the SDK reads `VALUEIN_API_KEY`; `curl`/DuckDB snippets keep the token in `$VALUEIN_TOKEN`.
 - Start cross-company queries from `references` (one row per security: `cik`, `symbol`, `name`, `sector`, `status`, `is_active`), never the 3-table join.
 - ⚠️ No `is_sp500` flag: membership is `JOIN index_membership ON cik`, half-open (`effective_date <= D < removal_date`; NULL `removal_date` = current).
 - ⚠️ PIT: filter `filing_date <= trade_date` (`accepted_at` for intraday), never `report_date`/`period_end`. `ratio.accepted_at` is the vintage (append-on-restatement): filter `<= as_of`, then keep the latest vintage.
