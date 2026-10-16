@@ -141,7 +141,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 *(your job is factors, backtests, and signals — and you want bulk data, not a UI.)*
 
 **One-time setup**
-- Connect the **MCP** and grab your Bearer token from `/account/settings/api` for the **Python SDK** (`pip install "valuein-sdk>=7.0.0"`).
+- Connect the **MCP** and grab your Bearer token from `/account/settings/api` for the **Python SDK** (`pip install "valuein-sdk>=7.1.0"`).
 - One watchlist per factor sleeve if you want to monitor live screens.
 
 **Working loop (continuous)**

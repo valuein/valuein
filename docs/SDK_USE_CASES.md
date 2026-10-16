@@ -1,12 +1,14 @@
 # Valuein SDK: use cases
 
 The common jobs people do with [`valuein-sdk`](https://pypi.org/project/valuein-sdk/), easiest
-first. Each one has a minimal snippet and a link to a runnable script and a notebook. The
-notebooks are committed with their output, executed on the free sample tier, so the real
-results are one click away; the snippets here are taken from them.
+first. Each one has a minimal snippet and, where one exists, a link to a runnable script and a
+notebook. The notebooks are committed with their output, executed on the free sample tier, so
+the real results are one click away. Use cases 14 to 16, and the newer calls inside the others
+(`financials`, `screen`, `restatement_impact`, `study`, `sync`), quote the SDK's own documented
+recipes, which its test suite executes.
 
-Every use case below runs with **no API key** except smart money (Institutional) and daily price
-bars (Pro and Institutional), which say so. Without a key the SDK reads the public sample: S&P 500
+Every use case below runs with **no API key** except smart money (Institutional) and anything
+that reads daily price bars (Pro and Institutional), which say so. Without a key the SDK reads the public sample: S&P 500
 companies, including the ones that later left the index, for the last five years, with month-end
 prices. With `VALUEIN_API_KEY` set, the same code reads your plan's data. Plans:
 [valuein.biz/pricing](https://valuein.biz/pricing) (live limits: `GET https://data.valuein.biz/v1/plans`).
@@ -26,6 +28,9 @@ prices. With `VALUEIN_API_KEY` set, the same code reads your plan's data. Plans:
 | 11 | [From an AI assistant](#11-from-an-ai-assistant) | none | [`agent_buys_its_own_data.py`](../examples/python/agent_buys_its_own_data.py) | [09](../examples/notebooks/09_ai_assistant.ipynb) |
 | 12 | [Production extracts](#12-production-extracts) | none | [`production_service.py`](../examples/python/production_service.py) | |
 | 13 | [Value a company](#13-value-a-company) | none | [`dcf_inputs.py`](../examples/python/dcf_inputs.py) | [10](../examples/notebooks/10_dcf_valuation.ipynb) |
+| 14 | [Count your trials](#14-count-your-trials) | Pro | | |
+| 15 | [Snapshots you can pin and mirror](#15-snapshots-you-can-pin-and-mirror) | none | | |
+| 16 | [Your own tools: DuckDB, Arrow, Polars, Alphalens](#16-your-own-tools-duckdb-arrow-polars-alphalens) | none (Alphalens: Pro) | | |
 
 Research workflows (DCF, Piotroski, earnings quality, DuPont by sector, restatement event study,
 capital allocation, filing delay) are notebooks 10 to 16; see
@@ -59,6 +64,21 @@ The tables you will use most: `references` (one row per security: `cik`, `symbol
 `restatement_events`. Concept names: [`data_catalog.md`](data_catalog.md).
 
 ## 3. One company's statements
+
+```python
+fin = client.financials("MSFT")               # fiscal years, as known at the client's as_of
+fin.income, fin.balance, fin.cash_flow        # one row per concept, one column per period end
+fin.lineage                                   # one row per number: fact_id, accession, form, accepted_at
+fin.as_filed().income                         # the same periods as first reported
+client.financials("MSFT", freq="Q").cash_flow # standalone quarters ("TTM" for trailing twelve months)
+```
+
+Fiscal years key on the period end, so a 10-K's prior-year comparatives are separate columns.
+Quarters are standalone: 10-Q year-to-date cash flows are de-cumulated and the fourth quarter
+comes out of the 10-K. `fin.lineage` also says when (if ever) a later filing changed each number;
+`fin.explain("TotalRevenue", period_end)` lists the facts behind one cell with EDGAR links.
+
+The same numbers from SQL:
 
 ```python
 cik = client.resolve("MSFT")["cik"].iloc[0]
@@ -99,6 +119,24 @@ panel = client.signal_panel(members, ratios=["return_on_equity", "debt_to_equity
 `client.pit_universe("2022-06-30")` returns the same membership with the ticker each company
 used on that date. Notebook 03 measures the survivorship bias of a survivor-only universe.
 
+`client.screen` does the same as a point-in-time screen builder:
+
+```python
+screen = client.screen("2024-06-28", universe="SP500").where("return_on_equity > 0.15")
+result = screen.rank("gpoa", within="sector").top(5).to_pandas()
+print(result.summary())      # every field with the period it reads and when it was filed
+result.explain(cik)          # the filings and EDGAR links behind each field of one company
+```
+
+The members are those of that date, companies since delisted included, and every field is read
+as known at the end of that day. Predicates are parsed, never run as SQL, and a missing value
+never passes. A ratio holds an annual and a trailing-twelve-month value; a bare name reads the
+one covering the later period (`roic@FY` or `roic@TTM` pins one), and `max_age_days=` treats a
+stale fundamental as missing. `.preset("magic_formula")` (also `quality_value`,
+`piotroski_value`, `net_nets`, `dividend_growers`) applies a documented formula, and
+`.describe()` returns the definition. A fundamentals-only screen runs on every plan; price fields
+and liquidity filters need daily bars (Pro and Institutional).
+
 ## 6. Backtest a factor
 
 ```python
@@ -114,6 +152,27 @@ print(result.summary())
 On Pro and Institutional, `client.factor_backtest("return_on_equity", start=..., end=...,
 freq="QE")` runs all steps in one call. On the free tiers the script and notebook build forward
 returns from month-end closes instead; the backtest is the same.
+
+Beyond the pipeline ratios, `signal_panel(..., library=["ep", "gpoa", "mom_12_1", "vol_1y"])`
+adds documented academic factors computed from the same point-in-time reads (value, quality,
+momentum, risk, size; `valuein_sdk.quant.describe_library()` gives each formula, its inputs and
+the paper it comes from). A missing input gives `NaN`, never zero. On Pro and Institutional:
+
+```python
+result = client.factor_backtest("gpoa", start="2015-01-01", end="2024-12-31", freq="QE",
+                                lineage=True)
+report = result.tearsheet()     # IC at 1, 2 and 4 quarters, quantile curves, turnover, exclusions
+result.explain("2024-03-28")    # the book held from that date, each position's filings and fact_ids
+
+from valuein_sdk.quant import fama_macbeth
+fm = fama_macbeth(panel, x=["ep", "mom_12_1"])   # average slopes, classic and Newey-West t-stats
+```
+
+With `lineage=True` every panel cell names the filings and `fact_id`s behind it; a
+trailing-twelve-month value lists its four quarters. A backtest inferred from month-end
+rebalances annualizes with 12, not the calendar gap. Every result object (`BacktestResult`,
+`FactorReport`, `ScreenResult`, `Financials`, ...) has `summary()`, `to_frame()`, `to_dict()`,
+`plot()` (needs `pip install "valuein-sdk[research]"`) and a notebook view.
 
 ## 7. Prices and total return
 
@@ -138,6 +197,19 @@ One row per number a later filing changed, with both values and both accessions.
 `disclosure_class` is `non_reliance` (8-K Item 4.02), `amended` (10-K/A, 10-Q/A) or
 `undisclosed` (changed inside a routine filing); it describes disclosure mechanics, not intent.
 `delta_pct` is a fraction (`-0.10` = -10%).
+
+Does a factor depend on numbers that were later restated? On Pro and Institutional:
+
+```python
+impact = client.restatement_impact("return_on_equity", start="2012-01-01", end="2024-12-31")
+print(impact.summary())   # point-in-time vs as-filed vs latest: cells changed, IC, Sharpe
+impact.events             # the restatements behind the changes, disclosure_class verbatim
+```
+
+The same switch is `vintage=` on `signal_panel` and `factor_backtest`: `"pit"` (the default)
+reads what was known on each date, `"as_filed"` reads every period as first reported, and
+`"latest"` reads today's restated numbers. `"latest"` is look-ahead by design, and every summary
+of such a result says so. No score is computed: you get the changed cells and the filings.
 
 ## 9. Smart money
 
@@ -173,12 +245,21 @@ Register `https://mcp.valuein.biz/mcp` as an MCP server with your key as a Beare
 ([`MCP_TOOLS.md`](MCP_TOOLS.md)), or let a coding agent use the SDK: `client.capabilities()`
 describes the surface, and every error is a `ValueinError` whose message says how to fix the
 call. Notebook 09 shows a tool function that returns each value with its `fact_id` and filing.
+Every result object's `to_dict()` is strict JSON (no `NaN`, ISO dates) and carries its
+parameters and provenance, so an agent's tool can return it as is.
 
 ## 12. Production extracts
 
 `production_service.py` shows a scheduled job: resource limits with `ValueinConfig`, a fixed
 `as_of` so re-runs reproduce the same data, typed errors mapped to exit codes, Parquet output
 with a manifest of the plan and snapshot read.
+
+`ValueinConfig(progress="auto")` draws a progress bar for downloads on a terminal, or pass a
+callable that receives a `ProgressEvent` (`table`, `bytes_done`, `bytes_total`, `done`,
+`source`). Large table files download over parallel ranged requests
+(`ValueinConfig(download_streams=4)`). `read_table(table, tickers=...)` fetches per-company
+files only while their count fits your plan's rate limit, and otherwise reads the table once;
+`client.diagnostics()["read_plan"]` says which route it took. To freeze the data itself, see 15.
 
 ## 13. Value a company
 
@@ -194,6 +275,60 @@ A two-stage DCF computed locally from the latest annual filing known at `as_of`;
 `wacc`, `terminal_growth_rate` and `stage1_years` are flagged in `result.assumptions`. The same
 model is the MCP `compute_dcf` tool. Excel and Word files come from the Workspace or the MCP
 `generate_*` tools, not the SDK.
+
+## 14. Count your trials
+
+Try ten factors and keep the best, and its Sharpe ratio is no longer honest. Run the search
+inside a study and every backtest is counted (Pro and Institutional, for the daily bars):
+
+```python
+with client.study("quality") as study:
+    for signal in ("gpoa", "roa_ttm", "accruals"):
+        client.factor_backtest(signal, start="2015-01-01", end="2024-12-31", freq="QE")
+print(study.summary())   # trials, deflated Sharpe, haircut Sharpe, probability of overfitting
+```
+
+Each backtest's `summary()` inside the study prints the live trial count, the deflated Sharpe
+ratio (Bailey and López de Prado), the Holm haircut Sharpe (Harvey and Liu) and the minimum
+backtest length. `result.robustness()` works outside a study too, and
+`valuein_sdk.quant` exposes `deflated_sharpe`, `haircut_sharpe` and
+`probability_of_backtest_overfitting` on their own.
+
+## 15. Snapshots you can pin and mirror
+
+```python
+report = client.sync("./valuein-mirror", tables=["references", "fact"])
+report.snapshot, report.downloaded, report.bytes_downloaded
+
+offline = ValueinClient.from_bundle("./valuein-mirror")    # same point-in-time views, no network
+pinned = ValueinClient(snapshot=report.snapshot)            # refuses to read any other snapshot
+```
+
+`sync` copies your plan's published table files byte for byte, with a SHA-256 and the published
+ETag for each; re-running it moves only the tables that were republished, and `verify=True`
+re-hashes the unchanged ones. It writes nothing if the snapshot changes while it runs, so a
+mirror never mixes two. The gateway serves only its current snapshot: once the next one is
+published, a pinned client raises `ValueinSnapshotError`, and the mirror still replays the old
+one offline.
+
+## 16. Your own tools: DuckDB, Arrow, Polars, Alphalens
+
+```python
+con = client.duckdb()                                   # read-only, on the point-in-time views
+con.execute("SELECT max(accepted_at) AS latest FROM fact").df()   # or .arrow(), .pl()
+
+df = client.run_query(sql, dtype_backend="pyarrow")     # Arrow-backed columns, lighter on big results
+reader = client.stream_arrow(sql, batch_size=100_000)   # a RecordBatchReader, larger than memory
+
+from valuein_sdk import to_alphalens
+factor, prices = to_alphalens(panel, signal="gpoa")      # needs forward returns: Pro and Institutional
+```
+
+A fresh `duckdb.connect()` sees none of the SDK's views; `client.duckdb()` runs on the client's
+own connection, so every table it names is mounted point in time, and every statement passes the
+same read-only gate as `run_query`. `client.to_polars(sql)` goes straight from Arrow. The
+Alphalens pair prices on the total-return basis at the lagged entry bars, so Alphalens' own
+returns match the SDK's, delisted names included.
 
 ---
 

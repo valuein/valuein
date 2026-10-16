@@ -10,7 +10,7 @@ shows the real results. Open any of them in Colab with the badge at its top.
 ## Run them
 
 ```bash
-pip install "valuein-sdk>=7.0.0" matplotlib        # or: uv pip install "valuein-sdk>=7.0.0" matplotlib
+pip install "valuein-sdk>=7.1.0" matplotlib        # or: uv pip install "valuein-sdk>=7.1.0" matplotlib
 python examples/python/getting_started.py
 ```
 
