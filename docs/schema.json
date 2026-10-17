@@ -1,5 +1,5 @@
 {
-  "version": "4.4.0",
+  "version": "4.5.0",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
@@ -575,6 +575,70 @@
         "avg_weight_pct": {
           "type": "DOUBLE",
           "description": "Panel metadata — average index weight (%) over the observed window.  Populated on 18,658 of the 24,206 ``fund_holdings`` rows — the dated holdings files carry weights, the earlier SEC-filed schedules do not; NULL elsewhere, including ``public_constituent_list``, which carries no weights."
+        }
+      }
+    },
+    "industry_classification": {
+      "description": "Point-in-time industry classification (SEC SIC): one row per company and SIC spell, built from the SIC each filer itself reported in its own filings (SEC filing header and SEC filing metadata). `valid_from` is the SEC acceptance instant of the first filing that showed the SIC; `valid_to` (exclusive) is where the next spell starts, NULL for the current one. There are no rows before a company's first evidence: history is never back-filled, so a backtest dated earlier must decide for itself (using the first spell is the nearest-in-time choice). A -> B -> A is three spells: a real reassignment is not smoothed. `references.sector` / `industry` / `sic_code` and `entity` are CURRENT values and are NOT point-in-time: use this table for as-of questions (`valid_from <= t AND (valid_to IS NULL OR t < valid_to)`). `sector` is the same SIC-to-sector mapping `references.sector` uses, applied to the spell's SIC. No GICS (licensed by MSCI and S&P): 4-digit SIC is the finest level published. Sliced like `references` (same companies per tier), no date window.",
+      "columns": {
+        "cik": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "sic_code": {
+          "type": "VARCHAR",
+          "description": "4-digit SEC SIC code (keeps leading zeros)."
+        },
+        "sic_description": {
+          "type": "VARCHAR",
+          "description": "SEC's published description of the code; the latest filer-reported text when the code is not on the SEC list."
+        },
+        "sic_division": {
+          "type": "VARCHAR",
+          "description": "1987 SIC division letter A-J."
+        },
+        "sic_division_name": {
+          "type": "VARCHAR"
+        },
+        "sic_major_group": {
+          "type": "VARCHAR",
+          "description": "First 2 digits of the SIC."
+        },
+        "sic_industry_group": {
+          "type": "VARCHAR",
+          "description": "First 3 digits of the SIC."
+        },
+        "sector": {
+          "type": "VARCHAR",
+          "description": "Sector of this SIC under the same mapping as references.sector."
+        },
+        "industry": {
+          "type": "VARCHAR",
+          "description": "Filer-reported SIC description (the meaning of entity.industry)."
+        },
+        "valid_from": {
+          "type": "TIMESTAMPTZ",
+          "description": "Acceptance instant of the first filing showing this SIC (see valid_from_basis)."
+        },
+        "valid_to": {
+          "type": "TIMESTAMPTZ",
+          "description": "Exclusive end: the next spell's valid_from; NULL = current."
+        },
+        "first_accession_id": {
+          "type": "VARCHAR",
+          "description": "Accession of the first filing in the spell (NULL if only observed)."
+        },
+        "last_accession_id": {
+          "type": "VARCHAR",
+          "description": "Accession of the last filing in the spell (NULL if only observed)."
+        },
+        "evidence_count": {
+          "type": "INTEGER",
+          "description": "Evidence rows folded into the spell."
+        },
+        "valid_from_basis": {
+          "type": "VARCHAR",
+          "description": "sec_acceptance (exact acceptance time) | filing_date_eod (filing date, end of day) | observed (date we saw it)."
         }
       }
     },

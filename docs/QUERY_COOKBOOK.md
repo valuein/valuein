@@ -63,6 +63,7 @@ Related:
 **Universe construction**
 - [10. Survivorship-bias-free universe](#10-survivorship-bias-free-universe)
 - [11. Current S&P 500 members](#11-current-sp-500-members)
+  - [11b. One position per sub-industry, as of a date](#11b-one-position-per-sub-industry-as-of-a-date)
 - [12. Historical S&P 500 (entries and exits)](#12-historical-sp-500-entries-and-exits)
 
 **End-to-end recipes**
@@ -314,6 +315,38 @@ ORDER  BY r.name
 > Why: `index_membership` is the single source of truth for membership —
 > current OR historical. JOIN on `cik = cik` (same column name on both
 > sides post-migration 0015).
+
+---
+
+### 11b. One position per sub-industry, as of a date
+
+**Use when:** building a diversified point-in-time portfolio. `references.sector`
+is the *current* classification; `industry_classification` holds the SIC spell
+in force on the date. `valid_to` is exclusive (NULL = current).
+
+```sql
+WITH asof AS (SELECT TIMESTAMPTZ '2015-06-30 00:00:00+00' AS t)
+SELECT ic.sic_code, ic.industry, im.cik, r.symbol
+FROM   asof
+JOIN   index_membership im
+       ON im.index_name = 'SP500'
+      AND im.effective_date <= CAST(asof.t AS DATE)
+      AND (im.removal_date IS NULL OR CAST(asof.t AS DATE) < im.removal_date)
+JOIN   industry_classification ic
+       ON ic.cik = im.cik
+      AND ic.valid_from <= asof.t
+      AND (ic.valid_to IS NULL OR asof.t < ic.valid_to)
+JOIN   "references" r ON r.cik = im.cik
+QUALIFY ROW_NUMBER() OVER (PARTITION BY ic.sic_code ORDER BY im.cik) = 1
+ORDER  BY ic.sic_code
+```
+
+Run it with `ValueinClient().run_query(sql)`.
+
+> Why: a company that changed SIC code is grouped by the code it held on the
+> date, never by today's. There are no rows before a company's first
+> evidence, so an earlier date returns no row for it (use the first spell if
+> you want the nearest-in-time choice). SIC only; there is no GICS.
 
 ---
 

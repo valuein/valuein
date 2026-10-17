@@ -397,8 +397,9 @@ def _build_ratios() -> list[dict]:
                 "unit": "percentile",
                 "ttm_available": False,
                 "description": (
-                    f"Percentile rank of `{base}` versus same-sector peers in the same "
-                    "fiscal year, in [0, 1] (1 = best in sector)."
+                    f"Percentile rank of `{base}` versus peers in the sector in force at the "
+                    "filing's SEC acceptance time (point-in-time, from `industry_classification`), "
+                    "in the same fiscal year, in [0, 1] (1 = best in sector)."
                 ),
             }
         )
