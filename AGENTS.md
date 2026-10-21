@@ -105,6 +105,60 @@ To add Valuein as a tool to Claude, Copilot, ChatGPT, Cursor, or any MCP-capable
 
 Live tool, prompt (SOP) and resource counts: `server.json` `_meta["io.github.valuein/tools_summary"]`, or `curl -s https://mcp.valuein.biz/manifest.json | jq .counts`. Research state is protocol-native and agent-agnostic: theses, claims, watchlists, signals, reports, scheduled tasks, and rules persist server-side keyed to the token — save a thesis from Claude, list it from Cursor. Mutating/destructive actions go through a staged-action approval ledger (`stage_action` → human `approve_staged_action`, immutable audit entry). Publishing is free: `publish_report` / `unpublish_report` / `search_reports` (keyword catalog search, no semantic search yet) plus the matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` build a public `@handle` profile and reputation. Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md); the live manifest is authoritative.
 
+<!-- GEN:agent-contract -->
+## Reading tool results: errors and paging
+
+Agent contract v1, generated from the server's code. Live copy: `curl -s https://mcp.valuein.biz/manifest.json | jq .agent_contract`.
+
+### Errors
+
+A tool error is a result with `isError: true`. It carries **no `structuredContent`**: the error is one JSON object in the first text block.
+
+```js
+const { error } = JSON.parse(result.content[0].text);
+if (error.code === "TICKER_NOT_FOUND") { /* resolve the company with search_companies */ }
+```
+
+| Field | Always present | Meaning |
+|---|---|---|
+| `code` | yes | Stable machine code; branch on this, never on the prose. |
+| `title` | yes | Short human title for the code. |
+| `detail` | yes | The sentence a person should read: what happened and what to do next. |
+| `status` | yes | HTTP-style status. 429 and 503 are transient: retry after a pause. Any other 4xx fails the same way until the call changes (its arguments, the plan, or a payment). |
+| `type` | yes | Documentation URI for the code. |
+| `extensions` | yes | Code-specific fields, e.g. `required_plan`, `upgrade_url`, `remediation.options`, `retryable`. |
+| `request_id` | no | Present when the request had an id; quote it to support. `instance` carries the same value. |
+| `tool` | no | The tool that answered, when known. |
+
+When the first text block is not JSON, the protocol layer answered instead of the tool; read it as plain text. `Input validation error` means the arguments do not match the tool's input schema: fix the call, since a retry fails the same way. `Tool … not found` means the tool name is wrong. `Output validation error` is a server fault: report it with `submit_feedback`.
+
+| Code | Status | Title |
+|---|---|---|
+| `TICKER_NOT_FOUND` | 404 | Ticker not found |
+| `TICKER_DELISTED` | 410 | Ticker delisted |
+| `ENTITLEMENT_DENIED` | 403 | Data not available on current plan |
+| `DATA_NOT_AVAILABLE_FOR_PERIOD` | 404 | No data for requested period |
+| `NO_FACTS_BEFORE_AS_OF_DATE` | 404 | Temporal filter excluded all data |
+| `FEATURE_NOT_AVAILABLE` | 501 | Feature not yet available |
+| `INVALID_ARGUMENT` | 400 | Invalid argument |
+| `RATE_LIMITED` | 429 | Rate limit exceeded |
+| `QUOTA_EXCEEDED` | 402 | Plan quota exceeded |
+| `LIMIT_EXCEEDED` | 402 | Plan limit reached |
+| `UPSTREAM_UNAVAILABLE` | 503 | Upstream data store unavailable |
+| `STALE_SNAPSHOT` | 503 | Snapshot rotating; retry |
+| `FILE_TOO_LARGE` | 413 | Partition exceeds Worker memory limit |
+| `NOT_FOUND` | 404 | Resource not found |
+| `FIGURES_UNVERIFIED` | 409 | Report contains contradicted figures |
+| `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
+| `INTERNAL_ERROR` | 500 | Internal server error |
+
+### Paging
+
+**Offset paging** (`get_pit_universe`, `screen_universe`): `limit` is the page size and `offset` is where the page starts. While rows remain, the result carries `truncation` with `next_offset`: call again with the same arguments and `offset` set to `truncation.next_offset`, until a result has no `truncation`.
+
+**Cursor paging** (`list_citation_overrides`, `list_claims`, `list_my_reports`, `list_pending_approvals`, `list_report_versions`, `list_restatements`, `list_rules`, `list_scheduled_tasks`, `list_signal_inbox`, `list_signals`, `list_theses`, `list_watchlists`, `search_reports`): Pass the `next_cursor` of one result as `cursor` on the next call, with the same other arguments. A null `next_cursor` is the last page.
+<!-- /GEN:agent-contract -->
+
 ---
 
 ## Pay-per-call for agents (MPP)
@@ -268,13 +322,13 @@ The MPP flow above is for agents that can carry a `Payment:` header. If you're r
 |---|---|---|
 | Add a new example script | `examples/python/<name>.py` | `uv run python examples/python/<name>.py` (sample tier, no token, unless the docstring states a minimum tier) |
 | Add a matching notebook | `examples/notebooks/<name>.ipynb` | Open in Colab, "Run all" |
-| Document a new MCP tool | `docs/MCP_TOOLS.md` | Manual review — no test gate; the live tool list is `https://mcp.valuein.biz/manifest.json` |
+| Document a new MCP tool | Nothing by hand: the tool reference in `docs/MCP_TOOLS.md` is generated from `https://mcp.valuein.biz/manifest.json` | `uv run python scripts/sync_mcp_manifest.py --check` (CI runs it on every push and PR) |
 | Add a query recipe | `docs/QUERY_COOKBOOK.md` | Manual review |
 | Update the catalog | `uv run python scripts/generate_catalog.py` (concepts come from the live manifest; ratios are the inline `RATIOS`) | Diff `docs/data_catalog.{md,json}` and `docs/DATA_CATALOG.xlsx` |
 
-`server.json` and the README's MCP summary block are written by `.github/workflows/sync-mcp-manifest.yml` from the live manifest — never edit them by hand.
+`server.json`, the README's MCP summary block, every `GEN` block in `docs/MCP_TOOLS.md` (agent contract, tool reference, prompts, resources) and the agent-contract block in this file are written by `.github/workflows/sync-mcp-manifest.yml` from the live manifest — never edit them by hand.
 
-Every push/PR runs `.github/workflows/doc-integrity.yml`: (a) an **IP-leak gate** over every tracked file for proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`; the published MCP tool `get_earnings_signals` is fine); (b) an **accuracy-drift gate**: any `NN.NN%` in `README.md` / `docs/accuracy/*` must stay within 1pt of `docs/accuracy/baseline.json`; (c) the publish-guard tests in `tests/`. Don't reintroduce scrubbed names or edit an accuracy figure away from the baseline.
+Every push/PR runs `.github/workflows/doc-integrity.yml`: (a) an **IP-leak gate** over every tracked file for proprietary signal names (`factor_scores|earnings_signals|composite_rank|eps_trend_est`; the published MCP tool `get_earnings_signals` is fine); (b) an **accuracy-drift gate**: any `NN.NN%` in `README.md` / `docs/accuracy/*` must stay within 1pt of `docs/accuracy/baseline.json`; (c) the publish-guard and docs-rendering tests in `tests/`; (d) `scripts/sync_mcp_manifest.py --check` against the live manifest, which fails on any drift in a generated block. Don't reintroduce scrubbed names or edit an accuracy figure away from the baseline.
 
 ### Conventions
 

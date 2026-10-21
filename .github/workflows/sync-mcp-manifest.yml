@@ -1,7 +1,9 @@
 name: Sync MCP manifest
 
-# Keeps server.json + README.md in lockstep with the MCP server's
-# authoritative manifest (~/WebstormProjects/mcp → github.com/valuein/mcp).
+# Keeps server.json, README.md, docs/MCP_TOOLS.md and AGENTS.md in lockstep
+# with the MCP server's authoritative manifest (~/WebstormProjects/mcp →
+# github.com/valuein/mcp): registry counts + version, the README summary, the
+# generated tool reference / prompts / resources, and the agent contract.
 #
 # Triggers:
 #   - Nightly cron (catches manifest drift even when this repo is idle)
@@ -78,8 +80,8 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add server.json README.md
-          git commit -m "chore: sync MCP manifest (server.json + README counts)"
+          git add server.json README.md docs/MCP_TOOLS.md AGENTS.md
+          git commit -m "chore: sync MCP manifest (server.json, README counts, MCP docs)"
           git push
           # Written only AFTER a successful push. If the push is rejected
           # (someone merged to main mid-run), this step fails and the publish

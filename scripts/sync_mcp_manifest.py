@@ -1,34 +1,61 @@
 #!/usr/bin/env python3
 """
-sync_mcp_manifest.py — sync server.json + README from the MCP server's manifest.
+sync_mcp_manifest.py — sync server.json + the MCP docs from the MCP server's manifest.
 
 The MCP repo (`~/WebstormProjects/mcp`) emits an authoritative `manifest.json`
-listing every live tool, SOP prompt, and resource. This script updates this
-repo's public-facing surfaces to match:
+listing every live tool, SOP prompt, and resource, plus the agent contract
+(how a tool error and a paged result read). This script updates this repo's
+public-facing surfaces to match:
 
 - `server.json`: tools_summary {live, stubs, prompts, resources} + version
 - `README.md`: the prose block between
   `<!-- GEN:mcp-summary -->` and `<!-- /GEN:mcp-summary -->`
+- `docs/MCP_TOOLS.md`: four generated blocks —
+  `GEN:agent-contract` (the manifest's `agent_contract.markdown`, verbatim),
+  `GEN:mcp-tool-reference` (every tool: title, min plan, effect, summary,
+  an inputs table, output fields, paging form), `GEN:mcp-prompts` and
+  `GEN:mcp-resources`
+- `AGENTS.md`: the `GEN:agent-contract` block (same verbatim Markdown)
 
-Hand-editing those values is a silent lie to PyPI/Smithery/Show HN visitors;
-this script keeps them honest.
+Hand-editing those values is a silent lie to PyPI/Smithery/Show HN visitors
+and to every agent that reads the docs; this script keeps them honest. A block
+is only ever replaced between its markers: a file that lacks a marker pair is
+an error, never a guess.
 
 Publish guard (both modes, before anything is written): the run is refused with
 exit code 3 if the manifest lists any tool in HIDDEN_TOOLS (whatever its status),
 if the manifest cannot be judged (no usable `tools` list, a tool without a string
 `name`, or `counts.tools` / `tools_live` / `tools_stub` disagreeing with the tools
-listed), or if `server.json` already names a hidden tool. Nothing is written when it refuses.
+listed), if `server.json` already names a hidden tool, or if a rendered docs block
+would name a hidden tool or a withheld internal dataset name. Nothing is written
+when it refuses.
+
+Agent-contract fields (both modes): the run is refused with exit code 4 when the
+manifest lacks `agent_contract.markdown` or any tool lacks `inputs`,
+`output_fields` or `paging` (MCP server 3.7.2 and later carry them). The docs are
+never rendered from a partial manifest, so an older server fails LOUDLY instead
+of silently leaving the reference stale.
+
+Public redaction (documented, deliberate): `doc-integrity.yml` forbids a few
+internal dataset and column names in every tracked file (`IP_DENYLIST` below).
+Some live tool descriptions and enum values mention them. In the generated tool
+reference, prompts and resources, each identifier carrying one of those names is
+replaced by `[withheld]` (descriptions, enum values, defaults, output fields);
+the live `tools/list` keeps them. A tool or input NAME carrying one, or an agent
+contract that does, refuses the run (exit 3) rather than publish a broken page.
 
 Source resolution order:
-1. Sibling local checkout (`~/WebstormProjects/mcp/manifest.json`) — for dev
-2. Override via `MCP_MANIFEST_URL` env var
-3. Default: https://mcp.valuein.biz/manifest.json (served by the deployed Worker;
+1. `MCP_MANIFEST_PATH` env var — an explicit local manifest file (highest)
+2. Sibling local checkout (`~/WebstormProjects/mcp/manifest.json`) — for dev
+3. Override via `MCP_MANIFEST_URL` env var
+4. Default: https://mcp.valuein.biz/manifest.json (served by the deployed Worker;
    the `valuein/mcp` GitHub repo is private, so the raw.githubusercontent URL
    would 404 in CI)
 
 Usage:
   uv run python scripts/sync_mcp_manifest.py            # write changes
-  uv run python scripts/sync_mcp_manifest.py --check    # exit 1 if stale, 3 if the guard refuses
+  uv run python scripts/sync_mcp_manifest.py --check    # exit 1 stale, 3 guard refused,
+                                                        # 4 agent-contract fields missing
 """
 
 from __future__ import annotations
@@ -38,12 +65,14 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Tuple
+from typing import Any
 from urllib.request import Request, urlopen
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SERVER_JSON = REPO_ROOT / "server.json"
 README = REPO_ROOT / "README.md"
+MCP_TOOLS_DOC = REPO_ROOT / "docs" / "MCP_TOOLS.md"
+AGENTS_DOC = REPO_ROOT / "AGENTS.md"
 
 DEFAULT_MANIFEST_URL = "https://mcp.valuein.biz/manifest.json"
 LOCAL_MCP = REPO_ROOT.parent.parent / "WebstormProjects" / "mcp" / "manifest.json"
@@ -58,6 +87,22 @@ HIDDEN_TOOLS = frozenset({"purchase_report", "list_my_purchases", "connect_strip
 # Exit code when the guard refuses. Distinct from 1, which means "stale" in --check.
 EXIT_GUARD_REFUSED = 3
 
+# Exit code when the manifest predates the agent contract (no `agent_contract`,
+# or a tool without `inputs` / `output_fields` / `paging`).
+EXIT_CONTRACT_MISSING = 4
+
+# The doc-integrity IP-leak denylist, as the exact alternation that workflow greps
+# for. Keep this line byte-identical to the gate's pattern: the gate exempts lines
+# that quote the whole alternation, and this is the one place the generator names it.
+IP_DENYLIST_ALTERNATION = "factor_scores|earnings_signals|composite_rank|eps_trend_est"
+# Same lookbehind as the gate: a published tool name prefixed `get_` is not a leak.
+IP_LEAK_RE = re.compile(r"(?<!get_)(" + IP_DENYLIST_ALTERNATION + r")")
+WITHHELD = "[withheld]"
+WITHHELD_NOTE = (
+    f"Identifiers shown as `{WITHHELD}` name internal datasets and are left out of "
+    "this public page; the live `tools/list` response carries them."
+)
+
 
 def load_manifest() -> dict:
     """Resolve and load the MCP manifest.
@@ -66,8 +111,16 @@ def load_manifest() -> dict:
         Parsed manifest dict.
 
     Raises:
+        FileNotFoundError: If `MCP_MANIFEST_PATH` names a file that does not exist.
         RuntimeError: If neither the local sibling nor the URL is reachable.
     """
+    explicit = os.environ.get("MCP_MANIFEST_PATH", "").strip()
+    if explicit:
+        path = Path(explicit).expanduser()
+        if not path.is_file():
+            raise FileNotFoundError(f"MCP_MANIFEST_PATH={explicit} is not a file")
+        print(f"  source: {path}")
+        return json.loads(path.read_text())
     if LOCAL_MCP.exists():
         print(f"  source: {LOCAL_MCP}")
         return json.loads(LOCAL_MCP.read_text())
@@ -151,7 +204,7 @@ def guard_problems(manifest: object, server_json_text: str) -> list[str]:
     return problems
 
 
-def update_server_json(manifest: dict) -> Tuple[str, str]:
+def update_server_json(manifest: dict) -> tuple[str, str]:
     """Return (current_text, target_text) for server.json.
 
     Surgical string replacement of the four `tools_summary` integer fields AND
@@ -183,9 +236,7 @@ def update_server_json(manifest: dict) -> Tuple[str, str]:
         # Quoted to avoid colliding with other fields that happen to share a name.
         pattern = re.compile(rf'("{field}"\s*:\s*)(\d+)')
         if not pattern.search(target_text):
-            raise RuntimeError(
-                f'server.json: could not find tools_summary field "{field}"'
-            )
+            raise RuntimeError(f'server.json: could not find tools_summary field "{field}"')
         target_text = pattern.sub(rf"\g<1>{value}", target_text, count=1)
 
     # Top-level version → the live Worker's. Anchored to the FIRST `"version"`
@@ -194,9 +245,7 @@ def update_server_json(manifest: dict) -> Tuple[str, str]:
     version_pattern = re.compile(r'("version"\s*:\s*")([^"]+)(")')
     if not version_pattern.search(target_text):
         raise RuntimeError('server.json: could not find a top-level "version" field')
-    target_text = version_pattern.sub(
-        rf"\g<1>{deployed_version}\g<3>", target_text, count=1
-    )
+    target_text = version_pattern.sub(rf"\g<1>{deployed_version}\g<3>", target_text, count=1)
 
     return current_text, target_text
 
@@ -251,7 +300,7 @@ def render_summary(manifest: dict) -> str:
     return f"<!-- GEN:mcp-summary -->\n{body}\n<!-- /GEN:mcp-summary -->"
 
 
-def update_readme(manifest: dict) -> Tuple[str, str]:
+def update_readme(manifest: dict) -> tuple[str, str]:
     """Return (current_text, target_text) for README.md."""
     current = README.read_text()
     rendered = render_summary(manifest)
@@ -269,14 +318,429 @@ def update_readme(manifest: dict) -> Tuple[str, str]:
     return current, target
 
 
+# ── agent contract + generated docs ──────────────────────────────────────────
+
+PAGING_FORMS = (None, "offset", "cursor")
+CONTRACT_BLOCK = "agent-contract"
+TOOL_REFERENCE_BLOCK = "mcp-tool-reference"
+PROMPTS_BLOCK = "mcp-prompts"
+RESOURCES_BLOCK = "mcp-resources"
+
+# Which generated blocks each docs file carries. A file missing one of its
+# marker pairs is an error (refuse to guess), exactly like the README block.
+DOC_BLOCKS: dict[str, tuple[str, ...]] = {
+    "MCP_TOOLS_DOC": (CONTRACT_BLOCK, TOOL_REFERENCE_BLOCK, PROMPTS_BLOCK, RESOURCES_BLOCK),
+    "AGENTS_DOC": (CONTRACT_BLOCK,),
+}
+
+_CODE_SPAN_RE = re.compile(r"(`[^`\n]*`)")
+# One identifier: a back-ticked span, or a dotted word (`table.column`), so the
+# redaction removes the whole name, never half of it.
+_IDENTIFIER_RE = re.compile(r"`[^`\n]+`|[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*")
+
+
+def _summarise_missing(missing: dict[str, list[str]]) -> list[str]:
+    """Collapse per-tool contract gaps into one line per missing field."""
+    lines = []
+    for what, names in missing.items():
+        shown = ", ".join(names[:5]) + (f", … (+{len(names) - 5} more)" if len(names) > 5 else "")
+        lines.append(f"{len(names)} tool(s) lack {what}: {shown}")
+    return lines
+
+
+def contract_problems(manifest: dict) -> list[str]:
+    """Return why the manifest cannot drive the generated docs (empty if it can).
+
+    The tool reference and the agent-contract blocks are rendered only from a
+    manifest that carries every field they need; a missing field is a refusal,
+    never a silently skipped section.
+
+    Args:
+        manifest: A manifest that already passed `guard_problems`.
+
+    Returns:
+        Human-readable problems; an empty list when the docs can be rendered.
+    """
+    problems: list[str] = []
+    contract = manifest.get("agent_contract")
+    if not isinstance(contract, dict):
+        problems.append("manifest has no `agent_contract` object")
+    else:
+        markdown = contract.get("markdown")
+        if not isinstance(markdown, str) or not markdown.strip():
+            problems.append("manifest `agent_contract.markdown` is missing or empty")
+
+    missing: dict[str, list[str]] = {}
+
+    def lack(what: str, name: str) -> None:
+        missing.setdefault(what, []).append(name)
+
+    for tool in manifest["tools"]:
+        name = tool["name"]
+        if not isinstance(tool.get("description"), str):
+            lack("a string `description`", name)
+        if not isinstance(tool.get("min_plan"), str):
+            lack("a string `min_plan`", name)
+        inputs = tool.get("inputs")
+        if not isinstance(inputs, list):
+            lack("an `inputs` list", name)
+        else:
+            for item in inputs:
+                ok = (
+                    isinstance(item, dict)
+                    and isinstance(item.get("name"), str)
+                    and item["name"].strip()
+                    and isinstance(item.get("type"), str)
+                    and isinstance(item.get("required"), bool)
+                    and isinstance(item.get("enum", []), list)
+                    and isinstance(item.get("description", ""), (str, type(None)))
+                )
+                if not ok:
+                    lack("well-formed `inputs` entries (name, type, required)", name)
+                    break
+        fields = tool.get("output_fields")
+        if not isinstance(fields, list) or not all(isinstance(f, str) for f in fields):
+            lack("an `output_fields` list of strings", name)
+        if "paging" not in tool:
+            lack("a `paging` key", name)
+        elif tool["paging"] not in PAGING_FORMS:
+            lack('a `paging` of "offset", "cursor" or null', name)
+    problems.extend(_summarise_missing(missing))
+
+    for section in ("prompts", "resources"):
+        entries = manifest.get(section)
+        if not isinstance(entries, list) or not all(
+            isinstance(e, dict) and isinstance(e.get("name"), str) and e["name"].strip()
+            for e in entries
+        ):
+            problems.append(f"manifest `{section}` is missing or has an entry without a `name`")
+    return problems
+
+
+def redact(text: str, where: str, withheld: list[str]) -> str:
+    """Replace every identifier carrying an IP-denylisted name with `[withheld]`.
+
+    Args:
+        text: Manifest text bound for the public docs.
+        where: Location label for the log (e.g. `screen_universe.description`).
+        withheld: Collector; one entry is appended per replaced identifier.
+
+    Returns:
+        The text with each offending identifier (back-ticked span or dotted
+        word) replaced by `WITHHELD`; unchanged when nothing matches.
+    """
+
+    def replace(match: re.Match[str]) -> str:
+        token = match.group(0)
+        if IP_LEAK_RE.search(token):
+            withheld.append(where)
+            return WITHHELD
+        return token
+
+    return _IDENTIFIER_RE.sub(replace, text)
+
+
+def _md_text(text: str, *, in_table: bool) -> str:
+    """Make manifest prose safe to embed in Markdown without changing its words.
+
+    Outside code spans, `<` becomes `&lt;` (so `<id>` is not swallowed as HTML);
+    in a table cell, `|` is escaped and a newline becomes `<br>`.
+    """
+    parts = _CODE_SPAN_RE.split(text)
+    out: list[str] = []
+    for index, part in enumerate(parts):
+        if index % 2 == 1:
+            out.append(part.replace("|", "\\|") if in_table else part)
+            continue
+        segment = part.replace("<", "&lt;")
+        if in_table:
+            segment = segment.replace("|", "\\|")
+        out.append(segment)
+    joined = "".join(out)
+    if in_table:
+        joined = joined.replace("\r\n", "\n").replace("\n", "<br>")
+    return joined
+
+
+def _code(value: str) -> str:
+    """Render `value` as an inline code span (double fence if it holds a backtick)."""
+    return f"`` {value} ``" if "`" in value else f"`{value}`"
+
+
+def _literal(value: Any, where: str, withheld: list[str]) -> str:
+    """Render an enum value or a default as code, redacting a denylisted name."""
+    text = value if isinstance(value, str) else json.dumps(value, ensure_ascii=False)
+    if IP_LEAK_RE.search(text):
+        withheld.append(where)
+        return WITHHELD
+    return _code(text).replace("|", "\\|")
+
+
+def _effect(tool: dict) -> str:
+    """Describe a tool's declared risk from its MCP annotations."""
+    annotations = tool.get("annotations") if isinstance(tool.get("annotations"), dict) else {}
+    if annotations.get("readOnlyHint") is True:
+        return "read-only"
+    if annotations.get("destructiveHint") is True:
+        return "destructive"
+    if annotations.get("readOnlyHint") is False:
+        return "writes"
+    return "not declared"
+
+
+def _paging(tool: dict) -> str:
+    """Describe a tool's paging form."""
+    return {"offset": "offset", "cursor": "cursor"}.get(tool["paging"], "none")
+
+
+def _plan_legend(manifest: dict) -> str:
+    """Render the plan-key legend from the manifest's own `tier_matrix`."""
+    tiers = manifest.get("tier_matrix")
+    if not isinstance(tiers, dict) or not tiers:
+        return ""
+    names = []
+    for key, tier in tiers.items():
+        display = tier.get("display_name") if isinstance(tier, dict) else None
+        names.append(f"`{key}` = {display}" if isinstance(display, str) else f"`{key}`")
+    return "Plan keys: " + " · ".join(names) + "."
+
+
+def _inputs_table(tool: dict, withheld: list[str]) -> list[str]:
+    """Render one tool's inputs as a Markdown table (or a one-line note)."""
+    inputs = tool["inputs"]
+    if not inputs:
+        return ["_No inputs._"]
+    rows = [
+        "| Input | Type | Required | Values | Description |",
+        "|---|---|---|---|---|",
+    ]
+    for item in inputs:
+        where = f"{tool['name']}.{item['name']}"
+        values: list[str] = []
+        enum = item.get("enum") or []
+        if enum:
+            kept = [v for v in enum if not IP_LEAK_RE.search(str(v))]
+            dropped = len(enum) - len(kept)
+            withheld.extend([f"{where}.enum"] * dropped)
+            shown = ", ".join(_literal(v, f"{where}.enum", withheld) for v in kept)
+            if dropped:
+                shown = f"{shown} + {dropped} {WITHHELD}" if shown else f"{dropped} {WITHHELD}"
+            values.append(f"one of {shown}")
+        if "default" in item:
+            values.append(f"default {_literal(item['default'], f'{where}.default', withheld)}")
+        description = item.get("description")
+        if isinstance(description, str) and description.strip():
+            cell = _md_text(redact(description, f"{where}.description", withheld), in_table=True)
+        else:
+            cell = "—"
+        rows.append(
+            f"| `{item['name']}` | {_md_text(item['type'], in_table=True)} | "
+            f"{'yes' if item['required'] else 'no'} | {'; '.join(values) or '—'} | {cell} |"
+        )
+    return rows
+
+
+def render_agent_contract(manifest: dict) -> str:
+    """Render the agent-contract block: the manifest's Markdown, byte for byte."""
+    markdown = manifest["agent_contract"]["markdown"]
+    tail = "" if markdown.endswith("\n") else "\n"
+    return f"<!-- GEN:{CONTRACT_BLOCK} -->\n{markdown}{tail}<!-- /GEN:{CONTRACT_BLOCK} -->"
+
+
+def render_tool_reference(manifest: dict, withheld: list[str]) -> str:
+    """Render every tool: an index table, then one section per tool in manifest order.
+
+    Args:
+        manifest: A manifest that passed `guard_problems` and `contract_problems`.
+        withheld: Collector for redaction locations (see `redact`).
+
+    Returns:
+        The full marker-fenced block.
+    """
+    tools = manifest["tools"]
+    sections: list[str] = []
+    index = ["| Tool | Title | Min plan | Effect | Paging |", "|---|---|---|---|---|"]
+    for tool in tools:
+        name = tool["name"]
+        title = tool.get("title") if isinstance(tool.get("title"), str) else name
+        title_md = _md_text(redact(title, f"{name}.title", withheld), in_table=True)
+        index.append(
+            f"| [`{name}`](#{name}) | {title_md} | `{tool['min_plan']}` | "
+            f"{_effect(tool)} | {_paging(tool)} |"
+        )
+        summary = _md_text(
+            redact(tool["description"], f"{name}.description", withheld), in_table=False
+        )
+        fields = [WITHHELD if IP_LEAK_RE.search(f) else f"`{f}`" for f in tool["output_fields"]]
+        withheld.extend(
+            f"{name}.output_fields" for f in tool["output_fields"] if IP_LEAK_RE.search(f)
+        )
+        section = [
+            f"### `{name}`",
+            "",
+            (
+                f"**{_md_text(redact(title, f'{name}.title', []), in_table=False)}** · "
+                f"min plan `{tool['min_plan']}` · {_effect(tool)} · paging: {_paging(tool)}"
+            ),
+            "",
+            summary,
+            "",
+            *_inputs_table(tool, withheld),
+            "",
+            "**Output fields:** " + (", ".join(fields) if fields else "_none declared_"),
+        ]
+        sections.append("\n".join(section))
+
+    header = [
+        f"<!-- GEN:{TOOL_REFERENCE_BLOCK} -->",
+        (
+            f"_Generated from the MCP server manifest (v{manifest['version']}) by "
+            "`scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._"
+        ),
+        "",
+        (
+            f"**{len(tools)} tools**, in the server's registration order. Effect comes from "
+            "each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is "
+            "explained in the agent contract above. Descriptions are the manifest's summaries: "
+            "the live `tools/list` response carries each tool's full description and JSON Schema."
+        ),
+    ]
+    legend = _plan_legend(manifest)
+    if legend:
+        header += ["", legend]
+    if withheld:
+        header += ["", WITHHELD_NOTE]
+    body = "\n".join(header) + "\n\n" + "\n".join(index) + "\n\n" + "\n\n".join(sections)
+    return f"{body}\n<!-- /GEN:{TOOL_REFERENCE_BLOCK} -->"
+
+
+def _catalog_block(
+    block: str, label: str, manifest: dict, entries: list[dict], withheld: list[str]
+) -> str:
+    """Render a prompts or resources table (name, title, min plan, summary)."""
+    before = len(withheld)
+    rows = [f"| {label} | Title | Min plan | Summary |", "|---|---|---|---|"]
+    for entry in entries:
+        name = entry["name"]
+        title = entry.get("title") if isinstance(entry.get("title"), str) else name
+        plan = entry.get("min_plan")
+        description = entry.get("description")
+        summary = (
+            redact(description, f"{name}.description", withheld)
+            if isinstance(description, str)
+            else ""
+        )
+        title_md = _md_text(redact(title, f"{name}.title", withheld), in_table=True)
+        plan_md = _code(plan) if isinstance(plan, str) else "—"
+        rows.append(
+            f"| `{name}` | {title_md} | {plan_md} | {_md_text(summary, in_table=True) or '—'} |"
+        )
+    plural = "" if len(entries) == 1 else "s"
+    lines = [
+        f"<!-- GEN:{block} -->",
+        (
+            f"_Generated from the MCP server manifest (v{manifest['version']}); "
+            f"{len(entries)} {label.lower()}{plural}._"
+        ),
+    ]
+    if len(withheld) > before:
+        lines += ["", WITHHELD_NOTE]
+    return "\n".join(lines) + "\n\n" + "\n".join(rows) + f"\n<!-- /GEN:{block} -->"
+
+
+def render_doc_blocks(manifest: dict) -> tuple[dict[str, str], list[str]]:
+    """Render every generated docs block.
+
+    Returns:
+        (blocks by name, redaction locations).
+    """
+    withheld: list[str] = []
+    blocks = {
+        CONTRACT_BLOCK: render_agent_contract(manifest),
+        TOOL_REFERENCE_BLOCK: render_tool_reference(manifest, withheld),
+        PROMPTS_BLOCK: _catalog_block(
+            PROMPTS_BLOCK, "Prompt", manifest, manifest["prompts"], withheld
+        ),
+        RESOURCES_BLOCK: _catalog_block(
+            RESOURCES_BLOCK, "Resource", manifest, manifest["resources"], withheld
+        ),
+    }
+    return blocks, withheld
+
+
+def rendered_problems(manifest: dict, blocks: dict[str, str]) -> list[str]:
+    """Return why the rendered docs must not be written (empty when safe).
+
+    Second line of defence behind `guard_problems`: no block may name a hidden
+    tool or carry an IP-denylisted name, the verbatim agent contract may not hold
+    a marker of its own, and a tool or input NAME may not be denylisted (a name
+    cannot be withheld without breaking the reference).
+    """
+    problems: list[str] = []
+    for name, text in blocks.items():
+        hidden = _names_in_text(text)
+        if hidden:
+            problems.append(f"generated `{name}` block names hidden tool(s): {', '.join(hidden)}")
+        if IP_LEAK_RE.search(text):
+            problems.append(f"generated `{name}` block carries an IP-denylisted name")
+    markdown = manifest["agent_contract"]["markdown"]
+    if "<!-- GEN:" in markdown or "<!-- /GEN:" in markdown:
+        problems.append("`agent_contract.markdown` contains a GEN marker")
+    for tool in manifest["tools"]:
+        names = [tool["name"]] + [i["name"] for i in tool["inputs"]]
+        if any(IP_LEAK_RE.search(n) for n in names):
+            problems.append(f"tool `{tool['name']}` has an IP-denylisted tool or input name")
+    return problems
+
+
+def replace_block(text: str, block: str, rendered: str, label: str) -> str:
+    """Replace the one `<!-- GEN:block -->` … `<!-- /GEN:block -->` span in `text`.
+
+    Raises:
+        RuntimeError: When the marker pair is absent or appears more than once.
+    """
+    pattern = re.compile(
+        rf"<!-- GEN:{re.escape(block)} -->.*?<!-- /GEN:{re.escape(block)} -->", re.DOTALL
+    )
+    found = len(pattern.findall(text))
+    if found != 1:
+        raise RuntimeError(
+            f"{label}: expected exactly one <!-- GEN:{block} --> … <!-- /GEN:{block} --> "
+            f"block, found {found}. Add the markers by hand once."
+        )
+    return pattern.sub(lambda _match: rendered, text, count=1)
+
+
+def update_docs(blocks: dict[str, str]) -> list[tuple[Path, str, str]]:
+    """Return (path, current_text, target_text) for every generated docs file."""
+    out = []
+    for attr, names in DOC_BLOCKS.items():
+        path: Path = globals()[attr]
+        current = path.read_text()
+        target = current
+        for name in names:
+            target = replace_block(target, name, blocks[name], path.name)
+        out.append((path, current, target))
+    return out
+
+
+def _refuse(problems: list[str], code: int, headline: str) -> int:
+    """Print a refusal and return its exit code."""
+    print(f"\n✗ {headline} — nothing written:", file=sys.stderr)
+    for problem in problems:
+        print(f"  - {problem}", file=sys.stderr)
+    return code
+
+
 def main(argv: list[str] | None = None) -> int:
-    """Sync (or with `--check`, verify) server.json and the README summary.
+    """Sync (or with `--check`, verify) server.json, the README summary and the MCP docs.
 
     Args:
         argv: Command-line arguments; defaults to `sys.argv[1:]`.
 
     Returns:
-        0 on success, 1 when `--check` finds drift, 3 when the publish guard refuses.
+        0 on success, 1 when `--check` finds drift, 3 when the publish guard
+        refuses, 4 when the manifest lacks the agent-contract fields.
     """
     args = sys.argv[1:] if argv is None else argv
     check_mode = "--check" in args
@@ -286,10 +750,7 @@ def main(argv: list[str] | None = None) -> int:
     # Publish guard: runs in both modes, before anything is read further or written.
     problems = guard_problems(manifest, SERVER_JSON.read_text())
     if problems:
-        print("\n✗ publish guard refused — nothing written:", file=sys.stderr)
-        for problem in problems:
-            print(f"  - {problem}", file=sys.stderr)
-        return EXIT_GUARD_REFUSED
+        return _refuse(problems, EXIT_GUARD_REFUSED, "publish guard refused")
 
     print(
         f"  loaded v{manifest['version']} — "
@@ -299,8 +760,36 @@ def main(argv: list[str] | None = None) -> int:
         f"{manifest['counts']['resources']} resources"
     )
 
+    # Agent contract: the docs are rendered from these fields or not at all.
+    missing = contract_problems(manifest)
+    if missing:
+        return _refuse(
+            missing,
+            EXIT_CONTRACT_MISSING,
+            f"manifest v{manifest.get('version')} lacks the agent-contract fields "
+            "(MCP server 3.7.2+ publishes them)",
+        )
+
+    blocks, withheld = render_doc_blocks(manifest)
+    problems = rendered_problems(manifest, blocks)
+    if problems:
+        return _refuse(problems, EXIT_GUARD_REFUSED, "publish guard refused the generated docs")
+    if withheld:
+        print(
+            f"  withheld {len(withheld)} IP-denylisted identifier(s) in: "
+            + ", ".join(sorted(set(withheld)))
+        )
+
     server_current, server_target = update_server_json(manifest)
     readme_current, readme_target = update_readme(manifest)
+    docs = update_docs(blocks)
+    for path, _current, target in docs:
+        if path == MCP_TOOLS_DOC and _names_in_text(target):
+            return _refuse(
+                [f"{path.name} names hidden tool(s): " + ", ".join(_names_in_text(target))],
+                EXIT_GUARD_REFUSED,
+                "publish guard refused the generated docs",
+            )
 
     # ── Version now AUTO-SYNCS, and drift is still a FAILURE in --check ───────
     #
@@ -330,11 +819,13 @@ def main(argv: list[str] | None = None) -> int:
     registry_version = json.loads(server_current).get("version")
     version_behind = registry_version != deployed_version
 
-    drift: list[str] = []
-    if server_current != server_target:
-        drift.append("server.json")
-    if readme_current != readme_target:
-        drift.append("README.md")
+    targets: list[tuple[Path, str, str]] = [
+        (SERVER_JSON, server_current, server_target),
+        (README, readme_current, readme_target),
+        *docs,
+    ]
+    stale = [(path, target) for path, current, target in targets if current != target]
+    drift = [_display_name(path) for path, _target in stale]
 
     if check_mode:
         if drift:
@@ -350,14 +841,22 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if drift:
-        SERVER_JSON.write_text(server_target)
-        README.write_text(readme_target)
+        for path, target in stale:
+            path.write_text(target)
         note = f" (version {registry_version}→{deployed_version})" if version_behind else ""
         print(f"\n✓ updated: {', '.join(drift)}{note}")
         return 0
 
     print("\n✓ already in sync — no changes")
     return 0
+
+
+def _display_name(path: Path) -> str:
+    """Return `path` relative to the repo root when it lies inside it."""
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return path.name
 
 
 if __name__ == "__main__":

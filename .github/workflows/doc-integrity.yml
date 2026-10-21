@@ -13,12 +13,20 @@ name: Doc integrity
 #       honest modern-era figure fails the build, so the headline can never
 #       silently diverge from the JSON again (the root cause of VA25).
 #
-#   (c) Publish-guard tests — scripts/sync_mcp_manifest.py refuses to sync or
-#       publish a manifest that exposes a hidden tool; tests/ pins that.
+#   (c) Publish-guard + docs-rendering tests — scripts/sync_mcp_manifest.py
+#       refuses to sync or publish a manifest that exposes a hidden tool, and
+#       renders the generated MCP docs blocks; tests/ pins both.
+#
+#   (d) Generated-docs drift — `sync_mcp_manifest.py --check` against the LIVE
+#       Worker manifest. server.json, the README summary, every GEN block in
+#       docs/MCP_TOOLS.md (agent contract, tool reference, prompts, resources)
+#       and the agent-contract block in AGENTS.md must equal what the manifest
+#       renders, byte for byte. Exit 1 = stale (run the sync), 3 = publish guard
+#       refused, 4 = the live manifest lacks the agent-contract fields.
 #
 # Triggers: every push + PR, plus manual workflow_dispatch for testing.
-# No external services — pure bash + the Python that ships with the runner
-# (the guard tests add pytest through uv).
+# (a)-(c) use no external services — pure bash + the Python that ships with the
+# runner (the guard tests add pytest through uv); (d) reads the public manifest.
 
 on:
   push:
@@ -147,3 +155,20 @@ jobs:
 
       - name: (c) Publish-guard tests
         run: uv run --with 'pytest>=8,<10' pytest tests -q
+
+  mcp-docs-in-sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      # A drift here right after an MCP deploy is expected for a few minutes:
+      # the deploy's `mcp-manifest-updated` dispatch runs sync-mcp-manifest.yml,
+      # which commits the regenerated files to main. Rebase onto that commit.
+      - name: (d) Generated MCP docs match the live manifest
+        run: uv run python scripts/sync_mcp_manifest.py --check
+        env:
+          MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json

@@ -438,7 +438,7 @@ Valuein ships a remote, protocol-native Model Context Protocol server so any MCP
 - **Endpoint:** `https://mcp.valuein.biz/mcp` (Streamable HTTP, MCP spec 2025-11-25)
 - **Auth:** `Authorization: Bearer <your_api_token>` — same token as the SDK and bulk-data API
 - **Manifest:** [`server.json`](server.json) — published to [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) as `io.github.valuein/mcp-sec-edgar`
-- **Reference:** [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) — every tool, every parameter, every tier gate
+- **Reference:** [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) — every tool, every input, every tier gate, and how errors and paged results read (generated from the live manifest)
 
 ### Tools
 
@@ -452,7 +452,7 @@ The server exposes **122 live tools**, plus **39 agentic SOP prompts** (two flag
 |---|---|
 | `search_companies` | Look up tickers, names, CIKs; filter by sector, S&P 500, active status |
 | `describe_schema` | Return columns, types, and descriptions for any table |
-| `get_pit_universe` | The live constituent list (S&P 500 or all) for any historical `as_of_date` |
+| `get_pit_universe` | Survivorship-free membership (S&P 500, Russell 1000 / 2000 / 3000, a sector, or the whole universe) on any historical `as_of_date`, paged |
 
 **Fundamentals & ratios**
 
@@ -510,9 +510,9 @@ Research objects live server-side, keyed to your token — save from one AI clie
 | Backtesting | `run_backtest`, `get_pit_valuation_ratios`, `get_price_history` | Bounded PIT factor grids and backtest-safe valuation multiples on any historical date |
 | Briefing | `get_morning_brief`, `list_agent_runs` | Read your daily brief and managed-run history from any MCP client |
 
-**Public publishing — free reputation building (all tiers)**
+**Public publishing — free reputation building (any signed-in plan)**
 
-Publish your saved research to a public `@handle` profile — free to build a public track record and reputation. Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (no semantic search yet); theses and claims get the same free `publish` / `unpublish` visibility toggle. This is publishing, not selling; the paid report-marketplace tools (`purchase_report`, `list_my_purchases`, `connect_stripe_account`) remain unreleased.
+Publish your saved research to a public `@handle` profile — free to build a public track record and reputation. Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (no semantic search yet); theses and claims get the same free `publish` / `unpublish` visibility toggle. This is publishing, not selling.
 
 | Tool | What it does |
 |---|---|
@@ -602,7 +602,7 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 | [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — measured source of truth is [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json) (current snapshot: see baseline.json for the latest figure on modern-era ≥2010 S&P 500 FY filings), citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
 | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | Copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
 | [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md) | The most common SDK use cases, easiest → advanced, each linked to a notebook executed on the free tier |
-| [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — parameters, tier gates, examples |
+| [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — inputs, output fields, tier gates, errors and paging (generated from the live manifest) |
 | [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |
 | [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | Same catalog as a workbook — columns, types, sample values |
 | [`docs/data_catalog.json`](docs/data_catalog.json) | Machine-readable catalog (used by SDK metadata + docs sites) |
