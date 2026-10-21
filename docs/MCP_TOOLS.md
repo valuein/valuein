@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.7.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.7.4) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **122 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -266,10 +266,10 @@ Retrieve standardized SEC EDGAR fundamental financial metrics for a US public co
 | `period` | enum | no | one of `annual`, `quarterly`; default `annual` | Filing period granularity. Annual uses 10-K; quarterly uses 10-Q. |
 | `as_of_date` | string | no | — | Point-in-time date (YYYY-MM-DD). Only returns facts with accepted_at on or before this date — eliminates look-ahead bias for backtesting. Omit for the full dataset. |
 | `limit` | integer | no | default `5` | Maximum number of periods to return (1–40). Defaults to 5. |
-| `strict` | boolean | no | default `false` | When true, fail with PLAN_LIMIT_EXCEEDED if the plan cannot satisfy the requested limit. Default false: return what's available and explain the gap in _meta.truncation. |
+| `strict` | boolean | no | default `false` | When true, fail with LIMIT_EXCEEDED (subcode DEPTH_LIMIT_EXCEEDED) if the plan cannot satisfy the requested limit. Default false: return what's available and explain the gap in _meta.truncation. |
 | `lineage_detail` | enum | no | one of `off`, `compact`, `full`; default `compact` | Per-period provenance envelope + per-metric availability/provenance sidecars. 'compact' (default) returns source_filing + source_url (the SEC Inline-XBRL viewer with every tagged fact highlighted when the filing is iXBRL, else the rendered document, else the filing index) + sec_url/document_url/inline_viewer_url + restated flag, plus lean per-metric availability + fact_id + source_filing. 'full' adds first_filed_at + accepted_at + per-metric source_url + computed inputs[]. 'off' omits all provenance. |
 | `response_format` | enum | no | one of `flat`, `envelope`; default `flat` | Output shape. 'flat' (default) returns the legacy `metrics` object plus the additive `metrics_availability`/`metrics_provenance`/`metrics_display` sidecars — `metrics_display` holds each figure already rendered for prose ("$402.83B"), and you should quote it verbatim rather than reformatting `metrics` yourself. 'envelope' additionally attaches `metric_envelopes` — one canonical {metric,value,unit,scale,period,availability,provenance,display} object per metric. Both shapes carry the same display strings. |
-| `min_confidence` | number | no | — | Withhold any metric whose backing fact scores below this confidence [0, 1]. The score is a PENALTY FROM EVIDENCE — every fact starts at 1.0 and is docked only for something checkable: a failed accounting identity (-0.40), a later filing that revised the number (-0.20), an unaudited filing (-0.05). It is NOT a function of age: a clean 1995 fact scores the same as a clean 2026 one. Guide: 0.95 = 'no evidence against this number' (the normal case — ~99.9% of facts, every year); 0.80 = tolerate a fact a later filing revised; 0.60 = tolerate a filing whose accounting identities failed. A withheld metric is reported as availability:'suppressed' — never dropped silently, and never as 'not_reported', which would claim the company did not file it. Facts with no confidence score are withheld too (fail closed). |
+| `min_confidence` | number | no | — | Withhold any metric whose backing fact scores below this confidence [0, 1]. The score is a PENALTY FROM EVIDENCE — every fact starts at 1.0 and is docked only for something checkable: a failed accounting identity (-0.40), a later filing that revised the number (-0.20), an unaudited filing (-0.05). It is NOT a function of age: a clean 1995 fact scores the same as a clean 2026 one. Guide: 0.95 = 'no evidence against this number' (the normal case, in every year); 0.80 = tolerate a fact a later filing revised; 0.60 = tolerate a filing whose accounting identities failed. A withheld metric is reported as availability:'suppressed' — never dropped silently, and never as 'not_reported', which would claim the company did not file it. Facts with no confidence score are withheld too (fail closed). |
 
 **Output fields:** `ticker`, `company_name`, `cik`, `period`, `as_of_date`, `years_returned`, `data`
 
@@ -277,7 +277,7 @@ Retrieve standardized SEC EDGAR fundamental financial metrics for a US public co
 
 **Valuation Metrics** · min plan `sample` · read-only · paging: none
 
-Get what a US public company is TRADING AT, plus two parameter-free reference points. This is NOT an opinion of intrinsic worth — for that, call `compute_dcf` with assumptions you state explicitly, and present the result as a scenario, never as \
+Get what a US public company is TRADING AT, plus two parameter-free reference points. This is NOT an opinion of intrinsic worth — for that, call `compute_dcf` with assumptions you state explicitly, and present the result as a scenario, never as "the" fair value. Returns per-pe...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -358,7 +358,7 @@ Get ratio-based peer comparison for a company and its closest competitors. Peers
 
 **Point-in-Time Universe** · min plan `sample` · read-only · paging: offset
 
-Use this tool to answer questions about historical index membership — e.g. \
+Use this tool to answer questions about historical index membership — e.g. "Was Company X in the S&P 500 on date Y?" or "Which companies were in the Russell 2000 on 2010-01-01?" Use this INSTEAD OF `search_companies` when the question involves a specific historical date or whe...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -415,7 +415,7 @@ List Valuein's expert research playbooks — the step-by-step procedures a senio
 
 **Get Research Playbook (SOP)** · min plan `sample` · read-only · paging: none
 
-Load one expert research playbook by name (discover names with `list_sops`). Returns the full procedure: the ordered tool sequence, which calls to group into parallel waves, the provenance and citation rules, and the exact output structure.\n\nSupply the playbook's arguments (...
+Load one expert research playbook by name (discover names with `list_sops`). Returns the full procedure: the ordered tool sequence, which calls to group into parallel waves, the provenance and citation rules, and the exact output structure. Supply the playbook's arguments (e.g...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -428,7 +428,7 @@ Load one expert research playbook by name (discover names with `list_sops`). Ret
 
 **Verify Fact Lineage** · min plan `sample` · read-only · paging: none
 
-Use this tool when the user asks BOTH what a financial figure is AND which filing reported it — e.g. \
+Use this tool when the user asks BOTH what a financial figure is AND which filing reported it — e.g. "What was Apple's most recently reported revenue, and which 10-Q filed it?" or "Show me the accession ID for Tesla's latest net income." Returns a single fact plus its complete...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -901,7 +901,7 @@ List the caller's saved claims, most-recent-first, with AND-composed filters and
 
 **Get Claim** · min plan `sp500` · read-only · paging: none
 
-Fetch a single claim by id, plus the ids of theses it supports/refutes and its full append-only score history. Use this to inspect a claim's evidence, current status, and how its outcome has evolved.\n\nTier: all paid + free tiers (sample rejected).
+Fetch a single claim by id, plus the ids of theses it supports/refutes and its full append-only score history. Use this to inspect a claim's evidence, current status, and how its outcome has evolved. Tier: all paid + free tiers (sample rejected).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -913,7 +913,7 @@ Fetch a single claim by id, plus the ids of theses it supports/refutes and its f
 
 **Delete Claim** · min plan `sp500` · destructive · paging: none
 
-Soft-delete a claim by id. The row and its score history are preserved for audit (archived, not erased); the claim drops out of default list_claims results. Idempotent — deleting an already-archived claim succeeds.\n\nTier: all paid + free tiers (sample rejected).
+Soft-delete a claim by id. The row and its score history are preserved for audit (archived, not erased); the claim drops out of default list_claims results. Idempotent — deleting an already-archived claim succeeds. Tier: all paid + free tiers (sample rejected).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1048,7 +1048,7 @@ Persist a correction of a citation value. The correction is keyed on the canonic
 
 **List Citation Overrides** · min plan `sp500` · read-only · paging: cursor
 
-Author-only newest-first listing of the caller's citation corrections. Filterable by ticker (e.g. all AAPL corrections) or by a single fact_id (returns 0 or 1 row). Pair with `save_citation_override` and `delete_citation_override`. Sample tier rejected.\n\nAgent use: call with...
+Author-only newest-first listing of the caller's citation corrections. Filterable by ticker (e.g. all AAPL corrections) or by a single fact_id (returns 0 or 1 row). Pair with `save_citation_override` and `delete_citation_override`. Sample tier rejected. Agent use: call with `t...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1246,7 +1246,7 @@ Return new SEC filings across a set of companies since a given date. Name the co
 
 **Create Signal** · min plan `sp500` · writes · paging: none
 
-Persist a signal and register it with the firing pipeline. Five condition shapes:\n * `filing_event` — fire when a ticker files a chosen form type (8-K, 10-K, etc.).\n * `ratio_threshold` — fire when a ticker's financial ratio crosses a threshold (e.g. interest_coverage &lt; 1.5)...
+Persist a signal and register it with the firing pipeline. Five condition shapes: * `filing_event` — fire when a ticker files a chosen form type (8-K, 10-K, etc.). * `ratio_threshold` — fire when a ticker's financial ratio crosses a threshold (e.g. interest_coverage &lt; 1.5). * ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1538,7 +1538,7 @@ Fetch full detail for one of the caller's own standing-agent runs by id (from li
 
 **Save Agent** · min plan `sp500` · writes · paging: none
 
-Create or update a standing agent — a saved {goal + tickers + schedule} that fires either a fixed step recipe (agent_type=\
+Create or update a standing agent — a saved {goal + tickers + schedule} that fires either a fixed step recipe (agent_type="workflow", free/deterministic) or an AI-directed team (agent_type="autonomous", charged — settles against the owner's BYO key first, falling back to the m...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1558,7 +1558,7 @@ Create or update a standing agent — a saved {goal + tickers + schedule} that f
 
 **List Agents** · min plan `sp500` · read-only · paging: none
 
-List the caller's own standing agents (id, name, goal, tickers, agent_type, trigger config, schedule, enabled state, last/next run). Optionally filter by `agent_type` (\
+List the caller's own standing agents (id, name, goal, tickers, agent_type, trigger config, schedule, enabled state, last/next run). Optionally filter by `agent_type` ("workflow" or "autonomous"). Use get_agent for one agent's full detail, list_agent_runs for run history, or r...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1595,7 +1595,7 @@ Delete one of the caller's own standing agents by id. Undoable: `restore_deleted
 
 **Run Agent** · min plan `sp500` · writes · paging: none
 
-Fire one of the caller's own standing agents now, out of band from its schedule. For agent_type=\
+Fire one of the caller's own standing agents now, out of band from its schedule. For agent_type="autonomous" this costs money — it settles against the owner's own BYO LLM key first, falling back to the managed wallet only if funded; agent_type="workflow" runs are free/determin...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1607,7 +1607,7 @@ Fire one of the caller's own standing agents now, out of band from its schedule.
 
 **Create Research Report** · min plan `sp500` · writes · paging: none
 
-Synchronously generate a research report and persist it under the caller's authorship. Two subtypes:\n\n• `reverse_dcf` — solves the stage-1 free-cash-flow growth rate the market price implies, with a 5×5 sensitivity grid across WACC × terminal-growth assumptions. Returns full...
+Synchronously generate a research report and persist it under the caller's authorship. Two subtypes: • `reverse_dcf` — solves the stage-1 free-cash-flow growth rate the market price implies, with a 5×5 sensitivity grid across WACC × terminal-growth assumptions. Returns full ma...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1731,7 +1731,7 @@ Forward discounted-cash-flow valuation (two-stage Gordon-growth model): caller p
 
 **Forensic Audit (Beneish + Sloan + Solvency)** · min plan `sp500` · read-only · paging: none
 
-Deterministic forensic-accounting scores for a single ticker: partial Beneish M-Score, Sloan accruals, and a solvency snapshot. Returns a red-flag narrative ranked by severity, with citations to source filings. Used by the `forensic_earnings_brief` SOP.\n\nNote: full Beneish n...
+Deterministic forensic-accounting scores for a single ticker: partial Beneish M-Score, Sloan accruals, and a solvency snapshot. Returns a red-flag narrative ranked by severity, with citations to source filings. Used by the `forensic_earnings_brief` SOP. Note: full Beneish need...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1771,7 +1771,7 @@ Daily EOD bar series (OHLCV) for a company over a date range. Returns up to 252 
 
 **Point-in-Time Valuation Ratios** · min plan `pro` · read-only · paging: none
 
-Current and historical valuation multiples for a company. Omit `as_of_date` and it returns today's P/E, P/S, P/B, EV/EBITDA, EV/Revenue and FCF yield, computed from the latest EOD close and the latest TTM financials. Use it for any \
+Current and historical valuation multiples for a company. Omit `as_of_date` and it returns today's P/E, P/S, P/B, EV/EBITDA, EV/Revenue and FCF yield, computed from the latest EOD close and the latest TTM financials. Use it for any "what is X's P/E " / "how is X valued right n...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1913,7 +1913,7 @@ Author-only fetch of a specific archived version of one of your reports, by posi
 
 **Render Report Download URL** · min plan `sample` · writes · paging: none
 
-Return a 15-minute presigned download URL for a report in the requested binary format.\n\n`format=md` presigns the cached markdown — instant, no compute. `format=docx` and `format=pdf` return the SAME branded research-note design in the two media: a masthead-first page 1 (Valu...
+Return a 15-minute presigned download URL for a report in the requested binary format. `format=md` presigns the cached markdown — instant, no compute. `format=docx` and `format=pdf` return the SAME branded research-note design in the two media: a masthead-first page 1 (Valuein...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1981,7 +1981,7 @@ Delete an uploaded document before its 24h TTL. UNDOABLE: restore_deleted with k
 
 **Generate DCF Workbook (xlsx)** · min plan `pro` · writes · paging: none
 
-Render a forward DCF result into a professional Excel workbook (Summary + 5×5 Sensitivity heatmap + Inputs sheet). Native conditional formatting — no chart images needed. Returns a 15-minute presigned R2 download URL.\n\nSERVER-TRUST: the DCF is re-derived in-Worker from the s...
+Render a forward DCF result into a professional Excel workbook (Summary + 5×5 Sensitivity heatmap + Inputs sheet). Native conditional formatting — no chart images needed. Returns a 15-minute presigned R2 download URL. SERVER-TRUST: the DCF is re-derived in-Worker from the supp...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -2029,7 +2029,7 @@ Render a peer comparables table into an Excel workbook. The Comps sheet is forma
 
 **Generate LBO Workbook (xlsx)** · min plan `pro` · writes · paging: none
 
-Render an LBO result into a professional Excel workbook (Summary + year-by-year Projection table + Inputs sheet). Returns a 15-minute presigned R2 download URL.\n\nSERVER-TRUST: the deal is re-derived in-Worker from the supplied `lbo_result.inputs_echo` (the math is pure + det...
+Render an LBO result into a professional Excel workbook (Summary + year-by-year Projection table + Inputs sheet). Returns a 15-minute presigned R2 download URL. SERVER-TRUST: the deal is re-derived in-Worker from the supplied `lbo_result.inputs_echo` (the math is pure + determ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -2055,7 +2055,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.7.2); 39 prompts._
+_Generated from the MCP server manifest (v3.7.4); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2107,7 +2107,7 @@ _Generated from the MCP server manifest (v3.7.2); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.7.2); 3 resources._
+_Generated from the MCP server manifest (v3.7.4); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
