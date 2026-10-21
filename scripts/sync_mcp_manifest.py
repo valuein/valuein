@@ -46,11 +46,12 @@ contract that does, refuses the run (exit 3) rather than publish a broken page.
 
 Source resolution order:
 1. `MCP_MANIFEST_PATH` env var — an explicit local manifest file (highest)
-2. Sibling local checkout (`~/WebstormProjects/mcp/manifest.json`) — for dev
-3. Override via `MCP_MANIFEST_URL` env var
-4. Default: https://mcp.valuein.biz/manifest.json (served by the deployed Worker;
+2. Override via `MCP_MANIFEST_URL` env var
+3. Default: https://mcp.valuein.biz/manifest.json (served by the deployed Worker;
    the `valuein/mcp` GitHub repo is private, so the raw.githubusercontent URL
    would 404 in CI)
+There is deliberately no sibling-checkout fallback: a stale local mcp checkout
+would silently regenerate the docs from an old manifest.
 
 Usage:
   uv run python scripts/sync_mcp_manifest.py            # write changes
@@ -75,7 +76,6 @@ MCP_TOOLS_DOC = REPO_ROOT / "docs" / "MCP_TOOLS.md"
 AGENTS_DOC = REPO_ROOT / "AGENTS.md"
 
 DEFAULT_MANIFEST_URL = "https://mcp.valuein.biz/manifest.json"
-LOCAL_MCP = REPO_ROOT.parent.parent / "WebstormProjects" / "mcp" / "manifest.json"
 
 # Tools that are deliberately hidden until the paid report marketplace launches.
 # The publish guard refuses any manifest that lists one of these, whatever its
@@ -112,7 +112,7 @@ def load_manifest() -> dict:
 
     Raises:
         FileNotFoundError: If `MCP_MANIFEST_PATH` names a file that does not exist.
-        RuntimeError: If neither the local sibling nor the URL is reachable.
+        URLError: If the manifest URL is unreachable.
     """
     explicit = os.environ.get("MCP_MANIFEST_PATH", "").strip()
     if explicit:
@@ -121,9 +121,6 @@ def load_manifest() -> dict:
             raise FileNotFoundError(f"MCP_MANIFEST_PATH={explicit} is not a file")
         print(f"  source: {path}")
         return json.loads(path.read_text())
-    if LOCAL_MCP.exists():
-        print(f"  source: {LOCAL_MCP}")
-        return json.loads(LOCAL_MCP.read_text())
     url = os.environ.get("MCP_MANIFEST_URL", DEFAULT_MANIFEST_URL)
     print(f"  source: {url}")
     req = Request(url, headers={"User-Agent": "valuein-sync-mcp-manifest/1.0"})

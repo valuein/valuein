@@ -15,6 +15,7 @@ scans it); they are taken from ``sync.IP_DENYLIST_ALTERNATION``.
 from __future__ import annotations
 
 import copy
+import io
 import json
 from pathlib import Path
 from typing import Any
@@ -453,14 +454,11 @@ def test_a_denylisted_name_in_the_agent_contract_refuses_rather_than_redacts(
 # ── manifest source: MCP_MANIFEST_PATH wins ──────────────────────────────────
 
 
-def test_manifest_path_env_beats_the_sibling_checkout(
+def test_manifest_path_env_beats_the_url(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     explicit = tmp_path / "explicit.json"
-    sibling = tmp_path / "sibling.json"
     explicit.write_text(json.dumps({"version": "9.9.9"}))
-    sibling.write_text(json.dumps({"version": "0.0.1"}))
-    monkeypatch.setattr(sync, "LOCAL_MCP", sibling)
     monkeypatch.setenv("MCP_MANIFEST_PATH", str(explicit))
     monkeypatch.setenv("MCP_MANIFEST_URL", "http://127.0.0.1:9/never-fetched")
     assert sync.load_manifest() == {"version": "9.9.9"}
@@ -474,11 +472,19 @@ def test_manifest_path_env_naming_a_missing_file_fails(
         sync.load_manifest()
 
 
-def test_without_the_env_the_sibling_checkout_is_used(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+def test_without_the_env_the_deployed_url_is_used_never_a_local_checkout(
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    sibling = tmp_path / "sibling.json"
-    sibling.write_text(json.dumps({"version": "0.0.1"}))
-    monkeypatch.setattr(sync, "LOCAL_MCP", sibling)
+    """A stale sibling mcp checkout must never win over the deployed manifest."""
+    assert not hasattr(sync, "LOCAL_MCP")
+    seen: list[str] = []
+
+    def fake_urlopen(req: object, timeout: float) -> io.BytesIO:
+        seen.append(req.full_url)  # type: ignore[attr-defined]
+        return io.BytesIO(json.dumps({"version": "3.7.4"}).encode())
+
     monkeypatch.delenv("MCP_MANIFEST_PATH", raising=False)
-    assert sync.load_manifest() == {"version": "0.0.1"}
+    monkeypatch.delenv("MCP_MANIFEST_URL", raising=False)
+    monkeypatch.setattr(sync, "urlopen", fake_urlopen)
+    assert sync.load_manifest() == {"version": "3.7.4"}
+    assert seen == [sync.DEFAULT_MANIFEST_URL]
