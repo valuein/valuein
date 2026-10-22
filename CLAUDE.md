@@ -8,14 +8,14 @@ Public hub of Valuein: docs, examples, notebooks, MCP-registry manifest; no SDK,
 
 | Touching | Read first |
 |---|---|
-| `server.json`, README `GEN:mcp-summary` block, registry publish | header comments of `.github/workflows/sync-mcp-manifest.yml` + `publish-mcp.yml`; docstrings of `scripts/sync_mcp_manifest.py`, `scripts/check_registry_sync.py` |
+| `server.json`, any `GEN:` block (README `mcp-summary`; `docs/MCP_TOOLS.md` `agent-contract` / `mcp-tool-reference` / `mcp-prompts` / `mcp-resources`; AGENTS.md `agent-contract`), registry publish | header comments of `.github/workflows/sync-mcp-manifest.yml` + `publish-mcp.yml`; docstrings of `scripts/sync_mcp_manifest.py`, `scripts/check_registry_sync.py` |
 | A public number or accuracy claim, `docs/accuracy/*` | `docs/accuracy/README.md`, `docs/accuracy/baseline.json` (`_definition`, `measured_at`) |
 | An example or notebook | `CONTRIBUTING.md` "Examples — contribution rules", `docs/QUERY_COOKBOOK.md` |
 | `docs/schema.json`, the data catalog | `scripts/generate_catalog.py` docstring; `data-pipeline:parquet_schema.py` (authoritative) |
 
 ## Stack & layout
 
-- Docs, examples and CI only: no pyproject, no app code; `tests/` holds only the publish guard.
+- Docs, examples and CI only: no pyproject, no app code; `tests/` holds only the publish guard and the generated-docs rendering tests.
 - `README.md` · `AGENTS.md` · `CONTRIBUTING.md` · `docs/` (guides, `schema.json`, data catalog, `accuracy/`, `arelle_config/` XBRL tool config) · `examples/python/` + `examples/notebooks/` · `scripts/` · `server.json`.
 - Four channels, one Bearer token: SDK (PyPI `valuein-sdk`), MCP, Bulk Data API, web dashboard (no Excel/Power Query channel). Plans, prices, limits: `cloudflare:shared/plans.ts`, live `https://data.valuein.biz/v1/plans`; never copy them.
 
@@ -26,7 +26,8 @@ Public hub of Valuein: docs, examples, notebooks, MCP-registry manifest; no SDK,
 uv run ruff check examples/ scripts/ --fix --line-length 100 && uv run ruff format examples/ scripts/ --line-length 100
 uv run --with 'pytest>=8,<10' pytest tests -q            # publish guard, as in CI
 uv run python scripts/generate_catalog.py                # network; rewrites docs/data_catalog.{md,json} + DATA_CATALOG.xlsx
-uv run python scripts/sync_mcp_manifest.py --check       # exit 1 stale, 3 publish guard refused
+uv run python scripts/sync_mcp_manifest.py --check       # exit 1 stale, 3 publish guard refused, 4 manifest lacks agent contract
+MCP_MANIFEST_PATH=/path/to/manifest.json uv run python scripts/sync_mcp_manifest.py   # render from an explicit file (beats the sibling + URL)
 uv run python scripts/check_registry_sync.py --check     # exit 1 registry drift, 2 indeterminate
 ```
 
@@ -35,10 +36,12 @@ uv run python scripts/check_registry_sync.py --check     # exit 1 registry drift
 - Branch `feat|fix|docs/short-description` from `main`, PR to `main`, squash merge, conventional commits; never push to `main` (only the sync bot does). There is no deploy: a merge is public at once and the registry publish is the only release.
 - `.github/workflows/doc-integrity.yml` (every push/PR, `workflow_dispatch`):
   - IP-leak: greps EVERY tracked file for the proprietary-signal denylist `factor_scores|earnings_signals|composite_rank|eps_trend_est`; only lines quoting that exact string are exempt (the published tool `get_earnings_signals` passes). ⚠️ Never regenerate `docs/schema.json` wholesale from `data-pipeline:parquet_schema.py` (the gate says so).
+  - Generated-docs drift (`mcp-docs-in-sync` job): `sync_mcp_manifest.py --check` against the live manifest; any byte of a `GEN:` block (or `server.json`) that differs fails. Right after an MCP deploy it is red until the dispatched sync lands on `main`: rebase.
   - Accuracy drift: any `NN.NN%` (two decimals, 50 to 100) in `README.md` or `docs/accuracy/*.{md,json}` must sit within 1 pt of `baseline.json` `overall`, `modern_2010_onward` or `unstandardized_facts` (pre-2010 is deliberately excluded). Whole-number percents are not checked: cite the file.
-- `server.json` is bot-written: `sync-mcp-manifest.yml` (cron 03:00 UTC, `repository_dispatch` `mcp-manifest-updated` from the MCP prod deploy, `workflow_dispatch`) rewrites `version`, `tools_summary` and the README block from `https://mcp.valuein.biz/manifest.json`. ⚠️ Never hand-edit them: a registry version is immutable (a second publish is rejected), and a hand bump falsely claims what is deployed. ⚠️ A local `sync_mcp_manifest.py` run prefers a sibling `~/WebstormProjects/mcp/manifest.json` over the live manifest (`load_manifest`): never commit its output.
+- `server.json` and every `GEN:` block are bot-written: `sync-mcp-manifest.yml` (cron 03:00 UTC, `repository_dispatch` `mcp-manifest-updated` from the MCP prod deploy, `workflow_dispatch`) rewrites `version`, `tools_summary`, the README block, the `docs/MCP_TOOLS.md` blocks (agent contract verbatim from `agent_contract.markdown`; per-tool `inputs`, `output_fields`, `paging`) and the AGENTS.md agent-contract block from `https://mcp.valuein.biz/manifest.json`. A manifest without those fields exits 4 and writes nothing. Hand prose outside the markers is free; a schema claim (an input, a return shape, an error code, paging) belongs in the generated blocks only. ⚠️ Never hand-edit them: a registry version is immutable (a second publish is rejected), and a hand bump falsely claims what is deployed. ⚠️ `sync_mcp_manifest.py` reads the live manifest unless `MCP_MANIFEST_PATH` names a file (`load_manifest`; no sibling-checkout fallback, so a stale local mcp tree can't leak in): never commit a `server.json` rendered from anything but the deployed version.
 - ⚠️ A `GITHUB_TOKEN` push never fires `publish-mcp.yml`'s `push` trigger, so the sync calls it via `workflow_call` with the pushed SHA, only when `check_registry_sync.py` reports the registry stale. Never gate publishing on a repo diff: after one failed publish nothing diffs and publishing is skipped forever. Drift is registry vs live Worker, never file vs Worker.
-- Publish guard (`doc-integrity.yml` runs `pytest tests`; `tests/test_sync_mcp_manifest.py`): `HIDDEN_TOOLS` in `scripts/sync_mcp_manifest.py`: a manifest listing one (any status), unjudgeable counts, or a `server.json` naming one exits 3 and writes nothing. Remove a name only when that tool ships.
+- Publish guard (`doc-integrity.yml` runs `pytest tests`; `tests/test_sync_mcp_manifest.py`, `tests/test_mcp_docs_render.py`): `HIDDEN_TOOLS` in `scripts/sync_mcp_manifest.py`: a manifest listing one (any status), unjudgeable counts, a `server.json` naming one, or a rendered `GEN:` block / `docs/MCP_TOOLS.md` naming one exits 3 and writes nothing. Remove a name only when that tool ships.
+- IP redaction in the generated docs (`IP_DENYLIST_ALTERNATION`, `redact` in `scripts/sync_mcp_manifest.py`): an identifier carrying a denylisted name in a tool/prompt/resource description, enum value, default or output field renders as `[withheld]`; a denylisted tool or input name, or one inside `agent_contract.markdown` (embedded verbatim, never redacted), exits 3. Never widen the gate to make a render pass.
 
 ## Accuracy and data claims
 

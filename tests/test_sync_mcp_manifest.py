@@ -3,82 +3,27 @@
 The guard refuses to sync or publish a manifest that exposes a tool which is
 deliberately hidden until its launch, and fails closed on a manifest it cannot
 judge. Everything here is offline: manifests are passed in directly and the
-script's file paths are redirected into a temporary directory.
+script's file paths are redirected into a temporary directory (the ``repo``
+fixture in ``conftest.py``). The generated-docs rendering is covered in
+``test_mcp_docs_render.py``.
 """
 
 from __future__ import annotations
 
-import copy
 import json
-import sys
 from pathlib import Path
 from typing import Any
 
 import pytest
-
-SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "scripts"
-sys.path.insert(0, str(SCRIPTS_DIR))
-
 import sync_mcp_manifest as sync
-
-HIDDEN = ("purchase_report", "list_my_purchases", "connect_stripe_account")
-
-SERVER_JSON_TEXT = """{
-  "name": "io.github.valuein/mcp-sec-edgar",
-  "version": "1.0.0",
-  "tools_summary": {
-    "live": 1,
-    "stubs": 0,
-    "prompts": 1,
-    "resources": 1
-  }
-}
-"""
-
-README_TEXT = "# Hub\n\n<!-- GEN:mcp-summary -->\nstale\n<!-- /GEN:mcp-summary -->\n"
-
-
-def clean_manifest() -> dict[str, Any]:
-    """Return a small, valid manifest with no hidden tools."""
-    return {
-        "version": "2.0.0",
-        "counts": {"tools": 2, "tools_live": 2, "tools_stub": 0, "prompts": 3, "resources": 3},
-        "tools": [
-            {"name": "search_companies", "status": "live", "min_plan": "sample"},
-            {"name": "get_company_fundamentals", "status": "live", "min_plan": "sample"},
-        ],
-    }
-
-
-def with_tool(manifest: dict[str, Any], name: str, status: str = "live") -> dict[str, Any]:
-    """Return a copy of ``manifest`` with one more tool, keeping counts consistent if live."""
-    out = copy.deepcopy(manifest)
-    out["tools"].append({"name": name, "status": status, "min_plan": "pro"})
-    out["counts"]["tools"] += 1
-    if status == "live":
-        out["counts"]["tools_live"] += 1
-    elif status == "stub":
-        out["counts"]["tools_stub"] += 1
-    return out
-
-
-@pytest.fixture
-def repo(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Path]:
-    """Point the script at a throwaway server.json and README, with no local sibling checkout."""
-    server_json = tmp_path / "server.json"
-    readme = tmp_path / "README.md"
-    server_json.write_text(SERVER_JSON_TEXT)
-    readme.write_text(README_TEXT)
-    monkeypatch.setattr(sync, "SERVER_JSON", server_json)
-    monkeypatch.setattr(sync, "README", readme)
-    return {"server_json": server_json, "readme": readme}
-
-
-def run_main(monkeypatch: pytest.MonkeyPatch, manifest: Any, argv: list[str]) -> int:
-    """Run ``main`` against an in-memory manifest instead of the network."""
-    monkeypatch.setattr(sync, "load_manifest", lambda: manifest)
-    return sync.main(argv)
-
+from manifest_fixtures import (
+    HIDDEN,
+    SERVER_JSON_TEXT,
+    assert_untouched,
+    clean_manifest,
+    run_main,
+    with_tool,
+)
 
 # ── the constant ─────────────────────────────────────────────────────────────
 
@@ -264,7 +209,7 @@ def test_main_refuses_a_hidden_tool_in_both_modes(
     assert code == sync.EXIT_GUARD_REFUSED
     assert name in capsys.readouterr().err
     assert repo["server_json"].read_text() == SERVER_JSON_TEXT
-    assert repo["readme"].read_text() == README_TEXT
+    assert_untouched(repo)
 
 
 @pytest.mark.parametrize("argv", [[], ["--check"]])
@@ -275,7 +220,7 @@ def test_main_fails_closed_on_a_malformed_manifest_and_writes_nothing(
     manifest["tools"] = []
     assert run_main(monkeypatch, manifest, argv) == sync.EXIT_GUARD_REFUSED
     assert repo["server_json"].read_text() == SERVER_JSON_TEXT
-    assert repo["readme"].read_text() == README_TEXT
+    assert_untouched(repo)
 
 
 @pytest.mark.parametrize("argv", [[], ["--check"]])
@@ -290,7 +235,7 @@ def test_main_refuses_when_server_json_contains_a_hidden_name(
     assert run_main(monkeypatch, clean_manifest(), argv) == sync.EXIT_GUARD_REFUSED
     assert "purchase_report" in capsys.readouterr().err
     assert repo["server_json"].read_text() == dirty
-    assert repo["readme"].read_text() == README_TEXT
+    assert_untouched(repo)
 
 
 def test_main_write_mode_still_syncs_a_clean_manifest(

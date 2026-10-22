@@ -6,7 +6,7 @@
 
 ## Purpose
 
-`github.com/valuein/valuein` is the public-facing docs, examples, and MCP-registry manifest for Valuein — the landing page a prospective user hits from PyPI, Smithery, or a Show HN post. Its readers are analysts, quants, AI agents and integrators learning what Valuein ships, plus the public MCP registry, which is fed from `server.json`. It contains no SDK, no MCP server, no pipeline and no product tests (only the publish-guard tests in `tests/`) — those live in sibling repos, and this hub only documents what they have already shipped.
+`github.com/valuein/valuein` is the public-facing docs, examples, and MCP-registry manifest for Valuein — the landing page a prospective user hits from PyPI, Smithery, or a Show HN post. Its readers are analysts, quants, AI agents and integrators learning what Valuein ships, plus the public MCP registry, which is fed from `server.json`. It contains no SDK, no MCP server, no pipeline and no product tests (only the publish-guard and docs-rendering tests in `tests/`) — those live in sibling repos, and this hub only documents what they have already shipped.
 
 ## Goals
 
@@ -14,6 +14,7 @@
 |---|---|---|
 | Be the front door: a reader gets from landing page to live data without a token | `README.md` quickstart; every example runs on the sample tier with no API key | `uv run python examples/python/getting_started.py` |
 | Examples double as the smoke test for the published SDK | Standalone `examples/python/*.py` that `import valuein_sdk`; most pair with a numbered notebook in `examples/notebooks/` (index: `examples/README.md`) | `getting_started.py` runs clean on the sample tier → the SDK release is healthy |
+| The public MCP docs say exactly what the live server does (tool inputs, outputs, paging, error contract) | `scripts/sync_mcp_manifest.py` renders the `GEN:` blocks of `docs/MCP_TOOLS.md` and `AGENTS.md` from the live manifest; `doc-integrity.yml` runs `--check` on every push and PR | `uv run python scripts/sync_mcp_manifest.py --check` |
 | The public MCP registry advertises exactly the version production serves | `sync-mcp-manifest.yml` rewrites `server.json` from the live Worker manifest; `publish-mcp.yml` verifies the registry serves it | `uv run python scripts/check_registry_sync.py --check` |
 | Tools hidden until their launch never reach the registry | The publish guard in `scripts/sync_mcp_manifest.py` (`HIDDEN_TOOLS`) refuses the sync and the publish, exit 3, nothing written | `uv run --with pytest pytest tests -q` |
 | Public docs never leak proprietary signal names or inflate accuracy | `doc-integrity.yml` IP-leak gate + accuracy-drift gate on every push and PR | The workflow run; `docs/accuracy/baseline.json` |
@@ -78,7 +79,7 @@ flowchart LR
 | `examples/python/` | Standalone scripts that `import valuein_sdk`, one concept each, sample tier, no token | The SDK publishes a new public method or template — add an example that exercises it |
 | `examples/notebooks/` | `NN_`-numbered learning path, committed with outputs executed on the sample tier (Colab-ready) | The paired script changes — same PR |
 | `scripts/generate_catalog.py` | Catalog generator: concept names come from the live manifest, ratios are the inline `RATIOS` | A ratio changes, or an upstream concept change is live in the manifest (re-run it) |
-| `scripts/sync_mcp_manifest.py` · `scripts/check_registry_sync.py` | The bot's rewrite step, and the registry-vs-live-Worker drift check (`--check`: exit 1 drift, 2 indeterminate) | Diagnosing registry drift; the Worker manifest shape changes |
+| `scripts/sync_mcp_manifest.py` · `scripts/check_registry_sync.py` | The bot's rewrite step (server.json, README summary, the generated MCP docs blocks; `--check`: exit 1 stale, 3 guard refused, 4 manifest lacks the agent contract), and the registry-vs-live-Worker drift check (`--check`: exit 1 drift, 2 indeterminate) | Diagnosing registry or docs drift; the Worker manifest shape changes |
 | `server.json` | MCP registry manifest: `io.github.valuein/mcp-sec-edgar` at `https://mcp.valuein.biz/mcp` | Never by hand — written by `sync-mcp-manifest.yml` |
 | `.github/workflows/` · `.github/ISSUE_TEMPLATE/` | The three workflows below; issue forms for data-quality report, feature request, outage, question | A gate or the publishing flow changes; support intake changes |
 
@@ -86,8 +87,8 @@ flowchart LR
 
 | Workflow | Trigger | What it does |
 |---|---|---|
-| Doc integrity (`doc-integrity.yml`) | every `push` and `pull_request`; `workflow_dispatch` | IP-leak gate (greps every tracked file for scrubbed signal names) + accuracy-drift gate (`README.md`, `docs/accuracy/*`) against `docs/accuracy/baseline.json` + publish-guard tests (`tests/`) |
-| Sync MCP manifest (`sync-mcp-manifest.yml`) | `repository_dispatch` `mcp-manifest-updated` from a Worker prod deploy; cron 03:00 UTC nightly (backstop); `workflow_dispatch` | Rewrites `server.json` + README counts from the live Worker manifest, commits to `main`, calls the publish workflow when the registry is stale; refuses (exit 3, nothing written) if the manifest exposes a hidden tool or cannot be judged |
+| Doc integrity (`doc-integrity.yml`) | every `push` and `pull_request`; `workflow_dispatch` | IP-leak gate (greps every tracked file for scrubbed signal names) + accuracy-drift gate (`README.md`, `docs/accuracy/*`) against `docs/accuracy/baseline.json` + publish-guard and docs-rendering tests (`tests/`) + generated-docs drift (`sync_mcp_manifest.py --check` against the live manifest) |
+| Sync MCP manifest (`sync-mcp-manifest.yml`) | `repository_dispatch` `mcp-manifest-updated` from a Worker prod deploy; cron 03:00 UTC nightly (backstop); `workflow_dispatch` | Rewrites `server.json`, README counts and the generated MCP docs blocks (`docs/MCP_TOOLS.md`, `AGENTS.md`) from the live Worker manifest, commits to `main`, calls the publish workflow when the registry is stale; refuses (exit 3, nothing written) if the manifest exposes a hidden tool or cannot be judged, and (exit 4) if it lacks the agent-contract fields |
 | Publish to MCP Registry (`publish-mcp.yml`) | `workflow_call` from the sync (normal path); `push` to `main` touching `server.json` (human fallback); `workflow_dispatch` | Runs the same guard first (exit 3 stops the job), installs `mcp-publisher`, logs in via OIDC, publishes `server.json`, then verifies the registry serves that version; runs are serialised because registry versions are immutable |
 
 All three are runnable by hand via `workflow_dispatch`.
@@ -98,7 +99,7 @@ All three are runnable by hand via `workflow_dispatch`.
 - Never bump or hand-edit `server.json`, and never gate its publish on a review: the bot writes version and counts from the live Worker manifest, and a hand edit races it on an immutable registry version.
 - Never reintroduce a scrubbed proprietary signal name in any tracked file — the IP-leak gate fails the build. This repo is PUBLIC: nothing internal or unannounced, and never link the private repos.
 - Never hardcode an accuracy percentage that is not taken from the current `docs/accuracy/baseline.json` — the accuracy-drift gate fails the build.
-- No source code, no product tests (only `tests/` for the publish guard), no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
+- No source code, no product tests (only `tests/` for the publish guard and the docs rendering), no `pyproject.toml` here — SDK, MCP, pipeline and infrastructure changes go to the sibling repos first, then propagate here.
 - Examples: scripts `snake_case.py`, notebooks `NN_snake_case.ipynb`; scripts under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; a script and its paired notebook change in the same PR.
 - No CUSIPs anywhere (licensing risk) — use FIGI and LEI; `concept_mapping` is internal and never shown.
 - Always `uv run python …`, never bare `python`; run `ruff` check + format on `examples/` and `scripts/` before a PR.
@@ -112,7 +113,8 @@ All three are runnable by hand via `workflow_dispatch`.
 | Any `NN.NN%` in `README.md` or `docs/accuracy/*` | `doc-integrity.yml` — the figure must come from `docs/accuracy/baseline.json`, which is regenerated from a production run outside this repo |
 | `docs/schema.json` (path or contents) | The published URL agents fetch (`…/raw/main/docs/schema.json`); the SDK and MCP read the live R2 manifest at runtime, so a stale copy here misleads readers, not code |
 | An example's SDK calling convention (`run_template` kwargs-only, `run_query`) | Nothing here tests it — the SDK's own suite pins the convention, and a broken example is a broken smoke test for every new user |
-| What `scripts/sync_mcp_manifest.py` expects of the Worker's `manifest.json` | The nightly and dispatched sync — a missed dispatch is covered by the cron, a changed manifest shape is not |
+| What `scripts/sync_mcp_manifest.py` expects of the Worker's `manifest.json` (`agent_contract.markdown`; per tool `inputs`, `output_fields`, `paging`) | The nightly and dispatched sync and every PR's `mcp-docs-in-sync` check — a missed dispatch is covered by the cron, a changed manifest shape fails loudly (exit 4) until the script follows |
+| A hand edit inside a `GEN:` block of `docs/MCP_TOOLS.md` or `AGENTS.md` | `mcp-docs-in-sync` fails the PR, and the next sync overwrites the edit |
 
 ## Read next
 

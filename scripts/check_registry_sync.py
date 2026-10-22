@@ -74,13 +74,11 @@ SERVER_JSON = REPO_ROOT / "server.json"
 DEFAULT_REGISTRY_URL = "https://registry.modelcontextprotocol.io"
 REGISTRY_URL = os.environ.get("MCP_REGISTRY_URL", DEFAULT_REGISTRY_URL)
 
-# Deliberately NOT `sync_mcp_manifest.load_manifest`, whose resolution order
-# prefers a local `~/WebstormProjects/mcp/manifest.json` sibling checkout when
-# one exists. That precedence is right for the SYNC (a developer wants to sync
-# against the tree they are editing) and wrong here: comparing the published
-# registry against a file on someone's laptop answers a different question than
-# the one this script exists to ask. "Live" has to mean the deployed Worker, so
-# this always goes over the wire — in CI and locally alike.
+# Deliberately NOT `sync_mcp_manifest.load_manifest`, which honours an explicit
+# `MCP_MANIFEST_PATH` override. Comparing the published registry against a local
+# file answers a different question than the one this script exists to ask.
+# "Live" has to mean the deployed Worker, so this always goes over the wire — in
+# CI and locally alike.
 DEFAULT_MANIFEST_URL = "https://mcp.valuein.biz/manifest.json"
 MANIFEST_URL = os.environ.get("MCP_MANIFEST_URL", DEFAULT_MANIFEST_URL)
 

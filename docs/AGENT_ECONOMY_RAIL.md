@@ -128,9 +128,10 @@ request; the data arrives inline.
 This is the flow any standards-compliant MPP client speaks natively — including
 Stripe's own `link-cli mpp pay` — with no Valuein-specific code.
 
-*(A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with
-`remediation.options[]` is still what an MCP **tool call** returns when it hits a
-limit — it tells the agent the price and points it here.)*
+*(A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` error with
+`extensions.remediation.options[]` is still what an MCP **tool call** returns when
+it hits a limit — it tells the agent the price and points it here. How to read a
+tool error: the agent contract in [`MCP_TOOLS.md`](MCP_TOOLS.md#reading-tool-results-errors-and-paging).)*
 
 ---
 
@@ -144,7 +145,7 @@ Base host: **`https://api.valuein.biz`**. Data + tools: **`https://mcp.valuein.b
 | **⭐ Discover what you can buy** | `GET /api/mpp/tools` | Unauthenticated. The **payable menu**: every per-call tool with its price, meter, and unit, priced through the same path as the real `402`. Call it once and you know the whole rate card — no probing. Tools not listed are free (call the MCP directly) or subscription-only. |
 | **⭐ Pay-per-call (canonical MPP)** | `POST /api/mpp/call` | **Use this.** Standard MPP: unpaid → `402` + `WWW-Authenticate: Payment …`; pay and **retry the same URL** with `Authorization: Payment <credential>` → `200` with the tool result **inline**. Guest-capable. Works with any MPP client, including `link-cli mpp pay`. Body is `{"tool":…,"arguments":{…}}` (`args`/`params` accepted as aliases). Ask for a free or subscription-only tool and you get a precise, actionable error — not a lumped one. |
 | **Receipt — "did I pay?"** | `GET /api/mpp/receipt?nonce=…` | Unauthenticated (the nonce is your secret). Answers `charged` (with the charge id), `not_charged` (with the reason), or `404` = you were not charged. Use it when a response is lost — do not guess, and do not retry a burned challenge. |
-| **Paywall signal (MCP tools)** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` envelope with `remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
+| **Paywall signal (MCP tools)** | the MCP tool response itself | A structured `LIMIT_EXCEEDED` / `ENTITLEMENT_DENIED` error (`isError: true`, the JSON in `content[0].text`) with `extensions.remediation.options[]` — not a bare HTTP 402. Surfaced as a hard error or a soft `_meta.limit_warnings[]`. |
 | **Quote (our 2-step rail, guest-OK)** | `GET /api/mpp/quote?tool=…&tier=pro\|full` | Returns `{ amount_usd, amount_usdc, nonce, accept[], expires_at, … }`. Amounts in **dollars**. No `quote_id` — correlate by `nonce`. |
 | **Pay (our 2-step rail)** | `POST /api/mpp/charge` | Auth **is** the base64url `Payment:` header (guest-capable). Returns a `retry_token` you then present to the MCP. |
 | **Pay (legacy PAYG, Bearer, two-step)** | `POST /api/payg/quote` → `POST /api/payg/confirm` | Requires a Bearer token; `confirm` takes the `payment_method_id` to charge (no card is charged without it) and returns the `retry_token`. Being sunset in favor of MPP (RFC 8594 `Sunset: 2026-11-10`). |

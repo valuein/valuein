@@ -50,7 +50,7 @@ There is no `pyproject.toml`, no test suite, and no build step in this repo. The
 | New Jupyter notebook | [`examples/notebooks/`](examples/notebooks/) | Mirror an existing Python script — same name, same content |
 | New query recipe | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | Add to the right section, include `Use when:` and `Why:` |
 | Doc fix / clarification | [`docs/`](docs/) | Just open a PR |
-| New MCP-tool walkthrough | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Show input → output for one real tool |
+| New MCP-tool walkthrough | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Prose outside the `GEN` markers only; the per-tool reference is generated from the live manifest |
 | Catalog change | [`scripts/generate_catalog.py`](scripts/generate_catalog.py) | Update `CONCEPTS`, run the generator, commit the regenerated md/json/xlsx |
 
 ---
@@ -113,7 +113,7 @@ If your change is conceptually about…
 | Concern | Lives in | What this repo does |
 |---|---|---|
 | SDK internals (`ValueinClient`, transport, alpha factors, SQL templates) | The SDK repo (private) | Mirrors the public surface in examples and docs |
-| MCP worker code (tool implementations, auth, R2 access) | The MCP repo (private) | Hosts `server.json` (registry manifest) and `docs/MCP_TOOLS.md` |
+| MCP worker code (tool implementations, auth, R2 access) | The MCP repo (private) | This repo hosts `server.json` (registry manifest) and `docs/MCP_TOOLS.md`, both generated from the live manifest |
 | `fact.standard_concept` definitions | The data-pipeline repo (private) | Mirrors the canonical concept list in `scripts/generate_catalog.py` |
 | Cloudflare workers (gateway, Stripe webhook) | The infra repo (private) | None — config changes are invisible from the outside |
 | Frontend / dashboard | [`frontend`](https://github.com/valuein/frontend) | None |
