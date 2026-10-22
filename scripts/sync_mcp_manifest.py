@@ -57,19 +57,27 @@ Usage:
   uv run python scripts/sync_mcp_manifest.py            # write changes
   uv run python scripts/sync_mcp_manifest.py --check    # exit 1 stale, 3 guard refused,
                                                         # 4 agent-contract fields missing
+  uv run python scripts/sync_mcp_manifest.py --check --base origin/main
+      # a PR or branch: drift fails only when this change edits the generator;
+      # drift from an MCP deploy is reported and left to sync-mcp-manifest.yml
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 from urllib.request import Request, urlopen
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+# This script. A change that edits it owns the drift its new output shows (see
+# `change_owns_drift`); any other drift is the sync bot's to commit.
+GENERATOR = Path(__file__).resolve()
 SERVER_JSON = REPO_ROOT / "server.json"
 README = REPO_ROOT / "README.md"
 MCP_TOOLS_DOC = REPO_ROOT / "docs" / "MCP_TOOLS.md"
@@ -729,6 +737,106 @@ def _refuse(problems: list[str], code: int, headline: str) -> int:
     return code
 
 
+# Every file this script writes, repo-relative; `change_owns_drift` compares
+# their generated regions (`_generated_regions`) with the change's base.
+GENERATED_FILES = ("server.json", "README.md", "docs/MCP_TOOLS.md", "AGENTS.md")
+_GEN_SPAN = re.compile(r"<!-- GEN:([\w-]+) -->.*?<!-- /GEN:\1 -->", re.DOTALL)
+
+
+def _generated_regions(rel_path: str, text: str | None) -> list[str]:
+    """The parts of a written file this script owns: GEN spans, or server.json's synced fields.
+
+    Args:
+        rel_path: Repo-relative path of one of `GENERATED_FILES`.
+        text: The file's content, or None when it does not exist at that commit.
+
+    Returns:
+        The owned regions in file order (`["<absent>"]` for a missing file).
+    """
+    if text is None:
+        return ["<absent>"]
+    if rel_path == "server.json":
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            return [text]
+        return [json.dumps([data.get("version"), data.get("tools_summary")], sort_keys=True)]
+    return [match.group(0) for match in _GEN_SPAN.finditer(text)]
+
+
+def _git(*args: str) -> subprocess.CompletedProcess[str]:
+    """Run git in the repo root, capturing output (never raises on a non-zero exit)."""
+    return subprocess.run(
+        ["git", *args], check=False, cwd=REPO_ROOT, capture_output=True, text=True
+    )
+
+
+def change_owns_drift(base: str) -> bool:
+    """Whether the change since its merge base with `base` caused the drift `--check` sees.
+
+    It does when it edits the generator (it must ship what the new generator
+    renders, so a reviewer sees the public output) or hand-edits a generated
+    region (the next sync would silently revert it). A deploy of the MCP server
+    is neither: that drift is the sync bot's. Prose outside the GEN markers and
+    server.json fields the sync does not write are free. The merge base, not
+    `base`'s tip, so a change that landed on `base` after the branch was cut is
+    not the branch's. Fails closed: when git cannot answer (unknown ref, shallow
+    clone) the change is treated as owning the drift.
+
+    Args:
+        base: The ref the change will merge into, e.g. `origin/main`.
+
+    Returns:
+        True when the change owns the drift (or git could not tell), else False.
+    """
+    try:
+        merge_base = _git("merge-base", base, "HEAD")
+        if merge_base.returncode != 0:
+            print(
+                f"  ⚠ no merge base with {base} ({merge_base.stderr.strip()}); treating the drift as this change's"
+            )
+            return True
+        sha = merge_base.stdout.strip()
+        generator = str(GENERATOR.relative_to(REPO_ROOT))
+        diff = _git("diff", "--quiet", sha, "HEAD", "--", generator)
+        if diff.returncode not in (0, 1):
+            print(
+                f"  ⚠ git diff against {base} failed ({diff.stderr.strip()}); treating the drift as this change's"
+            )
+            return True
+        if diff.returncode == 1:
+            print(f"  this change edits {generator}: it must carry the output it renders")
+            return True
+        for rel_path in GENERATED_FILES:
+            before, after = (_git("show", f"{ref}:{rel_path}") for ref in (sha, "HEAD"))
+            if _generated_regions(rel_path, before.stdout if before.returncode == 0 else None) != (
+                _generated_regions(rel_path, after.stdout if after.returncode == 0 else None)
+            ):
+                print(
+                    f"  this change edits a generated region of {rel_path}: the sync would revert it"
+                )
+                return True
+    except (OSError, ValueError) as exc:
+        print(f"  ⚠ cannot compare with {base} ({exc}); treating the drift as this change's")
+        return True
+    return False
+
+
+def _parse_args(argv: list[str]) -> argparse.Namespace:
+    """Parse the command line (`--check`, `--base REF`)."""
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n", 1)[0])
+    parser.add_argument("--check", action="store_true", help="verify only; exit 1 when stale")
+    parser.add_argument(
+        "--base",
+        metavar="REF",
+        help=(
+            "with --check: fail only on drift this change owns (it edits the generator or a "
+            "generated region since its merge base with REF); report any other drift and pass"
+        ),
+    )
+    return parser.parse_args(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     """Sync (or with `--check`, verify) server.json, the README summary and the MCP docs.
 
@@ -736,11 +844,12 @@ def main(argv: list[str] | None = None) -> int:
         argv: Command-line arguments; defaults to `sys.argv[1:]`.
 
     Returns:
-        0 on success, 1 when `--check` finds drift, 3 when the publish guard
-        refuses, 4 when the manifest lacks the agent-contract fields.
+        0 on success (or, under `--check --base`, on drift the change does not
+        own), 1 when `--check` finds drift, 3 when the publish guard refuses, 4
+        when the manifest lacks the agent-contract fields.
     """
-    args = sys.argv[1:] if argv is None else argv
-    check_mode = "--check" in args
+    args = _parse_args(sys.argv[1:] if argv is None else argv)
+    check_mode = args.check
     print("Sync MCP manifest → public hub:")
     manifest = load_manifest()
 
@@ -825,6 +934,13 @@ def main(argv: list[str] | None = None) -> int:
     drift = [_display_name(path) for path, _target in stale]
 
     if check_mode:
+        if drift and args.base is not None and not change_owns_drift(args.base):
+            print(
+                f"\nℹ stale against live v{deployed_version}: {', '.join(drift)} — not this change's "
+                "doing (no generator or generated-region edit). sync-mcp-manifest.yml commits it to main on the "
+                "next MCP deploy, push to main or 03:00 UTC run; no action needed here."
+            )
+            return 0
         if drift:
             if version_behind:
                 print(
