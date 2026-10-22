@@ -1,8 +1,8 @@
 name: Sync MCP manifest
 
 # Keeps server.json, README.md, docs/MCP_TOOLS.md and AGENTS.md in lockstep
-# with the MCP server's authoritative manifest (~/WebstormProjects/mcp →
-# github.com/valuein/mcp): registry counts + version, the README summary, the
+# with the MCP server's authoritative manifest
+# (https://mcp.valuein.biz/manifest.json): registry counts + version, the README summary, the
 # generated tool reference / prompts / resources, and the agent contract.
 #
 # Triggers:

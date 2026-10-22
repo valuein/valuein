@@ -2,7 +2,7 @@
 """
 sync_mcp_manifest.py — sync server.json + the MCP docs from the MCP server's manifest.
 
-The MCP repo (`~/WebstormProjects/mcp`) emits an authoritative `manifest.json`
+The MCP server (`https://mcp.valuein.biz/manifest.json`) emits an authoritative `manifest.json`
 listing every live tool, SOP prompt, and resource, plus the agent contract
 (how a tool error and a paged result read). This script updates this repo's
 public-facing surfaces to match:
