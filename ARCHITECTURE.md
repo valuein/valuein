@@ -114,7 +114,8 @@ All three are runnable by hand via `workflow_dispatch`.
 | `docs/schema.json` (path or contents) | The published URL agents fetch (`…/raw/main/docs/schema.json`); the SDK and MCP read the live R2 manifest at runtime, so a stale copy here misleads readers, not code |
 | An example's SDK calling convention (`run_template` kwargs-only, `run_query`) | Nothing here tests it — the SDK's own suite pins the convention, and a broken example is a broken smoke test for every new user |
 | What `scripts/sync_mcp_manifest.py` expects of the Worker's `manifest.json` (`agent_contract.markdown`; per tool `inputs`, `output_fields`, `paging`) | The nightly and dispatched sync and every PR's `mcp-docs-in-sync` check — a missed dispatch is covered by the cron, a changed manifest shape fails loudly (exit 4) until the script follows |
-| A hand edit inside a `GEN:` block of `docs/MCP_TOOLS.md` or `AGENTS.md` | `mcp-docs-in-sync` fails the PR, and the next sync overwrites the edit |
+| A hand edit inside a `GEN:` block of `docs/MCP_TOOLS.md` or `AGENTS.md` | `mcp-docs-in-sync` fails the PR (`change_owns_drift`), and the sync that the merge starts overwrites the edit |
+| An MCP deploy, or a merged generator change, leaves the generated docs behind the live manifest | Not the open PRs' fault: `--check --base` reports it and passes; `sync-mcp-manifest.yml` regenerates on the deploy's dispatch, on the push to `main` and at 03:00 UTC |
 
 ## Read next
 

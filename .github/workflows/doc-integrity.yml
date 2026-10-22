@@ -17,12 +17,19 @@ name: Doc integrity
 #       refuses to sync or publish a manifest that exposes a hidden tool, and
 #       renders the generated MCP docs blocks; tests/ pins both.
 #
-#   (d) Generated-docs drift — `sync_mcp_manifest.py --check` against the LIVE
-#       Worker manifest. server.json, the README summary, every GEN block in
-#       docs/MCP_TOOLS.md (agent contract, tool reference, prompts, resources)
-#       and the agent-contract block in AGENTS.md must equal what the manifest
-#       renders, byte for byte. Exit 1 = stale (run the sync), 3 = publish guard
-#       refused, 4 = the live manifest lacks the agent-contract fields.
+#   (d) Generated-docs drift — `sync_mcp_manifest.py --check --base <base>`
+#       against the LIVE Worker manifest. server.json, the README summary, every
+#       GEN block in docs/MCP_TOOLS.md (agent contract, tool reference, prompts,
+#       resources) and the agent-contract block in AGENTS.md must equal what the
+#       manifest renders, byte for byte — when the change edits the generator
+#       (it must ship the output it renders, for review). Drift from an MCP
+#       deploy is not the change's: it is reported and passes, and
+#       sync-mcp-manifest.yml commits it. Exit 1 = stale (run the sync), 3 =
+#       publish guard refused, 4 = the live manifest lacks the agent-contract
+#       fields (3 and 4 fail whatever the base).
+#       Skipped on pushes to main: the same push starts sync-mcp-manifest.yml,
+#       which regenerates, and its failure is the alarm (closed-loop#1239 was
+#       this job reporting a drift the sync was about to fix).
 #
 # Triggers: every push + PR, plus manual workflow_dispatch for testing.
 # (a)-(c) use no external services — pure bash + the Python that ships with the
@@ -157,18 +164,31 @@ jobs:
         run: uv run --with 'pytest>=8,<10' pytest tests -q
 
   mcp-docs-in-sync:
+    # Pushes to main are the sync's (see (d) above); PRs, branch pushes and
+    # manual runs are checked here.
+    if: github.event_name != 'push' || github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v7
+        with:
+          # The merge base with main decides whether the change edited the
+          # generator (`generator_changed_since`).
+          fetch-depth: 0
 
       - uses: astral-sh/setup-uv@v10.2.0
 
-      # A drift here right after an MCP deploy is expected for a few minutes:
-      # the deploy's `mcp-manifest-updated` dispatch runs sync-mcp-manifest.yml,
-      # which commits the regenerated files to main. Rebase onto that commit.
+      # PRs and branch pushes: only drift this change owns fails. A manual
+      # run (workflow_dispatch) has no base and fails on any drift.
       - name: (d) Generated MCP docs match the live manifest
-        run: uv run python scripts/sync_mcp_manifest.py --check
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            uv run python scripts/sync_mcp_manifest.py --check
+          else
+            uv run python scripts/sync_mcp_manifest.py --check --base "origin/${BASE_REF:-main}"
+          fi
         env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
           MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json

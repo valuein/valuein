@@ -10,6 +10,15 @@ name: Sync MCP manifest
 #   - Manual workflow_dispatch
 #   - repository_dispatch type=mcp-manifest-updated (fired from the mcp repo
 #     after it commits a new manifest.json, for near-real-time sync)
+#   - push to main touching the generator or a file it writes: a merged change
+#     to scripts/sync_mcp_manifest.py (or a hand edit to a generated block) is
+#     regenerated at once. Before this trigger, valuein#85 merged a new
+#     generator with docs rendered from an older manifest and main stayed red
+#     (closed-loop#1239) until the next deploy or 03:00 run. The bot's own
+#     GITHUB_TOKEN push does not fire it again (no loop).
+#
+# Derived files are regenerated, never merged: a push rejected because main
+# moved mid-run resets to the new main and renders again.
 #
 # If anything diff'd, commit + push to main. Then, if the PUBLISHED registry
 # disagrees with the live Worker, CALL publish-mcp.yml directly to republish to
@@ -42,6 +51,21 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [mcp-manifest-updated]
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/sync_mcp_manifest.py'
+      - 'server.json'
+      - 'README.md'
+      - 'docs/MCP_TOOLS.md'
+      - 'AGENTS.md'
+
+# One sync at a time: a deploy dispatch and a merge landing together queue,
+# and the second renders from the main the first pushed. Never cancelled
+# mid-run: the publish job may be in flight.
+concurrency:
+  group: sync-mcp-manifest
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -59,6 +83,8 @@ jobs:
       registry_stale: ${{ steps.registry.outputs.registry_stale }}
       registry_version: ${{ steps.registry.outputs.registry_version }}
       worker_version: ${{ steps.registry.outputs.worker_version }}
+    env:
+      MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
     steps:
       - uses: actions/checkout@v7
 
@@ -66,8 +92,6 @@ jobs:
 
       - name: Sync from MCP manifest
         run: uv run python scripts/sync_mcp_manifest.py
-        env:
-          MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
 
       - name: Commit + push if diff
         id: commit
@@ -80,14 +104,34 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add server.json README.md docs/MCP_TOOLS.md AGENTS.md
-          git commit -m "chore: sync MCP manifest (server.json, README counts, MCP docs)"
-          git push
-          # Written only AFTER a successful push. If the push is rejected
-          # (someone merged to main mid-run), this step fails and the publish
-          # job never runs against a commit that is not on main.
-          echo "changed=true" >> "$GITHUB_OUTPUT"
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          FILES="server.json README.md docs/MCP_TOOLS.md AGENTS.md"
+          for attempt in 1 2 3; do
+            git add $FILES
+            git commit -q -m "chore: sync MCP manifest (server.json, README counts, MCP docs)"
+            if git push origin HEAD:main; then
+              # Written only AFTER a successful push, so the publish job never
+              # runs against a commit that is not on main.
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            # main moved mid-run (a merge). Never rebase generated output:
+            # take the new main (its generator included) and render again.
+            echo "↻ push rejected (attempt $attempt): rendering again on the new main"
+            git fetch -q origin main
+            git reset --hard origin/main
+            uv run python scripts/sync_mcp_manifest.py
+            if git diff --quiet; then
+              echo "✓ the new main is already in sync — nothing to commit"
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              # The publish job (if the registry is stale) must read this main,
+              # not the commit that triggered the run.
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "::error title=MCP sync push failed::main kept moving after 3 attempts."
+          exit 1
 
       # Asks the only question that actually matters to a customer: does
       # registry.modelcontextprotocol.io advertise the version we are serving?

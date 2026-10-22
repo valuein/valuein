@@ -17,7 +17,13 @@ WORKFLOWS = Path(__file__).resolve().parent.parent / ".github" / "workflows"
 SYNC = (WORKFLOWS / "sync-mcp-manifest.yml").read_text()
 INTEGRITY = (WORKFLOWS / "doc-integrity.yml").read_text()
 
-OWNED = ("scripts/sync_mcp_manifest.py", "server.json", "README.md", "docs/MCP_TOOLS.md", "AGENTS.md")
+OWNED = (
+    "scripts/sync_mcp_manifest.py",
+    "server.json",
+    "README.md",
+    "docs/MCP_TOOLS.md",
+    "AGENTS.md",
+)
 
 
 def _push_block(text: str) -> str:
@@ -34,7 +40,11 @@ def test_a_push_to_main_touching_the_generator_or_its_output_runs_the_sync() -> 
 
 
 def test_sync_runs_queue_instead_of_racing() -> None:
-    assert re.search(r"^concurrency:\n\s+group: sync-mcp-manifest\n\s+cancel-in-progress: false", SYNC, re.MULTILINE)
+    assert re.search(
+        r"^concurrency:\n\s+group: sync-mcp-manifest\n\s+cancel-in-progress: false",
+        SYNC,
+        re.MULTILINE,
+    )
 
 
 def test_the_sync_regenerates_on_a_rejected_push_instead_of_failing() -> None:
