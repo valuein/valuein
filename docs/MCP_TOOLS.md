@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.7.9) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.7.12) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**122 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**123 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Free (S&P 500) · `pro` = Pro · `full` = Institutional.
 
@@ -168,6 +168,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`delete_citation_override`](#delete_citation_override) | Delete Citation Override | `sp500` | destructive | none |
 | [`save_figure_review`](#save_figure_review) | Save Figure Review | `sp500` | writes | none |
 | [`list_figure_reviews`](#list_figure_reviews) | List Figure Reviews | `sp500` | read-only | none |
+| [`delete_figure_review`](#delete_figure_review) | Delete Figure Review | `sp500` | destructive | none |
 | [`get_research_file`](#get_research_file) | Get Auditable Research File | `sp500` | read-only | none |
 | [`sign_off_report`](#sign_off_report) | Sign Off Report | `sp500` | destructive | none |
 | [`verify_report_figures`](#verify_report_figures) | Verify Report Figures | `sp500` | read-only | none |
@@ -1098,6 +1099,19 @@ List every figure review recorded for one report, plus a state-count summary —
 | `report_id` | string | yes | — | Identifier of the report to list figure reviews for. |
 
 **Output fields:** `report_id`, `reviews`, `summary`
+
+### `delete_figure_review`
+
+**Delete Figure Review** · min plan `sp500` · destructive · paging: none
+
+Remove your own review mark for ONE figure in a report (Undo for save_figure_review), so the figure needs review again. Keyed on (report_id, figure_key). Idempotent: `deleted` is false when no mark existed. Owner-scoped — only your own marks are reachable; a report you do not ...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `report_id` | string | yes | — | Identifier of the report the figure belongs to. |
+| `figure_key` | string | yes | — | The exact figure_key the review was saved under. |
+
+**Output fields:** `deleted`, `report_id`, `figure_key`
 
 ### `get_research_file`
 
@@ -2055,7 +2069,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.7.9); 39 prompts._
+_Generated from the MCP server manifest (v3.7.12); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2107,7 +2121,7 @@ _Generated from the MCP server manifest (v3.7.9); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.7.9); 3 resources._
+_Generated from the MCP server manifest (v3.7.12); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
