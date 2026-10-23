@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.7.12) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.7.17) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **123 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -532,6 +532,7 @@ List financial-statement restatements — facts a later SEC filing materially ch
 | `amendments_only` | boolean | no | — | Only restatements that arrived in an AMENDED filing (10-K/A, 10-Q/A) — the company formally telling the SEC it got a number wrong. The sharpest cut there is: it separates real restatements from routine re-files (a next-year 10-K carrying a revised comparative). |
 | `disclosure` | array | no | — | Filter by HOW the company told the market. 'non_reliance' = it filed an 8-K Item 4.02 ('Non-Reliance on Previously Issued Financial Statements') — formally telling the SEC not to rely on what it already reported. The loudest signal in US disclosure, and rare. 'amended' = corrected in a 10-K/A or 10-Q/A. 'undisclosed' = the value changed inside a ROUTINE 10-Q or 10-K: no amendment, no 4.02, the old number is simply gone. ~94% of events. Anyone can parse an 8-K, so anyone can list what companies ANNOUNCED; finding what they didn't requires every vintage back to 1993. |
 | `filed_since` | string | no | — | Only restatements FILED on or after this date — the 'what changed recently' window. |
+| `as_of_date` | string | no | — | Point-in-time filter: only restatements whose restating filing was accepted (last_filed_at) on or before this day, inclusive. Results are point-in-time ONLY when this is passed — omit it and later restatements are included. Use for backtests and dated analyses to avoid look-ahead bias. |
 | `sort` | enum | no | one of `recent`, `significance`; default `recent` | 'recent' = newest restating filing first (a market-wide radar). 'significance' = importance tier, then swing size (one company's history). |
 | `limit` | integer | no | default `25` | Page size (1-100, default 25). |
 | `cursor` | string | no | — | Opaque pagination cursor from a prior response's next_cursor. |
@@ -2069,7 +2070,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.7.12); 39 prompts._
+_Generated from the MCP server manifest (v3.7.17); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2121,7 +2122,7 @@ _Generated from the MCP server manifest (v3.7.12); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.7.12); 3 resources._
+_Generated from the MCP server manifest (v3.7.17); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
