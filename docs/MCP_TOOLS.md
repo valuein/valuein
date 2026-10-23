@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.7.17) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.8.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**123 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**125 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Free (S&P 500) · `pro` = Pro · `full` = Institutional.
 
@@ -117,6 +117,8 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`get_valuation_metrics`](#get_valuation_metrics) | Valuation Metrics | `sample` | read-only | none |
 | [`get_financial_ratios`](#get_financial_ratios) | Financial Ratios | `sample` | read-only | none |
 | [`get_sec_filing_links`](#get_sec_filing_links) | SEC Filing Links | `sample` | read-only | none |
+| [`list_filing_sections`](#list_filing_sections) | List Filing Sections | `sample` | read-only | none |
+| [`read_filing_section`](#read_filing_section) | Read Filing Section | `sample` | read-only | none |
 | [`get_capital_allocation_profile`](#get_capital_allocation_profile) | Capital Allocation Profile | `sample` | read-only | none |
 | [`get_peer_comparables`](#get_peer_comparables) | Peer Comparables | `sample` | read-only | none |
 | [`get_pit_universe`](#get_pit_universe) | Point-in-Time Universe | `sample` | read-only | offset |
@@ -323,6 +325,37 @@ Get direct links to original SEC EDGAR filings for any US public company. Return
 | `limit` | integer | no | default `10` | Maximum number of filings to return (1–50). Defaults to 10. |
 
 **Output fields:** `ticker`, `filings_returned`, `filings`
+
+### `list_filing_sections`
+
+**List Filing Sections** · min plan `sample` · read-only · paging: none
+
+Table of contents of a 10-K / 10-Q (or 10-K/A, 10-Q/A) so an agent can read the filing's WORDS: returns the form, filing/period/acceptance dates, the primary-document URL, and every section found with its `key`, `title`, `char_count` and a short `first_line`. 10-K keys are the...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
+| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
+
+**Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `report_date`, `accepted_at`, `source_url`, `sec_url`, `total_chars`, `sections`, `notes`, `provenance_note`
+
+### `read_filing_section`
+
+**Read Filing Section** · min plan `sample` · read-only · paging: none
+
+Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, or a financial-statement note (`note-3`). Get valid keys and sizes from list_filing_sections. Tables come back as plain pipe ...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
+| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
+| `key` | string | yes | — | Section key from list_filing_sections: '7', '1A', 'I-2', 'II-1A', 'note-3', 'explanatory-note'. |
+| `offset` | integer | no | default `0` | Character offset to start from; use the previous page's next_offset. |
+| `max_chars` | integer | no | default `20000` | Page size in characters (1000-60000). Defaults to 20000. |
+
+**Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `key`, `title`, `text`, `offset`, `returned_chars`, `next_offset`, `total_chars`, `source_url`, `provenance_note`
 
 ### `get_capital_allocation_profile`
 
@@ -2070,7 +2103,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.7.17); 39 prompts._
+_Generated from the MCP server manifest (v3.8.0); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2122,7 +2155,7 @@ _Generated from the MCP server manifest (v3.7.17); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.7.17); 3 resources._
+_Generated from the MCP server manifest (v3.8.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
