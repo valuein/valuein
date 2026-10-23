@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.8.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.9.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**125 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**126 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Free (S&P 500) · `pro` = Pro · `full` = Institutional.
 
@@ -119,6 +119,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`get_sec_filing_links`](#get_sec_filing_links) | SEC Filing Links | `sample` | read-only | none |
 | [`list_filing_sections`](#list_filing_sections) | List Filing Sections | `sample` | read-only | none |
 | [`read_filing_section`](#read_filing_section) | Read Filing Section | `sample` | read-only | none |
+| [`find_in_filing`](#find_in_filing) | Find in Filing | `sample` | read-only | none |
 | [`get_capital_allocation_profile`](#get_capital_allocation_profile) | Capital Allocation Profile | `sample` | read-only | none |
 | [`get_peer_comparables`](#get_peer_comparables) | Peer Comparables | `sample` | read-only | none |
 | [`get_pit_universe`](#get_pit_universe) | Point-in-Time Universe | `sample` | read-only | offset |
@@ -344,7 +345,7 @@ Table of contents of a 10-K / 10-Q (or 10-K/A, 10-Q/A) so an agent can read the 
 
 **Read Filing Section** · min plan `sample` · read-only · paging: none
 
-Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), or the whole filing (`document`) when an Item is only a page pointer. Get valid keys a...
+Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), or the whole filing (`document`) when an Item is only a page pointer. To jump to a phr...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -356,6 +357,29 @@ Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 
 | `max_chars` | integer | no | default `20000` | Page size in characters (1000-60000). Defaults to 20000. |
 
 **Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `key`, `title`, `text`, `offset`, `returned_chars`, `next_offset`, `total_chars`, `source_url`, `provenance_note`
+
+### `find_in_filing`
+
+**Find in Filing** · min plan `sample` · read-only · paging: none
+
+Find a statement, note, heading or phrase inside a 10-K / 10-Q (or amendment) and get where to read it, like grep over the filing: 'Consolidated Balance Sheets', 'goodwill impairment', 'Note 7', 'Risk Factors'. Searches the same text read_filing_section serves, so each hit's `...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
+| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
+| `query` | string | yes | — | Words or a phrase to find, e.g. 'Consolidated Balance Sheets', 'Note 7', 'goodwill impairment'. Separate alternatives with '\|'. |
+| `match` | enum | no | one of `phrase`, `all_words`; default `phrase` | 'phrase' (default): the words in order. 'all_words': every word within 300 characters, any order. |
+| `section` | string | no | — | Search only this section key from list_filing_sections ('7', 'II-1A', 'note-3'). Omit to search the whole filing. |
+| `kinds` | array | no | — | Keep only these hit kinds, e.g. ['heading'] for section and statement titles. Omit for every kind. |
+| `case_sensitive` | boolean | no | default `false` | Match letter case exactly. Default false. |
+| `whole_word` | boolean | no | default `false` | Match each word whole: 'sheet' no longer finds 'Sheets'. Default false. |
+| `sort` | enum | no | one of `relevance`, `position`; default `relevance` | 'relevance' (default): best place to read first. 'position': document order. |
+| `max_results` | integer | no | default `10` | Hits returned (1-50). Defaults to 10; total_matches still counts every hit. |
+| `context_chars` | integer | no | default `200` | Characters of text either side of each match in its snippet (0-600). Defaults to 200. |
+
+**Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `query`, `searched`, `total_matches`, `complete`, `kind_counts`, `hits`, `note`, `source_url`, `provenance_note`
 
 ### `get_capital_allocation_profile`
 
@@ -2103,7 +2127,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.8.2); 39 prompts._
+_Generated from the MCP server manifest (v3.9.0); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2155,7 +2179,7 @@ _Generated from the MCP server manifest (v3.8.2); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.8.2); 3 resources._
+_Generated from the MCP server manifest (v3.9.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
