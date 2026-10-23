@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.8.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.8.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **125 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -344,14 +344,14 @@ Table of contents of a 10-K / 10-Q (or 10-K/A, 10-Q/A) so an agent can read the 
 
 **Read Filing Section** · min plan `sample` · read-only · paging: none
 
-Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, or a financial-statement note (`note-3`). Get valid keys and sizes from list_filing_sections. Tables come back as plain pipe ...
+Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), or the whole filing (`document`) when an Item is only a page pointer. Get valid keys a...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
 | `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
-| `key` | string | yes | — | Section key from list_filing_sections: '7', '1A', 'I-2', 'II-1A', 'note-3', 'explanatory-note'. |
+| `key` | string | yes | — | Section key from list_filing_sections: '7', '1A', 'I-2', 'II-1A', 'note-3', 'explanatory-note', 'document'. |
 | `offset` | integer | no | default `0` | Character offset to start from; use the previous page's next_offset. |
 | `max_chars` | integer | no | default `20000` | Page size in characters (1000-60000). Defaults to 20000. |
 
@@ -2103,7 +2103,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.8.1); 39 prompts._
+_Generated from the MCP server manifest (v3.8.2); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2155,7 +2155,7 @@ _Generated from the MCP server manifest (v3.8.1); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.8.1); 3 resources._
+_Generated from the MCP server manifest (v3.8.2); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
