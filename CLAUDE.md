@@ -81,6 +81,13 @@ Columns: `docs/schema.json` (public subset); query patterns: `docs/QUERY_COOKBOO
 
 External-agent-facing product document, not Claude instructions: `cloudflare:workers/agent-pay/src/routes/discovery.ts` (`AGENTS_MD_URL`) links agents to its GitHub URL, so keep its path, purpose and audience. Sources: tiers, prices, rate card `cloudflare:shared/plans.ts` (`PLANS`, `PAYG_TOOL_PRICING`); payment behaviour `cloudflare:workers/agent-pay/src/routes/mpp-{call,receipt}.ts`; MCP tools `mcp:manifest.json`; SDK calls `sdk:valuein_sdk/client.py`. No hardcoded counts or versions, no internal repos. Never promise "not charged" beyond `mpp-call` (`PAYMENT_STATE_UNKNOWN`, receipt `unconfirmed`). It moves with `CONTRIBUTING.md`.
 
+## Third-party index trademarks
+
+- Data values and API keys keep the index names (`index_name='SP500'`, tier key `sp500`, `/v1/sp500/`, env vars, SDK `index="SP500"`); they identify facts, never rename them.
+- Never brand with an index name: plan/tier display names, headlines, pricing bullets, directory listings. The free tier is "Benchmark" ("large-cap US benchmark universe"). Descriptive plain-word use is fine: no logo, no implied endorsement.
+- Every surface naming an index carries the notice (README "Trademarks", verbatim) or the short form: "Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider." `tests/test_trademark_notice.py` pins the README and the docs that name an index.
+- Never say we use, license or receive data from an index provider; membership is reconstructed from public SEC filings and fund disclosures. Never scrape index-provider sites.
+
 ## Docs & git
 
 - Update `README.md` only for upstream changes; its MCP counts are bot-written.

@@ -34,7 +34,7 @@ print(client.run_query(sql))
 ```
 
 > All examples here work on the **Sample tier** (no token required) unless
-> noted otherwise. Upgrade to **S&P 500** or **Pro** for full history and the
+> noted otherwise. Upgrade to **Benchmark** or **Pro** for full history and the
 > full universe.
 
 Related:
@@ -670,3 +670,7 @@ LIMIT  20
 - [`examples/python/entity_screening.py`](../examples/python/entity_screening.py) — screen as of a past date
 - [`examples/python/dcf_inputs.py`](../examples/python/dcf_inputs.py) — DCF assembly
 - [`examples/python/factor_backtest.py`](../examples/python/factor_backtest.py) — point-in-time factor backtest
+
+---
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._

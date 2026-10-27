@@ -104,7 +104,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - **`restatement_radar`** across Coverage (`since` = last month) — catch quiet 10-K/A and 10-Q/A amendments.
 - Re-score theses: *"Score all my theses past their horizon and tell me which broke."* (`score_due_theses`).
 
-**Upgrade path:** DCF, three-statement projection, LBO and forensic audit already run on the free S&P 500 tier. **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500), your public analyst profile + reputation, and one-click **XLSX/DOCX deliverables** (DCF, comps and LBO workbooks; Word research briefs) for client and IC work. **Institutional** adds the smart-money layer, filing-event webhooks and full history back to 1993.
+**Upgrade path:** DCF, three-statement projection, LBO and forensic audit already run on the free Benchmark tier. **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500), your public analyst profile + reputation, and one-click **XLSX/DOCX deliverables** (DCF, comps and LBO workbooks; Word research briefs) for client and IC work. **Institutional** adds the smart-money layer, filing-event webhooks and full history back to 1993.
 
 ---
 
@@ -210,10 +210,10 @@ Slugs are stable; if you rotate one, the old link 410s gracefully for 30 days. V
 
 Each tier is designed to remove a *different* buyer objection, not slide a "more data" lever.
 
-| | **Sample** | **S&P 500** (free) | **Pro** | **Institutional** | **Enterprise** |
+| | **Sample** | **Benchmark** (free) | **Pro** | **Institutional** | **Enterprise** |
 |---|---|---|---|---|---|
 | **Price** | Free, no signup | Free, register | Paid | Paid | Custom |
-| **Universe** | S&P 500 | S&P 500 | **Full US, delisted included** | Full US + foreign issuers | Contract |
+| **Universe** | Large-cap US benchmark | Large-cap US benchmark | **Full US, delisted included** | Full US + foreign issuers | Contract |
 | **History** | Recent years | 1993→ | Rolling window | 1993→ | Contract |
 | **Workspace + playbooks** | — | ✓ | ✓ | ✓ | ✓ |
 | **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
@@ -252,7 +252,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; 
 - **Data:** `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_capital_allocation_profile`, `compare_periods`, `get_earnings_signals`, `get_sec_filing_links`
 - **Discovery / trust:** `search_companies`, `describe_schema`, `verify_fact_lineage`, citation overrides
 - **Screening:** `screen_universe`, `get_peer_comparables`, `get_pit_universe`, `get_compute_ready_stream`
-- **Valuation (S&P 500 free tier and up):** `compute_dcf`, `project_three_statement`, `compute_lbo`, `compute_accretion_dilution`, `forensic_audit`
+- **Valuation (free Benchmark tier and up):** `compute_dcf`, `project_three_statement`, `compute_lbo`, `compute_accretion_dilution`, `forensic_audit`
 - **Smart money (Institutional):** `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`
 - **State (CRUD):** theses, watchlists, signals, reports, inbox
 - **Document generation (Pro):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_comps_xlsx` (peer comps table), `generate_lbo_xlsx` (LBO model), `generate_research_brief_docx` (branded Word memo with citations); `render_report` (Markdown/DOCX download of a saved report) runs on every tier
@@ -292,3 +292,7 @@ Five minutes a day on the Inbox, thirty minutes a week on a brief, and one publi
 <sub>Questions or friction? Email <a href="mailto:support@valuein.biz">support@valuein.biz</a> — we read every message.</sub>
 
 </div>
+
+---
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._
