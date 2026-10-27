@@ -463,3 +463,7 @@ returns match the SDK's, delisted names included.
 - [`METHODOLOGY.md`](METHODOLOGY.md): how point-in-time data, restatements and XBRL
   normalization work
 - [`accuracy/`](accuracy/): the measured accuracy baseline
+
+---
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._

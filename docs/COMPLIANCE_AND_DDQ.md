@@ -71,3 +71,7 @@ See [`SLA.md`](SLA.md) for full commitments on uptime, data freshness latency, a
 
 For compliance inquiries, vendor questionnaires, or enterprise agreements, contact:
 **compliance@valuein.biz**
+
+---
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._

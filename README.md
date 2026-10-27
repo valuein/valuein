@@ -108,8 +108,8 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 
 | Plan | Universe | History | Get it |
 |---|---|---|---|
-| **Sample** | S&P 500 companies | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
-| **Benchmark** | S&P 500 companies | Full history | **Free**, [register](https://valuein.biz/register) |
+| **Sample** | Large-cap US benchmark universe | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
+| **Benchmark** | Large-cap US benchmark universe | Full history | **Free**, [register](https://valuein.biz/register) |
 | **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | Negotiated · dedicated infrastructure · expanded redistribution scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
@@ -630,6 +630,10 @@ For private or contractual matters (DPAs, procurement, DDQs, enterprise SLAs): *
 Contributions — examples, notebook improvements, documentation fixes, query recipes — are very welcome. See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the workflow and [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) for community standards.
 
 ---
+
+## Trademarks
+
+S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently from public SEC filings and public fund disclosures.
 
 ## License & disclosure
 

@@ -180,3 +180,7 @@ See [QUERY_COOKBOOK.md §10–12](QUERY_COOKBOOK.md#universe-construction) for f
 - **No imputation or smoothing.** When a concept cannot be resolved from the filing or from valid calculations, the value is `NULL`. We never fabricate.
 - **No PII.** The dataset contains only corporate financial metrics from public filings.
 - **No CUSIPs.** We use FIGI and LEI for instrument and entity identifiers — CUSIPs carry licensing obligations.
+
+---
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._

@@ -10,7 +10,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 
 The server registers tools across data lookup, screening, price & market data, smart money, persisted research state (theses, claims, watchlists, citation overrides, signals, reports, scheduled tasks, rules, staged-action approvals, the morning brief and agent runs), report publishing, compute (DCF, three-statement, LBO, accretion/dilution, forensic audit, bounded point-in-time backtest) and document generation, plus analyst SOP prompts and reference resources. Live counts: `curl -s https://mcp.valuein.biz/manifest.json | jq .counts` (mirrored, by a daily sync, in [`server.json`](../server.json)).
 
-Tier gating happens at the data layer — Sample / Benchmark tokens see the Sample / Benchmark slices (S&P 500 constituents); Pro sees the full active + delisted US universe with a rolling point-in-time window (10-K / 10-Q / 8-K / 20-F / 40-F + amendments; live window and universe size: `https://data.valuein.biz/v1/plans`); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited fundamentals history back to 1993 (prices are licensed market data with their own floor, 1994 onward), filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
+Tier gating happens at the data layer — Sample / Benchmark tokens see the Sample / Benchmark slices (large-cap US benchmark universe); Pro sees the full active + delisted US universe with a rolling point-in-time window (10-K / 10-Q / 8-K / 20-F / 40-F + amendments; live window and universe size: `https://data.valuein.biz/v1/plans`); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited fundamentals history back to 1993 (prices are licensed market data with their own floor, 1994 onward), filing-event webhooks, and the commercial redistribution license; Enterprise (custom contract) adds dedicated infrastructure and bespoke SLA.
 
 Everything between `GEN` markers on this page is written by `scripts/sync_mcp_manifest.py` from the live manifest and checked on every push and pull request (`--check` fails on any difference); never edit it by hand.
 
@@ -39,7 +39,7 @@ Same URL + Bearer token. The server advertises tool, prompt, and resource listin
 
 ### Sample token
 
-The Sample tier works without a token but only against the sample slice. To explore the full universe and history, [register](https://valuein.biz/signup/free) (Free, S&P 500 only) or [subscribe](https://valuein.biz/pricing) (Pro / Institutional).
+The Sample tier works without a token but only against the sample slice. To explore the full universe and history, [register](https://valuein.biz/signup/free) (Free, large-cap US benchmark universe only) or [subscribe](https://valuein.biz/pricing) (Pro / Institutional).
 
 ---
 
@@ -2213,7 +2213,7 @@ Most tools are callable from the Sample tier up, and **what changes is the data 
 | Tier | Data the agent sees |
 |---|---|
 | Sample (anonymous) | Curated sample slice · recent years |
-| Benchmark (free, registered) | S&P 500 · 1993 – present |
+| Benchmark (free, registered) | Large-cap US benchmark universe · 1993 – present |
 | Pro | Full active + delisted US universe · rolling point-in-time window · no smart-money dataset |
 | Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · redistribution license |
 | Enterprise | Negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
@@ -2271,3 +2271,7 @@ Pay whatever `/api/mpp/quote` returns (it applies the $0.50 Stripe minimum) — 
 The published manifest in [`server.json`](../server.json) at the root of this repo is the source of truth for the MCP registry. Any push to `main` that touches `server.json` triggers `.github/workflows/publish-mcp.yml`, which authenticates with GitHub OIDC and publishes to `registry.modelcontextprotocol.io`. The `version` field must always match the deployed Worker version.
 
 Server identifier: `io.github.valuein/mcp-sec-edgar` · Repository: `https://github.com/valuein/valuein`.
+
+## Trademarks
+
+S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently from public SEC filings and public fund disclosures.
