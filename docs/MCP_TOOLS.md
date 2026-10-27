@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.10.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.11.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -439,12 +439,11 @@ Use this tool to answer questions about historical index membership — e.g. "Wa
 | `as_of_date` | string | no | — | Historical date (YYYY-MM-DD) for survivorship-free construction. Index queries use index_membership join/leave dates (entrants after the date excluded, later-removed members kept); sector queries use security valid_from/valid_to. Omit for the current universe. |
 | `is_active` | boolean | no | — | Filter to active (currently trading) companies only. Omit to include all. WARNING: setting this to true on a HISTORICAL query reintroduces survivorship bias — companies that were active on as_of_date but later went bankrupt or got acquired will be filtered out.  Leave unset for true PIT backtests. |
 | `include_share_classes` | boolean | no | default `false` | false (default) collapses to one row per CIK (index-provider convention — BRK counts once, not BRK-A + BRK-B). true returns every share-class row (GOOG and GOOGL separately) — for security-level analysis only. |
-| `as_of_basis` | enum | no | one of `effective`, `announcement`; default `effective` | Which date column drives historical construction. 'effective' (default) = effective_date/removal_date (first trading day; passive replication). 'announcement' = announcement_date/removal_announcement_date (S&P's public-announcement day; for inclusion-arb backtests) — rows with NULL announcement_date (mostly pre-2015) are skipped. |
 | `ticker` | string | no | — | Check ONE company: a ticker or a CIK (SEC identifier), e.g. 'AAPL' or '0000320193'. Returns that company's row if it was a member on as_of_date, none if it was not. A ticker matches the symbol listed ON that date, and a since-delisted member can carry no ticker at all (enriched=false), so prefer the CIK for historical checks. Omit to list the universe. |
 | `limit` | integer | no | default `100` | Rows per page (1–3500; at most 250 are inlined per call). Defaults to 100. `universe_size` always states the full matched count; when more rows remain after this page the response carries a `truncation` envelope — call again with `offset` = its `next_offset`. Universe is deduped to one row per CIK (SP500 ~505, Russell 3000 ~3050). |
 | `offset` | integer | no | default `0` | Zero-based row offset where this page starts. Pass the previous response's `truncation.next_offset` to fetch the next page. Defaults to 0. |
 
-**Output fields:** `as_of_date`, `as_of_basis`, `index`, `sector`, `universe_size`, `returned_rows`, `complete`, `limit_truncated`, `survivorship_free`, `coverage_gap`, `coverage`, `confidence_summary`, `note`, `truncation`, `companies`
+**Output fields:** `as_of_date`, `index`, `sector`, `universe_size`, `returned_rows`, `complete`, `limit_truncated`, `survivorship_free`, `coverage_gap`, `coverage`, `confidence_summary`, `note`, `truncation`, `companies`
 
 ### `get_compute_ready_stream`
 
@@ -2141,13 +2140,13 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.10.1); 39 prompts._
+_Generated from the MCP server manifest (v3.11.0); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
 | `margin_and_moat_teardown` | Margin & Moat Teardown | `sample` | Systematic 10-year analysis of a company's operational efficiency and competitive moat. Chains fundamentals → valuation metrics → peer comparables to produce a structured teardown covering revenue quality, margin trends, ROIC vs WACC spread, ROIC persistence (a moat is a traje... |
 | `peer_benchmarking_memo` | Peer Benchmarking Memo | `sample` | Produces a structured relative-value memo comparing a company to its closest peers. Chains search_companies → peer_comparables → valuation_metrics → financial_ratios to output an investment committee-ready comparison table with ROIC, valuation multiples, and capital efficiency. |
-| `survivorship_free_backtest` | Survivorship-Free Backtest | `sample` | Sets up a bias-free quantitative backtest: survivorship-free universe (effective vs announcement membership bases), a quick bounded in-Worker validation grid, then Parquet URLs for bulk out-of-core compute. Chains get_pit_universe → run_backtest (≤120-cell PIT sanity grid) → g... |
+| `survivorship_free_backtest` | Survivorship-Free Backtest | `sample` | Sets up a bias-free quantitative backtest: survivorship-free universe (effective-date membership), a quick bounded in-Worker validation grid, then Parquet URLs for bulk out-of-core compute. Chains get_pit_universe → run_backtest (≤120-cell PIT sanity grid) → get_compute_ready_... |
 | `pit_factor_constructor` | Point-in-Time Factor Constructor | `sample` | Guides construction of a quantitative factor (Quality, Value, Momentum) across a sector universe using ratio.parquet data. Chains get_pit_universe → get_financial_ratios → get_compute_ready_stream to produce normalized factor scores. |
 | `quality_and_risk_audit` | Quality & Risk Audit | `sample` | Evaluates capital structure safety and dividend sustainability from the filed figures. Chains fundamentals → capital_allocation → valuation_metrics → financial_ratios (leverage/liquidity) to produce a structured risk scorecard. |
 | `capital_allocation_review` | Capital Allocation Review | `sample` | Evaluates management's capital allocation decisions over a multi-year period. Chains capital_allocation_profile → valuation_metrics → financial_ratios to produce a management quality scorecard: does management create value with retained earnings? |
@@ -2193,7 +2192,7 @@ _Generated from the MCP server manifest (v3.10.1); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.10.1); 3 resources._
+_Generated from the MCP server manifest (v3.11.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
