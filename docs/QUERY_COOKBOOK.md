@@ -372,8 +372,7 @@ ORDER  BY im.removal_date DESC
 ```
 
 > Why: `index_membership` records every entry and exit with `effective_date`
-> / `removal_date` (and `announcement_date` / `removal_announcement_date` for
-> inclusion-arb backtests). The previous `references.is_sp500` flag was
+> / `removal_date`. The previous `references.is_sp500` flag was
 > snapshot-only — dropped 2026-05-02.
 
 ---
