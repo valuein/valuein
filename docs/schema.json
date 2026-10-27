@@ -527,17 +527,9 @@
           "type": "DATE",
           "description": "First trading day the company traded as a member."
         },
-        "announcement_date": {
-          "type": "DATE",
-          "description": "Date the index provider publicly announced the addition — intended for inclusion-arb work, where the news-public date matters rather than the first trading day.  Typically 5–10 trading days before ``effective_date``.\n\n⚠️ NULL ON EVERY ROW, AND NOTHING WILL FILL IT — 25,220 of 25,220, verified 2026-09-16.  The only layer that ever set out to populate it scraped an index provider's press archive; it never contributed a row and was REMOVED on 2026-09-17, so this column is now reserved-but-unpopulated by decision, not by backlog.  ``get_pit_universe`` with ``as_of_basis='announcement'`` therefore returns ZERO members for EVERY index and every date — an empty universe reads to a backtest as 'the index had no members', which is worse than an error.  **Use the default effective basis.**  The Russell rows could not carry an announcement date in any case, being derived from a fund holdings panel that has no announcement concept at all.  Filling this column needs a LICENSED announcement feed."
-        },
         "removal_date": {
           "type": "DATE",
           "description": "First trading day the company was NOT a member.  NULL = current.  [) interval semantics — a company removed on 2017-06-19 is NOT a member on 2017-06-19."
-        },
-        "removal_announcement_date": {
-          "type": "DATE",
-          "description": "Date the removal was publicly announced; symmetric with ``announcement_date`` — and, like it, NULL on every row with no source that will fill it."
         },
         "removal_reason": {
           "type": "VARCHAR",
