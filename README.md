@@ -637,6 +637,8 @@ S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC;
 
 ## License & disclosure
 
-[Apache 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+The code and documentation in this repository are licensed under [Apache 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
+
+Valuein data, in every tier including the free sample, is licensed separately under the [Valuein Data Licence](https://valuein.biz/terms#data-licence): internal use and research, small excerpts with credit, and no redistribution, resale or model training without a written agreement.
 
 This repository is provided for research and educational purposes. **It is not investment advice.** No warranty of fitness for any particular trading, investment, or regulatory purpose is implied.
