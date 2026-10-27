@@ -102,11 +102,11 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.10.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.10.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
-Plan keys: `sample` = Sample · `sp500` = Free (S&P 500) · `pro` = Pro · `full` = Institutional.
+Plan keys: `sample` = Sample · `sp500` = Free (Benchmark) · `pro` = Pro · `full` = Institutional.
 
 Identifiers shown as `[withheld]` name internal datasets and are left out of this public page; the live `tools/list` response carries them.
 
@@ -2141,7 +2141,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.10.0); 39 prompts._
+_Generated from the MCP server manifest (v3.10.1); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2193,7 +2193,7 @@ _Generated from the MCP server manifest (v3.10.0); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.10.0); 3 resources._
+_Generated from the MCP server manifest (v3.10.1); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
