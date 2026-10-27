@@ -103,6 +103,7 @@ All three are runnable by hand via `workflow_dispatch`.
 - Examples: scripts `snake_case.py`, notebooks `NN_snake_case.ipynb`; scripts under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; a script and its paired notebook change in the same PR.
 - No CUSIPs anywhere (licensing risk) — use FIGI and LEI; `concept_mapping` is internal and never shown.
 - Always `uv run python …`, never bare `python`; run `ruff` check + format on `examples/` and `scripts/` before a PR.
+- Third-party index trademarks (S&P 500®, Russell®, Nasdaq-100®): keep the keys (`SP500`, tier `sp500`); never brand a plan, headline or listing with an index name (the free tier is "Benchmark"); descriptive use only, with the non-affiliation notice on that page; never claim data from or a licence with an index provider — membership is reconstructed from public SEC filings and fund disclosures. New copy naming an index needs founder review.
 
 ## Fragile edges
 
