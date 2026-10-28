@@ -8,7 +8,7 @@ The measured source of truth is [`baseline.json`](baseline.json) — re-derive i
 |---|---:|---:|
 | **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 10,637 | **91.46 %** |
 | Standardized facts — overall (all eras, evaluable filings) | 18,385 | **93.31 %** |
-| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | 7,748 | 95.84 % |
+| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | 7,748 | see `baseline.json` |
 | **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | 23.0 M | **64.35 %** |
 
 ⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts; filings with no testable facts are excluded from the denominators above (`filings` vs `filings_in_universe` in `baseline.json`). **Use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
@@ -86,7 +86,7 @@ These are honest engineering decisions, not metric-gaming. Every loosening choic
 
 ## 4. Reproducing the measurement
 
-### 4.1 Free path (sample tier — 5-year S&P 500 window)
+### 4.1 Free path (sample tier — 5-year large-cap US benchmark window)
 
 The sample tier needs no token and no signup. (The free Benchmark token at [valuein.biz/signup/free](https://valuein.biz/signup/free) adds the full 1993–present history of the same universe.)
 
@@ -96,7 +96,7 @@ The sample tier needs no token and no signup. (The free Benchmark token at [valu
 duckdb -c "LOAD httpfs" -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
-You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window, so the headline differs from `baseline.json` (which grades the full 1993–present universe): a 2026-10-28 run on the sample returned 3,887 annual filings at 98.04 % clean.
+You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year large-cap US benchmark window, so its headline differs from `baseline.json`, which grades the full 1993–present universe.
 
 ### 4.2 Pro / Institutional path
 

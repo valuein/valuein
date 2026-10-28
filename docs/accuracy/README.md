@@ -19,7 +19,7 @@ README and pricing page. Three files, all citable, all runnable:
 duckdb -c "LOAD httpfs" -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
-The sample window is five years, so its headline differs from `baseline.json` (a 2026-10-28 run returned 3,887 annual filings, 98.04 % clean). Pro and Institutional tokens swap the URL (`valuein_bucket_base`) for the full universe.
+The sample window is five years, so its headline differs from `baseline.json`; the query prints the sample's own figure. Pro and Institutional tokens swap the URL (`valuein_bucket_base`) for the full universe.
 
 Prefer zero third-party trust? Save the four tables the script reads (`fact`, `filing`, `entity`, `index_membership`) as local `.parquet` files, point `valuein_bucket_base` at the folder, run the same script.
 
