@@ -1,7 +1,7 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-10-16  
-> **Standardized concepts**: 351  
+> **Last updated**: 2026-10-28  
+> **Standardized concepts**: 353  
 > **Historical coverage**: fundamentals from 1993 (EDGAR floor) – present
 
 ---
@@ -188,6 +188,12 @@ IFRS current liabilities.
 **Unit:** USD  ·  **Category:** expenses  ·  **Flow:** no
 
 Long-term debt maturing within 12 months.
+
+### `DebtCurrent`
+
+**Unit:** USD  ·  **Category:** leverage  ·  **Flow:** no
+
+Short-term borrowings plus current maturities of long-term debt (us-gaap:DebtCurrent). Replaces ShortTermDebt and CurrentPortionLTD when a gross debt is built from components.
 
 ### `DeferredAcquisitionCosts`
 
@@ -767,7 +773,7 @@ Total current liabilities.
 
 **Unit:** USD  ·  **Category:** leverage  ·  **Flow:** no
 
-Total interest-bearing debt obligations.
+The filer's own debt total including current maturities (DebtAndCapitalLeaseObligations may exclude short-term borrowings, e.g. ABBV FY2025).
 
 ### `TotalLiabilities`
 
@@ -863,7 +869,7 @@ Credit loss provision (CF add-back).
 
 **Unit:** USD  ·  **Category:** cash_flow_other  ·  **Flow:** yes
 
-IFRS capital expenditure — PP&E purchases.
+Capital expenditure — purchases of property, plant and equipment (us-gaap and IFRS). Falls back to us-gaap:PaymentsToAcquireProductiveAssets (a superset that adds intangibles and other productive assets) only where a filer files no PP&E tag for the period; CONCEPT_PRECEDENCE ranks the PP&E tags first, so a filer that files both (GOOGL) always reports PP&E.
 
 ### `CapitalContributions`
 
@@ -1929,6 +1935,12 @@ IFRS profit/loss attributable to non-controlling interests.
 
 IFRS profit/loss attributable to parent-company owners.
 
+### `NetIncomeToCommonDiluted`
+
+**Unit:** USD  ·  **Category:** profitability  ·  **Flow:** yes
+
+Net income available to common stockholders on the DILUTED basis (the diluted EPS numerator, after dilutive adjustments). The basic-basis figure lives in NetIncomeToCommon, which the eps_01 identity multiplies by EPSBasic.
+
 ### `NetInterestIncome`
 
 **Unit:** USD  ·  **Category:** banking  ·  **Flow:** yes
@@ -2442,28 +2454,28 @@ Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`
 
 | Ratio | Unit | TTM | Description |
 |-------|------|-----|-------------|
-| `roic_sector_pctile` | percentile | no | Percentile rank of `roic` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `return_on_equity_sector_pctile` | percentile | no | Percentile rank of `return_on_equity` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `return_on_assets_sector_pctile` | percentile | no | Percentile rank of `return_on_assets` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `roce_sector_pctile` | percentile | no | Percentile rank of `roce` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `net_margin_sector_pctile` | percentile | no | Percentile rank of `net_margin` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `operating_margin_sector_pctile` | percentile | no | Percentile rank of `operating_margin` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `gross_profit_margin_sector_pctile` | percentile | no | Percentile rank of `gross_profit_margin` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `ebitda_margin_sector_pctile` | percentile | no | Percentile rank of `ebitda_margin` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `fcf_margin_sector_pctile` | percentile | no | Percentile rank of `fcf_margin` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `ocf_margin_sector_pctile` | percentile | no | Percentile rank of `ocf_margin` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `fcf_conversion_sector_pctile` | percentile | no | Percentile rank of `fcf_conversion` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `debt_to_equity_sector_pctile` | percentile | no | Percentile rank of `debt_to_equity` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `net_debt_to_ebitda_sector_pctile` | percentile | no | Percentile rank of `net_debt_to_ebitda` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `current_ratio_sector_pctile` | percentile | no | Percentile rank of `current_ratio` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `interest_coverage_sector_pctile` | percentile | no | Percentile rank of `interest_coverage` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `asset_turnover_sector_pctile` | percentile | no | Percentile rank of `asset_turnover` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `inventory_turnover_sector_pctile` | percentile | no | Percentile rank of `inventory_turnover` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `revenue_cagr_5y_sector_pctile` | percentile | no | Percentile rank of `revenue_cagr_5y` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `net_income_cagr_5y_sector_pctile` | percentile | no | Percentile rank of `net_income_cagr_5y` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `eps_cagr_5y_sector_pctile` | percentile | no | Percentile rank of `eps_cagr_5y` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `piotroski_f_score_sector_pctile` | percentile | no | Percentile rank of `piotroski_f_score` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
-| `altman_z_double_prime_sector_pctile` | percentile | no | Percentile rank of `altman_z_double_prime` versus same-sector peers in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `roic_sector_pctile` | percentile | no | Percentile rank of `roic` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `return_on_equity_sector_pctile` | percentile | no | Percentile rank of `return_on_equity` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `return_on_assets_sector_pctile` | percentile | no | Percentile rank of `return_on_assets` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `roce_sector_pctile` | percentile | no | Percentile rank of `roce` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `net_margin_sector_pctile` | percentile | no | Percentile rank of `net_margin` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `operating_margin_sector_pctile` | percentile | no | Percentile rank of `operating_margin` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `gross_profit_margin_sector_pctile` | percentile | no | Percentile rank of `gross_profit_margin` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `ebitda_margin_sector_pctile` | percentile | no | Percentile rank of `ebitda_margin` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `fcf_margin_sector_pctile` | percentile | no | Percentile rank of `fcf_margin` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `ocf_margin_sector_pctile` | percentile | no | Percentile rank of `ocf_margin` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `fcf_conversion_sector_pctile` | percentile | no | Percentile rank of `fcf_conversion` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `debt_to_equity_sector_pctile` | percentile | no | Percentile rank of `debt_to_equity` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `net_debt_to_ebitda_sector_pctile` | percentile | no | Percentile rank of `net_debt_to_ebitda` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `current_ratio_sector_pctile` | percentile | no | Percentile rank of `current_ratio` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `interest_coverage_sector_pctile` | percentile | no | Percentile rank of `interest_coverage` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `asset_turnover_sector_pctile` | percentile | no | Percentile rank of `asset_turnover` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `inventory_turnover_sector_pctile` | percentile | no | Percentile rank of `inventory_turnover` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `revenue_cagr_5y_sector_pctile` | percentile | no | Percentile rank of `revenue_cagr_5y` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `net_income_cagr_5y_sector_pctile` | percentile | no | Percentile rank of `net_income_cagr_5y` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `eps_cagr_5y_sector_pctile` | percentile | no | Percentile rank of `eps_cagr_5y` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `piotroski_f_score_sector_pctile` | percentile | no | Percentile rank of `piotroski_f_score` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
+| `altman_z_double_prime_sector_pctile` | percentile | no | Percentile rank of `altman_z_double_prime` versus peers in the sector in force at the filing's SEC acceptance time (point-in-time, from `industry_classification`), in the same fiscal year, in [0, 1] (1 = best in sector). |
 
 ---
 
