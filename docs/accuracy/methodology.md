@@ -2,16 +2,16 @@
 
 Valuein is built on a simple promise: **every fact you read can be mathematically verified against SEC's own canonical data.** This document describes how, and how you can reproduce the measurement yourself.
 
-The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Latest committed snapshot (S&P 500 universe, 1993–present):
+The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Snapshot measured 2026-10-24 (S&P 500 universe, evaluable filings only; "clean" = passes every active error-severity identity):
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,422 | **100 %** |
-| Standardized facts — overall (all eras) | 19,616 | **100 %** |
-| Standardized facts — legacy era (< 2010) — *trivially passes; do not cite* ⚠️ | 8,194 | see `baseline.json` |
-| **Unstandardized facts** (correctly left as `'Other'`) | 40.8 M | see `baseline.json` |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 10,637 | **91.46 %** |
+| Standardized facts — overall (all eras, evaluable filings) | 18,385 | **93.31 %** |
+| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | 7,748 | see `baseline.json` |
+| **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | 23.0 M | **64.35 %** |
 
-⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts and trivially pass every identity — **use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
+⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts; filings with no testable facts are excluded from the denominators above (`filings` vs `filings_in_universe` in `baseline.json`). **Use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
 
 ---
 
@@ -21,7 +21,7 @@ Two distinct measurements, each tied to a precise definition.
 
 ### 1.1 Standardized-fact accuracy
 
-A filing is **clean** if and only if it satisfies every active *error-severity* accounting identity in [`identities.json`](identities.json) — 35 canonical equations sourced from FASB ASC, Penman (*Financial Statement Analysis* 5e), Ohlson 1995, FactSet PIT Methodology v3.4, and the XBRL US-GAAP Calculation Linkbase.
+A filing is **clean** if and only if it satisfies every active *error-severity* accounting identity in [`identities.json`](identities.json) (generated from the QA engine's catalogue; `baseline.json` `identity_set` lists the exact rules and tolerances the figure was graded against) — equations sourced from FASB ASC, Penman (*Financial Statement Analysis* 5e), Ohlson 1995, FactSet PIT Methodology v3.4, and the XBRL US-GAAP Calculation Linkbase.
 
 A filing is **with-error** if at least one error-severity identity fails on it.
 
@@ -41,10 +41,10 @@ Anything else is a **mapping gap** — a tag our standardization rules should ha
 
 Accuracy of the *numbers* (§1.1) is distinct from confidence in the *concept labels* those numbers are mapped to. Each canonical concept in the catalog carries a **`review_confidence`** score, surfaced on the `standard_concept` table and in the data catalog:
 
-* **`1.0` — CPA-verified.** An accountant has signed off on the concept's canonical name, statement type, and matching rule. A verified concept is **locked**: the automated standardization loop may only ever *create new* concepts, never mutate a verified one (`reviewed_by` / `reviewed_at` record the sign-off).
+* **`1.0` — reviewed.** Intended to mean a person has signed off on the concept's canonical name, statement type, and matching rule; a reviewed concept is **locked** (the automated standardization loop may only *create new* concepts, never mutate one). The sign-off itself is recorded in `reviewed_by` / `reviewed_at`, which are populated for only a few concepts today: treat `review_confidence = 1.0` as proof of an accountant's sign-off only where `reviewed_by` is set.
 * **`0.7` — provisional.** Auto-mapped by the coverage loop (used by ≥ 1,000 distinct issuers) and queued for the next CPA review cycle.
 
-Filter `review_confidence >= 1.0` for the accountant-verified concept set — the labels analysts, quants, portfolio managers, and AI models can agree on and train against without re-deriving the mapping. This is the human-in-the-loop guarantee behind the standardization layer: every published concept is either verified or transparently flagged as provisional.
+Filter `review_confidence >= 1.0` for the reviewed concept set, and `reviewed_by IS NOT NULL` for the concepts with a recorded named sign-off.
 
 ---
 
@@ -86,55 +86,44 @@ These are honest engineering decisions, not metric-gaming. Every loosening choic
 
 ## 4. Reproducing the measurement
 
-### 4.1 Free path (sample tier — 5-year S&P 500 window)
+### 4.1 Free path (sample tier — 5-year large-cap US benchmark window)
 
-The sample tier is free, but a Bearer token is required to fetch its Parquet files (lead-capture flow — we ask for an email so we know who's evaluating). Get one in 30 seconds at [valuein.biz/register](https://valuein.biz/register).
+The sample tier needs no token and no signup. (The free Benchmark token at [valuein.biz/signup/free](https://valuein.biz/signup/free) adds the full 1993–present history of the same universe.)
 
 ```bash
 # 1. Install DuckDB (one binary, zero deps): https://duckdb.org/docs/installation
-# 2. Export your free token and run the script:
-
-# VALUEIN_TOKEN is just the shell variable these DuckDB commands read (the SDK reads VALUEIN_API_KEY);
-# both hold the same token.
-export VALUEIN_TOKEN="your_free_token_here"
-
-duckdb -c "
-LOAD httpfs;
-CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
-.read scripts/accuracy/accuracy_check.sql
-"
+# 2. Run the script (no token):
+duckdb -c "LOAD httpfs" -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
-You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window (vs. the full 1993–present universe on paid tiers).
+You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year large-cap US benchmark window, so its headline differs from `baseline.json`, which grades the full 1993–present universe.
 
 ### 4.2 Pro / Institutional path
 
 Same flow as 4.1 but with your paid-tier token and the corresponding bucket URL:
 
 ```bash
-duckdb -c "
-LOAD httpfs;
-CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
-SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro';   -- or /v1/full
-.read scripts/accuracy/accuracy_check.sql
-"
+duckdb -c "LOAD httpfs" \
+  -c "CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'})" \
+  -c "SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro'" \
+  -c ".read scripts/accuracy/accuracy_check.sql"
+# use .../v1/full for the Institutional tier
 ```
 
-Full 1993–present × 19,000+-entity number, same SQL.
+Full 1993–present, full-universe number, same SQL.
 
 ### 4.3 Offline path (no network, no token)
 
 If you'd rather not depend on our infrastructure for the proof:
 
 ```bash
-# Download the offline sample Parquet bundle (~250 MB, no token):
-curl -L -o sample.zip https://valuein.biz/download/sample
-unzip sample.zip -d ./sample
+# Download the four tables the script reads (no token). Keep the names
+# extensionless: the script appends only "/<table>" to the base path.
+mkdir sample && for t in fact filing entity index_membership; do
+  curl -sL -o sample/$t https://data.valuein.biz/v1/sample/$t; done
 
-duckdb -c "
-SET VARIABLE valuein_bucket_base = 'file:///$(pwd)/sample';
-.read scripts/accuracy/accuracy_check.sql
-"
+duckdb -c "SET VARIABLE valuein_bucket_base = 'file://$(pwd)/sample'" \
+       -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
 Same script, same answer, no third-party trust required.
@@ -186,7 +175,7 @@ When the SEC releases new XBRL taxonomy or a filer changes tagging convention, t
 
 * **Mapping gaps still exist** — but the surface is shrinking as the standardization catalog grows (new canonical concepts and aliases land in the upstream `data-pipeline` catalog, plus disclosure-niche regex patterns folded into the classifier). The current mapping-gap rate is in [`baseline.json`](baseline.json) (`unstandardized_facts`); it is real ongoing work, not a solved problem.
 
-* **The reported figure is for the S&P 500 universe.** The full-universe number (19,000+ entities including delisted) is the same framework with a larger denominator — expected to be a few percentage points lower because micro-cap filers have noisier XBRL.
+* **The reported figure is for the S&P 500 universe.** The full-universe number (28,000+ companies including delisted) is the same framework with a larger denominator — expected to be a few percentage points lower because micro-cap filers have noisier XBRL.
 
 ---
 

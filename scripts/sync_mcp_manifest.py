@@ -262,14 +262,16 @@ README_SUMMARY_TEMPLATE = (
     "`screen_and_shortlist` — plus specialised chains for analyst, PM, "
     "quant, ratio, smart-money, and workflow personas) and **{resources} "
     "data resources** (`schema://{{table}}`, `reference://sp500`, "
-    "`pricing://current`). Tier gating happens at the data layer — Sample "
-    "/ Benchmark tokens see the Sample / Benchmark slices (S&P 500 "
-    "constituents); Pro sees the full 19,000+-"
-    "entity universe with a 15-year point-in-time window (2011 → present); "
+    "`pricing://current`). Tier gating happens at the data layer — the "
+    "free Sample (no token, from 2020) and Benchmark (the large-cap US "
+    "benchmark universe, current constituents, from 1993) tiers see their "
+    "slices; Pro sees the full universe of 28,000+ active and delisted "
+    "companies with a 15-year point-in-time window (2011 → present); "
     "Institutional unlocks the smart-money tools (insider transactions "
     "on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / "
-    "13D / 13G), unlimited history back to 1993, filing-event webhooks, "
-    "and the commercial redistribution license."
+    "13D / 13G), Form ADV, unlimited history back to 1993 and "
+    "filing-event webhooks, for internal use. Redistribution, display and "
+    "white-label are Enterprise-only, under a Commercial licence."
 )
 
 MARKER_RE = re.compile(

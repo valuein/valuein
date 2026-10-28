@@ -34,9 +34,9 @@ The "time-to-database" commitment runs from SEC EDGAR acceptance to the data bei
 | 10-K/A, 10-Q/A (amendments) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
 | 20-F (foreign private issuers) | < 5 minutes | < 5 minutes | < 24h (Pro) · < 4h (Institutional) |
 
-The Free and Sample tiers receive a daily snapshot. The Institutional tier includes filing-event webhooks on top of the 4h freshness target; the Enterprise (custom contract) tier supports real-time 8-K push delivery with sub-minute SLA.
+The Free and Sample tiers receive the same weekly fundamentals snapshot as Pro. The Institutional tier includes filing-event webhooks on top of the 4h freshness target; the Enterprise (custom contract) tier supports real-time 8-K push delivery with sub-minute SLA.
 
-A new authoritative snapshot is published daily by **06:00 UTC**. Snapshot ID and `last_updated` timestamp are accessible via `client.manifest()` (SDK) or the `manifest` resource (MCP).
+A new authoritative fundamentals snapshot is published weekly (Saturday) and market prices refresh each weekday. Snapshot ID and `last_updated` timestamp are accessible via `client.manifest()` (SDK) or the `manifest` resource (MCP).
 
 ---
 

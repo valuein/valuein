@@ -4,7 +4,7 @@ A collection of copy-pasteable **DuckDB** recipes for the Valuein SEC EDGAR
 fundamentals dataset. Every query in this document runs against the tables
 exposed by the SDK (`references`, `entity`, `security`, `filing`, `fact`, `ratio`,
 `taxonomy_guide`, `index_membership`, `standard_concept`, `restatement_events`,
-`stock_price`; `filing_registrant` and `stock_price_daily` on paid tiers, the
+`stock_price`, `filing_registrant`; `stock_price_daily` on Pro and Institutional, the
 smart-money and Form ADV tables on Institutional; `client.tables()` lists what your
 plan reads).
 
@@ -325,17 +325,17 @@ is the *current* classification; `industry_classification` holds the SIC spell
 in force on the date. `valid_to` is exclusive (NULL = current).
 
 ```sql
-WITH asof AS (SELECT TIMESTAMPTZ '2015-06-30 00:00:00+00' AS t)
+WITH pit AS (SELECT TIMESTAMPTZ '2015-06-30 00:00:00+00' AS t)
 SELECT ic.sic_code, ic.industry, im.cik, r.symbol
-FROM   asof
+FROM   pit
 JOIN   index_membership im
        ON im.index_name = 'SP500'
-      AND im.effective_date <= CAST(asof.t AS DATE)
-      AND (im.removal_date IS NULL OR CAST(asof.t AS DATE) < im.removal_date)
+      AND im.effective_date <= CAST(pit.t AS DATE)
+      AND (im.removal_date IS NULL OR CAST(pit.t AS DATE) < im.removal_date)
 JOIN   industry_classification ic
        ON ic.cik = im.cik
-      AND ic.valid_from <= asof.t
-      AND (ic.valid_to IS NULL OR asof.t < ic.valid_to)
+      AND ic.valid_from <= pit.t
+      AND (ic.valid_to IS NULL OR pit.t < ic.valid_to)
 JOIN   "references" r ON r.cik = im.cik
 QUALIFY ROW_NUMBER() OVER (PARTITION BY ic.sic_code ORDER BY im.cik) = 1
 ORDER  BY ic.sic_code

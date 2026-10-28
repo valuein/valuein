@@ -677,7 +677,7 @@ def _write_markdown(path: str, concepts: list[dict], source: str) -> None:
         "",
         "## Overview",
         "",
-        "The Valuein pipeline normalizes 15,000+ raw SEC EDGAR XBRL tags into a set of "
+        "The Valuein pipeline normalizes 11,900+ raw SEC EDGAR XBRL tags into a set of "
         "canonical financial concepts listed below.  Every fact in the dataset carries:",
         "",
         "- `standard_concept` — the canonical name from this catalog (or `'Other'` if unmapped)",

@@ -12,7 +12,7 @@ The data product covers every active and delisted US public company that files w
 2. **Validation.** Each filing's `accession_id` is verified against the EDGAR submission registry.
 3. **Parsing.** Facts are extracted using the US GAAP Taxonomy (2009 – 2026) and mapped to canonical `standard_concept` values before being written to the `fact` table.
 
-100% of the data originates from the U.S. Securities and Exchange Commission (SEC) EDGAR system. We add no alternative-data sources, no surveys, and no estimated overrides.
+All financial statements, ownership and insider data come from SEC filings, through the U.S. Securities and Exchange Commission's EDGAR system: fundamentals, ratios, filings, insider transactions and institutional-ownership disclosures. `index_membership` is reconstructed from public SEC filings and fund disclosures, and market prices are a separately licensed series starting in 1994. We add no other alternative-data sources, no surveys, and no estimated overrides.
 
 ---
 
@@ -50,7 +50,7 @@ The `data_quality` field on each fact distinguishes the original disclosure from
 
 ## 4. Standardization logic
 
-11,966 unique raw XBRL tags are mapped to 292 canonical `standard_concept` values using a waterfall approach. Each concept resolves in priority order — if a direct tag is unavailable, calculated alternatives are attempted.
+11,966 unique raw XBRL tags are mapped to 350+ canonical `standard_concept` values using a waterfall approach. Each concept resolves in priority order — if a direct tag is unavailable, calculated alternatives are attempted.
 
 Both the raw and canonical names are on every fact row:
 
@@ -145,10 +145,10 @@ Walk-through: [`examples/notebooks/10_dcf_valuation.ipynb`](../examples/notebook
 |---|---|
 | **Entities** | Every active and delisted US + Canadian public-company entity (the `entity_type='us_public_filer'` subset — CIKs with at least one 10-K / 10-Q / 8-K / 20-F / 40-F filing). The full `entity` table is larger because per-filing parsers (SC 13D/G, Form 3/4/5, Form 144, 13F-HR) emit stub rows for issuers named in smart-money filings; those rows are labelled `entity_type='smart_money_subject'` and are excluded from the universe count. Pro and Institutional ship the identical entity table — the differentiator is history depth (Pro = a rolling window; Institutional = full 1993→present) and access to the smart-money dataset. Live universe size: `universeSize` in `https://data.valuein.biz/v1/plans`. |
 | **History** | Pro: a rolling window (its current first year is `earliestYear` in `https://data.valuein.biz/v1/plans`). Institutional: 1993 → present. |
-| **Filings** | 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
+| **Filings** | 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), 6-K (foreign private issuer reports), the registration statements (S-1, S-3, S-4, S-11, F-1, F-3, F-4, POS AM) and the retired periodic forms (10-K405, 10-KSB, 10-QSB, 10-KT, 10-QT), each with its amendments. Most 6-K filings carry no XBRL, so they add filing rows more often than facts. |
 | **Facts** | Standardized financial data points: every fact of every filing above, under its canonical `standard_concept` ([`data_catalog.md`](data_catalog.md)) |
 | **XBRL coverage** | Facts that cannot be mapped to a canonical `standard_concept` are exposed under `'Other'` rather than dropped or imputed. The current measured mapping-gap rate is published in [`accuracy/baseline.json`](accuracy/baseline.json) (`unstandardized_facts`) and re-derivable with the open DuckDB script |
-| **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
+| **Update frequency** | Fundamentals snapshot weekly (Saturday) and market prices each weekday for every tier (`table_last_updated` in the manifest); 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |
 
 ---

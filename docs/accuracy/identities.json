@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "measured_at": "2026-05-15T08:30:00Z",
-  "count": 35,
+  "version": "2.0.0",
+  "source": "postgres scripts/QA/identities.sql (active identities)",
+  "count": 46,
   "identities": [
     {
       "key": "bs_01_accounting_equation",
@@ -10,27 +10,27 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalAssets"
+            "concept": "TotalAssets",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "TotalLiabilities"
+            "concept": "TotalLiabilities",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "StockholdersEquityIncludingNCI"
+            "concept": "StockholdersEquityIncludingNCI",
+            "weight": 1
           }
         ]
       },
       "applies_to": "all",
       "tolerance_mode": "percent",
-      "tolerance_value": 0.1,
+      "tolerance_value": 0.005,
       "severity": "error",
-      "citation": "FASB ASC 210-10; Penman \u00a78.1",
-      "description": "The fundamental accounting equation. A filing that fails this is almost certainly a parsing error (sign flip, missing concept, or wrong taxonomy mapping). Tolerance 0.5% absorbs minority-interest treatment quirks."
+      "citation": "FASB ASC 210-10; ASC 480-10-S99-3A; Penman §8.1",
+      "description": "The fundamental accounting equation, with mezzanine (temporary) equity as its third term: redeemable noncontrolling interests and redeemable preferred stock are presented between liabilities and equity, so a filing passes when Assets = Liabilities + Equity incl. NCI OR Assets = Liabilities + Equity incl. NCI + TemporaryEquity (Federal Realty FY2018 closes to the dollar only with its $136.2M redeemable NCI; other filers already carry the amount inside liabilities or equity, hence either base). A filing that fails both is almost certainly a parsing error (sign flip, missing concept, or wrong taxonomy mapping). Tolerance 0.5% absorbs minority-interest treatment quirks. The third term is also read off the raw redemption-value / fair-value / component tags (RedeemableNoncontrollingInterestEquity*, TemporaryEquity*) when the filer presents the mezzanine line at a measure the catalog does not map to TemporaryEquity; each candidate or their sum may close the equation."
     },
     {
       "key": "bs_02_assets_partition",
@@ -39,18 +39,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalAssets"
+            "concept": "TotalAssets",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "CurrentAssets"
+            "concept": "CurrentAssets",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "TotalNoncurrentAssets"
+            "concept": "TotalNoncurrentAssets",
+            "weight": 1
           }
         ]
       },
@@ -59,7 +59,7 @@
       "tolerance_value": 0.01,
       "severity": "error",
       "citation": "FASB ASC 210-10-45; XBRL US-GAAP cal-linkbase",
-      "description": "Detects mis-classified subtotal \u2014 when one of the two children was tagged with the wrong us-gaap element. Catches the most common Goodwill / Intangibles bucketing mistake."
+      "description": "Detects mis-classified subtotal — when one of the two children was tagged with the wrong us-gaap element. Catches the most common Goodwill / Intangibles bucketing mistake."
     },
     {
       "key": "bs_03_liabilities_partition",
@@ -68,18 +68,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalLiabilities"
+            "concept": "TotalLiabilities",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "TotalCurrentLiabilities"
+            "concept": "TotalCurrentLiabilities",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "TotalNoncurrentLiabilities"
+            "concept": "TotalNoncurrentLiabilities",
+            "weight": 1
           }
         ]
       },
@@ -97,23 +97,23 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalLiabilitiesAndEquity"
+            "concept": "TotalLiabilitiesAndEquity",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "TotalAssets"
+            "concept": "TotalAssets",
+            "weight": 1
           }
         ]
       },
       "applies_to": "all",
       "tolerance_mode": "percent",
-      "tolerance_value": 0.1,
+      "tolerance_value": 0.005,
       "severity": "error",
-      "citation": "FASB ASC 210-10-45; SEC Reg S-X \u00a7210.5-02",
-      "description": "When the filer reports the explicit \"Total liabilities and equity\" line item, it must equal \"Total assets\". A redundant restatement of bs_01 \u2014 but the redundancy is exactly what makes it useful: if bs_01 passes but bs_04 fails, the equity subtotal is wrong."
+      "citation": "FASB ASC 210-10-45; SEC Reg S-X §210.5-02",
+      "description": "When the filer reports the explicit \"Total liabilities and equity\" line item, it must equal \"Total assets\". A redundant restatement of bs_01 — but the redundancy is exactly what makes it useful: if bs_01 passes but bs_04 fails, the equity subtotal is wrong."
     },
     {
       "key": "bs_05_shares_outstanding",
@@ -122,18 +122,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "CommonSharesOutstanding"
+            "concept": "CommonSharesOutstanding",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "CommonSharesIssued"
+            "concept": "CommonSharesIssued",
+            "weight": 1
           },
           {
-            "weight": -1,
-            "concept": "TreasuryShares"
+            "concept": "TreasuryShares",
+            "weight": -1
           }
         ]
       },
@@ -141,8 +141,140 @@
       "tolerance_mode": "percent",
       "tolerance_value": 0.02,
       "severity": "warning",
-      "citation": "XBRL US-GAAP CommonStock* presentation; Penman \u00a710.2",
+      "citation": "XBRL US-GAAP CommonStock* presentation; Penman §10.2",
       "description": "Share-count plumbing. A break here corrupts every per-share ratio in the SDK; we flag aggressively."
+    },
+    {
+      "key": "bs_06_equity_nci_bridge",
+      "name": "StockholdersEquity + MinorityInterest = StockholdersEquityIncludingNCI",
+      "statement_type": "balance_sheet",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "StockholdersEquityIncludingNCI",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "StockholdersEquity",
+            "weight": 1
+          },
+          {
+            "concept": "MinorityInterest",
+            "weight": 1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.005,
+      "severity": "warning",
+      "citation": "FASB ASC 810-10-45 (Noncontrolling Interests); Penman §8.2",
+      "description": "Bridges parent-only equity to the consolidated total used across the institutional grid. MinorityInterest is 0 for single-entity filers (treated as 0). A break means the parent/total equity concepts are crossed or NCI is double-counted."
+    },
+    {
+      "key": "bs_07_ppe_net",
+      "name": "PropertyPlantAndEquipmentNet = PPEGross - AccumulatedDepreciation",
+      "statement_type": "balance_sheet",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "PPENet",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "PPEGross",
+            "weight": 1
+          },
+          {
+            "concept": "AccumulatedDepreciation",
+            "weight": -1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.01,
+      "severity": "error",
+      "citation": "FASB ASC 360-10",
+      "description": "Net PP&E ties to gross less accumulated depreciation (stored positive; checked sign-robust via ABS). Skipped when a filer reports only the net line on the face and discloses gross/accum in a footnote we have not captured."
+    },
+    {
+      "key": "bs_08_intangibles_net",
+      "name": "IntangibleAssetsNet = IntangibleAssetsGross - AccumulatedAmortization",
+      "statement_type": "balance_sheet",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "IntangibleAssetsNet",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "IntangibleAssetsGross",
+            "weight": 1
+          },
+          {
+            "concept": "AccumulatedAmortization",
+            "weight": -1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.01,
+      "severity": "warning",
+      "citation": "FASB ASC 350-30",
+      "description": "Finite-lived intangibles net = gross less accumulated amortization. WARN because indefinite-lived intangibles (no amortization) and the goodwill/other-intangible split add legitimate slack."
+    },
+    {
+      "key": "bs_09_equity_decomposition",
+      "name": "StockholdersEquity = CommonStock + APIC + RetainedEarnings + AOCI - TreasuryStock + PreferredStock",
+      "statement_type": "balance_sheet",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "StockholdersEquity",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "CommonStockValue",
+            "weight": 1
+          },
+          {
+            "concept": "AdditionalPaidInCapital",
+            "weight": 1
+          },
+          {
+            "concept": "RetainedEarnings",
+            "weight": 1
+          },
+          {
+            "concept": "AOCI",
+            "weight": 1
+          },
+          {
+            "concept": "TreasuryStock",
+            "weight": -1
+          },
+          {
+            "concept": "PreferredStockValue",
+            "weight": 1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.01,
+      "severity": "warning",
+      "citation": "FASB ASC 505; SEC Reg S-X 5-02",
+      "description": "Parent equity decomposes into its components. WARN (per spec BS_030): rare contra-equity lines (ESOP shares, unearned compensation, receivable-from-shareholders) act as an \"other equity\" plug, so ~12% of filers carry a small residual. Treasury stored positive, subtracted via ABS."
     },
     {
       "key": "is_01_gross_profit",
@@ -151,26 +283,26 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "GrossProfit"
+            "concept": "GrossProfit",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "TotalRevenue"
+            "concept": "TotalRevenue",
+            "weight": 1
           },
           {
-            "weight": -1,
-            "concept": "CostOfRevenue"
+            "concept": "CostOfRevenue",
+            "weight": -1
           }
         ]
       },
       "applies_to": "all",
       "tolerance_mode": "percent",
-      "tolerance_value": 0.25,
+      "tolerance_value": 0.01,
       "severity": "error",
-      "citation": "FASB ASC 220-10-45-1A; Penman \u00a79.3",
+      "citation": "FASB ASC 220-10-45-1A; Penman §9.3",
       "description": "Basic gross-profit definition. Tolerance 1% absorbs companies that bundle small COGS items into SG&A."
     },
     {
@@ -180,26 +312,26 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "OperatingIncome"
+            "concept": "OperatingIncome",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "GrossProfit"
+            "concept": "GrossProfit",
+            "weight": 1
           },
           {
-            "weight": -1,
-            "concept": "OperatingExpenses"
+            "concept": "OperatingExpenses",
+            "weight": -1
           }
         ]
       },
       "applies_to": "all",
       "tolerance_mode": "percent",
-      "tolerance_value": 0.5,
+      "tolerance_value": 0.02,
       "severity": "warning",
-      "citation": "FASB ASC 220-10-45; SEC Reg S-X \u00a7210.5-03",
+      "citation": "FASB ASC 220-10-45; SEC Reg S-X §210.5-03",
       "description": "Operating bridge. Looser tolerance (2%) because OpEx classification (esp. SBC, R&D) varies across filers."
     },
     {
@@ -209,22 +341,22 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "PretaxIncome"
+            "concept": "PretaxIncome",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "OperatingIncome"
+            "concept": "OperatingIncome",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "OtherIncome"
+            "concept": "OtherIncome",
+            "weight": 1
           },
           {
-            "weight": -1,
-            "concept": "InterestExpense"
+            "concept": "InterestExpense",
+            "weight": -1
           }
         ]
       },
@@ -232,8 +364,8 @@
       "tolerance_mode": "percent",
       "tolerance_value": 0.03,
       "severity": "warning",
-      "citation": "FASB ASC 220-10-45; Penman \u00a79.4",
-      "description": "Non-operating bridge. Warning severity \u2014 banks, insurance, REITs reorder this section; the identity often fails for legit reasons. Use as a soft signal."
+      "citation": "FASB ASC 220-10-45; Penman §9.4",
+      "description": "Non-operating bridge. Warning severity — banks, insurance, REITs reorder this section; the identity often fails for legit reasons. Use as a soft signal."
     },
     {
       "key": "is_04_continuing_ops",
@@ -242,27 +374,27 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "IncomeContinuingOps"
+            "concept": "IncomeContinuingOps",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "PretaxIncome"
+            "concept": "PretaxIncome",
+            "weight": 1
           },
           {
-            "weight": -1,
-            "concept": "IncomeTaxExpense"
+            "concept": "IncomeTaxExpense",
+            "weight": -1
           }
         ]
       },
       "applies_to": "all",
       "tolerance_mode": "percent",
-      "tolerance_value": 0.2,
+      "tolerance_value": 0.02,
       "severity": "error",
-      "citation": "FASB ASC 740-10-45; SEC Reg S-X \u00a7210.5-03",
-      "description": "Tax bridge. A break here is almost always a sign flip on IncomeTaxExpense (we expect positive expense, but some filers report negative for benefit)."
+      "citation": "FASB ASC 740-10-45; SEC Reg S-X §210.5-03",
+      "description": "Tax bridge. A break here is almost always a sign flip on IncomeTaxExpense (we expect positive expense, but some filers report negative for benefit). Scope-aware: PretaxIncome - IncomeTaxExpense is consolidated, IncomeContinuingOps is the parent share, so the bridge also holds when the filer tags the consolidated figure (IncomeContinuingOpsIncludingNCI) and that one foots. Equity-method income is presented after tax, so the bridge also holds with EquityMethodIncome added back, and against NetIncomeIncludingNCI (ProfitLoss) less discontinued operations for filers that tag no consolidated continuing-ops line."
     },
     {
       "key": "is_05_net_income_to_common",
@@ -271,18 +403,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "NetIncomeToCommon"
+            "concept": "NetIncomeToCommon",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "NetIncome"
+            "concept": "NetIncome",
+            "weight": 1
           },
           {
-            "weight": -1,
-            "concept": "NetIncomeNCI"
+            "concept": "NetIncomeNCI",
+            "weight": -1
           }
         ]
       },
@@ -290,7 +422,7 @@
       "tolerance_mode": "percent",
       "tolerance_value": 0.1,
       "severity": "warning",
-      "citation": "FASB ASC 810-10 (Consolidation); Penman \u00a710.1",
+      "citation": "FASB ASC 810-10 (Consolidation); Penman §10.1",
       "description": "Strips minority interest to get the per-share denominator. We dont add DiscontinuedOpsIncome here because filers vary on whether NetIncome already includes it."
     },
     {
@@ -300,18 +432,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "EffectiveTaxRate"
+            "concept": "EffectiveTaxRate",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "IncomeTaxExpense"
+            "concept": "IncomeTaxExpense",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "PretaxIncome"
+            "concept": "PretaxIncome",
+            "weight": 1
           }
         ],
         "operator": "ratio"
@@ -320,37 +452,198 @@
       "tolerance_mode": "absolute",
       "tolerance_value": 0.01,
       "severity": "warning",
-      "citation": "FASB ASC 740-10-50; Penman \u00a711.5",
+      "citation": "FASB ASC 740-10-50; Penman §11.5",
       "description": "Rate plausibility. We allow 100bp absolute slack because filers compute the rate with different bases (federal-only vs federal+state+foreign)."
     },
     {
-      "key": "eps_01_basic_eps_consistency",
-      "name": "|NetIncomeToCommon - EPSBasic \u00d7 WAS_basic| / |NetIncomeToCommon| <= 0.5%",
-      "statement_type": "eps_shares",
+      "key": "is_07_net_income_walk",
+      "name": "Revenue - CostOfRevenue - OperatingExpenses - InterestExpense - IncomeTaxExpense + OtherIncome = IncomeContinuingOps",
+      "statement_type": "income",
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "NetIncomeToCommon"
+            "concept": "IncomeContinuingOps",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "EPSBasic"
+            "concept": "TotalRevenue",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "WeightedAvgSharesBasic"
+            "concept": "CostOfRevenue",
+            "weight": -1
+          },
+          {
+            "concept": "OperatingExpenses",
+            "weight": -1
+          },
+          {
+            "concept": "InterestExpense",
+            "weight": -1
+          },
+          {
+            "concept": "IncomeTaxExpense",
+            "weight": -1
+          },
+          {
+            "concept": "OtherIncome",
+            "weight": 1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.02,
+      "severity": "warning",
+      "citation": "FASB ASC 220-10-45 (Income Statement presentation); Penman §9.3-9.5",
+      "description": "End-to-end income-statement walk: the founder's \"Revenue minus all expenses = NetIncome\" guard-rail. Catches what the decomposed bridges (is_01..is_04) miss — when a filer omits the intermediate subtotals (GrossProfit / OperatingIncome / PretaxIncome) those identities NULL-skip, but this one still proves the line items reconcile to continuing-ops income. Warning severity + 2% tolerance because it crosses the noisy non-operating section (cf. is_03); a strong #data-bugs signal, deliberately not an export blocker so reordered bank/insurer statements do not gate the publish."
+    },
+    {
+      "key": "is_08_net_income_bridge",
+      "name": "IncomeContinuingOps + DiscontinuedOpsIncome = NetIncome",
+      "statement_type": "income",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "NetIncome",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "IncomeContinuingOps",
+            "weight": 1
+          },
+          {
+            "concept": "DiscontinuedOpsIncome",
+            "weight": 1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.02,
+      "severity": "warning",
+      "citation": "FASB ASC 205-20 (Discontinued Operations); SEC Reg S-X §210.5-03",
+      "description": "Completes the income walk to the reported bottom line: continuing-ops income plus discontinued-ops income equals NetIncome. DiscontinuedOpsIncome is absent for most filers (treated as 0). Pairs with is_07 to give a Revenue->NetIncome end-to-end chain."
+    },
+    {
+      "key": "is_09_operating_income_costs",
+      "name": "TotalRevenue - TotalCostsAndExpenses = OperatingIncome",
+      "statement_type": "income",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "OperatingIncome",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "TotalRevenue",
+            "weight": 1
+          },
+          {
+            "concept": "TotalCostsAndExpenses",
+            "weight": -1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.02,
+      "severity": "warning",
+      "citation": "SEC Reg S-X §210.5-03; FASB ASC 220-10-45",
+      "description": "A clean second path to OperatingIncome for filers that report a single TotalCostsAndExpenses line, sidestepping the CostOfRevenue/OperatingExpenses split ambiguity that makes is_02 noisy. Where both is_02 and is_09 are computable they cross-check each other."
+    },
+    {
+      "key": "is_10_comprehensive_income",
+      "name": "ComprehensiveIncome = NetIncome + OtherComprehensiveIncome",
+      "statement_type": "income",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "ComprehensiveIncome",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "NetIncome",
+            "weight": 1
+          },
+          {
+            "concept": "OtherComprehensiveIncome",
+            "weight": 1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.01,
+      "severity": "error",
+      "citation": "FASB ASC 220-10",
+      "description": "Comprehensive income = net income plus other comprehensive income (FX translation, AFS debt securities, pension/OPEB remeasurements, hedge effects), all three terms PARENT-scope. Measured break rate 4.8%. Its consolidated twin is is_11."
+    },
+    {
+      "key": "is_11_comprehensive_income_consolidated",
+      "name": "ComprehensiveIncomeIncludingNCI = NetIncomeIncludingNCI + OtherComprehensiveIncomeIncludingNCI",
+      "statement_type": "income",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "ComprehensiveIncomeIncludingNCI",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "NetIncomeIncludingNCI",
+            "weight": 1
+          },
+          {
+            "concept": "OtherComprehensiveIncomeIncludingNCI",
+            "weight": 1
+          }
+        ]
+      },
+      "applies_to": "all",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.01,
+      "severity": "error",
+      "citation": "FASB ASC 220-10-45; IAS 1.81A",
+      "description": "Consolidated comprehensive income = consolidated net income (incl. NCI) plus consolidated OCI. Measured break rate 2.6%. IFRS filers report only this scope, under the bare ifrs-full tags."
+    },
+    {
+      "key": "eps_01_basic_eps_consistency",
+      "name": "|NetIncomeToCommon - EPSBasic × WAS_basic| / |NetIncomeToCommon| <= 0.5%",
+      "statement_type": "eps_shares",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "NetIncomeToCommon",
+            "weight": 1
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "EPSBasic",
+            "weight": 1
+          },
+          {
+            "concept": "WeightedAvgSharesBasic",
+            "weight": 1
           }
         ],
         "operator": "product"
       },
       "applies_to": "all",
       "tolerance_mode": "percent",
-      "tolerance_value": 0.05,
+      "tolerance_value": 0.005,
       "severity": "error",
-      "citation": "FASB ASC 260-10; Penman \u00a710.2",
+      "citation": "FASB ASC 260-10; Penman §10.2",
       "description": "EPS sanity. A break here means either WAS was tagged in thousands while EPS is in dollars-per-share (the most common XBRL-decimals mistake) or NetIncomeToCommon is wrong. Catches both."
     },
     {
@@ -360,14 +653,14 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "EPSBasic"
+            "concept": "EPSBasic",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "EPSDiluted"
+            "concept": "EPSDiluted",
+            "weight": 1
           }
         ],
         "operator": "gte"
@@ -377,7 +670,7 @@
       "tolerance_value": 0.001,
       "severity": "warning",
       "citation": "FASB ASC 260-10-45-16 (anti-dilution rule); IFRS IAS 33",
-      "description": "Diluted EPS can never exceed basic \u2014 the rule is a mathematical consequence of the anti-dilution test. Tolerance 0.001 absorbs sub-cent rounding."
+      "description": "Diluted EPS can never exceed basic — the rule is a mathematical consequence of the anti-dilution test. Tolerance 0.001 absorbs sub-cent rounding."
     },
     {
       "key": "eps_03_diluted_shares_ge_basic",
@@ -386,21 +679,21 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "WeightedAvgSharesDiluted"
+            "concept": "WeightedAvgSharesDiluted",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "WeightedAvgSharesBasic"
+            "concept": "WeightedAvgSharesBasic",
+            "weight": 1
           }
         ],
         "operator": "gte"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
       "citation": "FASB ASC 260-10-45",
       "description": "Diluted share count includes everything basic includes plus dilutive options/RSUs. Strictly greater-or-equal; no tolerance needed."
@@ -412,26 +705,26 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "NetChangeInCash"
+            "concept": "NetChangeInCash",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "OperatingCashFlow"
+            "concept": "OperatingCashFlow",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "InvestingCashFlow"
+            "concept": "InvestingCashFlow",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "FinancingCashFlow"
+            "concept": "FinancingCashFlow",
+            "weight": 1
           },
           {
-            "weight": 1,
-            "concept": "FXEffectOnCash"
+            "concept": "FXEffectOnCash",
+            "weight": 1
           }
         ]
       },
@@ -444,63 +737,63 @@
     },
     {
       "key": "cf_02_capex_sign",
-      "name": "CAPEX is reported negative on the cash flow statement (use of cash)",
+      "name": "CAPEX is stored as a positive magnitude (use of cash)",
       "statement_type": "cash_flow",
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "CAPEX"
+            "concept": "CAPEX",
+            "weight": 1
           }
         ],
-        "operator": "lte_zero"
+        "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
-      "citation": "XBRL US-GAAP PaymentsToAcquirePropertyPlantAndEquipment; Penman \u00a710.5",
-      "description": "CAPEX should be negative on a cash flow statement. Filers report it both ways; the SDK normalises with ABS() but we warn when raw fact is positive so the scorer can downweight."
+      "citation": "XBRL US-GAAP PaymentsToAcquirePropertyPlantAndEquipment; Penman §10.5",
+      "description": "CAPEX is stored as a positive magnitude; a negative raw fact is the anomaly. The pipeline stores this as a POSITIVE MAGNITUDE (measured 2026-08-27: 98.9% of CAPEX, 99.4% of Dividends and 99.5% of ShareBuyback rows are positive), so the previous lte_zero form fired on essentially the whole population -- 1,078,537 of 3,276,847 logged violations, 33% of the table -- and uniformly downweighted every filing, which carries no information. Inverted to flag the genuine anomaly: a NEGATIVE value means the filer's sign leaked through un-normalised or the line is a reversal."
     },
     {
       "key": "cf_03_dividends_sign",
-      "name": "Dividends are reported negative (cash distribution)",
+      "name": "Dividends are stored as a positive magnitude (cash distribution)",
       "statement_type": "cash_flow",
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "Dividends"
+            "concept": "Dividends",
+            "weight": 1
           }
         ],
-        "operator": "lte_zero"
+        "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
       "citation": "XBRL US-GAAP PaymentsOfDividends",
-      "description": "Same sign-convention check for dividends paid."
+      "description": "Same sign-convention check for dividends paid, on the house positive-magnitude convention."
     },
     {
       "key": "cf_04_buyback_sign",
-      "name": "ShareBuyback is reported negative (cash distribution)",
+      "name": "ShareBuyback is stored as a positive magnitude (cash distribution)",
       "statement_type": "cash_flow",
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "ShareBuyback"
+            "concept": "ShareBuyback",
+            "weight": 1
           }
         ],
-        "operator": "lte_zero"
+        "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
       "citation": "XBRL US-GAAP PaymentsForRepurchaseOfCommonStock",
-      "description": "Same sign-convention check for share repurchases."
+      "description": "Same sign-convention check for share repurchases, on the house positive-magnitude convention."
     },
     {
       "key": "cf_05_cfo_matches_ni_sign",
@@ -509,24 +802,56 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "OperatingCashFlow"
+            "concept": "OperatingCashFlow",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "NetIncome"
+            "concept": "NetIncome",
+            "weight": 1
           }
         ],
         "operator": "same_sign"
       },
       "applies_to": "FY",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "info",
-      "citation": "Penman \u00a710.5 (the \"earnings quality\" signal); Dechow-Sloan accruals literature",
-      "description": "Soft (info) signal. Not a violation \u2014 CFO can legitimately diverge from NI during working-capital swings \u2014 but systematic divergence across many years flags earnings management."
+      "citation": "Penman §10.5 (the \"earnings quality\" signal); Dechow-Sloan accruals literature",
+      "description": "Soft (info) signal. Not a violation — CFO can legitimately diverge from NI during working-capital swings — but systematic divergence across many years flags earnings management."
+    },
+    {
+      "key": "cf_06_cash_rollforward",
+      "name": "CashAndEquivalents[t] = CashAndEquivalents[t-1] + NetChangeInCash[t]",
+      "statement_type": "cash_flow",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "CashAndEquivalents",
+            "weight": 1,
+            "period": "t"
+          }
+        ],
+        "rhs": [
+          {
+            "concept": "CashAndEquivalents",
+            "weight": 1,
+            "period": "t_minus_1"
+          },
+          {
+            "concept": "NetChangeInCash",
+            "weight": 1,
+            "period": "t"
+          }
+        ]
+      },
+      "applies_to": "cross_period",
+      "tolerance_mode": "percent",
+      "tolerance_value": 0.02,
+      "severity": "warning",
+      "citation": "FASB ASC 230-10-45-24; ASU 2016-18",
+      "description": "Cross-period cash continuity (reconciles at 0.0% median): the cash balance moves by exactly the cash-flow-statement net change. A break is the strongest signal of mixed originally-filed vs restated data — Valuein PIT discipline. Adjacency-guarded (350-380 days) to skip missing-year gaps; WARN + 2% absorbs the restricted-cash / ASU 2016-18 boundary."
     },
     {
       "key": "cs_01_retained_earnings_rollforward",
@@ -535,26 +860,26 @@
       "formula": {
         "lhs": [
           {
-            "period": "t",
+            "concept": "RetainedEarnings",
             "weight": 1,
-            "concept": "RetainedEarnings"
+            "period": "t"
           }
         ],
         "rhs": [
           {
-            "period": "t_minus_1",
+            "concept": "RetainedEarnings",
             "weight": 1,
-            "concept": "RetainedEarnings"
+            "period": "t_minus_1"
           },
           {
-            "period": "t",
+            "concept": "NetIncome",
             "weight": 1,
-            "concept": "NetIncome"
+            "period": "t"
           },
           {
-            "period": "t",
+            "concept": "Dividends",
             "weight": 1,
-            "concept": "Dividends"
+            "period": "t"
           }
         ]
       },
@@ -562,8 +887,8 @@
       "tolerance_mode": "percent",
       "tolerance_value": 0.02,
       "severity": "warning",
-      "citation": "Penman \u00a78.4 (clean-surplus); Ohlson 1995",
-      "description": "Retained-earnings roll-forward. Tolerance 2% \u2014 buybacks at cost and stock-comp adjustments enter here in modern GAAP and produce a small bridge gap. A systematic break (>5% of filings) signals corruption."
+      "citation": "Penman §8.4 (clean-surplus); Ohlson 1995",
+      "description": "Retained-earnings roll-forward. Tolerance 2% — buybacks at cost and stock-comp adjustments enter here in modern GAAP and produce a small bridge gap. A systematic break (>5% of filings) signals corruption."
     },
     {
       "key": "cs_02_aoci_rollforward",
@@ -572,21 +897,21 @@
       "formula": {
         "lhs": [
           {
-            "period": "t",
+            "concept": "AOCI",
             "weight": 1,
-            "concept": "AOCI"
+            "period": "t"
           },
           {
-            "period": "t_minus_1",
+            "concept": "AOCI",
             "weight": -1,
-            "concept": "AOCI"
+            "period": "t_minus_1"
           }
         ],
         "rhs": [
           {
-            "period": "t",
+            "concept": "OtherComprehensiveIncome",
             "weight": 1,
-            "concept": "OtherComprehensiveIncome"
+            "period": "t"
           }
         ]
       },
@@ -598,139 +923,37 @@
       "description": "OCI linkage. The clean-surplus relation in its purest form. Tolerance absorbs reclassification adjustments."
     },
     {
-      "key": "cs_03_clean_surplus",
-      "name": "Equity_t = Equity_{t-1} + ComprehensiveIncome_t - NetDistributions_t",
-      "statement_type": "cross_statement",
-      "formula": {
-        "lhs": [
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "StockholdersEquity"
-          },
-          {
-            "period": "t_minus_1",
-            "weight": -1,
-            "concept": "StockholdersEquity"
-          }
-        ],
-        "rhs": [
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "ComprehensiveIncome"
-          },
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "Dividends"
-          },
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "ShareBuyback"
-          },
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "EquityIssuance"
-          }
-        ]
-      },
-      "applies_to": "cross_period",
-      "tolerance_mode": "percent",
-      "tolerance_value": 0.025,
-      "severity": "warning",
-      "citation": "Ohlson 1995, \"Earnings, Book Values, and Dividends in Equity Valuation\"",
-      "description": "Clean-surplus relation \u2014 the analytic foundation of residual-income valuation. Tolerance 2.5% absorbs treasury accounting and SBC adjustments to APIC."
-    },
-    {
-      "key": "cs_04_treasury_rollforward",
-      "name": "TreasuryShares_t = TreasuryShares_{t-1} + buybacks - reissuances",
-      "statement_type": "cross_statement",
-      "formula": {
-        "lhs": [
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "TreasuryShares"
-          },
-          {
-            "period": "t_minus_1",
-            "weight": -1,
-            "concept": "TreasuryShares"
-          }
-        ],
-        "rhs": [
-          {
-            "period": "t",
-            "weight": 1,
-            "concept": "ShareBuyback"
-          }
-        ],
-        "note": "reissuances inferred from net change"
-      },
-      "applies_to": "cross_period",
-      "tolerance_mode": "percent",
-      "tolerance_value": 0.03,
-      "severity": "warning",
-      "citation": "XBRL US-GAAP TreasuryStockSharesAcquired",
-      "description": "Treasury-share roll-forward. Looser tolerance because option exercises into treasury count as reissuances and many filers do not break them out."
-    },
-    {
-      "key": "cs_05_quarterly_sums_to_fy",
-      "name": "Q1 + Q2 + Q3 + Q4 \u2248 FY for flow concepts",
-      "statement_type": "cross_statement",
-      "formula": {
-        "operator": "quarterly_sum",
-        "flow_concepts": [
-          "TotalRevenue",
-          "NetIncome",
-          "OperatingCashFlow",
-          "CostOfRevenue",
-          "GrossProfit",
-          "OperatingIncome"
-        ]
-      },
-      "applies_to": "FY",
-      "tolerance_mode": "percent",
-      "tolerance_value": 0.05,
-      "severity": "warning",
-      "citation": "SEC Reg S-X \u00a7210.10-01; FactSet PIT Methodology",
-      "description": "Annual reconciliation. Tolerance 5% absorbs Q4 plug adjustments and reclassifications that hit the 10-K but not earlier 10-Qs."
-    },
-    {
       "key": "ps_01_pit_invariant",
-      "name": "period_end <= accepted_at (PIT contract \u2014 observational facts only)",
+      "name": "period_end <= accepted_at (PIT contract — observational facts only)",
       "statement_type": "period_shape",
       "formula": {
         "operator": "pit"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
       "citation": "WRDS Compustat PIT; FactSet Fundamentals Methodology v3.4",
-      "description": "Surfaces facts whose period_end exceeds accepted_at.  WARNING (not error) because forward-dated XBRL disclosures are legitimate: 12-month hedge reclassifications, full-year actuarial assumptions disclosed in early Q1 10-Ks, cover-page shares-outstanding dates that lag accepted_at by days, and 8-K item exhibits about future fee schedules / contract starts.  The PIT invariant is enforced at QUERY time (WHERE accepted_at <= :as_of_date) by every consumer (SDK / MCP / Bulk Data API), which handles forward-dated facts correctly: at any as_of we see only what was knowable then.  This row exists so analysts can still surface the count via qa_violation; the chk_fact_pit_invariant CHECK constraint was removed for the same reason."
+      "description": "Surfaces facts whose period_end exceeds accepted_at. WARNING (not error) because forward-dated XBRL disclosures are legitimate: 12-month hedge reclassifications, full-year actuarial assumptions disclosed in early Q1 10-Ks, cover-page shares-outstanding dates that lag accepted_at by days, and 8-K item exhibits about future fee schedules / contract starts. The PIT invariant is enforced at QUERY time (WHERE accepted_at <= :as_of_date) by every consumer (SDK / MCP / Bulk Data API), which handles forward-dated facts correctly: at any as_of we see only what was knowable then. This row exists so analysts can still surface the count via qa_violation; the chk_fact_pit_invariant CHECK constraint was removed for the same reason."
     },
     {
       "key": "ps_02_fiscal_period_span",
-      "name": "FY period_span \u2248 365d; Q period_span \u2248 91d",
+      "name": "FY period_span ≈ 365d; Q period_span ≈ 91d",
       "statement_type": "period_shape",
       "formula": {
-        "Q": {
-          "max": 105,
-          "min": 80
-        },
         "FY": {
-          "max": 380,
-          "min": 350
+          "min": 350,
+          "max": 380
+        },
+        "Q": {
+          "min": 80,
+          "max": 105
         },
         "operator": "period_span"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
       "citation": "SEC EDGAR period-of-report conventions",
       "description": "Detects filers reporting a partial period under a full-period label (transition periods after fiscal-year changes are the most common cause)."
@@ -752,10 +975,38 @@
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
       "citation": "Internal pipeline normalisation",
       "description": "Sanity check on the fiscal-period label. Anything else means the XBRL period-of-report normaliser produced an unknown bucket."
+    },
+    {
+      "key": "ps_04_accepted_at_not_period_end",
+      "name": "fact.accepted_at::date <> fact.period_end (acceptance must lag the period it reports)",
+      "statement_type": "period_shape",
+      "formula": {
+        "operator": "accepted_at_eq_period_end"
+      },
+      "applies_to": "all",
+      "tolerance_mode": "absolute",
+      "tolerance_value": 0.0,
+      "severity": "warning",
+      "citation": "SEC EDGAR acceptance-lag convention; WRDS Compustat PIT",
+      "description": "Surfaces facts whose SEC acceptanceDateTime falls on the very day of the reported period_end. A genuine 10-K/10-Q is accepted weeks-to-months after the period it reports, so accepted_at == period_end is a near-certain stamping error (e.g. accepted_at copied from period_end during a malformed ingest). Non-blocking warning — the chk_fact_pit_invariant CHECK was dropped, so this is the surfaced replacement."
+    },
+    {
+      "key": "ps_05_fact_after_filing_acceptance",
+      "name": "fact.accepted_at <= filing.accepted_at (a fact cannot be knowable after its own parent filing)",
+      "statement_type": "period_shape",
+      "formula": {
+        "operator": "fact_after_filing"
+      },
+      "applies_to": "all",
+      "tolerance_mode": "absolute",
+      "tolerance_value": 0.0,
+      "severity": "warning",
+      "citation": "PIT lineage invariant — fact.accepted_at mirrors filing.accepted_at",
+      "description": "Every fact inherits its parent filing's SEC acceptanceDateTime, so fact.accepted_at must never exceed filing.accepted_at. A fact stamped LATER than the filing that disclosed it is impossible and signals corrupt accepted_at propagation in the aggregator. Non-blocking warning surfaced via qa_violation; defense-in-depth for the dropped chk_fact_pit_invariant CHECK."
     },
     {
       "key": "sp_01_total_assets_positive",
@@ -764,15 +1015,15 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalAssets"
+            "concept": "TotalAssets",
+            "weight": 1
           }
         ],
         "operator": "gt_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
       "citation": "Common-sense balance-sheet plausibility",
       "description": "No firm has zero or negative total assets at the consolidated level. A break = sign flip on the largest balance-sheet item."
@@ -784,17 +1035,17 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalRevenue"
+            "concept": "TotalRevenue",
+            "weight": 1
           }
         ],
         "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
-      "citation": "XBRL US-GAAP Revenues; SEC Reg S-X \u00a7210.5-03",
+      "citation": "XBRL US-GAAP Revenues; SEC Reg S-X §210.5-03",
       "description": "Negative revenue happens (returns reserves, sales adjustments) but is rare; we warn instead of erroring so we can audit cases."
     },
     {
@@ -804,15 +1055,15 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "CashAndEquivalents"
+            "concept": "CashAndEquivalents",
+            "weight": 1
           }
         ],
         "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
       "citation": "XBRL US-GAAP CashAndCashEquivalentsAtCarryingValue",
       "description": "Cash is by definition non-negative on the balance sheet."
@@ -824,15 +1075,15 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "CommonSharesOutstanding"
+            "concept": "CommonSharesOutstanding",
+            "weight": 1
           }
         ],
         "operator": "gt_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
       "citation": "FASB ASC 505-10; SEC Form 10-K cover-page conventions",
       "description": "No filer has zero shares outstanding. Break = wrong tag (using authorized vs outstanding) or unit confusion."
@@ -844,18 +1095,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "WeightedAvgSharesBasic"
+            "concept": "WeightedAvgSharesBasic",
+            "weight": 1
           }
         ],
         "operator": "gt_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "warning",
       "citation": "FASB ASC 260-10-45",
-      "description": "Basic share count denominator for EPS \u2014 cannot be zero."
+      "description": "Basic share count denominator for EPS — cannot be zero."
     },
     {
       "key": "sp_06_total_debt_nonnegative",
@@ -864,15 +1115,15 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalDebt"
+            "concept": "TotalDebt",
+            "weight": 1
           }
         ],
         "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
       "citation": "XBRL US-GAAP DebtCurrent + DebtNoncurrent",
       "description": "Debt sign convention; a negative reading means the filer netted debt against an asset (wrong tag)."
@@ -884,18 +1135,18 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "Inventory"
+            "concept": "Inventory",
+            "weight": 1
           }
         ],
         "operator": "gte_zero"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
       "citation": "XBRL US-GAAP InventoryNet",
-      "description": "Inventory balance is non-negative \u2014 negative would imply over-shipped consigned stock, which is a presentation artifact, not a balance-sheet value."
+      "description": "Inventory balance is non-negative — negative would imply over-shipped consigned stock, which is a presentation artifact, not a balance-sheet value."
     },
     {
       "key": "sp_08_gross_profit_le_revenue",
@@ -904,24 +1155,64 @@
       "formula": {
         "lhs": [
           {
-            "weight": 1,
-            "concept": "TotalRevenue"
+            "concept": "TotalRevenue",
+            "weight": 1
           }
         ],
         "rhs": [
           {
-            "weight": 1,
-            "concept": "GrossProfit"
+            "concept": "GrossProfit",
+            "weight": 1
           }
         ],
         "operator": "gte"
       },
       "applies_to": "all",
       "tolerance_mode": "absolute",
-      "tolerance_value": 0,
+      "tolerance_value": 0.0,
       "severity": "error",
-      "citation": "Definition of GrossProfit; Penman \u00a79.3",
+      "citation": "Definition of GrossProfit; Penman §9.3",
       "description": "You cannot earn more gross profit than you booked revenue. Catches the \"GrossProfit was misaligned to Revenue row\" parser bug."
+    },
+    {
+      "key": "sp_09_cogs_nonnegative",
+      "name": "CostOfRevenue >= 0",
+      "statement_type": "sign_plausibility",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "CostOfRevenue",
+            "weight": 1
+          }
+        ],
+        "operator": "gte_zero"
+      },
+      "applies_to": "all",
+      "tolerance_mode": "absolute",
+      "tolerance_value": 0.0,
+      "severity": "error",
+      "citation": "SEC Reg S-X §210.5-03 (cost of sales)",
+      "description": "Cost of revenue is non-negative. A negative reading is a sign flip or a contra-account mis-tagged as COGS."
+    },
+    {
+      "key": "sp_10_dep_amort_nonnegative",
+      "name": "DepreciationAndAmortization >= 0",
+      "statement_type": "sign_plausibility",
+      "formula": {
+        "lhs": [
+          {
+            "concept": "DepreciationAndAmortization",
+            "weight": 1
+          }
+        ],
+        "operator": "gte_zero"
+      },
+      "applies_to": "all",
+      "tolerance_mode": "absolute",
+      "tolerance_value": 0.0,
+      "severity": "warning",
+      "citation": "FASB ASC 360-10; ASC 350-30",
+      "description": "D&A is an expense / non-cash add-back; the underlying amount is non-negative. WARN (not ERROR) because rare reclassification lines can carry a negative in some filer presentations."
     }
   ]
 }
