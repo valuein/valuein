@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.11.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.11.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1795,7 +1795,7 @@ Search the catalog of published research reports. All listings are free to read.
 
 **Compute Forward DCF** · min plan `sp500` · read-only · paging: none
 
-Forward discounted-cash-flow valuation (two-stage Gordon-growth model): caller provides growth + WACC + terminal assumptions, returns per-share intrinsic value (`value_per_share_cents`, cents USD) + 5×5 sensitivity grid. Pulls FCF base + net debt + shares from R2; caller can o...
+Forward discounted-cash-flow valuation (two-stage Gordon-growth model): caller provides growth + WACC + terminal assumptions, returns per-share intrinsic value (`value_per_share_cents`, cents of `result.reporting_currency` — USD for US filers, the filer's own currency otherwis...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1863,7 +1863,7 @@ Current and historical valuation multiples for a company. Omit `as_of_date` and 
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
 | `as_of_date` | string | yes | — | The historical date for the valuation snapshot (YYYY-MM-DD). The EOD close on the nearest prior trading day will be used. All financials are PIT-filtered to filings accepted on or before this date. Use a date in the recent past (within the last year) to get current-ish multiples; use any historical date back to 1993 (subject to your plan's history window) to get the multiples as they would have been observable on that date. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `as_of_date`, `price_date`, `close`, `currency`, `is_exact_date_match`, `ttm_period_end`, `financials_accepted_at`, `ttm_revenue`, `ttm_gross_profit`, `ttm_operating_income`, `ttm_ebitda`, `ttm_net_income`, `ttm_ocf`, `ttm_capex`, `ttm_fcf`, `shares_diluted`, `cash`, `total_debt`, `net_debt`, `book_equity`, `market_cap`, `enterprise_value`, `pe_ratio`, `ps_ratio`, `pb_ratio`, `ev_ebitda`, `ev_revenue`, `fcf_yield_pct`, `gross_margin_pct`, `operating_margin_pct`, `net_margin_pct`, `note`
+**Output fields:** `ticker`, `cik`, `company_name`, `as_of_date`, `price_date`, `close`, `currency`, `reporting_currency`, `is_exact_date_match`, `ttm_period_end`, `financials_accepted_at`, `ttm_revenue`, `ttm_gross_profit`, `ttm_operating_income`, `ttm_ebitda`, `ttm_net_income`, `ttm_ocf`, `ttm_capex`, `ttm_fcf`, `shares_diluted`, `cash`, `total_debt`, `net_debt`, `book_equity`, `market_cap`, `enterprise_value`, `pe_ratio`, `ps_ratio`, `pb_ratio`, `ev_ebitda`, `ev_revenue`, `fcf_yield_pct`, `gross_margin_pct`, `operating_margin_pct`, `net_margin_pct`, `note`
 
 ### `run_backtest`
 
@@ -2140,7 +2140,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.11.0); 39 prompts._
+_Generated from the MCP server manifest (v3.11.2); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2192,7 +2192,7 @@ _Generated from the MCP server manifest (v3.11.0); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.11.0); 3 resources._
+_Generated from the MCP server manifest (v3.11.2); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
