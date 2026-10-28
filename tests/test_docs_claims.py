@@ -101,3 +101,10 @@ def test_raw_tag_count_agrees_across_docs() -> None:
     assert "15,000+" not in _read("scripts/generate_catalog.py")
     assert "15,000+" not in _read("docs/data_catalog.md")
     assert "11,966 unique raw XBRL tags" in _read("docs/METHODOLOGY.md")
+
+
+def test_sql_blocks_do_not_name_a_cte_with_a_duckdb_keyword() -> None:
+    """`asof` is a DuckDB join keyword: `FROM asof JOIN ...` is a parser error for readers."""
+    pattern = re.compile(r"\b(?:WITH|FROM|JOIN)\s+asof\b", re.IGNORECASE)
+    for rel in ("README.md", "AGENTS.md", "docs/QUERY_COOKBOOK.md", "docs/METHODOLOGY.md", "docs/SDK_USE_CASES.md"):
+        assert not pattern.search(_read(rel)), rel
