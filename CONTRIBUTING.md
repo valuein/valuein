@@ -114,9 +114,9 @@ If your change is conceptually about…
 |---|---|---|
 | SDK internals (`ValueinClient`, transport, alpha factors, SQL templates) | The SDK repo (private) | Mirrors the public surface in examples and docs |
 | MCP worker code (tool implementations, auth, R2 access) | The MCP repo (private) | This repo hosts `server.json` (registry manifest) and `docs/MCP_TOOLS.md`, both generated from the live manifest |
-| `fact.standard_concept` definitions | The data-pipeline repo (private) | Mirrors the canonical concept list in `scripts/generate_catalog.py` |
+| `fact.standard_concept` definitions | The data-pipeline repo (private) | `scripts/generate_catalog.py` renders the concept list from the live manifest |
 | Cloudflare workers (gateway, Stripe webhook) | The infra repo (private) | None — config changes are invisible from the outside |
-| Frontend / dashboard | [`frontend`](https://github.com/valuein/frontend) | None |
+| Frontend / dashboard | The frontend repo (private) | None |
 
 If you find drift between any of these — for example, the README says one Pro price and the website says another — please open a [Q&A issue](.github/ISSUE_TEMPLATE/04_general_question.yml). Drift is a bug.
 
