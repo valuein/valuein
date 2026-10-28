@@ -59,10 +59,11 @@ def test_sourcing_claims_are_scoped_to_sec_filings() -> None:
 
 def test_institutional_tier_is_not_sold_with_redistribution_rights() -> None:
     """plans.ts sets redistribution=false on every tier: redistribution is a Commercial licence."""
-    for rel in ("README.md", "SUPPORT.md", "AGENTS.md"):
+    for rel in ("README.md", "SUPPORT.md", "AGENTS.md", "docs/MCP_TOOLS.md", "docs/WORKSPACE_GUIDE.md"):
         text = re.sub(r"<!-- GEN:.*?<!-- /GEN:[^>]*-->", "", _read(rel), flags=re.DOTALL | re.IGNORECASE)
         assert "commercial redistribution" not in text.lower(), rel
-        assert "redistribution license +" not in text, rel
+        assert "redistribution license" not in text.lower(), rel
+        assert "expanded redistribution" not in text.lower(), rel
 
 
 def test_generated_mcp_summary_matches_plans() -> None:
@@ -78,6 +79,7 @@ def test_generated_mcp_summary_matches_plans() -> None:
         {"counts": {"tools_live": 1, "tools_stub": 0, "tools": 1, "prompts": 1, "resources": 1}}
     )
     assert "redistribution license" not in rendered
+    assert "Enterprise-only, under a Commercial licence" in rendered
     assert "19,000" not in rendered
     assert "S&P 500" not in rendered
 
