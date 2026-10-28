@@ -4,7 +4,7 @@ A collection of copy-pasteable **DuckDB** recipes for the Valuein SEC EDGAR
 fundamentals dataset. Every query in this document runs against the tables
 exposed by the SDK (`references`, `entity`, `security`, `filing`, `fact`, `ratio`,
 `taxonomy_guide`, `index_membership`, `standard_concept`, `restatement_events`,
-`stock_price`; `filing_registrant` and `stock_price_daily` on paid tiers, the
+`stock_price`, `filing_registrant`; `stock_price_daily` on Pro and Institutional, the
 smart-money and Form ADV tables on Institutional; `client.tables()` lists what your
 plan reads).
 

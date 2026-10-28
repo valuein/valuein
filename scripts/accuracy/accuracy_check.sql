@@ -31,7 +31,7 @@
 -- URL prefix (https://data.valuein.biz/v1/pro or .../v1/full).  Same script.
 --
 -- ----------------------------------------------------------------------------
--- What this script does (35 identities, 7 result sets)
+-- What this script does (every active identity, 7 result sets)
 -- ----------------------------------------------------------------------------
 --
 --   1.  Build the universe — latest S&P 500 FY filing per (entity, fiscal year),

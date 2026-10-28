@@ -5,9 +5,9 @@ README and pricing page. Three files, all citable, all runnable:
 
 | File | Purpose |
 |---|---|
-| [`methodology.md`](methodology.md) | Narrative — definitions, 35 identities, how we calibrate up from the raw baseline, limitations |
-| [`identities.json`](identities.json) | Machine-readable catalog of every identity (formula, tolerance, severity, citation) — exactly the set the engine evaluates |
-| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot: 100 % modern-era (≥ 2010) and 100 % overall — 0 identity failures across ~19,600 S&P 500 annual filings. Regenerated from a production run; the exact filing counts and figures are always in the file itself. |
+| [`methodology.md`](methodology.md) | Narrative — definitions, the identity rules, how we calibrate up from the raw baseline, limitations |
+| [`identities.json`](identities.json) | Machine-readable catalog of every identity (formula, tolerance, severity, citation) — a published copy that lags the engine's catalogue (see below); the exact graded set is `baseline.json` `identity_set` |
+| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot (S&P 500 universe, evaluable filings only, "clean" = passes every error-severity identity): 91.46 % modern-era (≥ 2010), 93.31 % overall, 18,385 annual filings. Regenerated from a production run; the exact filing counts and figures are always in the file itself. |
 | [`../../scripts/accuracy/accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) | Self-contained DuckDB script that reproduces the measurement — defaults to the free sample tier |
 
 ## TL;DR for customers
@@ -38,7 +38,9 @@ Prefer zero third-party trust? Download the [offline sample bundle](https://valu
 
 ## Questions
 
-* **The current baseline shows 100 %** — that means 0 identity failures across the S&P 500 filing universe at the time of the latest measurement. The accounting identities now use the NCI-inclusive equity concept (`StockholdersEquityIncludingNCI`) which is how consolidated financial statements are actually prepared. The current measured headline is always in [`baseline.json`](baseline.json); re-derive it yourself with the SQL.
+> **`identities.json` lags the engine.** It is a copy published 2026-05-15 (v1.0.0): 35 identities, of which 4 error-severity rules the engine now grades are missing (`bs_07_ppe_net`, `is_10_comprehensive_income`, `is_11_comprehensive_income_consolidated`, `sp_09_cogs_nonnegative`), one entry (`ps_01_pit_invariant`) is no longer in the catalogue, and 9 tolerances/severities differ (e.g. `is_01_gross_profit` 25 % vs 1 %, `bs_01_accounting_equation` 10 % vs 0.5 %). The engine's catalogue has 46 identities, 18 of them error-severity; `baseline.json` `identity_set` is exactly those 18.
+
+* **How should I read the headline?** As the share of evaluable S&P 500-universe annual filings that pass every error-severity identity (91.46 % modern-era, 93.31 % overall at the 2026-10-24 measurement), never as a claim about the full 19,000+ universe. The identities use the NCI-inclusive equity concept (`StockholdersEquityIncludingNCI`), as consolidated statements are prepared. The failing identities are ranked in `baseline.json` `top_remaining_pareto`. The current figure is always in [`baseline.json`](baseline.json); re-derive it yourself with the SQL.
 
 * **Why isn't unstandardized accuracy higher?** Because there are still us-gaap tag aliases (`SalesRevenueNet`, `CashAndCashEquivalentsPeriodIncreaseDecrease`, etc.) that should be in our catalog but aren't yet, plus genuine long-tail XBRL disclosures. The current mapping-gap rate is reported in [`baseline.json`](baseline.json) (`unstandardized_facts`); closing it is ongoing pipeline work.
 

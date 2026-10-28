@@ -6,8 +6,8 @@ Valuein provides institutional-grade SEC fundamental data. This document address
 
 ## 1. Data Sourcing & Provenance
 
-- **Source:** 100% of the data originates from the U.S. Securities and Exchange Commission (SEC) EDGAR system. Coverage runs from 1993 to present across 19,000+ active and delisted US-listed entities. The fundamentals dataset is exposed on every paid tier; the smart-money dataset (insider transactions and institutional ownership disclosures) is exposed on the Institutional tier only.
-- **Transformations:** Data undergoes normalization to resolve XBRL tag discrepancies across filers and fiscal years. 11,966 raw XBRL tags are mapped to 292 canonical `standard_concept` values via a deterministic waterfall (direct tag → calculated alternative → null). Raw numeric facts are mathematically unaltered; no imputation or smoothing is applied. Both the raw and canonical names are present on every row of the `fact` table for traceability.
+- **Source:** All fundamentals, ratios, filings, insider and institutional-ownership data originate from the U.S. Securities and Exchange Commission (SEC) EDGAR system. Two datasets do not: the market-price tables (`stock_price`, `stock_price_daily`) come from a separately licensed price archive (earliest bar 1994, not EDGAR's 1993 floor), and `index_membership` is reconstructed from public SEC filings and fund disclosures; Valuein holds no licence with, and receives no data from, any index provider. Coverage runs from 1993 to present across 19,000+ active and delisted US-listed entities. The fundamentals dataset is exposed on every paid tier; the smart-money dataset (insider transactions and institutional ownership disclosures) is exposed on the Institutional tier only.
+- **Transformations:** Data undergoes normalization to resolve XBRL tag discrepancies across filers and fiscal years. 11,966 raw XBRL tags are mapped to 350+ canonical `standard_concept` values (live count: the `standard_concept` table) via a deterministic waterfall (direct tag → calculated alternative → null). Raw numeric facts are mathematically unaltered; no imputation or smoothing is applied. Both the raw and canonical names are present on every row of the `fact` table for traceability.
 - **Survivorship Bias:** The dataset retains all historical filings, including those from delisted, bankrupt, merged, or acquired entities. No entity is ever removed from the archive.
 
 ---
@@ -16,7 +16,7 @@ Valuein provides institutional-grade SEC fundamental data. This document address
 
 - **Policy:** Valuein data contains **no** Material Non-Public Information (MNPI).
 - **Latency:** Data is ingested, processed, and published to the R2 snapshot only after the filing has been publicly disseminated by the SEC EDGAR system. The `filing_date` field reflects the SEC's acceptance date; the millisecond-resolution `accepted_at` field on the `fact`, `filing`, and `ratio` tables corresponds to EDGAR's `acceptedDateTime`. Neither reflects Valuein's internal ingestion time.
-- **No alternative data:** The dataset contains solely structured financial data extracted from public SEC filings. No web scraping, satellite imagery, or credit-card transaction data is included.
+- **No alternative data:** Apart from the licensed market-price series, the dataset contains solely structured data extracted from public SEC filings and fund disclosures. No web scraping, satellite imagery, or credit-card transaction data is included.
 
 ---
 
@@ -50,8 +50,8 @@ Valuein's AI surface (the MCP server and the BYO-LLM Workspace) is designed for 
 |---|---|
 | **The model never mints a number** | Financial figures originate only in typed, deterministic tools. Every figure carries a `fact_id` and its source SEC filing; `verify_fact_lineage` resolves any `fact_id` back to the filing URL for one-click audit. Server instructions forbid the model from computing or estimating figures itself. |
 | **Point-in-time discipline** | Every time-series tool accepts an `as_of_date` and reconstructs the information set as of that date — no look-ahead in AI-generated research, same as in backtests. |
-| **Reproducible runs** | Tools are deterministic and idempotent (same inputs → same output). Managed agent runs execute at temperature 0 with a model allow-list, wall-clock and output caps, and destructive-tool stripping. |
-| **Human-on-the-loop approvals** | Mutating and outward-facing agent actions are staged in an approval ledger — the agent proposes, a human approves or rejects, and every decision is recorded as an immutable audit entry. Read-only tools never require approval. |
+| **Reproducible runs** | Tools are deterministic and idempotent (same inputs → same output). Managed agent runs use temperature 0 on every model that accepts a sampling temperature (newer models reject it and run without one), with a model allow-list and wall-clock and output-token caps. |
+| **Human-on-the-loop approvals** | Managed agents are offered only tools annotated read-only, plus one private-draft tool (`save_freeform_report`, an unsigned draft visible only to its owner). Every other mutating or outward-facing action is withheld from direct use and staged in an approval ledger — the agent proposes, a human approves or rejects, and every decision is recorded as an immutable audit entry. |
 | **BYO-LLM, zero retention** | Workspace customers bring their own LLM key. The key is sealed in a short-lived encrypted cookie, is never persisted server-side in plaintext, and customer data is never used to train any model. An Enterprise zero-retention tier is available. |
 | **Availability honesty** | A figure that is not reported, not mapped, or suppressed is returned with an explicit availability status — never silently substituted or estimated. A tier limitation returns a structured error, never an empty result posing as data. |
 
@@ -62,7 +62,7 @@ Valuein's AI surface (the MCP server and the BYO-LLM Workspace) is designed for 
 See [`SLA.md`](SLA.md) for full commitments on uptime, data freshness latency, and support response times.
 
 - **Uptime:** 99.9% monthly availability for the Cloudflare R2 storage layer
-- **Data freshness:** New snapshot published daily by 06:00 UTC
+- **Data freshness:** Fundamentals snapshot published weekly (Saturday); market prices each weekday. Per-table timestamps: `table_last_updated` in the manifest
 - **Critical incidents:** Response within 2 hours, 24/7
 
 ---

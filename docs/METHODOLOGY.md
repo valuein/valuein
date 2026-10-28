@@ -12,7 +12,7 @@ The data product covers every active and delisted US public company that files w
 2. **Validation.** Each filing's `accession_id` is verified against the EDGAR submission registry.
 3. **Parsing.** Facts are extracted using the US GAAP Taxonomy (2009 – 2026) and mapped to canonical `standard_concept` values before being written to the `fact` table.
 
-100% of the data originates from the U.S. Securities and Exchange Commission (SEC) EDGAR system. We add no alternative-data sources, no surveys, and no estimated overrides.
+Fundamentals, ratios, filings, insider and institutional-ownership data originate from the U.S. Securities and Exchange Commission (SEC) EDGAR system. The market-price tables come from a separately licensed price archive (earliest bar 1994), and `index_membership` is reconstructed from public SEC filings and fund disclosures. We add no other alternative-data sources, no surveys, and no estimated overrides.
 
 ---
 
@@ -50,7 +50,7 @@ The `data_quality` field on each fact distinguishes the original disclosure from
 
 ## 4. Standardization logic
 
-11,966 unique raw XBRL tags are mapped to 292 canonical `standard_concept` values using a waterfall approach. Each concept resolves in priority order — if a direct tag is unavailable, calculated alternatives are attempted.
+11,966 unique raw XBRL tags are mapped to 350+ canonical `standard_concept` values using a waterfall approach. Each concept resolves in priority order — if a direct tag is unavailable, calculated alternatives are attempted.
 
 Both the raw and canonical names are on every fact row:
 
@@ -148,7 +148,7 @@ Walk-through: [`examples/notebooks/10_dcf_valuation.ipynb`](../examples/notebook
 | **Filings** | 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), and their amendments. 6-K (FPI interims) is not currently in the ingest scope — most 6-K filings lack XBRL. |
 | **Facts** | Standardized financial data points: every fact of every filing above, under its canonical `standard_concept` ([`data_catalog.md`](data_catalog.md)) |
 | **XBRL coverage** | Facts that cannot be mapped to a canonical `standard_concept` are exposed under `'Other'` rather than dropped or imputed. The current measured mapping-gap rate is published in [`accuracy/baseline.json`](accuracy/baseline.json) (`unstandardized_facts`) and re-derivable with the open DuckDB script |
-| **Update frequency** | Daily snapshot for Free / Pro tiers; 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
+| **Update frequency** | Fundamentals snapshot weekly (Saturday) and market prices each weekday for every tier (`table_last_updated` in the manifest); 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; the snapshot publication SLA is in [`SLA.md`](SLA.md) |
 
 ---

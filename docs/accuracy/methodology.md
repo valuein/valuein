@@ -2,16 +2,16 @@
 
 Valuein is built on a simple promise: **every fact you read can be mathematically verified against SEC's own canonical data.** This document describes how, and how you can reproduce the measurement yourself.
 
-The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Latest committed snapshot (S&P 500 universe, 1993–present):
+The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Snapshot measured 2026-10-24 (S&P 500 universe, evaluable filings only; "clean" = passes every active error-severity identity):
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 11,422 | **100 %** |
-| Standardized facts — overall (all eras) | 19,616 | **100 %** |
-| Standardized facts — legacy era (< 2010) — *trivially passes; do not cite* ⚠️ | 8,194 | see `baseline.json` |
-| **Unstandardized facts** (correctly left as `'Other'`) | 40.8 M | see `baseline.json` |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 10,637 | **91.46 %** |
+| Standardized facts — overall (all eras, evaluable filings) | 18,385 | **93.31 %** |
+| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | 7,748 | 95.84 % |
+| **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | 23.0 M | **64.35 %** |
 
-⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts and trivially pass every identity — **use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
+⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts; filings with no testable facts are excluded from the denominators above (`filings` vs `filings_in_universe` in `baseline.json`). **Use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
 
 ---
 
@@ -21,7 +21,7 @@ Two distinct measurements, each tied to a precise definition.
 
 ### 1.1 Standardized-fact accuracy
 
-A filing is **clean** if and only if it satisfies every active *error-severity* accounting identity in [`identities.json`](identities.json) — 35 canonical equations sourced from FASB ASC, Penman (*Financial Statement Analysis* 5e), Ohlson 1995, FactSet PIT Methodology v3.4, and the XBRL US-GAAP Calculation Linkbase.
+A filing is **clean** if and only if it satisfies every active *error-severity* accounting identity in the data-pipeline identity catalogue (`baseline.json` `identity_set` lists the exact rules and tolerances the figure was graded against; [`identities.json`](identities.json) is an older published copy, see the note in the README) — canonical equations sourced from FASB ASC, Penman (*Financial Statement Analysis* 5e), Ohlson 1995, FactSet PIT Methodology v3.4, and the XBRL US-GAAP Calculation Linkbase.
 
 A filing is **with-error** if at least one error-severity identity fails on it.
 
@@ -41,10 +41,10 @@ Anything else is a **mapping gap** — a tag our standardization rules should ha
 
 Accuracy of the *numbers* (§1.1) is distinct from confidence in the *concept labels* those numbers are mapped to. Each canonical concept in the catalog carries a **`review_confidence`** score, surfaced on the `standard_concept` table and in the data catalog:
 
-* **`1.0` — CPA-verified.** An accountant has signed off on the concept's canonical name, statement type, and matching rule. A verified concept is **locked**: the automated standardization loop may only ever *create new* concepts, never mutate a verified one (`reviewed_by` / `reviewed_at` record the sign-off).
+* **`1.0` — reviewed.** Intended to mean a person has signed off on the concept's canonical name, statement type, and matching rule; a reviewed concept is **locked** (the automated standardization loop may only *create new* concepts, never mutate one). The sign-off itself is recorded in `reviewed_by` / `reviewed_at`, which are populated for only a few concepts today: treat `review_confidence = 1.0` as proof of an accountant's sign-off only where `reviewed_by` is set.
 * **`0.7` — provisional.** Auto-mapped by the coverage loop (used by ≥ 1,000 distinct issuers) and queued for the next CPA review cycle.
 
-Filter `review_confidence >= 1.0` for the accountant-verified concept set — the labels analysts, quants, portfolio managers, and AI models can agree on and train against without re-deriving the mapping. This is the human-in-the-loop guarantee behind the standardization layer: every published concept is either verified or transparently flagged as provisional.
+Filter `review_confidence >= 1.0` for the reviewed concept set, and `reviewed_by IS NOT NULL` for the concepts with a recorded named sign-off.
 
 ---
 
