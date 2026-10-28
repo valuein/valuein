@@ -9,15 +9,12 @@
 --   ┌─────────────────────────────────────────────────────────────────────────────┐
 --   │  TWO WAYS TO RUN — same SQL, same answer.                                   │
 --   │                                                                             │
---   │  A. Free token (S&P 500 sample, 5-year window)                              │
---   │     1. Get a free token at https://valuein.biz/signup/free                     │
---   │     2. duckdb -c "LOAD httpfs;                                              │
---   │            CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS                     │
---   │                MAP {'Authorization': 'Bearer YOUR_TOKEN'});                 │
---   │            .read scripts/accuracy/accuracy_check.sql"                       │
+--   │  A. Online, no token (S&P 500 sample, 5-year window)                        │
+--   │     duckdb -c "LOAD httpfs; .read scripts/accuracy/accuracy_check.sql"      │
+--   │     (paid tiers: Bearer token via CREATE SECRET + a tier URL, see below)    │
 --   │                                                                             │
 --   │  B. Offline (no network, no token)                                          │
---   │     1. Download the sample Parquet bundle: https://valuein.biz/download/sample │
+--   │     1. Save fact, filing, entity, index_membership as local .parquet files  │
 --   │     2. duckdb -c "SET VARIABLE valuein_bucket_base = 'file:///path/to/sample'; │
 --   │            .read scripts/accuracy/accuracy_check.sql"                       │
 --   └─────────────────────────────────────────────────────────────────────────────┘
@@ -69,15 +66,14 @@ SET threads = 4;
 
 -- ============================================================================
 -- Parameters — override BEFORE `.read`-ing this file to target your tier.
--- Default points at the sample-tier URL.  All tier URLs require a free
--- Bearer token (get one at valuein.biz/signup/free); load it via DuckDB's
--- HTTP secrets API before reading this script (see header docblock,
--- option A).  For zero-network reproducibility, download the offline
--- Parquet bundle and point `valuein_bucket_base` at the local path.
+-- Default points at the sample-tier URL.  The sample URL needs no token;
+-- paid tiers need a Bearer token loaded via DuckDB's HTTP secrets API.
+-- For zero-network reproducibility, save the tables locally and point
+-- `valuein_bucket_base` at the folder.
 -- ============================================================================
 
 -- Override examples (run BEFORE `.read`-ing this file):
---   -- Free SP500 tier (lead-capture, no token):
+--   -- Free Benchmark tier (needs the free Benchmark token):
 --   SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/sp500';
 --
 --   -- Pro / Institutional (requires Bearer token via httpfs):

@@ -88,24 +88,15 @@ These are honest engineering decisions, not metric-gaming. Every loosening choic
 
 ### 4.1 Free path (sample tier — 5-year S&P 500 window)
 
-The sample tier is free, but a Bearer token is required to fetch its Parquet files (lead-capture flow — we ask for an email so we know who's evaluating). Get one in 30 seconds at [valuein.biz/register](https://valuein.biz/register).
+The sample tier needs no token and no signup. (The free Benchmark token at [valuein.biz/signup/free](https://valuein.biz/signup/free) adds the full 1993–present history of the same universe.)
 
 ```bash
 # 1. Install DuckDB (one binary, zero deps): https://duckdb.org/docs/installation
-# 2. Export your free token and run the script:
-
-# VALUEIN_TOKEN is just the shell variable these DuckDB commands read (the SDK reads VALUEIN_API_KEY);
-# both hold the same token.
-export VALUEIN_TOKEN="your_free_token_here"
-
-duckdb -c "
-LOAD httpfs;
-CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
-.read scripts/accuracy/accuracy_check.sql
-"
+# 2. Run the script (no token):
+duckdb -c "LOAD httpfs; .read scripts/accuracy/accuracy_check.sql"
 ```
 
-You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window (vs. the full 1993–present universe on paid tiers).
+You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window, so the headline differs from `baseline.json` (which grades the full 1993–present universe): a 2026-10-28 run on the sample returned 3,887 annual filings at 98.04 % clean.
 
 ### 4.2 Pro / Institutional path
 
@@ -127,9 +118,10 @@ Full 1993–present × 19,000+-entity number, same SQL.
 If you'd rather not depend on our infrastructure for the proof:
 
 ```bash
-# Download the offline sample Parquet bundle (~250 MB, no token):
-curl -L -o sample.zip https://valuein.biz/download/sample
-unzip sample.zip -d ./sample
+# Download the four tables the script reads (no token):
+# Fetch each table once (no token), e.g. fact, filing, entity, index_membership:
+mkdir sample && for t in fact filing entity index_membership; do
+  curl -sL -o sample/$t.parquet https://data.valuein.biz/v1/sample/$t; done
 
 duckdb -c "
 SET VARIABLE valuein_bucket_base = 'file:///$(pwd)/sample';

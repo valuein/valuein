@@ -15,19 +15,13 @@ README and pricing page. Three files, all citable, all runnable:
 > *"Valuein measures mathematical consistency on S&P 500 annual filings against SEC's own canonical `companyfacts` API — see [`baseline.json`](baseline.json) for the current measured figure (the honest ≥ 2010 modern-era result). Each tolerance choice is citable to FactSet PIT methodology, FASB ASC, or Penman §8-10, and re-running the measurement is one DuckDB command."*
 
 ```bash
-# Get a free token first (lead-capture, 30 seconds): https://valuein.biz/signup/free
-# VALUEIN_TOKEN is just the shell variable these DuckDB commands read (the SDK reads VALUEIN_API_KEY);
-# both hold the same token.
-export VALUEIN_TOKEN="your_token"
-
-duckdb -c "
-  LOAD httpfs;
-  CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
-  .read scripts/accuracy/accuracy_check.sql
-"
+# The sample tier needs no token:
+duckdb -c "LOAD httpfs; .read scripts/accuracy/accuracy_check.sql"
 ```
 
-Prefer zero third-party trust? Download the [offline sample bundle](https://valuein.biz/download/sample), point `valuein_bucket_base` at the local path, run the same script. Same SQL, same answer. Pro / Institutional tier customers swap the URL — same SQL, larger universe.
+The sample window is five years, so its headline differs from `baseline.json` (a 2026-10-28 run returned 3,887 annual filings, 98.04 % clean). Pro and Institutional tokens swap the URL (`valuein_bucket_base`) for the full universe.
+
+Prefer zero third-party trust? Save the four tables the script reads (`fact`, `filing`, `entity`, `index_membership`) as local `.parquet` files, point `valuein_bucket_base` at the folder, run the same script.
 
 ## How this differs from other data vendors
 
