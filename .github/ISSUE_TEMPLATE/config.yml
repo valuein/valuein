@@ -11,7 +11,7 @@ contact_links:
     about: Found a vulnerability? Please report it privately — never in a public issue.
   - name: 💼 Sales, contracts, custom plans
     url: mailto:sales@valuein.biz
-    about: Enterprise plans, redistribution licensing, dataset add-ons.
+    about: Enterprise Agreements for teams, a Redistribution Licence for data vendors, dataset add-ons.
   - name: 🧾 Billing
     url: mailto:billing@valuein.biz
     about: Invoices, refunds, payment issues.

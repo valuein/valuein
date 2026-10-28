@@ -112,7 +112,9 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 | **Benchmark** | Large-cap US benchmark universe | Full history | **Free**, [register](https://valuein.biz/signup/free) |
 | **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
-| **Enterprise** | Commercial licence for redistribution, display and white-label · dedicated infrastructure · negotiated scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
+| **Enterprise** | Organisations and teams, by Enterprise Agreement: the whole dataset, multi-seat · display in your own products and client deliverables, with attribution, where the Order Form says so · dedicated infrastructure · negotiated scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
+
+Redistribution, resale and white-label are not part of any plan, Enterprise included: data vendors and platforms sign a separate **Redistribution Licence** ([sales@valuein.biz](mailto:sales@valuein.biz)).
 
 Prices, universe sizes, history windows and rate limits are served live; read them instead of a copy:
 
@@ -121,7 +123,7 @@ curl -s https://data.valuein.biz/v1/plans \
   | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear, perMinute, perHour}'
 ```
 
-Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and an internal-use license for your team under a business-hours SLA (no redistribution); Enterprise adds the Commercial licence for redistribution, display and white-label, dedicated infrastructure and bespoke contracts.
+Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and a single-seat internal-use license under a business-hours SLA (no redistribution); Enterprise is for organisations and teams: an Enterprise Agreement for multi-seat use and, where the Order Form says so, display in your own products and client deliverables with attribution, plus dedicated infrastructure and bespoke contracts. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
 
 ### Pay-per-call (MPP)
 
@@ -444,7 +446,7 @@ Valuein ships a remote, protocol-native Model Context Protocol server so any MCP
 ### Tools
 
 <!-- GEN:mcp-summary -->
-The server exposes **127 live tools**, plus **39 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — the free Sample (no token, from 2020) and Benchmark (the large-cap US benchmark universe, current constituents, from 1993) tiers see their slices; Pro sees the full universe of 28,000+ active and delisted companies with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), Form ADV, unlimited history back to 1993 and filing-event webhooks, for internal use. Redistribution, display and white-label are Enterprise-only, under a Commercial licence.
+The server exposes **127 live tools**, plus **39 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — the free Sample (no token, from 2020) and Benchmark (the large-cap US benchmark universe, current constituents, from 1993) tiers see their slices; Pro sees the full universe of 28,000+ active and delisted companies with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), Form ADV, unlimited history back to 1993 and filing-event webhooks, for single-seat internal use. Enterprise (an Enterprise Agreement for organisations and teams) adds multi-seat use and, where the Order Form says so, display in your own products and client deliverables with attribution. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
 <!-- /GEN:mcp-summary -->
 
 **Discovery & schema**
@@ -640,6 +642,6 @@ S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC;
 
 The code and documentation in this repository are licensed under [Apache 2.0](LICENSE). See [NOTICE](NOTICE) for attribution.
 
-Valuein data, in every tier including the free sample, is licensed separately under the [Valuein Data Licence](https://valuein.biz/terms#data-licence): internal use and research, small excerpts with credit, and no redistribution, resale or model training without a written agreement.
+Valuein data, in every tier including the free sample, is licensed separately under the [Valuein Data Licence](https://valuein.biz/terms#data-licence): internal use and research, small excerpts with credit; redistribution and resale need a separate Redistribution Licence, and model training a signed agreement that expressly permits it.
 
 This repository is provided for research and educational purposes. **It is not investment advice.** No warranty of fitness for any particular trading, investment, or regulatory purpose is implied.
