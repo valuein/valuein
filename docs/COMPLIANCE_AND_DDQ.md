@@ -6,7 +6,7 @@ Valuein provides institutional-grade SEC fundamental data. This document address
 
 ## 1. Data Sourcing & Provenance
 
-- **Source:** All fundamentals, ratios, filings, insider and institutional-ownership data originate from the U.S. Securities and Exchange Commission (SEC) EDGAR system. Two datasets do not: the market-price tables (`stock_price`, `stock_price_daily`) come from a separately licensed price archive (earliest bar 1994, not EDGAR's 1993 floor), and `index_membership` is reconstructed from public SEC filings and fund disclosures; Valuein holds no licence with, and receives no data from, any index provider. Coverage runs from 1993 to present across 19,000+ active and delisted US-listed entities. The fundamentals dataset is exposed on every paid tier; the smart-money dataset (insider transactions and institutional ownership disclosures) is exposed on the Institutional tier only.
+- **Source:** All financial statements, ownership and insider data come from SEC filings, through the U.S. Securities and Exchange Commission's EDGAR system: fundamentals, ratios, filings, insider transactions and institutional-ownership disclosures. `index_membership` is reconstructed from public SEC filings and fund disclosures; Valuein holds no licence with, and receives no data from, any index provider. Market prices (`stock_price`, `stock_price_daily`) are a separately licensed series starting in 1994. Coverage runs from 1993 to present across 19,000+ active and delisted US-listed entities. The fundamentals dataset is exposed on every paid tier; the smart-money dataset (insider transactions and institutional ownership disclosures) is exposed on the Institutional tier only.
 - **Transformations:** Data undergoes normalization to resolve XBRL tag discrepancies across filers and fiscal years. 11,966 raw XBRL tags are mapped to 350+ canonical `standard_concept` values (live count: the `standard_concept` table) via a deterministic waterfall (direct tag → calculated alternative → null). Raw numeric facts are mathematically unaltered; no imputation or smoothing is applied. Both the raw and canonical names are present on every row of the `fact` table for traceability.
 - **Survivorship Bias:** The dataset retains all historical filings, including those from delisted, bankrupt, merged, or acquired entities. No entity is ever removed from the archive.
 
@@ -16,7 +16,7 @@ Valuein provides institutional-grade SEC fundamental data. This document address
 
 - **Policy:** Valuein data contains **no** Material Non-Public Information (MNPI).
 - **Latency:** Data is ingested, processed, and published to the R2 snapshot only after the filing has been publicly disseminated by the SEC EDGAR system. The `filing_date` field reflects the SEC's acceptance date; the millisecond-resolution `accepted_at` field on the `fact`, `filing`, and `ratio` tables corresponds to EDGAR's `acceptedDateTime`. Neither reflects Valuein's internal ingestion time.
-- **No alternative data:** Apart from the licensed market-price series, the dataset contains solely structured data extracted from public SEC filings and fund disclosures. No web scraping, satellite imagery, or credit-card transaction data is included.
+- **No alternative data:** All financial statements, ownership and insider data come from SEC filings; the only other inputs are public fund disclosures (index membership) and the market-price series. No web scraping, satellite imagery, or credit-card transaction data is included.
 
 ---
 

@@ -45,12 +45,16 @@ def test_readme_data_model_names_every_public_table() -> None:
     assert not missing, missing
 
 
-def test_sourcing_claims_admit_licensed_prices() -> None:
-    """DDQ and methodology must not say all data comes from EDGAR: prices are licensed."""
+def test_sourcing_claims_are_scoped_to_sec_filings() -> None:
+    """DDQ and methodology scope the SEC-sourcing claim to statements, ownership and insiders.
+
+    Prices are a licensed series, so a blanket "all data from EDGAR" claim is false.
+    """
     for rel in ("docs/COMPLIANCE_AND_DDQ.md", "docs/METHODOLOGY.md"):
         text = _read(rel)
         assert "100% of the data originates" not in text, rel
-        assert "licensed price archive" in text, rel
+        assert "All financial statements, ownership and insider data come from SEC filings" in text, rel
+        assert "separately licensed series" in text, rel
 
 
 def test_institutional_tier_is_not_sold_with_redistribution_rights() -> None:

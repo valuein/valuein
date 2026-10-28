@@ -12,7 +12,7 @@ The data product covers every active and delisted US public company that files w
 2. **Validation.** Each filing's `accession_id` is verified against the EDGAR submission registry.
 3. **Parsing.** Facts are extracted using the US GAAP Taxonomy (2009 – 2026) and mapped to canonical `standard_concept` values before being written to the `fact` table.
 
-Fundamentals, ratios, filings, insider and institutional-ownership data originate from the U.S. Securities and Exchange Commission (SEC) EDGAR system. The market-price tables come from a separately licensed price archive (earliest bar 1994), and `index_membership` is reconstructed from public SEC filings and fund disclosures. We add no other alternative-data sources, no surveys, and no estimated overrides.
+All financial statements, ownership and insider data come from SEC filings, through the U.S. Securities and Exchange Commission's EDGAR system: fundamentals, ratios, filings, insider transactions and institutional-ownership disclosures. `index_membership` is reconstructed from public SEC filings and fund disclosures, and market prices are a separately licensed series starting in 1994. We add no other alternative-data sources, no surveys, and no estimated overrides.
 
 ---
 
