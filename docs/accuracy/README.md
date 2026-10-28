@@ -16,7 +16,7 @@ README and pricing page. Three files, all citable, all runnable:
 
 ```bash
 # The sample tier needs no token:
-duckdb -c "LOAD httpfs; .read scripts/accuracy/accuracy_check.sql"
+duckdb -c "LOAD httpfs" -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
 The sample window is five years, so its headline differs from `baseline.json` (a 2026-10-28 run returned 3,887 annual filings, 98.04 % clean). Pro and Institutional tokens swap the URL (`valuein_bucket_base`) for the full universe.

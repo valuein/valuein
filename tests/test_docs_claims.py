@@ -108,3 +108,11 @@ def test_sql_blocks_do_not_name_a_cte_with_a_duckdb_keyword() -> None:
     pattern = re.compile(r"\b(?:WITH|FROM|JOIN)\s+asof\b", re.IGNORECASE)
     for rel in ("README.md", "AGENTS.md", "docs/QUERY_COOKBOOK.md", "docs/METHODOLOGY.md", "docs/SDK_USE_CASES.md"):
         assert not pattern.search(_read(rel)), rel
+
+
+def test_duckdb_dot_commands_are_separate_c_arguments() -> None:
+    """The DuckDB CLI rejects `.read` after a `;` inside one -c string (parser error)."""
+    bad = re.compile(r";\s*\.read\b")
+    for rel in ("README.md", "docs/accuracy/README.md", "docs/accuracy/methodology.md", "scripts/accuracy/accuracy_check.sql"):
+        assert not bad.search(_read(rel)), rel
+    assert "sample/$t.parquet" not in _read("docs/accuracy/methodology.md")

@@ -93,7 +93,7 @@ The sample tier needs no token and no signup. (The free Benchmark token at [valu
 ```bash
 # 1. Install DuckDB (one binary, zero deps): https://duckdb.org/docs/installation
 # 2. Run the script (no token):
-duckdb -c "LOAD httpfs; .read scripts/accuracy/accuracy_check.sql"
+duckdb -c "LOAD httpfs" -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
 You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window, so the headline differs from `baseline.json` (which grades the full 1993–present universe): a 2026-10-28 run on the sample returned 3,887 annual filings at 98.04 % clean.
@@ -103,12 +103,11 @@ You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/2
 Same flow as 4.1 but with your paid-tier token and the corresponding bucket URL:
 
 ```bash
-duckdb -c "
-LOAD httpfs;
-CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'});
-SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro';   -- or /v1/full
-.read scripts/accuracy/accuracy_check.sql
-"
+duckdb -c "LOAD httpfs" \
+  -c "CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {'Authorization': 'Bearer ${VALUEIN_TOKEN}'})" \
+  -c "SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro'" \
+  -c ".read scripts/accuracy/accuracy_check.sql"
+# use .../v1/full for the Institutional tier
 ```
 
 Full 1993–present, full-universe number, same SQL.
@@ -118,15 +117,13 @@ Full 1993–present, full-universe number, same SQL.
 If you'd rather not depend on our infrastructure for the proof:
 
 ```bash
-# Download the four tables the script reads (no token):
-# Fetch each table once (no token), e.g. fact, filing, entity, index_membership:
+# Download the four tables the script reads (no token). Keep the names
+# extensionless: the script appends only "/<table>" to the base path.
 mkdir sample && for t in fact filing entity index_membership; do
-  curl -sL -o sample/$t.parquet https://data.valuein.biz/v1/sample/$t; done
+  curl -sL -o sample/$t https://data.valuein.biz/v1/sample/$t; done
 
-duckdb -c "
-SET VARIABLE valuein_bucket_base = 'file:///$(pwd)/sample';
-.read scripts/accuracy/accuracy_check.sql
-"
+duckdb -c "SET VARIABLE valuein_bucket_base = 'file://$(pwd)/sample'" \
+       -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
 Same script, same answer, no third-party trust required.
