@@ -10,7 +10,7 @@
 --   │  TWO WAYS TO RUN — same SQL, same answer.                                   │
 --   │                                                                             │
 --   │  A. Free token (S&P 500 sample, 5-year window)                              │
---   │     1. Get a free token at https://valuein.biz/register                     │
+--   │     1. Get a free token at https://valuein.biz/signup/free                     │
 --   │     2. duckdb -c "LOAD httpfs;                                              │
 --   │            CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS                     │
 --   │                MAP {'Authorization': 'Bearer YOUR_TOKEN'});                 │
@@ -70,7 +70,7 @@ SET threads = 4;
 -- ============================================================================
 -- Parameters — override BEFORE `.read`-ing this file to target your tier.
 -- Default points at the sample-tier URL.  All tier URLs require a free
--- Bearer token (get one at valuein.biz/register); load it via DuckDB's
+-- Bearer token (get one at valuein.biz/signup/free); load it via DuckDB's
 -- HTTP secrets API before reading this script (see header docblock,
 -- option A).  For zero-network reproducibility, download the offline
 -- Parquet bundle and point `valuein_bucket_base` at the local path.

@@ -21,7 +21,7 @@ Two distinct measurements, each tied to a precise definition.
 
 ### 1.1 Standardized-fact accuracy
 
-A filing is **clean** if and only if it satisfies every active *error-severity* accounting identity in the data-pipeline identity catalogue (`baseline.json` `identity_set` lists the exact rules and tolerances the figure was graded against; [`identities.json`](identities.json) is an older published copy, see the note in the README) — canonical equations sourced from FASB ASC, Penman (*Financial Statement Analysis* 5e), Ohlson 1995, FactSet PIT Methodology v3.4, and the XBRL US-GAAP Calculation Linkbase.
+A filing is **clean** if and only if it satisfies every active *error-severity* accounting identity in [`identities.json`](identities.json) (generated from the QA engine's catalogue; `baseline.json` `identity_set` lists the exact rules and tolerances the figure was graded against) — equations sourced from FASB ASC, Penman (*Financial Statement Analysis* 5e), Ohlson 1995, FactSet PIT Methodology v3.4, and the XBRL US-GAAP Calculation Linkbase.
 
 A filing is **with-error** if at least one error-severity identity fails on it.
 

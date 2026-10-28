@@ -109,7 +109,7 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 | Plan | Universe | History | Get it |
 |---|---|---|---|
 | **Sample** | Large-cap US benchmark universe | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
-| **Benchmark** | Large-cap US benchmark universe | Full history | **Free**, [register](https://valuein.biz/register) |
+| **Benchmark** | Large-cap US benchmark universe | Full history | **Free**, [register](https://valuein.biz/signup/free) |
 | **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | Negotiated · dedicated infrastructure · expanded redistribution scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
