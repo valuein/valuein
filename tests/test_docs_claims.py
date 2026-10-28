@@ -63,3 +63,39 @@ def test_institutional_tier_is_not_sold_with_redistribution_rights() -> None:
         text = re.sub(r"<!-- GEN:.*?<!-- /GEN:[^>]*-->", "", _read(rel), flags=re.DOTALL | re.IGNORECASE)
         assert "commercial redistribution" not in text.lower(), rel
         assert "redistribution license +" not in text, rel
+
+
+def test_generated_mcp_summary_matches_plans() -> None:
+    """The README's generated MCP summary sells no redistribution and names no stale universe count.
+
+    plans.ts sets redistribution=false on every tier, and the old "19,000+" universe figure
+    predates the full-universe build. Rendering the template (not the README) catches the
+    generator itself, so the next manifest sync cannot bring either claim back.
+    """
+    import sync_mcp_manifest as sync
+
+    rendered = sync.render_summary(
+        {"counts": {"tools_live": 1, "tools_stub": 0, "tools": 1, "prompts": 1, "resources": 1}}
+    )
+    assert "redistribution license" not in rendered
+    assert "19,000" not in rendered
+    assert "S&P 500" not in rendered
+
+
+def test_no_stale_universe_count_or_form_scope() -> None:
+    """Public docs carry neither the stale 19,000+ universe count nor the pre-2026-09-22 6-K exclusion."""
+    for rel in (
+        "docs/METHODOLOGY.md",
+        "docs/COMPLIANCE_AND_DDQ.md",
+        "docs/accuracy/README.md",
+        "docs/accuracy/methodology.md",
+    ):
+        assert "19,000" not in _read(rel), rel
+    assert "6-K (FPI interims) is not currently in the ingest scope" not in _read("docs/METHODOLOGY.md")
+
+
+def test_raw_tag_count_agrees_across_docs() -> None:
+    """The catalog generator and the methodology quote the same raw-tag count (taxonomy_guide: 11,966)."""
+    assert "15,000+" not in _read("scripts/generate_catalog.py")
+    assert "15,000+" not in _read("docs/data_catalog.md")
+    assert "11,966 unique raw XBRL tags" in _read("docs/METHODOLOGY.md")

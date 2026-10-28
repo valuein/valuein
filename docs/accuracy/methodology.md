@@ -111,7 +111,7 @@ SET VARIABLE valuein_bucket_base = 'https://data.valuein.biz/v1/pro';   -- or /v
 "
 ```
 
-Full 1993–present × 19,000+-entity number, same SQL.
+Full 1993–present, full-universe number, same SQL.
 
 ### 4.3 Offline path (no network, no token)
 
@@ -178,7 +178,7 @@ When the SEC releases new XBRL taxonomy or a filer changes tagging convention, t
 
 * **Mapping gaps still exist** — but the surface is shrinking as the standardization catalog grows (new canonical concepts and aliases land in the upstream `data-pipeline` catalog, plus disclosure-niche regex patterns folded into the classifier). The current mapping-gap rate is in [`baseline.json`](baseline.json) (`unstandardized_facts`); it is real ongoing work, not a solved problem.
 
-* **The reported figure is for the S&P 500 universe.** The full-universe number (19,000+ entities including delisted) is the same framework with a larger denominator — expected to be a few percentage points lower because micro-cap filers have noisier XBRL.
+* **The reported figure is for the S&P 500 universe.** The full-universe number (28,000+ companies including delisted) is the same framework with a larger denominator — expected to be a few percentage points lower because micro-cap filers have noisier XBRL.
 
 ---
 
