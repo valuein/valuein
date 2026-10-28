@@ -121,7 +121,15 @@ curl -s https://data.valuein.biz/v1/plans \
   | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear, perMinute, perHour}'
 ```
 
-Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and an internal-use license for your team under a business-hours SLA (no redistribution); Enterprise adds the Commercial licence for redistribution, display and white-label, dedicated infrastructure and bespoke contracts.
+Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and an internal-use licence for one named seat (teams and redistribution are Enterprise); Enterprise adds team seats, the Commercial licence for redistribution, display and white-label, dedicated infrastructure, service levels and bespoke contracts.
+
+### How you pay: three parts, no run limits
+
+**Subscribe for the data. Pay only for the AI you use.**
+
+1. **Subscription = data.** Your plan sets how much of the market you can see (companies, years of history, filing types, datasets), plus API rate limits, daily bulk downloads, webhooks, licence and support. Plans: Sample, Benchmark, Pro, Institutional, Enterprise.
+2. **Balance = AI work.** One balance pays for Valuein AI chat, agent runs and coverage reads. There are no run limits and no per-run fee: a run costs only the AI compute it uses. Every plan includes a monthly compute allowance, and new accounts start with a welcome credit. Using your own Anthropic or OpenAI key costs nothing on our side.
+3. **Pay per call = AI agents without an account.** An agent can pay per request by card (below).
 
 ### Pay-per-call (MPP)
 
@@ -139,7 +147,7 @@ Autonomous AI agents that hit a rate or tier limit can pay per request using **S
 | Screens / universe | `screen_universe`, `get_pit_universe` | per call |
 | Smart money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | per entity |
 
-Live prices: `curl -s https://data.valuein.biz/v1/plans | jq '.paygRates, .toolToMeter'` (the meter each tool bills to, and its USD rate); a `402` quotes the exact price before anything is authorized. Per call, PAYG costs more than a subscription, so steady-state agent usage is almost always cheaper on a [Pro or Institutional subscription](https://valuein.biz/pricing). See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
+Live prices: `curl -s https://data.valuein.biz/v1/plans | jq '.paygRates, .toolToMeter'` (the meter each tool bills to, and its USD rate); a `402` quotes the exact price before anything is authorized. A Valuein token holder pays 50% less per call, except smart-money calls. Per call, PAYG costs more than a subscription, so steady-state agent usage is almost always cheaper on a [Pro or Institutional subscription](https://valuein.biz/pricing). See [`AGENTS.md`](AGENTS.md) for the full three-step MPP flow.
 
 **The whole pattern — an agent that buys its own data, safely** — is written up as a reference implementation in **[`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)**: the two live consent models (a human-authorized bounded budget that auto-charges and serves inline; or per-call MPP for wallet-holding agents), why it's the safe default, and a runnable demo — [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) — that discovers the rail and reads back a live quote for free.
 

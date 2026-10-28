@@ -79,7 +79,7 @@ Anthropic's) that forward only a Bearer token and can't carry payment headers
 mid-turn.
 
 ```
-  human authorizes a session budget (once, just-in-time)   default $10 cap
+  human authorizes a session budget (once, just-in-time)   a cap you set
         │   "Authorize a data budget — you're only charged for what I use."
         ▼
   agent asks for a company outside its tier
@@ -96,7 +96,7 @@ mid-turn.
 
 The human's approval is a **Claude-Code-style just-in-time prompt** — "allow
 once / this session up to $X / always" — asked at the moment of need, with full
-context. The budget is a bounded, expiring cap; the agent can't exceed it, and a
+context. The budget is a bounded, expiring cap drawn from your one balance, not a second balance; the agent can't exceed it, and a
 runaway loop hits the cap, not the card limit.
 
 ### Model B — Per-call payment (MPP / PAYG), for agents that carry a wallet
@@ -217,12 +217,13 @@ agent a payment token.
 
   | What you're buying | Price | Tools |
   |---|---|---|
-  | Discovery · fundamentals · analytics | **$0.50** | `search_companies`, `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_peer_comparables`, `get_earnings_signals`, … |
+  | Discovery · fundamentals · analytics | **$0.01 – $0.50** per company (card minimum $0.50) | `search_companies`, `get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_peer_comparables`, `get_earnings_signals`, … |
   | Compute · document generation | **$2.50** | `compute_dcf`, `compute_lbo`, `compute_accretion_dilution`, `project_three_statement`, `forensic_audit`, `generate_dcf_xlsx`, `generate_lbo_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx` |
   | Universe scans · smart-money (13F / insider) | **$5.00** | `screen_universe`, `get_pit_universe`, `get_insider_transactions`, `get_institutional_holdings`, `get_smart_money_flow`, … |
 
-  Every charge is floored to Stripe's **$0.50** minimum (so the cheap tools all
-  land at $0.50 for a single company). Batching is cheaper per company: the
+  Every **card** charge is floored to Stripe's **$0.50** minimum (so a single cheap
+  call settles at $0.50). A Valuein token holder pays 50% less, except on
+  smart-money calls. Reads paid from a balance have no minimum. Batching is cheaper per company: the
   menu's `rate_usd` is the true marginal rate (fundamentals: $0.10/company —
   50 companies' fundamentals cost $5, not $25) and `min_charge_usd` is the
   floor; the charge is always `max(min_charge, rate × companies)`. The

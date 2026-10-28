@@ -35,13 +35,13 @@ Read the **15-minute setup** first. Then jump to the **one persona that matches 
 
 ## 1. What the Workspace actually is
 
-The Workspace is the authenticated product at **[valuein.biz/workspace](https://valuein.biz/workspace)**. It is *chat-first* — you talk to your own LLM (Claude or GPT, your key, zero retention) and it has Valuein's entire data layer wired in behind it.
+The Workspace is the authenticated product at **[valuein.biz/workspace](https://valuein.biz/workspace)**. It is *chat-first* — you talk to Valuein AI (paid from your balance) or to your own LLM key (Claude or GPT, zero retention) and it has Valuein's entire data layer wired in behind it.
 
 Five things live here, and they reinforce each other:
 
 | Building block | What it is | The job it does for you |
 |---|---|---|
-| **Chat** | BYO-LLM assistant with 118 SEC data tools + 39 playbooks | Ask anything about any US public company; get cited, point-in-time answers |
+| **Chat** | Valuein AI or your own LLM key, with 118 SEC data tools + 39 playbooks | Ask anything about any US public company; get cited, point-in-time answers |
 | **Watchlists** | Named ticker lists (≤500 tickers + a criteria note) | The universe everything else points at — coverage, portfolio, pipeline |
 | **Theses** | Time-stamped bull/bear/neutral calls (conviction 1–5, horizon) | Record what you thought *and when*; auto-graded against fundamentals |
 | **Signals → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
@@ -216,15 +216,15 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **Universe** | Large-cap US benchmark | Large-cap US benchmark | **Full US, delisted included** | Full US + foreign issuers | Contract |
 | **History** | Recent years | 1993→ | Rolling window | 1993→ | Contract |
 | **Workspace + playbooks** | — | ✓ | ✓ | ✓ | ✓ |
-| **BYO-LLM chat** | — | ✓ | ✓ | ✓ | ✓ |
+| **AI chat (Valuein AI or your own key)** | — | ✓ | ✓ | ✓ | ✓ |
 | **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
 | **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
 | **DCF · three-statement · LBO · forensic audit** | — | ✓ | ✓ | ✓ | ✓ |
 | **XLSX/DOCX deliverables (DCF, comps, LBO, research brief)** | — | — | ✓ | ✓ | ✓ |
 | **Smart-money (insider + 13F + 13D/G)** | — | — | — | ✓ | ✓ |
 | **Webhooks · priority freshness** | — | — | — | ✓ | ✓ |
-| **Uptime SLA** | — | — | 99.5% | 99.9% | Bespoke |
-| **Redistribution · display · white-label** | — | — | — | — | Commercial licence |
+| **Service levels** | — | — | — | — | In your Enterprise agreement |
+| **Licence** | Internal, one seat | Internal, one seat | Internal, one seat | Internal, one seat | Commercial licence (teams, redistribution, display, white-label) |
 | **Dedicated infra · zero-retention** | — | — | — | — | ✓ |
 
 See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; each tool's minimum plan is `min_plan` in `https://mcp.valuein.biz/manifest.json`; prices, universe sizes and history windows are also served live: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.

@@ -2214,7 +2214,7 @@ Most tools are callable from the Sample tier up, and **what changes is the data 
 | Sample (anonymous) | Curated sample slice · recent years |
 | Benchmark (free, registered) | Large-cap US benchmark universe · 1993 – present |
 | Pro | Full active + delisted US universe · rolling point-in-time window · no smart-money dataset |
-| Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · internal use, no redistribution |
+| Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · internal use, one named seat; teams and redistribution are Enterprise |
 | Enterprise | Commercial licence (redistribution, display, white-label) · negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
 
 Live universe sizes and history windows: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.

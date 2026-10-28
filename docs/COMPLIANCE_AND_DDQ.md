@@ -44,7 +44,7 @@ To completely eliminate look-ahead bias, the Valuein data architecture uses immu
 
 ## 5. AI & Agentic Governance
 
-Valuein's AI surface (the MCP server and the BYO-LLM Workspace) is designed for institutions that want AI with controls, not autonomy. All of the following are shipped and enforced in code:
+Valuein's AI surface (the MCP server and the Workspace) is designed for institutions that want AI with controls, not autonomy. All of the following are shipped and enforced in code:
 
 | Control | Detail |
 |---|---|
@@ -52,7 +52,7 @@ Valuein's AI surface (the MCP server and the BYO-LLM Workspace) is designed for 
 | **Point-in-time discipline** | Every time-series tool accepts an `as_of_date` and reconstructs the information set as of that date — no look-ahead in AI-generated research, same as in backtests. |
 | **Reproducible runs** | Tools are deterministic and idempotent (same inputs → same output). Managed agent runs use temperature 0 on every model that accepts a sampling temperature (newer models reject it and run without one), with a model allow-list and wall-clock and output-token caps. |
 | **Human-on-the-loop approvals** | Managed agents are offered only tools annotated read-only, plus one private-draft tool (`save_freeform_report`, an unsigned draft visible only to its owner). Every other mutating or outward-facing action is withheld from direct use and staged in an approval ledger — the agent proposes, a human approves or rejects, and every decision is recorded as an immutable audit entry. |
-| **BYO-LLM, zero retention** | Workspace customers bring their own LLM key. The key is sealed in a short-lived encrypted cookie, is never persisted server-side in plaintext, and customer data is never used to train any model. An Enterprise zero-retention tier is available. |
+| **Zero retention, your key or ours** | Workspace chat runs on Valuein AI (paid from your balance) or on your own LLM key. A key you bring is sealed in a short-lived encrypted cookie, is never persisted server-side in plaintext, and customer data is never used to train any model. An Enterprise zero-retention tier is available. |
 | **Availability honesty** | A figure that is not reported, not mapped, or suppressed is returned with an explicit availability status — never silently substituted or estimated. A tier limitation returns a structured error, never an empty result posing as data. |
 
 ---
@@ -61,9 +61,9 @@ Valuein's AI surface (the MCP server and the BYO-LLM Workspace) is designed for 
 
 See [`SLA.md`](SLA.md) for full commitments on uptime, data freshness latency, and support response times.
 
-- **Uptime:** 99.9% monthly availability for the Cloudflare R2 storage layer
+- **Uptime:** no uptime percentage is promised on self-serve plans; service levels, if any, are set out in the Enterprise agreement. Live status: valuein.biz/status
 - **Data freshness:** Fundamentals snapshot published weekly (Saturday); market prices each weekday. Per-table timestamps: `table_last_updated` in the manifest
-- **Critical incidents:** Response within 2 hours, 24/7
+- **Critical incidents:** support response targets are in [`SLA.md`](SLA.md)
 
 ---
 
