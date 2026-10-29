@@ -31,6 +31,20 @@ def test_agent_docs_have_full_notice(path: str) -> None:
     assert FULL in (ROOT / path).read_text(encoding="utf-8")
 
 
+#: The full notice's second sentence, approved by the founder 2026-10-29.
+MEMBERSHIP = (
+    "Index membership is reconstructed independently by Valuein from public information: SEC filings, the portfolio "
+    "holdings disclosed by funds that track each index, publicly available constituent lists and public reports of "
+    "index changes; never from an index provider's licensed constituent data."
+)
+
+
+@pytest.mark.parametrize("path", ["README.md", "AGENTS.md", "docs/MCP_TOOLS.md"])
+def test_full_notice_carries_the_approved_membership_sentence(path: str) -> None:
+    """Every full notice ends with the approved sentence, word for word."""
+    assert f"{FULL}. {MEMBERSHIP}" in (ROOT / path).read_text(encoding="utf-8")
+
+
 @pytest.mark.parametrize("path", DOCS)
 def test_guides_have_short_notice(path: str) -> None:
     """Guides that describe index membership or tiers carry the short form."""

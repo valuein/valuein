@@ -86,7 +86,7 @@ External-agent-facing product document, not Claude instructions: `cloudflare:wor
 - Data values and API keys keep the index names (`index_name='SP500'`, tier key `sp500`, `/v1/sp500/`, env vars, SDK `index="SP500"`); they identify facts, never rename them.
 - Never brand with an index name: plan/tier display names, headlines, pricing bullets, directory listings. The free tier is "Benchmark" ("large-cap US benchmark universe"). Descriptive plain-word use is fine: no logo, no implied endorsement.
 - Every surface naming an index carries the notice (README "Trademarks", verbatim) or the short form: "Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider." `tests/test_trademark_notice.py` pins the README and the docs that name an index.
-- Never say we use, license or receive data from an index provider; membership is reconstructed from public SEC filings and fund disclosures. Never scrape index-provider sites.
+- Never say we use, license or receive data from an index provider; membership is reconstructed from public information (SEC filings, holdings disclosed by funds that track each index, publicly available constituent lists, public reports of index changes): describe it only by those categories, never name a website, and never publish how it is graded against an index provider's own lists. Never scrape index-provider sites.
 
 ## Docs & git
 

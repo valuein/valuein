@@ -147,7 +147,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 **Working loop (continuous)**
 - **`survivorship_free_backtest`** → *"Set up a survivorship-free backtest from 2010-01-01 to 2024-12-31."* Returns the historical universe definition + Parquet URLs, ready for DuckDB.
 - **`pit_factor_constructor`** → build Quality / Value / Momentum factor scores cross-sectionally, point-in-time correct.
-- **`get_pit_universe`** → exact index/sector membership on any historical date (no lookahead).
+- **`get_pit_universe`** → reconstructed index/sector membership on any historical date (no lookahead); its `pit_safe` flag says whether every matched date is high confidence.
 - **`get_compute_ready_stream`** → presigned Parquet URLs for `fact`, `ratio`, `filing`, `references`, `index_membership` → stream into the SDK's out-of-core DuckDB.
 - **`screen_to_thesis`** → screen → forensic audit → auto-save theses on the top names (closes the loop from signal to tracked call).
 
