@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.11.15) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.12.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**128 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -131,6 +131,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`verify_fact_lineage`](#verify_fact_lineage) | Verify Fact Lineage | `sample` | read-only | none |
 | [`verify_facts`](#verify_facts) | Verify Facts (batch) | `sample` | read-only | none |
 | [`match_derived`](#match_derived) | Match Derived Figures | `sample` | read-only | none |
+| [`verify_filing_figures`](#verify_filing_figures) | Verify Filing Figures | `sample` | read-only | none |
 | [`compare_periods`](#compare_periods) | Compare Financial Periods | `sample` | read-only | none |
 | [`screen_universe`](#screen_universe) | Screen Universe by Factor Scores | `sample` | read-only | offset |
 | [`get_earnings_signals`](#get_earnings_signals) | Earnings Signals | `sample` | read-only | none |
@@ -535,6 +536,18 @@ Check whether figures a report STATES can be reproduced by the engine from the S
 |---|---|---|---|---|
 | `items` | array | yes | — | The figures to check, 1–50; one call per report, not one per figure. |
 | `as_of_date` | string | no | — | Point-in-time cut (YYYY-MM-DD): a cited fact accepted after this date is not used. |
+
+**Output fields:** `results`, `summary`
+
+### `verify_filing_figures`
+
+**Verify Filing Figures** · min plan `sample` · read-only · paging: none
+
+Check numbers a report STATES against the source it says it read them in. Per item `{ token, ticker, source, accession?, section?, period_end?, inputs? }`: `source: "text"` reads `section` of the 10-K / 10-Q / 8-K `accession` (omit `section` to search the whole filing; keys as...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `items` | array | yes | — | The figures to check, 1-50, of at most 5 companies. |
 
 **Output fields:** `results`, `summary`
 
@@ -2140,7 +2153,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.11.15); 39 prompts._
+_Generated from the MCP server manifest (v3.12.0); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2192,7 +2205,7 @@ _Generated from the MCP server manifest (v3.11.15); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.11.15); 3 resources._
+_Generated from the MCP server manifest (v3.12.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
