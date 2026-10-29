@@ -270,8 +270,12 @@ README_SUMMARY_TEMPLATE = (
     "Institutional unlocks the smart-money tools (insider transactions "
     "on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / "
     "13D / 13G), Form ADV, unlimited history back to 1993 and "
-    "filing-event webhooks, for internal use. Redistribution, display and "
-    "white-label are Enterprise-only, under a Commercial licence."
+    "filing-event webhooks, for single-seat internal use. Enterprise (an "
+    "Enterprise Agreement for organisations and teams) adds multi-seat use "
+    "and, where the Order Form says so, display in your own products and "
+    "client deliverables with attribution. Redistribution, resale and "
+    "white-label need a separate Redistribution Licence, which no plan "
+    "includes."
 )
 
 MARKER_RE = re.compile(
