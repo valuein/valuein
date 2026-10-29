@@ -224,7 +224,7 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **Smart-money (insider + 13F + 13D/G)** | — | — | — | ✓ | ✓ |
 | **Webhooks · priority freshness** | — | — | — | ✓ | ✓ |
 | **Service levels** | — | — | — | — | In your Enterprise agreement |
-| **Licence** | Internal, one seat | Internal, one seat | Internal, one seat | Internal, one seat | Commercial licence (teams, redistribution, display, white-label) |
+| **Licence** | Internal, one seat | Internal, one seat | Internal, one seat | Internal, one seat | Enterprise Agreement (teams; display in your products and client deliverables) |
 | **Dedicated infra · zero-retention** | — | — | — | — | ✓ |
 
 See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; each tool's minimum plan is `min_plan` in `https://mcp.valuein.biz/manifest.json`; prices, universe sizes and history windows are also served live: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.
