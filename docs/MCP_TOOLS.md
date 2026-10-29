@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.11.12) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.11.13) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -678,7 +678,7 @@ Form 3 / 4 / 5 / 144 line items for a US public company. Returns each transactio
 
 **Institutional Holdings (by issuer)** · min plan `full` · read-only · paging: none
 
-Returns top-N institutional holders of a US public company at a specific period_end (latest by default), with aggregate institutional shares, total market value, holder count, and HHI concentration (sum of squared share-of-total percentages). Sourced from Form 13F-HR via the b...
+Returns top-N institutional holders of a US public company at a specific period_end (by default the latest period whose 45-day 13F filing window has closed), with aggregate institutional shares, total market value, holder count, and HHI concentration (sum of squared share-of-t...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -689,7 +689,7 @@ Returns top-N institutional holders of a US public company at a specific period_
 | `include_superseded` | boolean | no | default `false` | Default false: 13F-HR rows replaced by a later 13F-HR/A are hidden once the amendment is knowable (as of as_of_date when given), so an original and its amendment are never both counted. Set true to include the superseded originals. |
 | `lineage_detail` | enum | no | one of `off`, `compact`, `full`; default `compact` | Per-row provenance envelope. compact / full / off. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `data_age_days`, `staleness_warning`, `total_institutional_shares`, `total_market_value_usd`, `hhi_concentration`, `holders_count`, `options_positions_count`, `aggregate`, `rows`
+**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `data_age_days`, `staleness_warning`, `total_institutional_shares`, `total_market_value_usd`, `hhi_concentration`, `holders_count`, `options_positions_count`, `filing_window_open`, `filing_deadline`, `newer_period_in_filing_window`, `metrics_display`, `aggregate`, `rows`
 
 ### `get_manager_portfolio`
 
@@ -739,7 +739,7 @@ Role-weighted insider sentiment score on a fixed [-100, +100] scale for a single
 | `lookback_days` | integer | no | default `180` | Days back from today to scan transactions for. Default 180. |
 | `cluster_window_days` | integer | no | default `30` | Sliding window for the cluster_flag detection. Default 30 days. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `lookback_days`, `sentiment_score`, `buy_count`, `sell_count`, `total_buy_shares`, `total_sell_shares`, `total_buy_usd`, `total_sell_usd`, `cluster_flag`, `top_contributors`
+**Output fields:** `ticker`, `cik`, `company_name`, `lookback_days`, `sentiment_score`, `buy_count`, `sell_count`, `total_buy_shares`, `total_sell_shares`, `total_buy_usd`, `total_sell_usd`, `cluster_flag`, `top_contributors`, `metrics_display`
 
 ### `get_top_holders`
 
@@ -772,7 +772,7 @@ Composite flow score on [-100, +100] aggregating insider transactions, 13F insti
 | `weight_insider` | number | no | default `0.2` | Weight applied to the insider component (0–1). |
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) applied to all three legs (institutional, insider, blockholder) via SEC accepted_at — filings accepted after this date are excluded so the composite is computed with zero look-ahead. Omit for the latest knowable signal. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `composite_score`, `insider_component`, `institutional_component`, `blockholder_component`, `weights`, `components`, `coverage`
+**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `composite_score`, `insider_component`, `institutional_component`, `blockholder_component`, `weights`, `components`, `coverage`, `metrics_display`
 
 ### `save_thesis`
 
@@ -1822,7 +1822,7 @@ Deterministic forensic-accounting scores for a single ticker: partial Beneish M-
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol of the company to audit, e.g. AAPL, MSFT, BRK.B. |
 
-**Output fields:** `ticker`, `period_end`, `prior_period_end`, `source_filing`, `sec_url`, `result`
+**Output fields:** `ticker`, `period_end`, `prior_period_end`, `source_filing`, `sec_url`, `result`, `metrics_display`
 
 ### `get_stock_price`
 
@@ -2022,7 +2022,7 @@ Save free-form markdown (e.g. a chat synthesis) as a DRAFT report you can refine
 | `ticker` | string | no | — | Optional ticker for context/catalog. Case-insensitive. |
 | `abstract` | string | no | — | Optional 1–2 sentence summary. |
 | `idempotency_key` | string | no | — | Optional key for at-most-once semantics. Same key from the same user always yields the same report id. |
-| `citations` | array | no | — | Lineage you already hold for the figures in `markdown` — pass it rather than dropping it. Each claim should quote the figure exactly as the prose writes it, so figure review can link the two. Persisted as-is and NOT verified here; sign-off re-resolves every fact_id before certifying. |
+| `citations` | array | no | — | Lineage you already hold for the figures in `markdown` — pass it rather than dropping it. Each claim should quote the figure exactly as the prose writes it, so figure review can link the two. Every `fact_ids` entry must be a whole id copied exactly as a tool returned it (a 64-hex fact_id or a `drv1:` derived id): a truncated or annotated id rejects the call and nothing is saved. Ids are shape-checked only, NOT resolved here; sign-off re-resolves every fact_id before certifying. |
 
 **Output fields:** `report`, `report_id`, `status`, `version`
 
@@ -2140,7 +2140,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.11.12); 39 prompts._
+_Generated from the MCP server manifest (v3.11.13); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2192,7 +2192,7 @@ _Generated from the MCP server manifest (v3.11.12); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.11.12); 3 resources._
+_Generated from the MCP server manifest (v3.11.13); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
