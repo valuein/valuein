@@ -84,7 +84,7 @@ body:
     id: tier
     attributes:
       label: Plan tier you're on
-      placeholder: Sample · Free · Pro · Enterprise
+      placeholder: Sample · Benchmark · Pro · Institutional · Enterprise
     validations:
       required: false
   - type: input

@@ -131,6 +131,7 @@ def test_institutional_tier_is_not_sold_with_redistribution_rights() -> None:
         assert "commercial redistribution" not in text.lower(), rel
         assert "redistribution license" not in text.lower(), rel
         assert "expanded redistribution" not in text.lower(), rel
+        assert "commercial licen" not in text.lower(), rel
 
 
 def test_retired_licence_names_are_gone() -> None:

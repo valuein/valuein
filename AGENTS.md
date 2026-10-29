@@ -282,7 +282,7 @@ Always pay the amount `/api/mpp/quote` returns — don't hardcode prices.
 
 ### Rate card
 
-The price depends on the tool's category and the number of companies you declare. The **authoritative** amount for a call is the one in its `402` challenge (`request.amount`, in cents); `GET https://api.valuein.biz/api/mpp/quote` previews it and `GET https://api.valuein.biz/api/mpp/tools` lists every payable tool with its rate. The table below is indicative.
+The price depends on the tool's category and the number of companies you declare ("per entity" means per company; "per call" is one flat price). The **authoritative** amount for a call is the one in its `402` challenge (`request.amount`, in cents); `GET https://api.valuein.biz/api/mpp/quote` previews it and `GET https://api.valuein.biz/api/mpp/tools` lists every payable tool with its rate. The table below is indicative.
 
 | Category | Example tools | Price |
 |---|---|---|
@@ -296,7 +296,7 @@ The price depends on the tool's category and the number of companies you declare
 | Screens / universe | `screen_universe`, `get_pit_universe` | **$5.00 / call** |
 | Smart-money (Institutional dataset) | `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow` | **$5.00 / entity** |
 
-Every card charge has a **$0.50 minimum** (Stripe's card floor), so a $0.01 or $0.10 call settles at $0.50. Bulk Parquet streaming (`get_compute_ready_stream`) is subscription-only, not payable per call. Subscribers buying overflow within their tier get a discount on non-premium tools; the smart-money tools are never discounted.
+Every **card** charge has a **$0.50 minimum** (Stripe's card floor), so a $0.01 or $0.10 call settles at $0.50. Holding a Valuein token takes **50% off** every rate above except the smart-money tools, which are never discounted. Bulk Parquet streaming (`get_compute_ready_stream`) is subscription-only, not payable per call.
 
 The smart-money dataset (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) is available per-call at **$5 / entity** without an Institutional subscription.
 
