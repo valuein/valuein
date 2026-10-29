@@ -10,7 +10,7 @@ Valuein's MCP server exposes SEC EDGAR fundamentals to any MCP-capable AI client
 
 The server registers tools across data lookup, screening, price & market data, smart money, persisted research state (theses, claims, watchlists, citation overrides, signals, reports, scheduled tasks, rules, staged-action approvals, the morning brief and agent runs), report publishing, compute (DCF, three-statement, LBO, accretion/dilution, forensic audit, bounded point-in-time backtest) and document generation, plus analyst SOP prompts and reference resources. Live counts: `curl -s https://mcp.valuein.biz/manifest.json | jq .counts` (mirrored, by a daily sync, in [`server.json`](../server.json)).
 
-Tier gating happens at the data layer — Sample / Benchmark tokens see the Sample / Benchmark slices (large-cap US benchmark universe); Pro sees the full active + delisted US universe with a rolling point-in-time window (10-K / 10-Q / 8-K / 20-F / 40-F + amendments; live window and universe size: `https://data.valuein.biz/v1/plans`); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited fundamentals history back to 1993 (prices are licensed market data with their own floor, 1994 onward), and filing-event webhooks, for internal use only (no redistribution); Enterprise (a signed Enterprise Agreement) adds team seats, display in your own products and client deliverables, dedicated infrastructure and a bespoke SLA; redistribution, resale and white-label need a separate Redistribution Licence.
+Tier gating happens at the data layer — Sample / Benchmark tokens see the Sample / Benchmark slices (large-cap US benchmark universe); Pro sees the full active + delisted US universe with a rolling point-in-time window (10-K / 10-Q / 8-K / 20-F / 40-F + amendments; live window and universe size: `https://data.valuein.biz/v1/plans`); Institutional unlocks the smart-money dataset (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), unlimited fundamentals history back to 1993 (prices are licensed market data with their own floor, 1994 onward), and filing-event webhooks, for single-seat internal use only (no redistribution); Enterprise (an Enterprise Agreement for organisations and teams) adds multi-seat use, display in your own products and client deliverables with attribution where the Order Form says so, dedicated infrastructure and a bespoke SLA. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
 
 Everything between `GEN` markers on this page is written by `scripts/sync_mcp_manifest.py` from the live manifest and checked on every push and pull request (`--check` fails on any difference); never edit it by hand.
 
@@ -102,11 +102,11 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.11.4) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.12.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**128 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
-Plan keys: `sample` = Sample · `sp500` = Free (Benchmark) · `pro` = Pro · `full` = Institutional.
+Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
 Identifiers shown as `[withheld]` name internal datasets and are left out of this public page; the live `tools/list` response carries them.
 
@@ -131,6 +131,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`verify_fact_lineage`](#verify_fact_lineage) | Verify Fact Lineage | `sample` | read-only | none |
 | [`verify_facts`](#verify_facts) | Verify Facts (batch) | `sample` | read-only | none |
 | [`match_derived`](#match_derived) | Match Derived Figures | `sample` | read-only | none |
+| [`verify_filing_figures`](#verify_filing_figures) | Verify Filing Figures | `sample` | read-only | none |
 | [`compare_periods`](#compare_periods) | Compare Financial Periods | `sample` | read-only | none |
 | [`screen_universe`](#screen_universe) | Screen Universe by Factor Scores | `sample` | read-only | offset |
 | [`get_earnings_signals`](#get_earnings_signals) | Earnings Signals | `sample` | read-only | none |
@@ -345,28 +346,28 @@ Which SEC form types each of up to 200 companies filed in the last N months (def
 
 **List Filing Sections** · min plan `sample` · read-only · paging: none
 
-Table of contents of a 10-K / 10-Q (or 10-K/A, 10-Q/A) so an agent can read the filing's WORDS: returns the form, filing/period/acceptance dates, the primary-document URL, and every section found with its `key`, `title`, `char_count` and a short `first_line`. 10-K keys are the...
+Table of contents of a 10-K / 10-Q / 8-K (or 10-K/A, 10-Q/A, 8-K/A) so an agent can read the filing's WORDS: returns the form, filing/period/acceptance dates, the primary-document URL, and every section found with its `key`, `title`, `char_count` and a short `first_line`. 10-K...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
-| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q / 8-K, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
 
-**Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `report_date`, `accepted_at`, `source_url`, `sec_url`, `total_chars`, `sections`, `notes`, `provenance_note`
+**Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `report_date`, `accepted_at`, `source_url`, `sec_url`, `total_chars`, `sections`, `notes`, `unread_documents`, `provenance_note`
 
 ### `read_filing_section`
 
 **Read Filing Section** · min plan `sample` · read-only · paging: none
 
-Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), or the whole filing (`document`) when an Item is only a page pointer. To jump to a phr...
+Read one section of a 10-K / 10-Q / 8-K (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), an 8-K Item (`2.02`, `5.02`) or its press-release exhibit (`ex-99.1`), or the wh...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
-| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q / 8-K, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
-| `key` | string | yes | — | Section key from list_filing_sections: '7', '1A', 'I-2', 'II-1A', 'note-3', 'explanatory-note', 'document'. |
+| `key` | string | yes | — | Section key from list_filing_sections: '7', '1A', 'I-2', 'II-1A', 'note-3', 'explanatory-note', '2.02', 'ex-99.1', 'document'. |
 | `offset` | integer | no | default `0` | Character offset to start from; use the previous page's next_offset. |
 | `max_chars` | integer | no | default `20000` | Page size in characters (1000-60000). Defaults to 20000. |
 
@@ -376,16 +377,16 @@ Read one section of a 10-K / 10-Q (or amendment) as plain text: MD&A (10-K `7`, 
 
 **Find in Filing** · min plan `sample` · read-only · paging: none
 
-Find a statement, note, heading or phrase inside a 10-K / 10-Q (or amendment) and get where to read it, like grep over the filing: 'Consolidated Balance Sheets', 'goodwill impairment', 'Note 7', 'Risk Factors'. Searches the same text read_filing_section serves, so each hit's `...
+Find a statement, note, heading or phrase inside a 10-K / 10-Q / 8-K (or amendment; an 8-K's EX-99 exhibits included) and get where to read it, like grep over the filing: 'Consolidated Balance Sheets', 'goodwill impairment', 'Note 7', 'Risk Factors'. Searches the same text rea...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
-| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q / 8-K, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
 | `query` | string | yes | — | Words or a phrase to find, e.g. 'Consolidated Balance Sheets', 'Note 7', 'goodwill impairment'. Separate alternatives with '\|'. |
 | `match` | enum | no | one of `phrase`, `all_words`; default `phrase` | 'phrase' (default): the words in order. 'all_words': every word within 300 characters, any order. |
-| `section` | string | no | — | Search only this section key from list_filing_sections ('7', 'II-1A', 'note-3'). Omit to search the whole filing. |
+| `section` | string | no | — | Search only this section key from list_filing_sections ('7', 'II-1A', 'note-3', 'ex-99.1'). Omit to search the whole filing. |
 | `kinds` | array | no | — | Keep only these hit kinds, e.g. ['heading'] for section and statement titles. Omit for every kind. |
 | `case_sensitive` | boolean | no | default `false` | Match letter case exactly. Default false. |
 | `whole_word` | boolean | no | default `false` | Match each word whole: 'sheet' no longer finds 'Sheets'. Default false. |
@@ -538,6 +539,18 @@ Check whether figures a report STATES can be reproduced by the engine from the S
 
 **Output fields:** `results`, `summary`
 
+### `verify_filing_figures`
+
+**Verify Filing Figures** · min plan `sample` · read-only · paging: none
+
+Check numbers a report STATES against the source it says it read them in. Per item `{ token, ticker, source, accession?, section?, period_end?, inputs? }`: `source: "text"` reads `section` of the 10-K / 10-Q / 8-K `accession` (omit `section` to search the whole filing; keys as...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `items` | array | yes | — | The figures to check, 1-50, of at most 5 companies. |
+
+**Output fields:** `results`, `summary`
+
 ### `compare_periods`
 
 **Compare Financial Periods** · min plan `sample` · read-only · paging: none
@@ -678,7 +691,7 @@ Form 3 / 4 / 5 / 144 line items for a US public company. Returns each transactio
 
 **Institutional Holdings (by issuer)** · min plan `full` · read-only · paging: none
 
-Returns top-N institutional holders of a US public company at a specific period_end (latest by default), with aggregate institutional shares, total market value, holder count, and HHI concentration (sum of squared share-of-total percentages). Sourced from Form 13F-HR via the b...
+Returns top-N institutional holders of a US public company at a specific period_end (by default the latest period whose 45-day 13F filing window has closed), with aggregate institutional shares, total market value, holder count, and HHI concentration (sum of squared share-of-t...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -689,7 +702,7 @@ Returns top-N institutional holders of a US public company at a specific period_
 | `include_superseded` | boolean | no | default `false` | Default false: 13F-HR rows replaced by a later 13F-HR/A are hidden once the amendment is knowable (as of as_of_date when given), so an original and its amendment are never both counted. Set true to include the superseded originals. |
 | `lineage_detail` | enum | no | one of `off`, `compact`, `full`; default `compact` | Per-row provenance envelope. compact / full / off. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `data_age_days`, `staleness_warning`, `total_institutional_shares`, `total_market_value_usd`, `hhi_concentration`, `holders_count`, `options_positions_count`, `aggregate`, `rows`
+**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `data_age_days`, `staleness_warning`, `total_institutional_shares`, `total_market_value_usd`, `hhi_concentration`, `holders_count`, `options_positions_count`, `filing_window_open`, `filing_deadline`, `newer_period_in_filing_window`, `metrics_display`, `aggregate`, `rows`
 
 ### `get_manager_portfolio`
 
@@ -739,7 +752,7 @@ Role-weighted insider sentiment score on a fixed [-100, +100] scale for a single
 | `lookback_days` | integer | no | default `180` | Days back from today to scan transactions for. Default 180. |
 | `cluster_window_days` | integer | no | default `30` | Sliding window for the cluster_flag detection. Default 30 days. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `lookback_days`, `sentiment_score`, `buy_count`, `sell_count`, `total_buy_shares`, `total_sell_shares`, `total_buy_usd`, `total_sell_usd`, `cluster_flag`, `top_contributors`
+**Output fields:** `ticker`, `cik`, `company_name`, `lookback_days`, `sentiment_score`, `buy_count`, `sell_count`, `total_buy_shares`, `total_sell_shares`, `total_buy_usd`, `total_sell_usd`, `cluster_flag`, `top_contributors`, `metrics_display`
 
 ### `get_top_holders`
 
@@ -772,7 +785,7 @@ Composite flow score on [-100, +100] aggregating insider transactions, 13F insti
 | `weight_insider` | number | no | default `0.2` | Weight applied to the insider component (0–1). |
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) applied to all three legs (institutional, insider, blockholder) via SEC accepted_at — filings accepted after this date are excluded so the composite is computed with zero look-ahead. Omit for the latest knowable signal. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `composite_score`, `insider_component`, `institutional_component`, `blockholder_component`, `weights`, `components`, `coverage`
+**Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `composite_score`, `insider_component`, `institutional_component`, `blockholder_component`, `weights`, `components`, `coverage`, `metrics_display`
 
 ### `save_thesis`
 
@@ -1822,7 +1835,7 @@ Deterministic forensic-accounting scores for a single ticker: partial Beneish M-
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol of the company to audit, e.g. AAPL, MSFT, BRK.B. |
 
-**Output fields:** `ticker`, `period_end`, `prior_period_end`, `source_filing`, `sec_url`, `result`
+**Output fields:** `ticker`, `period_end`, `prior_period_end`, `source_filing`, `sec_url`, `result`, `metrics_display`
 
 ### `get_stock_price`
 
@@ -2022,7 +2035,7 @@ Save free-form markdown (e.g. a chat synthesis) as a DRAFT report you can refine
 | `ticker` | string | no | — | Optional ticker for context/catalog. Case-insensitive. |
 | `abstract` | string | no | — | Optional 1–2 sentence summary. |
 | `idempotency_key` | string | no | — | Optional key for at-most-once semantics. Same key from the same user always yields the same report id. |
-| `citations` | array | no | — | Lineage you already hold for the figures in `markdown` — pass it rather than dropping it. Each claim should quote the figure exactly as the prose writes it, so figure review can link the two. Persisted as-is and NOT verified here; sign-off re-resolves every fact_id before certifying. |
+| `citations` | array | no | — | Lineage you already hold for the figures in `markdown` — pass it rather than dropping it. Each claim should quote the figure exactly as the prose writes it, so figure review can link the two. Every `fact_ids` entry must be a whole id copied exactly as a tool returned it (a 64-hex fact_id or a `drv1:` derived id): a truncated or annotated id rejects the call and nothing is saved. Ids are shape-checked only, NOT resolved here; sign-off re-resolves every fact_id before certifying. |
 
 **Output fields:** `report`, `report_id`, `status`, `version`
 
@@ -2140,7 +2153,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.11.4); 39 prompts._
+_Generated from the MCP server manifest (v3.12.0); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2192,13 +2205,13 @@ _Generated from the MCP server manifest (v3.11.4); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.11.4); 3 resources._
+_Generated from the MCP server manifest (v3.12.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
 | `schema` | Parquet table schema | `sample` | Column-level contract for every R2 Parquet table the server reads (types, primary keys, foreign-key references). Read schema://{table} to learn the exact columns and types before writing a query — e.g. schema://fact (raw observations), schema://ratio (derived ratios), schema:/... |
 | `sp500-universe` | S&P 500 universe | `sample` | Current S&P 500 members as a single JSON roster — ticker, CIK, company name, sector, industry, and primary exchange for every active constituent. Reads as the latest membership snapshot from the references table; for survivorship-free historical universes use the get_pit_unive... |
-| `pricing-current` | Pricing & plan tiers | `sample` | Full tier ladder (Sample → Free → Pro → Institutional) with prices, Stripe SKUs, breadth/depth coverage, filing types, and feature flags. Plus the per-tool pay-per-call rate card. Read this first when an agent hits a LIMIT_EXCEEDED response and needs to pick between upgrade vs... |
+| `pricing-current` | Pricing & plan tiers | `sample` | Full tier ladder (Sample → Benchmark (free) → Pro → Institutional → Enterprise) with prices, (a subscription buys data; a separate balance pays for AI compute, with no run limits), Stripe SKUs, breadth/depth coverage, filing types, and feature flags. Plus the per-tool pay-per-... |
 <!-- /GEN:mcp-resources -->
 
 The URIs are `schema://{table}`, `reference://sp500` and `pricing://current`. A signed-in caller also gets `valuein://signals/feed`, its own signal inbox, so an agent can read and triage fired signals.
@@ -2214,8 +2227,8 @@ Most tools are callable from the Sample tier up, and **what changes is the data 
 | Sample (anonymous) | Curated sample slice · recent years |
 | Benchmark (free, registered) | Large-cap US benchmark universe · 1993 – present |
 | Pro | Full active + delisted US universe · rolling point-in-time window · no smart-money dataset |
-| Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · internal use, one named seat; teams are Enterprise, redistribution needs a Redistribution Licence |
-| Enterprise | Enterprise Agreement (team seats; display in your products and client deliverables) · negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option |
+| Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · single-seat internal use, no redistribution (Redistribution Licence only) |
+| Enterprise | Organisations and teams, by Enterprise Agreement · multi-seat · display in your own products and client deliverables, with attribution, where the Order Form says so · negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option · redistribution, resale and white-label: separate Redistribution Licence |
 
 Live universe sizes and history windows: `curl -s https://data.valuein.biz/v1/plans | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear}'`.
 
@@ -2273,4 +2286,4 @@ Server identifier: `io.github.valuein/mcp-sec-edgar` · Repository: `https://git
 
 ## Trademarks
 
-S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently from public SEC filings and public fund disclosures.
+S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently by Valuein from public information: SEC filings, the portfolio holdings disclosed by funds that track each index, publicly available constituent lists and public reports of index changes; never from an index provider's licensed constituent data.
