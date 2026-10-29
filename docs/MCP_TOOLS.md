@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.12.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.12.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **128 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -435,7 +435,7 @@ Use this tool to answer questions about historical index membership — e.g. "Wa
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `index` | enum | no | one of `sp500`, `russell1000`, `russell2000`, `russell3000` | Index filter. 'sp500' (~500 large caps, curated history back to 1996), 'russell1000' (~1000 large/mid), 'russell2000' (~2000 small caps), 'russell3000' (~3000 broad market) — the three Russell indices carry fund-derived history back to 2000-09-30 at medium confidence, with observation spacing that widens before 2007. Omit for no index filter (sector-only or full universe queries). |
+| `index` | enum | no | one of `sp500`, `russell1000`, `russell2000`, `russell3000` | Index filter. 'sp500' (~500 large caps; reconstructed history from 1996, incomplete before ~2007, check pit_safe), 'russell1000' (~1000 large/mid), 'russell2000' (~2000 small caps), 'russell3000' (~3000 broad market) — the three Russell indices carry fund-derived history back to 2000-09-30 at medium confidence, with observation spacing that widens before 2007. Omit for no index filter (sector-only or full universe queries). |
 | `sector` | string | no | — | Sector filter (case-insensitive substring) over the SIC-derived, GICS-aligned label (not licensed GICS — see tool description). E.g. 'Technology', 'Energy'. |
 | `as_of_date` | string | no | — | Historical date (YYYY-MM-DD) for survivorship-free construction. Index queries use index_membership join/leave dates (entrants after the date excluded, later-removed members kept); sector queries use security valid_from/valid_to. Omit for the current universe. |
 | `is_active` | boolean | no | — | Filter to active (currently trading) companies only. Omit to include all. WARNING: setting this to true on a HISTORICAL query reintroduces survivorship bias — companies that were active on as_of_date but later went bankrupt or got acquired will be filtered out.  Leave unset for true PIT backtests. |
@@ -2153,7 +2153,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.12.1); 39 prompts._
+_Generated from the MCP server manifest (v3.12.2); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2205,7 +2205,7 @@ _Generated from the MCP server manifest (v3.12.1); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.12.1); 3 resources._
+_Generated from the MCP server manifest (v3.12.2); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
