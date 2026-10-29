@@ -102,11 +102,11 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.11.5) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.11.6) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **127 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
-Plan keys: `sample` = Sample · `sp500` = Free (Benchmark) · `pro` = Pro · `full` = Institutional.
+Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
 Identifiers shown as `[withheld]` name internal datasets and are left out of this public page; the live `tools/list` response carries them.
 
@@ -2140,7 +2140,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.11.5); 39 prompts._
+_Generated from the MCP server manifest (v3.11.6); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2192,13 +2192,13 @@ _Generated from the MCP server manifest (v3.11.5); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.11.5); 3 resources._
+_Generated from the MCP server manifest (v3.11.6); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
 | `schema` | Parquet table schema | `sample` | Column-level contract for every R2 Parquet table the server reads (types, primary keys, foreign-key references). Read schema://{table} to learn the exact columns and types before writing a query — e.g. schema://fact (raw observations), schema://ratio (derived ratios), schema:/... |
 | `sp500-universe` | S&P 500 universe | `sample` | Current S&P 500 members as a single JSON roster — ticker, CIK, company name, sector, industry, and primary exchange for every active constituent. Reads as the latest membership snapshot from the references table; for survivorship-free historical universes use the get_pit_unive... |
-| `pricing-current` | Pricing & plan tiers | `sample` | Full tier ladder (Sample → Free → Pro → Institutional) with prices, Stripe SKUs, breadth/depth coverage, filing types, and feature flags. Plus the per-tool pay-per-call rate card. Read this first when an agent hits a LIMIT_EXCEEDED response and needs to pick between upgrade vs... |
+| `pricing-current` | Pricing & plan tiers | `sample` | Full tier ladder (Sample → Benchmark (free) → Pro → Institutional → Enterprise) with prices, (a subscription buys data; a separate balance pays for AI compute, with no run limits), Stripe SKUs, breadth/depth coverage, filing types, and feature flags. Plus the per-tool pay-per-... |
 <!-- /GEN:mcp-resources -->
 
 The URIs are `schema://{table}`, `reference://sp500` and `pricing://current`. A signed-in caller also gets `valuein://signals/feed`, its own signal inbox, so an agent can read and triage fired signals.
