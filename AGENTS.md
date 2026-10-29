@@ -393,4 +393,4 @@ Facts here come from upstream: tiers and prices from `/v1/plans`, tool and promp
 
 ## Trademarks
 
-S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently from public SEC filings and public fund disclosures.
+S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently by Valuein from public information: SEC filings, the portfolio holdings disclosed by funds that track each index, publicly available constituent lists and public reports of index changes; never from an index provider's licensed constituent data.

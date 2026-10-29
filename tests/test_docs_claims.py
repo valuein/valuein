@@ -6,6 +6,8 @@ import json
 import re
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -45,16 +47,62 @@ def test_readme_data_model_names_every_public_table() -> None:
     assert not missing, missing
 
 
+#: How each doc says prices are not SEC data (the DDQ names no licence, only the provider type).
+PRICE_SCOPE = {
+    "docs/COMPLIANCE_AND_DDQ.md": "prices come from a commercial end-of-day market-data provider",
+    "docs/METHODOLOGY.md": "separately licensed series",
+}
+
+
 def test_sourcing_claims_are_scoped_to_sec_filings() -> None:
     """DDQ and methodology scope the SEC-sourcing claim to statements, ownership and insiders.
 
-    Prices are a licensed series, so a blanket "all data from EDGAR" claim is false.
+    Prices come from a market-data provider, so a blanket "all data from EDGAR" claim is false.
     """
-    for rel in ("docs/COMPLIANCE_AND_DDQ.md", "docs/METHODOLOGY.md"):
+    for rel, price_scope in PRICE_SCOPE.items():
         text = _read(rel)
         assert "100% of the data originates" not in text, rel
         assert "All financial statements, ownership and insider data come from SEC filings" in text, rel
-        assert "separately licensed series" in text, rel
+        assert price_scope in text, rel
+
+
+#: DDQ sentences the code and the Terms contradict (2026-10-29 accuracy review).
+DDQ_RETIRED_CLAIMS = (
+    "No web scraping",  # membership reads publicly available constituent lists and fund sponsors' holdings files
+    "| **PII** | Not present",  # accounts hold emails and names; filings name insiders
+    "99.9%",  # plans.ts: self-serve plans carry no SLA or uptime commitment
+    "24/7",  # Institutional support is a 4-hour business-hours target, not an SLA
+    "zero-retention tier",  # no zero-data-retention arrangement with any provider
+    "Read-only Bearer tokens",  # the same token also writes Workspace state through the MCP
+    "millisecond-resolution",  # EDGAR's acceptance time is to the second at best
+    "Historical snapshots are never overwritten",  # patch/incremental exports rewrite the live snapshot
+    "SLA.md",  # the SLA was retired; service levels live only in an Enterprise Agreement
+)
+
+
+def test_ddq_carries_no_retired_claims() -> None:
+    """The DDQ repeats none of the claims the 2026-10-29 review found false."""
+    text = _read("docs/COMPLIANCE_AND_DDQ.md")
+    found = [claim for claim in DDQ_RETIRED_CLAIMS if claim in text]
+    assert not found, found
+
+
+def test_ddq_membership_answer_is_scoped() -> None:
+    """The membership answer names categories of public information, never a website, and never calls membership
+    exact, SEC-only or 1993-deep (founder, 2026-10-29)."""
+    text = _read("docs/COMPLIANCE_AND_DDQ.md")
+    section = text.split("- **Index membership:**", 1)[1].split("- **Transformations:**", 1)[0]
+    assert "publicly available constituent lists, public reports of index changes" in section
+    assert "does not fetch data from any index provider's website" in section
+    for banned in ("exact", "SEC-only", "1993", "scrape-free"):
+        assert banned not in section, banned
+    assert not re.search(r"https?://|www\.|\b[\w-]+\.(org|com|net|io)\b", section), "the answer names a website"
+
+
+@pytest.mark.parametrize("rel", ["README.md", "docs/schema.json"])
+def test_the_russell_grading_is_not_published(rel: str) -> None:
+    """How the Russell rows are graded against an index provider's own lists stays internal (founder, 2026-10-29)."""
+    assert "reconstitution list" not in _read(rel).lower()
 
 
 LICENCE_DOCS = (
@@ -163,3 +211,17 @@ def test_duckdb_dot_commands_are_separate_c_arguments() -> None:
     for rel in ("README.md", "docs/accuracy/README.md", "docs/accuracy/methodology.md", "scripts/accuracy/accuracy_check.sql"):
         assert not bad.search(_read(rel)), rel
     assert "sample/$t.parquet" not in _read("docs/accuracy/methodology.md")
+
+
+#: Membership claims the measured history contradicts (fewer members before ~2007, under half high confidence).
+MEMBERSHIP_RETIRED_CLAIMS = {
+    "README.md": "SP500 is survivorship-free back to 1996",
+    "docs/WORKSPACE_GUIDE.md": "exact index/sector membership",
+    "examples/notebooks/03_survivorship_free_screening.ipynb": "exactly as it stood",
+}
+
+
+@pytest.mark.parametrize(("rel", "claim"), sorted(MEMBERSHIP_RETIRED_CLAIMS.items()))
+def test_membership_copy_is_not_exact(rel: str, claim: str) -> None:
+    """No public doc calls the reconstructed membership history exact or wholly high confidence."""
+    assert claim not in _read(rel), rel
