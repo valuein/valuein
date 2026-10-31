@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-10-24T14:40:36Z",
+  "measured_at": "2026-10-31T18:24:06Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
-    "entities": 1099,
-    "filings": 18385,
+    "entities": 1289,
+    "filings": 19296,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,65 +20,65 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 18385,
-      "filings_in_universe": 21332,
-      "clean_filings": 17155,
-      "filings_with_errors": 1230,
-      "accuracy_pct": 93.31
+      "filings": 19296,
+      "filings_in_universe": 22620,
+      "clean_filings": 18004,
+      "filings_with_errors": 1292,
+      "accuracy_pct": 93.3
     },
     "by_era": {
       "modern_2010_onward": {
-        "filings": 10637,
-        "filings_in_universe": 11261,
-        "clean_filings": 9729,
-        "filings_with_errors": 908,
-        "accuracy_pct": 91.46
+        "filings": 10738,
+        "filings_in_universe": 11426,
+        "clean_filings": 9828,
+        "filings_with_errors": 910,
+        "accuracy_pct": 91.53
       },
       "legacy_pre_2010": {
-        "filings": 7748,
-        "filings_in_universe": 10071,
-        "clean_filings": 7426,
-        "filings_with_errors": 322,
-        "accuracy_pct": 95.84,
+        "filings": 8558,
+        "filings_in_universe": 11194,
+        "clean_filings": 8176,
+        "filings_with_errors": 382,
+        "accuracy_pct": 95.54,
         "_note": "Pre-2010 XBRL was optional, so most pre-2010 filings carry no facts. They are now EXCLUDED from this denominator (filings vs filings_in_universe shows how many); previously they were counted as passes, which inflated the legacy and overall figures."
       }
     },
     "top_remaining_pareto": [
       {
         "identity_key": "is_01_gross_profit",
-        "filings_failed": 712
+        "filings_failed": 739
       },
       {
         "identity_key": "eps_01_basic_eps_consistency",
-        "filings_failed": 505
+        "filings_failed": 503
       },
       {
         "identity_key": "is_04_continuing_ops",
-        "filings_failed": 413
+        "filings_failed": 452
       },
       {
         "identity_key": "bs_07_ppe_net",
-        "filings_failed": 320
+        "filings_failed": 331
       },
       {
         "identity_key": "is_11_comprehensive_income_consolidated",
-        "filings_failed": 142
+        "filings_failed": 145
       },
       {
         "identity_key": "is_10_comprehensive_income",
-        "filings_failed": 140
+        "filings_failed": 144
       },
       {
         "identity_key": "bs_01_accounting_equation",
-        "filings_failed": 112
+        "filings_failed": 109
       },
       {
         "identity_key": "eps_03_diluted_shares_ge_basic",
-        "filings_failed": 42
+        "filings_failed": 41
       },
       {
         "identity_key": "sp_08_gross_profit_le_revenue",
-        "filings_failed": 35
+        "filings_failed": 36
       },
       {
         "identity_key": "bs_02_assets_partition",
@@ -88,7 +88,7 @@
   },
   "identity_set": {
     "_definition": "Fingerprint of the rule set the accuracy figure was graded against: every active error-severity accounting identity (key, tolerance, severity) plus the QA runner. A change in it means the figure moved because the rules moved, not (only) the data.",
-    "fingerprint": "91243b7fda05efaebf365eb6b2b9d1e4aa30be32ca12aeab2ac1134a76564eaf",
+    "fingerprint": "49f5ff7e4caa762cb957a324200e0d7a5c511aafb8c22325ad386d21b52735fd",
     "identities": [
       {
         "identity_key": "bs_01_accounting_equation",
@@ -184,78 +184,78 @@
     "per_identity": [
       {
         "identity_key": "eps_01_basic_eps_consistency",
-        "modern_filings_failed": 240,
-        "modern_pct_without": 93.6
+        "modern_filings_failed": 238,
+        "modern_pct_without": 93.64
       },
       {
         "identity_key": "is_01_gross_profit",
-        "modern_filings_failed": 196,
-        "modern_pct_without": 93.27
+        "modern_filings_failed": 198,
+        "modern_pct_without": 93.33
       },
       {
         "identity_key": "bs_07_ppe_net",
-        "modern_filings_failed": 173,
-        "modern_pct_without": 92.97
+        "modern_filings_failed": 171,
+        "modern_pct_without": 93.02
       },
       {
         "identity_key": "is_10_comprehensive_income",
-        "modern_filings_failed": 94,
-        "modern_pct_without": 92.2
+        "modern_filings_failed": 97,
+        "modern_pct_without": 92.28
       },
       {
         "identity_key": "is_11_comprehensive_income_consolidated",
-        "modern_filings_failed": 89,
-        "modern_pct_without": 92.16
+        "modern_filings_failed": 90,
+        "modern_pct_without": 92.22
       },
       {
         "identity_key": "bs_01_accounting_equation",
-        "modern_filings_failed": 64,
-        "modern_pct_without": 91.96
+        "modern_filings_failed": 62,
+        "modern_pct_without": 92.01
       },
       {
         "identity_key": "is_04_continuing_ops",
         "modern_filings_failed": 43,
-        "modern_pct_without": 91.77
-      },
-      {
-        "identity_key": "eps_03_diluted_shares_ge_basic",
-        "modern_filings_failed": 21,
-        "modern_pct_without": 91.61
+        "modern_pct_without": 91.83
       },
       {
         "identity_key": "bs_02_assets_partition",
         "modern_filings_failed": 20,
-        "modern_pct_without": 91.62
+        "modern_pct_without": 91.68
+      },
+      {
+        "identity_key": "eps_03_diluted_shares_ge_basic",
+        "modern_filings_failed": 20,
+        "modern_pct_without": 91.67
       },
       {
         "identity_key": "sp_08_gross_profit_le_revenue",
         "modern_filings_failed": 9,
-        "modern_pct_without": 91.53
+        "modern_pct_without": 91.59
       },
       {
         "identity_key": "sp_09_cogs_nonnegative",
         "modern_filings_failed": 4,
-        "modern_pct_without": 91.5
+        "modern_pct_without": 91.56
       },
       {
         "identity_key": "sp_01_total_assets_positive",
         "modern_filings_failed": 3,
-        "modern_pct_without": 91.48
+        "modern_pct_without": 91.54
       }
     ]
   },
   "unstandardized_facts": {
     "_definition": "A fact with standard_concept='Other' is correctly unstandardized if it is non-us-gaap namespace or a long-tail us-gaap tag with < 5 000 facts in our corpus.",
-    "facts_with_standard_concept_other": 23031734,
-    "correctly_unstandardized": 14820031,
-    "mapping_gaps": 8211703,
-    "accuracy_pct": 64.35
+    "facts_with_standard_concept_other": 23076614,
+    "correctly_unstandardized": 14838298,
+    "mapping_gaps": 8238316,
+    "accuracy_pct": 64.3
   },
   "reproducibility": {
     "sql_script": "scripts/accuracy/accuracy_check.sql",
     "identities_catalog": "docs/accuracy/identities.json",
     "methodology": "docs/accuracy/methodology.md",
-    "run_command": "duckdb -c 'LOAD httpfs; CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {\"Authorization\": \"Bearer YOUR_TOKEN\"}); .read scripts/accuracy/accuracy_check.sql'"
+    "run_command": "duckdb -c 'LOAD httpfs' -c 'CREATE SECRET (TYPE HTTP, EXTRA_HTTP_HEADERS MAP {\"Authorization\": \"Bearer YOUR_TOKEN\"})' -c '.read scripts/accuracy/accuracy_check.sql'"
   },
   "sources": [
     "FASB ASC 210 / 220 / 230 / 260 / 740 / 810",
