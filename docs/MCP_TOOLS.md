@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.12.8) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.13.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**128 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**129 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -150,6 +150,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`get_thesis`](#get_thesis) | Get Saved Thesis | `sp500` | read-only | none |
 | [`delete_thesis`](#delete_thesis) | Archive Saved Thesis | `sp500` | destructive | none |
 | [`restore_deleted`](#restore_deleted) | Restore a Deleted Item | `sp500` | writes | none |
+| [`undo_change`](#undo_change) | Undo a Change | `sp500` | writes | none |
 | [`score_thesis_outcome`](#score_thesis_outcome) | Score Thesis Outcome | `sp500` | writes | none |
 | [`score_due_theses`](#score_due_theses) | Score Due Theses (bulk auto-grader) | `sp500` | writes | none |
 | [`run_workflow`](#run_workflow) | Run Saved Workflow | `sp500` | read-only | none |
@@ -860,6 +861,18 @@ Undo a delete: restores a thesis, watchlist, signal, claim or report that `delet
 
 **Output fields:** `kind`, `id`, `status`, `prior_status_known`
 
+### `undo_change`
+
+**Undo a Change** · min plan `sp500` · writes · paging: none
+
+Put a record back as it was before one write. Pass the `change_id` from the `undo` field of `score_claim`, `score_thesis_outcome`, `score_due_claims`, `score_due_theses`, `update_signal` or `update_report`. The server restores exactly the state it recorded: a score returns to ...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `change_id` | string | yes | — | The `undo.args.change_id` a reversible write returned. A client cannot supply any other state. |
+
+**Output fields:** `undone`, `kind`, `ids`, `undo`
+
 ### `score_thesis_outcome`
 
 **Score Thesis Outcome** · min plan `sp500` · writes · paging: none
@@ -871,7 +884,7 @@ Grade a saved thesis against fundamental momentum since its creation. Pulls reve
 | `thesis_id` | string | yes | — | Id returned by `save_thesis` or `list_theses`. |
 | `as_of` | string | no | — | Snapshot date for the 'current' fundamentals window. Defaults to today UTC. The scorer picks the fiscal period closest to this date. |
 
-**Output fields:** `thesis`, `outcome`
+**Output fields:** `thesis`, `undo`, `outcome`
 
 ### `score_due_theses`
 
@@ -885,7 +898,7 @@ Find every thesis past its horizon with no outcome yet, and grade each via `scor
 | `max` | integer | no | — | Soft cap on theses scored per call. Defaults to 100. The frontend cron walks users serially so a low cap per user keeps each MCP request bounded. |
 | `as_of` | string | no | — | Snapshot date for the 'current' fundamentals window. Defaults to today UTC. |
 
-**Output fields:** `target_customer_id`, `scanned`, `due`, `scored`, `skipped`, `errors`, `results`
+**Output fields:** `target_customer_id`, `scanned`, `due`, `scored`, `skipped`, `errors`, `results`, `undo`
 
 ### `run_workflow`
 
@@ -1059,7 +1072,7 @@ Resolve a claim's outcome. By default auto-grades an `auto` claim by evaluating 
 | `manual_score` | number\|null | no | — | Outcome score in [-1,1] for a manual resolution. Null for non-scored statuses. |
 | `manual_reason` | string | no | — | Explanation for a manual resolution. |
 
-**Output fields:** `claim`, `mode`, `resolved_status`, `score`, `basis`, `reason`, `deduplicated`
+**Output fields:** `claim`, `mode`, `resolved_status`, `score`, `basis`, `reason`, `deduplicated`, `undo`
 
 ### `score_due_claims`
 
@@ -1073,7 +1086,7 @@ Find every auto-gradable claim that is due (assertions in open/needs_review/stal
 | `max` | integer | no | — | Soft cap on claims scored per call (default 100). |
 | `as_of` | string | no | — | Snapshot date for the fundamentals window. Defaults to today UTC. |
 
-**Output fields:** `target_customer_id`, `scanned`, `due`, `scored`, `needs_review`, `skipped`, `errors`, `results`
+**Output fields:** `target_customer_id`, `scanned`, `due`, `scored`, `needs_review`, `skipped`, `errors`, `results`, `undo`
 
 ### `list_public_claims_by_user`
 
@@ -1369,7 +1382,7 @@ Edit an existing signal IN PLACE — rename it, change what it watches, or chang
 | `condition` | object | no | — | New condition — the same discriminated union `create_signal` takes. Replaces the stored condition entirely. |
 | `channels` | array | no | — | New delivery list (up to 4, each a distinct type+target). Replaces the stored list entirely; the first entry becomes `channel`. |
 
-**Output fields:** `signal`, `cron_indexed`
+**Output fields:** `signal`, `cron_indexed`, `undo`
 
 ### `list_signals`
 
@@ -1977,8 +1990,9 @@ Replace one or more sections of an existing report owned by the caller. Useful f
 | `remove_section_ids` | array | no | — | Section ids to DELETE outright. Without this, a merge-only update cannot express a deletion: an editor that drops a section simply omits it, the omitted section is preserved, and the caller sees a bumped version with the deleted content still there — a save that reports success and changed nothing. Ids must exist, and the last remaining section cannot be removed (a report with no sections is unreadable); remove the report instead with delete_report. |
 | `citations` | array | no | — | Lineage for figures in the edited sections. MERGED into the report's existing citations (first claim wins), never replacing them — so an editor autosave that sends none preserves every citation the report already had. |
 | `expected_version` | integer | no | — | Optimistic concurrency check. If supplied and the current HEAD version is different, the call returns a `version_conflict` error WITHOUT writing. Pass the version you loaded so a concurrent agent edit produces a 'conflict — review' UX instead of silently overwriting (eng review A3A). |
+| `drafts_only` | boolean | no | — | Pass true when editing a private draft: the call is refused with `not_a_draft` (nothing written) unless the report is private, never published and not signed off. Lets a client run the edit without asking, because a draft edit is undoable and reaches no reader. |
 
-**Output fields:** `report`, `version`, `previous_version`, `archived`
+**Output fields:** `report`, `version`, `previous_version`, `archived`, `undo`
 
 ### `list_report_versions`
 
@@ -2153,7 +2167,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.12.8); 39 prompts._
+_Generated from the MCP server manifest (v3.13.0); 39 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2205,7 +2219,7 @@ _Generated from the MCP server manifest (v3.12.8); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.12.8); 3 resources._
+_Generated from the MCP server manifest (v3.13.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
