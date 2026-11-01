@@ -94,7 +94,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 
 **Offset paging** (`get_pit_universe`, `screen_universe`): `limit` is the page size and `offset` is where the page starts. While rows remain, the result carries `truncation` with `next_offset`: call again with the same arguments and `offset` set to `truncation.next_offset`, until a result has no `truncation`.
 
-**Cursor paging** (`list_citation_overrides`, `list_claims`, `list_my_reports`, `list_pending_approvals`, `list_report_versions`, `list_restatements`, `list_rules`, `list_scheduled_tasks`, `list_signal_inbox`, `list_signals`, `list_theses`, `list_watchlists`, `search_reports`): Pass the `next_cursor` of one result as `cursor` on the next call, with the same other arguments. A null `next_cursor` is the last page.
+**Cursor paging** (`list_citation_overrides`, `list_my_reports`, `list_pending_approvals`, `list_report_versions`, `list_restatements`, `list_rules`, `list_scheduled_tasks`, `list_signal_inbox`, `list_signals`, `list_watchlists`, `search_reports`): Pass the `next_cursor` of one result as `cursor` on the next call, with the same other arguments. A null `next_cursor` is the last page.
 <!-- /GEN:agent-contract -->
 
 ---
@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.13.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.14.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**129 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**108 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -145,30 +145,9 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`get_insider_sentiment`](#get_insider_sentiment) | Insider Sentiment (composite) | `full` | read-only | none |
 | [`get_top_holders`](#get_top_holders) | Top Holders (composite, classified) | `full` | read-only | none |
 | [`get_smart_money_flow`](#get_smart_money_flow) | Smart Money Flow (composite) | `full` | read-only | none |
-| [`save_thesis`](#save_thesis) | Save Investment Thesis | `sp500` | writes | none |
-| [`list_theses`](#list_theses) | List Saved Theses | `sp500` | read-only | cursor |
-| [`get_thesis`](#get_thesis) | Get Saved Thesis | `sp500` | read-only | none |
-| [`delete_thesis`](#delete_thesis) | Archive Saved Thesis | `sp500` | destructive | none |
 | [`restore_deleted`](#restore_deleted) | Restore a Deleted Item | `sp500` | writes | none |
 | [`undo_change`](#undo_change) | Undo a Change | `sp500` | writes | none |
-| [`score_thesis_outcome`](#score_thesis_outcome) | Score Thesis Outcome | `sp500` | writes | none |
-| [`score_due_theses`](#score_due_theses) | Score Due Theses (bulk auto-grader) | `sp500` | writes | none |
 | [`run_workflow`](#run_workflow) | Run Saved Workflow | `sp500` | read-only | none |
-| [`list_public_theses_by_user`](#list_public_theses_by_user) | List Public Theses by User | `sp500` | read-only | none |
-| [`publish_thesis`](#publish_thesis) | Publish Thesis | `sp500` | writes | none |
-| [`unpublish_thesis`](#unpublish_thesis) | Unpublish Thesis (back to private) | `sp500` | destructive | none |
-| [`save_claim`](#save_claim) | Save Claim | `sp500` | writes | none |
-| [`list_claims`](#list_claims) | List Claims | `sp500` | read-only | cursor |
-| [`get_claim`](#get_claim) | Get Claim | `sp500` | read-only | none |
-| [`delete_claim`](#delete_claim) | Delete Claim | `sp500` | destructive | none |
-| [`link_claim_to_thesis`](#link_claim_to_thesis) | Link Claim to Thesis | `sp500` | writes | none |
-| [`unlink_claim_from_thesis`](#unlink_claim_from_thesis) | Unlink Claim from Thesis | `sp500` | destructive | none |
-| [`list_claims_for_thesis`](#list_claims_for_thesis) | List Claims for Thesis | `sp500` | read-only | none |
-| [`score_claim`](#score_claim) | Score Claim | `sp500` | writes | none |
-| [`score_due_claims`](#score_due_claims) | Score Due Claims (bulk auto-grader) | `sp500` | writes | none |
-| [`list_public_claims_by_user`](#list_public_claims_by_user) | List Public Claims by User | `sp500` | read-only | none |
-| [`publish_claim`](#publish_claim) | Publish Claim | `sp500` | writes | none |
-| [`unpublish_claim`](#unpublish_claim) | Unpublish Claim (back to private) | `sp500` | destructive | none |
 | [`save_citation_override`](#save_citation_override) | Save Citation Override | `sp500` | writes | none |
 | [`list_citation_overrides`](#list_citation_overrides) | List Citation Overrides | `sp500` | read-only | cursor |
 | [`delete_citation_override`](#delete_citation_override) | Delete Citation Override | `sp500` | destructive | none |
@@ -632,7 +611,7 @@ File product feedback to the Valuein team — a bug, feature request, experience
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `category` | enum | yes | one of `bug`, `feature_request`, `experience`, `data_quality`, `other` | What kind of feedback this is: 'bug' (something broke), 'feature_request' (something missing), 'experience' (UX / clarity / docs), 'data_quality' (a wrong/missing/stale figure), or 'other'. |
-| `message` | string | yes | — | The feedback body (1–4000 chars). Be specific: what you expected, what happened, and any reproduction steps. May contain the user's own words — it is stored for triage and never used for arithmetic. |
+| `message` | string | yes | — | The feedback body (1–4000 chars). Be specific: what you expected, what happened, and any reproduction steps. Stored for triage and never used for arithmetic. The person's own words about the product, or yours; never a copy of their research. Do not paste research into it. |
 | `subject` | string | no | — | Optional short title (≤140 chars) summarizing the feedback. |
 | `severity` | enum | no | one of `low`, `medium`, `high` | Optional impact classification: 'low', 'medium', or 'high'. |
 | `surface` | enum | no | one of `mcp`, `workspace`, `sdk`, `dashboard`, `api` | Optional product surface the feedback concerns: 'mcp', 'workspace', 'sdk', 'dashboard', or 'api'. |
@@ -640,11 +619,11 @@ File product feedback to the Valuein team — a bug, feature request, experience
 | `idempotency_key` | string | no | — | Optional client-supplied key (1–64 chars). For authenticated callers, reusing the same key files the feedback exactly once — safe to retry on a network error. Ignored for guest/sample callers (no account to scope dedup to). |
 | `sentiment` | enum | no | one of `positive`, `negative`, `correction` | Optional sentiment of this feedback: 'positive' (worked well), 'negative' (something was wrong), or 'correction' (you are supplying the right value). |
 | `reason` | enum | no | one of `wrong_number`, `bad_citation`, `missing_data`, `wrong_company`, `formatting`, `hallucinated_fact`, `tool_error`, `coverage_gap`, `other` | Optional structured error-mode reason: 'wrong_number', 'bad_citation', 'missing_data', 'wrong_company', 'formatting', 'hallucinated_fact', 'tool_error', 'coverage_gap', or 'other'. |
-| `target_type` | enum | no | one of `chat_message`, `report`, `thesis`, `claim`, `tool_call`, `schema`, `other` | Optional kind of artifact the feedback targets: 'chat_message', 'report', 'thesis', 'claim', 'tool_call', 'schema', or 'other'. |
-| `target_id` | string | no | — | Optional id of the artifact this feedback targets (e.g. a report or thesis id). |
+| `target_type` | enum | no | one of `chat_message`, `report`, `tool_call`, `schema`, `other` | Optional kind of artifact the feedback targets: 'chat_message', 'report', 'tool_call', 'schema', or 'other'. |
+| `target_id` | string | no | — | Optional id of the artifact this feedback targets (e.g. a report id). |
 | `request_id` | string | no | — | Optional `_meta` request id of the turn that produced the artifact, for correlation. |
 | `fact_id` | string | no | — | Optional disputed `fact_id` (for wrong_number / bad_citation feedback). |
-| `expected_value` | string | no | — | Optional caller-asserted correct value, in your own words. Stored verbatim for triage — NEVER computed or trusted as data. |
+| `expected_value` | string | no | — | Optional caller-asserted correct value, in your own words. Stored verbatim for triage — NEVER computed or trusted as data. The person's own words about the product, or yours; never a copy of their research. |
 
 **Output fields:** `feedback`, `acknowledgment`
 
@@ -652,19 +631,19 @@ File product feedback to the Valuein team — a bug, feature request, experience
 
 **Submit Artifact Feedback** · min plan `sample` · writes · paging: none
 
-File EXPLICIT, structured feedback about a specific artifact you (or the model) produced — a chat message, a report, a thesis, a claim, a tool call, or the schema. Use this (not `submit_feedback`) when you can name WHAT was judged and HOW: pass `target_type` + `target_id` + a ...
+File EXPLICIT, structured feedback about a specific artifact you (or the model) produced — a chat message, a report, a tool call, or the schema.
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `target_type` | enum | yes | one of `chat_message`, `report`, `thesis`, `claim`, `tool_call`, `schema`, `other` | REQUIRED. The kind of artifact this feedback is about: 'chat_message', 'report', 'thesis', 'claim', 'tool_call', 'schema', or 'other'. |
-| `target_id` | string | yes | — | REQUIRED. The id of the artifact this feedback targets (a report id, thesis id, claim id, message id, tool-call id, or table/schema name). |
+| `target_type` | enum | yes | one of `chat_message`, `report`, `tool_call`, `schema`, `other` | REQUIRED. The kind of artifact this feedback is about: 'chat_message', 'report', 'tool_call', 'schema', or 'other'. |
+| `target_id` | string | yes | — | REQUIRED. The id of the artifact this feedback targets (a report id, message id, tool-call id, or table/schema name). |
 | `sentiment` | enum | yes | one of `positive`, `negative`, `correction` | REQUIRED. How you judge the artifact: 'positive' (it was right/useful), 'negative' (it was wrong/unhelpful), or 'correction' (you are supplying the right value via `expected_value`). |
 | `reason` | enum | no | one of `wrong_number`, `bad_citation`, `missing_data`, `wrong_company`, `formatting`, `hallucinated_fact`, `tool_error`, `coverage_gap`, `other` | Optional structured error-mode: 'wrong_number', 'bad_citation', 'missing_data', 'wrong_company', 'formatting', 'hallucinated_fact', 'tool_error', 'coverage_gap', or 'other'. |
 | `request_id` | string | no | — | Optional `_meta` request id of the turn that produced the artifact. Folded into the idempotency key so a retried submission of the same judgement files once. |
 | `fact_id` | string | no | — | Optional disputed `fact_id` (most useful for wrong_number / bad_citation). |
 | `ticker` | string | no | — | Optional ticker the disputed figure belongs to (e.g. 'AAPL', 'BRK.B'). ALWAYS send this alongside `fact_id` — a `fact_id` is a one-way hash that does not contain the symbol, so without it nobody can locate the filing and your report cannot be checked against the source. Supplying it is what turns a complaint into a verifiable one. |
-| `expected_value` | string | no | — | Optional: what the value SHOULD have been, in your own words. Stored verbatim for triage — NEVER computed, restated, or trusted as data by Valuein. |
-| `message` | string | no | — | Optional free-text detail (≤4000 chars). What you expected and what happened. |
+| `expected_value` | string | no | — | Optional: what the value SHOULD have been, in your own words. Stored verbatim for triage — NEVER computed, restated, or trusted as data by Valuein. The person's own words about the product, or yours; never a copy of their research. |
+| `message` | string | no | — | Optional free-text detail (≤4000 chars). What you expected and what happened. The person's own words about the product, or yours; never a copy of their research. |
 | `idempotency_key` | string | no | — | Optional explicit dedupe key (1–64 chars). Used to dedupe when no `request_id` is supplied; safe to retry on a network error. |
 
 **Output fields:** `feedback_id`, `status`
@@ -788,75 +767,15 @@ Composite flow score on [-100, +100] aggregating insider transactions, 13F insti
 
 **Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `composite_score`, `insider_component`, `institutional_component`, `blockholder_component`, `weights`, `components`, `coverage`, `metrics_display`
 
-### `save_thesis`
-
-**Save Investment Thesis** · min plan `sp500` · writes · paging: none
-
-Persist a directional investment thesis (bull / bear / neutral) on a ticker. The thesis becomes part of the caller's private research diary; pair with `list_theses` + `score_thesis_outcome` to track conviction-vs-outcome over time. Pass `idempotency_key` for at-most-once seman...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `ticker` | string | yes | — | US-listed ticker. Case-insensitive — normalised to upper. E.g. 'AAPL'. |
-| `view` | enum | yes | one of `bull`, `bear`, `neutral` | Directional view: bull (expect outperformance), bear (under), neutral (mean-revert). |
-| `conviction` | integer | yes | — | 1 = low conviction (gut feel) → 5 = high conviction (deep analysis). |
-| `horizon_days` | integer | yes | — | Investment horizon in days. 1 day–5 years (1825d). The grader uses this to pick the as-of period. |
-| `notes` | string | no | — | Free-form rationale, ≤4000 chars. Stored verbatim; trim before submitting. |
-| `thesis_at_price_cents` | integer | no | — | Optional snapshot of the ticker's market price (integer cents) at thesis creation. Used by future versions of the grader that mix in price returns; null for now is fine. |
-| `source_report_id` | string | no | — | Optional id of a report (from `create_report` / `publish_report`) that contains the supporting analysis. |
-| `idempotency_key` | string | no | — | Optional client-supplied key. If a previous `save_thesis` from the same user used this key, the existing thesis is returned instead of creating a duplicate. |
-| `visibility` | enum | no | one of `private`, `unlisted`, `public`; default `private` | Phase 3: 'private' (default) is owner-only; 'unlisted' is visible at a known direct URL; 'public' surfaces on the author's /[handle] profile and contributes to their reputation score. |
-
-**Output fields:** `thesis`, `deduplicated`, `capacity`
-
-### `list_theses`
-
-**List Saved Theses** · min plan `sp500` · read-only · paging: cursor
-
-Return the caller's saved theses, newest-first. Filters: ticker (exact), view, status. Cursor-based pagination — pass `next_cursor` from the previous response to fetch the next page. Sample tier rejected (no per-user state).
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `ticker` | string | no | — | Filter to theses on this ticker (case-insensitive). |
-| `view` | enum | no | one of `bull`, `bear`, `neutral` | Filter to a single view. |
-| `status` | enum | no | one of `active`, `closed`, `archived`, `all`; default `active` | 'active' (default) hides archived theses; pass 'all' to include them. |
-| `limit` | integer | no | default `20` | Page size, 1–100. Defaults to 20. |
-| `cursor` | string | no | — | Pagination cursor returned by the previous `list_theses` call's `next_cursor`. |
-
-**Output fields:** `theses`, `next_cursor`, `total_count`
-
-### `get_thesis`
-
-**Get Saved Thesis** · min plan `sp500` · read-only · paging: none
-
-Fetch a single saved thesis by its id. Returns the full record including outcome (if scored). Returns NOT_FOUND if the id is unknown or belongs to another user. For the claims composing a thesis use list_claims_for_thesis; for an individual claim use get_claim. Tier: paid + fr...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id returned by `save_thesis` or `list_theses`. |
-
-**Output fields:** `thesis`
-
-### `delete_thesis`
-
-**Archive Saved Thesis** · min plan `sp500` · destructive · paging: none
-
-Soft-delete a saved thesis: status flips to `archived` (the row stays for audit / re-scoring). Idempotent — archiving an already-archived thesis succeeds. Hard-delete is not supported by design; future versions may expire archived theses after N years. This does not delete the...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id returned by `save_thesis` or `list_theses`. |
-
-**Output fields:** `thesis_id`, `status`
-
 ### `restore_deleted`
 
 **Restore a Deleted Item** · min plan `sp500` · writes · paging: none
 
-Undo a delete: restores a thesis, watchlist, signal, claim or report that `delete_*` archived, a rule, citation override or uploaded document that `delete_*` removed, a memory entry removed by `delete_agent_memory` (id = its key), an inbox item hidden by `dismiss_inbox_item` (...
+Undo a delete: restores a watchlist, signal or report that `delete_*` archived, a rule, citation override or uploaded document that `delete_*` removed, a memory entry removed by `delete_agent_memory` (id = its key), an inbox item hidden by `dismiss_inbox_item` (id = inbox_id),...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `kind` | enum | yes | one of `thesis`, `watchlist`, `signal`, `claim`, `report`, `rule`, `citation_override`, `uploaded_document`, `agent_memory`, `inbox_item`, `scheduled_task`, `agent` | Which record type to restore. |
+| `kind` | enum | yes | one of `watchlist`, `signal`, `report`, `rule`, `citation_override`, `uploaded_document`, `agent_memory`, `inbox_item`, `scheduled_task`, `agent` | Which record type to restore. |
 | `id` | string | yes | — | The record's id. For a watchlist this is the `watchlist_id` returned by `delete_watchlist` — NOT its name, because deleting a watchlist frees its name for reuse. For a rule, the `rule_id`; for a citation override, its `fact_id`; for an uploaded document, its `upload_id`; for agent_memory the memory key (up to 128 chars); for inbox_item the `inbox_id`; for scheduled_task the `task_id`; for agent the `agent_id`. |
 
 **Output fields:** `kind`, `id`, `status`, `prior_status_known`
@@ -865,40 +784,13 @@ Undo a delete: restores a thesis, watchlist, signal, claim or report that `delet
 
 **Undo a Change** · min plan `sp500` · writes · paging: none
 
-Put a record back as it was before one write. Pass the `change_id` from the `undo` field of `score_claim`, `score_thesis_outcome`, `score_due_claims`, `score_due_theses`, `update_signal` or `update_report`. The server restores exactly the state it recorded: a score returns to ...
+Put a record back as it was before one write. Pass the `change_id` from the `undo` field of `update_signal`, `update_report`, `mark_inbox_read` (item becomes unread again) or `stage_action` (the proposal is withdrawn as rejected, only while still pending; the target tool never...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `change_id` | string | yes | — | The `undo.args.change_id` a reversible write returned. A client cannot supply any other state. |
 
 **Output fields:** `undone`, `kind`, `ids`, `undo`
-
-### `score_thesis_outcome`
-
-**Score Thesis Outcome** · min plan `sp500` · writes · paging: none
-
-Grade a saved thesis against fundamental momentum since its creation. Pulls revenue / operating-margin / EPS / OCF deltas and aggregates into a score in [-1, +1]. Bull theses are graded by directional alignment, bear by inverse, neutral by closeness-to-flat. The grade is persi...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id returned by `save_thesis` or `list_theses`. |
-| `as_of` | string | no | — | Snapshot date for the 'current' fundamentals window. Defaults to today UTC. The scorer picks the fiscal period closest to this date. |
-
-**Output fields:** `thesis`, `undo`, `outcome`
-
-### `score_due_theses`
-
-**Score Due Theses (bulk auto-grader)** · min plan `sp500` · writes · paging: none
-
-Find every thesis past its horizon with no outcome yet, and grade each via `score_thesis_outcome`. Operates on the caller's OWN theses — omit `customer_id`. Targeting another user's `customer_id` is reserved for Valuein's internal scoring service and is rejected for every plan...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `customer_id` | string | no | — | Stripe customer_id of the target user. Defaults to the caller's own — leave it unset. Supplying a DIFFERENT customer_id is restricted to Valuein's internal scoring service and is rejected on every plan, Institutional included. |
-| `max` | integer | no | — | Soft cap on theses scored per call. Defaults to 100. The frontend cron walks users serially so a low cap per user keeps each MCP request bounded. |
-| `as_of` | string | no | — | Snapshot date for the 'current' fundamentals window. Defaults to today UTC. |
-
-**Output fields:** `target_customer_id`, `scanned`, `due`, `scored`, `skipped`, `errors`, `results`, `undo`
 
 ### `run_workflow`
 
@@ -913,218 +805,6 @@ Resolve a saved workflow by id and return a structured execution plan for a sing
 | `tickers` | array | no | — | Batch mode — array of US-listed tickers, up to 50. When provided, the response has `plans[]` (one plan per ticker) instead of `plan`. Parity with the frontend batch-runner so agents can request 'plan over my watchlist' in a single call. |
 
 **Output fields:** `meta`, `workflow`, `ticker`, `plan`, `plans`, `instructions`
-
-### `list_public_theses_by_user`
-
-**List Public Theses by User** · min plan `sp500` · read-only · paging: none
-
-Return the PUBLIC theses + reputation aggregate for a user identified by Stripe customer_id. Used by the /[handle] profile page to render an analyst's track record. Only entries with visibility='public' are surfaced — private theses never leak. Reputation is correct/(correct+w...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `customer_id` | string | yes | — | Target user's Stripe customer_id (resolved by the frontend from the handle). |
-| `limit` | integer | no | default `20` | Max public theses to return. Defaults to 20. |
-
-**Output fields:** `theses`, `reputation`
-
-### `publish_thesis`
-
-**Publish Thesis** · min plan `sp500` · writes · paging: none
-
-Make a saved thesis discoverable by flipping its visibility: `public` (default) surfaces it on the author's /[handle] profile and counts toward their reputation aggregate; `unlisted` makes it reachable at a known direct link but keeps it off the profile. Use AFTER save_thesis ...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id returned by `save_thesis` or `list_theses`. |
-| `visibility` | enum | no | one of `unlisted`, `public`; default `public` | `public` (default) → profile + reputation; `unlisted` → direct-link-only, off the profile. To revert to private, use unpublish_thesis. |
-
-**Output fields:** `thesis`
-
-### `unpublish_thesis`
-
-**Unpublish Thesis (back to private)** · min plan `sp500` · destructive · paging: none
-
-Revert a published thesis (public or unlisted) back to `private` — removes it from the author's /[handle] profile and excludes it from the public reputation aggregate. The inverse of publish_thesis. Owner-only, idempotent. Tier: sp500+ (sample rejected).
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id returned by `save_thesis` or `list_theses`. |
-
-**Output fields:** `thesis`
-
-### `save_claim`
-
-**Save Claim** · min plan `sp500` · writes · paging: none
-
-Persist a single falsifiable, evidence-backed CLAIM — the atomic unit of the research graph. Use this for each discrete assertion an analysis produces (e.g. 'NVDA gross margin stays above 70% through FY2026'), then compose claims into a thesis with `link_claim_to_thesis`. Clai...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `statement` | string | yes | — | The atomic, falsifiable statement. One claim, not a paragraph. |
-| `tickers` | array | yes | — | Entities referenced (uppercased). 1 for most claims; 2+ for a comparison claim. |
-| `claim_type` | enum | yes | one of `assertion`, `prediction`, `judgment` | Epistemic type — drives scoring. assertion=true now (verified vs data); prediction=future (resolves at horizon via verifiable_condition); judgment=qualitative (not auto-scored). |
-| `tags` | array | no | default `[]` | Topical labels (controlled vocab). Multi-valued; drives filtering + learning segmentation, not scoring. |
-| `direction` | enum | yes | one of `bullish`, `bearish`, `neutral` | Directional polarity of the claim. |
-| `confidence` | number | yes | — | Author confidence in [0,1]. Used as the Brier/log-loss weight when scored. |
-| `eval_mode` | enum | no | one of `auto`, `agent`, `manual`; default `agent` | How the outcome is resolved: auto (deterministic grade vs data via verifiable_condition), agent (an LLM judges at resolution), manual (a human marks it). |
-| `verifiable_condition` | object\|null | no | default `null` | Machine-evaluable condition for eval_mode='auto'. Null otherwise. |
-| `antecedent` | string\|null | no | default `null` | Scenario precondition — the claim only resolves when this holds. Null = unconditional. |
-| `horizon_days` | integer\|null | no | default `null` | Resolution horizon in days (predictions). Null for assertions/judgments. |
-| `evidence` | object | no | default `{"fact_ids": [], "source_urls": []}` | Evidence grounding the claim. |
-| `source_report_id` | string | no | — | Optional id of a report that contains the supporting analysis. |
-| `visibility` | enum | no | one of `private`, `unlisted`, `public`; default `private` | 'private' (default) owner-only; 'unlisted' visible at a direct URL; 'public' surfaces on the author's profile and contributes to the claim-accuracy reputation. |
-| `idempotency_key` | string | no | — | Optional client key for at-most-once semantics from a retrying agent. |
-
-**Output fields:** `claim`, `deduplicated`, `capacity`
-
-### `list_claims`
-
-**List Claims** · min plan `sp500` · read-only · paging: cursor
-
-List the caller's saved claims, most-recent-first, with AND-composed filters and cursor pagination. Filter by ticker, claim_type (assertion/prediction/judgment), tag, or lifecycle status (open/confirmed/refuted/expired/stale/needs_review). Archived claims are excluded unless i...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `ticker` | string | no | — | Filter to claims referencing this ticker. |
-| `claim_type` | enum | no | one of `assertion`, `prediction`, `judgment` | Filter by epistemic type. |
-| `tag` | enum | no | one of `financial`, `valuation`, `operational`, `competitive`, `structural`, `strategic`, `macro`, `behavioral`, `catalyst`, `risk`, `trend`, `comparison`, `causation`, `liquidity`, `governance`, `guidance` | Filter to claims carrying this topical tag. |
-| `status` | enum | no | one of `open`, `confirmed`, `refuted`, `expired`, `stale`, `needs_review`, `all`; default `all` | Filter by lifecycle status, or 'all'. |
-| `include_archived` | boolean | no | default `false` | Include soft-deleted claims. |
-| `limit` | integer | no | default `25` | Page size (max 100). |
-| `cursor` | string | no | — | Pagination cursor from a previous page's next_cursor. |
-
-**Output fields:** `claims`, `next_cursor`, `total_count`
-
-### `get_claim`
-
-**Get Claim** · min plan `sp500` · read-only · paging: none
-
-Fetch a single claim by id, plus the ids of theses it supports/refutes and its full append-only score history. Use this to inspect a claim's evidence, current status, and how its outcome has evolved. Tier: all paid + free tiers (sample rejected).
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `claim_id` | string | yes | — | Id returned by save_claim or list_claims. |
-
-**Output fields:** `claim`, `linked_thesis_ids`, `score_events`
-
-### `delete_claim`
-
-**Delete Claim** · min plan `sp500` · destructive · paging: none
-
-Soft-delete a claim by id. The row and its score history are preserved for audit (archived, not erased); the claim drops out of default list_claims results. Idempotent — deleting an already-archived claim succeeds. Tier: all paid + free tiers (sample rejected).
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `claim_id` | string | yes | — | Id of the claim to archive. |
-
-**Output fields:** `claim_id`, `archived`
-
-### `link_claim_to_thesis`
-
-**Link Claim to Thesis** · min plan `sp500` · writes · paging: none
-
-Attach a claim to a thesis with a role: 'supports' (the claim, if true, strengthens the thesis), 'refutes' (if true, weakens it — track disconfirming evidence first-class), or 'context' (relevant but not directional). Idempotent — re-linking updates the role. A claim can suppo...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id of the thesis (from save_thesis/list_theses). |
-| `claim_id` | string | yes | — | Id of the claim (from save_claim/list_claims). |
-| `role` | enum | yes | one of `supports`, `refutes`, `context` | Relational role of the claim toward the thesis. |
-
-**Output fields:** `link`
-
-### `unlink_claim_from_thesis`
-
-**Unlink Claim from Thesis** · min plan `sp500` · destructive · paging: none
-
-Remove the link between a claim and a thesis. Idempotent — succeeds whether or not the link existed. The claim and thesis themselves are untouched. Undoable: the response carries `prior_role` (supports/refutes/context, null when there was no link), so calling `link_claim_to_th...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Identifier of the thesis to unlink the claim from, as returned by save_thesis or list_theses. |
-| `claim_id` | string | yes | — | Identifier of the claim to unlink, as returned by save_claim or list_claims. |
-
-**Output fields:** `unlinked`, `prior_role`, `prior_created_at`
-
-### `list_claims_for_thesis`
-
-**List Claims for Thesis** · min plan `sp500` · read-only · paging: none
-
-List the claims composing a thesis, each with its role (supports/refutes/context). This is how you read a thesis as the structured argument it is — its supporting and disconfirming claims with their current statuses. Archived claims are omitted. Tier: paid + free (sample rejec...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `thesis_id` | string | yes | — | Id of the thesis whose claims to list. |
-
-**Output fields:** `items`
-
-### `score_claim`
-
-**Score Claim** · min plan `sp500` · writes · paging: none
-
-Resolve a claim's outcome. By default auto-grades an `auto` claim by evaluating its verifiable_condition against SEC fundamentals (confirmed/refuted), or marks it `needs_review` when it can't be resolved deterministically (judgment, antecedent, or missing data). To record a hu...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `claim_id` | string | yes | — | Id of the claim to resolve. |
-| `as_of` | string | no | — | Snapshot date for the fundamentals window (auto mode). Defaults to today UTC. |
-| `manual_status` | enum | no | one of `confirmed`, `refuted`, `expired`, `stale`, `needs_review` | Provide to record a human/agent outcome instead of auto-grading. |
-| `manual_score` | number\|null | no | — | Outcome score in [-1,1] for a manual resolution. Null for non-scored statuses. |
-| `manual_reason` | string | no | — | Explanation for a manual resolution. |
-
-**Output fields:** `claim`, `mode`, `resolved_status`, `score`, `basis`, `reason`, `deduplicated`, `undo`
-
-### `score_due_claims`
-
-**Score Due Claims (bulk auto-grader)** · min plan `sp500` · writes · paging: none
-
-Find every auto-gradable claim that is due (assertions in open/needs_review/stale; predictions whose horizon has passed) and resolve each against fundamentals. Operates on the caller's OWN claims — omit `customer_id`. Targeting another user's `customer_id` is reserved for Valu...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `customer_id` | string | no | — | Target user's Stripe customer_id. Defaults to the caller's own — leave it unset. Supplying a DIFFERENT customer_id is restricted to Valuein's internal scoring service and is rejected on every plan, Institutional included. |
-| `max` | integer | no | — | Soft cap on claims scored per call (default 100). |
-| `as_of` | string | no | — | Snapshot date for the fundamentals window. Defaults to today UTC. |
-
-**Output fields:** `target_customer_id`, `scanned`, `due`, `scored`, `needs_review`, `skipped`, `errors`, `results`, `undo`
-
-### `list_public_claims_by_user`
-
-**List Public Claims by User** · min plan `sp500` · read-only · paging: none
-
-Return the PUBLIC claims + claim-accuracy reputation for a user identified by Stripe customer_id. Used by the /[handle] profile to render an analyst's claim-level track record — a separate signal from thesis-outcome accuracy. Only visibility='public' claims surface; private st...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `customer_id` | string | yes | — | Target user's Stripe customer_id (resolved by the frontend from the handle). |
-| `limit` | integer | no | default `20` | Max public claims to return. Defaults to 20. |
-
-**Output fields:** `claims`, `reputation`
-
-### `publish_claim`
-
-**Publish Claim** · min plan `sp500` · writes · paging: none
-
-Make a saved claim discoverable by flipping its visibility: `public` (default) surfaces it on the author's /[handle] profile and counts toward their claim-accuracy reputation; `unlisted` makes it reachable at a known direct link but keeps it off the profile. Use AFTER save_cla...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `claim_id` | string | yes | — | Id returned by `save_claim` or `list_claims`. |
-| `visibility` | enum | no | one of `unlisted`, `public`; default `public` | `public` (default) → profile + reputation; `unlisted` → direct-link-only, off the profile. To revert to private, use unpublish_claim. |
-
-**Output fields:** `claim`
-
-### `unpublish_claim`
-
-**Unpublish Claim (back to private)** · min plan `sp500` · destructive · paging: none
-
-Revert a published claim (public or unlisted) back to `private` — removes it from the author's /[handle] profile and excludes it from the public claim-accuracy aggregate. The inverse of publish_claim. Owner-only, idempotent. Tier: sp500+ (sample rejected).
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `claim_id` | string | yes | — | Id returned by `save_claim` or `list_claims`. |
-
-**Output fields:** `claim`
 
 ### `save_citation_override`
 
@@ -1447,7 +1127,7 @@ Set `read_at` on a single inbox item by its id (from list_signal_inbox or the si
 |---|---|---|---|---|
 | `inbox_id` | string | yes | — | Identifier of the inbox item to mark read, as returned by list_signal_inbox or the signals feed resource. |
 
-**Output fields:** `inbox_id`, `marked_read`, `unread_count`
+**Output fields:** `inbox_id`, `marked_read`, `unread_count`, `undo`
 
 ### `dismiss_inbox_item`
 
@@ -1473,7 +1153,7 @@ Propose an MCP tool call for human approval BEFORE running it. Call this — ins
 | `tool_args` | object | no | default `{}` | The exact arguments to replay through that tool if/when a human approves. |
 | `origin` | string | yes | — | Free-form label identifying who/what is proposing this action — e.g. 'agent-runner:managed', 'claude-connector', 'cursor', or any caller-supplied identifier. Lets a human distinguish which session/agent proposed a given write. |
 
-**Output fields:** `result`, `risk_tier`, `staged_action_id`, `staged_action`
+**Output fields:** `result`, `risk_tier`, `staged_action_id`, `staged_action`, `undo`
 
 ### `list_pending_approvals`
 
@@ -1718,14 +1398,13 @@ Fire one of the caller's own standing agents now, out of band from its schedule.
 
 **Create Research Report** · min plan `sp500` · writes · paging: none
 
-Synchronously generate a research report and persist it under the caller's authorship. Two subtypes: • `reverse_dcf` — solves the stage-1 free-cash-flow growth rate the market price implies, with a 5×5 sensitivity grid across WACC × terminal-growth assumptions. Returns full ma...
+Synchronously generate a research report and persist it under the caller's authorship. One subtype, `reverse_dcf`: • `reverse_dcf` — solves the stage-1 free-cash-flow growth rate the market price implies, with a 5×5 sensitivity grid across WACC × terminal-growth assumptions. R...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `report_type` | enum | yes | one of `reverse_dcf`, `thesis` | Subtype. `reverse_dcf` requires ticker + params; `thesis` requires thesis_id (from save_thesis / list_theses). |
+| `report_type` | enum | yes | one of `reverse_dcf` | Subtype. Only `reverse_dcf` is created now (requires ticker + params); thesis reports were retired in 3.14.0 and stored ones still read. |
 | `ticker` | string | no | — | US-listed ticker — required for report_type=reverse_dcf. Case-insensitive. |
 | `params` | object | no | — | Reverse-DCF parameters — required for report_type=reverse_dcf. |
-| `thesis_id` | string | no | — | Id of a saved thesis owned by the caller — required for report_type=thesis. |
 | `title` | string | no | — | Optional human-supplied title; auto-generated when omitted. |
 | `idempotency_key` | string | no | — | Optional key for at-most-once semantics. Same key from the same user always yields the same report id. |
 
@@ -2167,7 +1846,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.13.0); 39 prompts._
+_Generated from the MCP server manifest (v3.14.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2188,27 +1867,18 @@ _Generated from the MCP server manifest (v3.13.0); 39 prompts._
 | `earnings_pulse` | Earnings Pulse | `sample` | Pre-earnings pulse for a single ticker. Pulls last 8 quarters of fundamentals + the existing get_earnings_signals trend + management-credibility cross-check (promise-vs-delivery on key segments). Output: 1-page pre-read for an analyst attending the call. |
 | `restatement_radar` | Restatement Radar | `sample` | Daily/weekly sweep for 10-K/A and 10-Q/A amendments across a watchlist (or the caller's full ticker set). Surfaces amendments that materially changed reported revenue, cash flow, or earnings — the highest-signal restatement events for a forensic analyst. |
 | `earnings_war_room` | Earnings-Day War Room | `sample` | The moment a company files (10-Q / 10-K / 8-K), grade every open claim and thesis you hold on that ticker against the fresh numbers and draft a cited 'what changed' memo — before the earnings call. Turns a filing into a cited record: what resolved, what surprised, what stays o... |
-| `screen_to_thesis` | Screen → Thesis Pipeline | `sample` | End-to-end idea-generation pipeline: screen → forensic audit → save thesis for the top N candidates. Produces both the screening result + a saved thesis on each conviction name. Wraps existing screen_universe + forensic_audit + save_thesis. |
-| `portfolio_health_check` | Portfolio Health Check | `sample` | End-of-week diagnostic on the caller's saved theses: which are still on track (positive directional momentum) vs. broken (signals diverging from view). Runs score_thesis_outcome over the active set and produces a top-3-issues list. |
-| `deferred_research_loop` | Deferred Research Loop | `sp500` | Defer a follow-up on a thesis instead of losing it when the conversation ends. Chains initial research (get_company_fundamentals + get_valuation_metrics) → save_thesis → a deliberate choice between schedule_task (one-shot deferred re-check, fires once, up to 90 days out) and c... |
+| `screen_to_thesis` | Screen → Thesis Pipeline | `sample` | End-to-end idea-generation pipeline: screen → forensic audit → shortlist of the top N candidates. Wraps existing screen_universe + forensic_audit; ends in a saved watchlist of the survivors. |
 | `smart_money_pulse` | Smart-Money Pulse | `full` | PM digest: 13F + insider activity across the caller's watchlist. Surfaces top fund accumulators, recent insider clusters, and 13D/13G activist filings worth investigating. Institutional tier (full plan) only. |
 | `activist_radar` | Activist Radar | `full` | Detect new SC 13D / 13G filings across the watchlist and pull the activist's historical playbook stats. Surfaces 13G→13D conversions (the strongest 'going active' signal). Institutional tier. |
 | `sector_overview_flow` | Sector Overview | `sample` | Comprehensive sector / industry landscape brief — market dynamics, top 5-10 players, competitive structure, valuation context, and investment debate. Distinct from `sector_ratio_screen` (which is just a screen) and `screen_and_shortlist` (single-theme idea generation) — this i... |
 | `dcf_build_flow` | DCF Build (Disciplined) | `sample` | Disciplined forward-DCF construction for a single ticker — pulls fundamentals, justifies each assumption against history + peers, calls `compute_dcf`, and renders the full per-share value + 5×5 sensitivity grid. Wraps Valuein's existing `compute_dcf` math tool with verify-at-e... |
-| `publish_to_build_reputation` | Publish to Build Reputation | `sp500` | Creator build-in-public workflow: turn finished analysis on a ticker into a public track record. Chains create_report → publish_report (free) → search_reports (catalog verify) → save_thesis/publish_thesis + save_claim/publish_claim → list_my_reports / list_public_theses_by_use... |
-| `watchlist_and_signal_setup` | Watchlist & Signal Setup | `sp500` | Operational monitoring setup for a PM/analyst: create a watchlist, attach signal rules, dry-run them, and confirm the inbox is wired. Chains save_watchlist → create_signal → test_signal → list_signals → list_signal_inbox. Tier: sp500+ (watchlists + signals are persisted user s... |
-| `claims_ledger_lifecycle` | Claims-Ledger Lifecycle | `sp500` | Walks an evidence-backed claim through its full lifecycle: record → link to a thesis → grade (single + batch) → read the thesis's claim set → publish → confirm on the public profile. Chains save_claim → link_claim_to_thesis → score_claim / score_due_claims → list_claims_for_th... |
-| `thesis_state_machine` | Thesis State Machine | `sp500` | Walks a saved thesis through its full lifecycle: create → batch-grade due theses → score one outcome → re-read state → list the ledger. Chains save_thesis → score_due_theses → score_thesis_outcome → get_thesis → list_theses. Tier: sp500+ (theses are persisted user state). |
+| `watchlist_and_signal_setup` | Watchlist & Signal Setup | `sample` | Operational monitoring setup for a PM/analyst: create a watchlist, attach signal rules, dry-run them, and confirm the inbox is wired. Chains save_watchlist → create_signal → test_signal → list_signals → list_signal_inbox. Tier: sp500+ (watchlists + signals are persisted user s... |
 | `review_and_signoff` | Review & Sign-off | `sp500` | Figure-level review coverage loop for one report. Chains verify_report_figures (the machine verdict on every figure in the prose — start here) → get_report (read citations) → list_figure_reviews (see what's already reviewed) → verify_facts (check every unreviewed figure agains... |
 | `multi_factor_signal` | Multi-Factor Signal | `sample` | Builds a point-in-time-disciplined composite signal across the cross-section. Chains get_pit_universe → get_compute_ready_stream → screen_universe → get_financial_ratios for per-name verification → run_backtest for a bounded forward-return sanity grid on the decile extremes. E... |
 | `fundamental_deep_dive` | Fundamental Deep Dive (10-K Teardown) | `sample` | The annual-report deep-read ritual as one run: a 10-year financial spread (revenue, margins, FCF, ROIC, share count, leverage) with every figure filing-cited, a quality-of-earnings read (OCF vs net income), the full restatement history with before→after diffs, capital-allocati... |
 | `dividend_sustainability_review` | Dividend Sustainability Review | `sample` | Dividend safety from cash-flow articulation, not yield-chasing: 10 years of payout history, FCF coverage trajectory, deployment flags (debt-funded distributions), leverage headroom, and the revision record on the cash-flow concepts — ending in a SAFE / STRETCHED / AT-RISK read... |
 | `initiation_of_coverage` | Initiation of Coverage | `sp500` | The full idea → IC-ready initiation pipeline: 10-year history, moat evidence, peer positioning, valuation with labelled assumptions (DCF + reverse-DCF expectations read), ranked risks with pre-committed kill criteria, and a variant view — ending in a persisted, citation-carryi... |
-| `ic_memo_prep` | IC Memo Prep | `sp500` | Assemble the 9-section investment-committee memo from PERSISTED research state — the saved thesis and its linked claim ledger — refreshed with current figures, a variant-view section, a dated catalyst calendar, and pre-committed kill criteria. Chains get_thesis/list_claims_for... |
-| `thesis_red_team` | Thesis Red Team (Pre-Mortem) | `sp500` | Argue the other side of a saved thesis before it costs money: independently re-verify the supporting claims' cited facts, sweep for disconfirming evidence (earnings-quality flags, restatements, deteriorating signals, peer gaps), quantify a conservative bear case, record the di... |
-| `thesis_drift_check` | Thesis Drift Check | `sp500` | The quarterly per-thesis maintenance review that catches thesis creep: re-score each fact-pinned claim (the thesis's KPIs) against fresh filed actuals, check whether any cited fact was quietly revised, diff the latest period against the baseline, and end with INTACT / DRIFTING... |
-| `position_post_mortem` | Position Post-Mortem (PIT) | `sp500` | The closed-position decision review, run honestly: reconstruct the ENTRY-DATE information set with as_of_date (what was actually knowable, not today's restated view), compare it against the outcome set, find the earliest date the deciding evidence became knowable (its accepted... |
-| `value_screen_pipeline` | Value Screen Pipeline | `sp500` | The value investor's screen-to-thesis pipeline: survivorship-free universe → cash-flow-yield screen → quality + earnings-quality gates → owner-earnings read (maintenance-capex honesty) → margin-of-safety via reverse-DCF expectations read → persisted theses with falsifiable cla... |
+| `value_screen_pipeline` | Value Screen Pipeline | `sp500` | The value investor's screen-to-thesis pipeline: survivorship-free universe → cash-flow-yield screen → quality + earnings-quality gates → owner-earnings read (maintenance-capex honesty) → margin-of-safety via reverse-DCF expectations read → a saved, monitored watchlist. Chains ... |
 | `standing_research_desk` | Standing Research Desk | `sp500` | Stand up the whole monitoring desk in one run: watchlist → filing/restatement signal tripwires (dry-run-verified) → a filing-event rule posting to the inbox → a scheduled standing agent for the daily sweep → confirm the plumbing (list_signals/list_rules/list_agents, a smoke ru... |
 <!-- /GEN:mcp-prompts -->
 
@@ -2219,7 +1889,7 @@ _Generated from the MCP server manifest (v3.13.0); 39 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.13.0); 3 resources._
+_Generated from the MCP server manifest (v3.14.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
