@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.15.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.16.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1036,16 +1036,17 @@ Forget ONE durable memory entry by key — use it when a note you stored is now 
 
 **Watchlist Diff** · min plan `sp500` · read-only · paging: none
 
-Return new SEC filings across a set of companies since a given date. Name the companies EITHER with `name` (a watchlist you have already saved) OR with `tickers` (a list you are holding right now) — pass exactly one. Use `tickers` for an ad-hoc question: there is no need to cr...
+Return new SEC filings across a set of companies since a given date. Name the companies with `name` (one watchlist you have already saved), `names` (several saved watchlists scanned together, companies de-duplicated; a name that does not exist is listed in `watchlists_not_foun...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `name` | string | no | — | Name of a watchlist the caller has already saved. Pass this OR `tickers`, never both. |
-| `tickers` | array | no | — | Tickers or CIKs to scan, passed directly. Use this for an ad-hoc question — do NOT create a watchlist in order to ask one, since that writes a durable record into the user's account. Pass this OR `name`, never both. |
+| `name` | string | no | — | Name of a watchlist the caller has already saved. Pass exactly one of `name`, `names`, `tickers`. |
+| `names` | array | no | — | Names of saved watchlists to scan together; their companies are de-duplicated. A name that is not found is skipped and listed in `watchlists_not_found`. Pass exactly one of `name`, `names`, `tickers`. |
+| `tickers` | array | no | — | Tickers or CIKs to scan, passed directly. Use this for an ad-hoc question — do NOT create a watchlist in order to ask one, since that writes a durable record into the user's account. Pass exactly one of `name`, `names`, `tickers`. |
 | `since` | string | yes | — | Cutoff date (YYYY-MM-DD); the diff returns SEC filings whose filing_date is on or after this date. |
 | `form_types` | array | no | — | Filing forms to include. Defaults to 10-K + 10-Q + 8-K. |
 
-**Output fields:** `watchlist_name`, `since`, `tickers_scanned`, `tickers_requested`, `truncated`, `tickers_failed`, `filings`
+**Output fields:** `watchlist_name`, `watchlists_not_found`, `since`, `tickers_scanned`, `tickers_requested`, `truncated`, `tickers_failed`, `filings`
 
 ### `create_signal`
 
@@ -1860,7 +1861,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.15.0); 30 prompts._
+_Generated from the MCP server manifest (v3.16.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1903,7 +1904,7 @@ _Generated from the MCP server manifest (v3.15.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.15.0); 3 resources._
+_Generated from the MCP server manifest (v3.16.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
