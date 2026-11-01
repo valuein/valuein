@@ -158,7 +158,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.3
 
       - name: (c) Publish-guard tests
         run: uv run --with 'pytest>=8,<10' pytest tests -q
@@ -177,7 +177,7 @@ jobs:
           # generator (`generator_changed_since`).
           fetch-depth: 0
 
-      - uses: astral-sh/setup-uv@v10.2.0
+      - uses: astral-sh/setup-uv@v10.3.3
 
       # PRs and branch pushes: only drift this change owns fails. A manual
       # run (workflow_dispatch) has no base and fails on any drift.
