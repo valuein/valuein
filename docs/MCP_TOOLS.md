@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.14.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.15.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**108 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -118,6 +118,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`get_financial_ratios`](#get_financial_ratios) | Financial Ratios | `sample` | read-only | none |
 | [`get_sec_filing_links`](#get_sec_filing_links) | SEC Filing Links | `sample` | read-only | none |
 | [`list_filing_forms`](#list_filing_forms) | Filed Form Types | `sample` | read-only | none |
+| [`latest_filings`](#latest_filings) | Latest Filings | `sample` | read-only | none |
 | [`list_filing_sections`](#list_filing_sections) | List Filing Sections | `sample` | read-only | none |
 | [`read_filing_section`](#read_filing_section) | Read Filing Section | `sample` | read-only | none |
 | [`find_in_filing`](#find_in_filing) | Find in Filing | `sample` | read-only | none |
@@ -321,6 +322,19 @@ Which SEC form types each of up to 200 companies filed in the last N months (def
 | `months` | integer | no | default `24` | Look-back window in months. Defaults to 24. |
 
 **Output fields:** `since`, `companies`
+
+### `latest_filings`
+
+**Latest Filings** · min plan `sample` · read-only · paging: none
+
+The newest SEC filing per company per form, for up to 50 companies in ONE call: ticker, cik, form (as filed, `10-Q/A` when an amendment is the newest), accession and SEC `accepted_at`. Pass base forms (`10-K`, `10-Q`, `8-K`, `20-F`, `40-F`); amendments count toward their base ...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `tickers` | array | yes | — | Tickers or CIKs, at most 50. |
+| `forms` | array | yes | — | Base form codes, e.g. ['10-K', '10-Q']. A trailing /A is folded into the base form. |
+
+**Output fields:** `readable`, `filings`
 
 ### `list_filing_sections`
 
@@ -1846,7 +1860,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.14.0); 30 prompts._
+_Generated from the MCP server manifest (v3.15.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1889,7 +1903,7 @@ _Generated from the MCP server manifest (v3.14.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.14.0); 3 resources._
+_Generated from the MCP server manifest (v3.15.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
