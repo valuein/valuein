@@ -177,7 +177,7 @@ def test_generated_mcp_summary_matches_plans() -> None:
     assert "single-seat internal use" in rendered
     assert "separate Redistribution Licence, which no plan includes" in rendered
     assert "19,000" not in rendered
-    assert "S&P 500" not in rendered
+    assert "Benchmark (every S&P 500 member" in rendered
 
 
 def test_no_stale_universe_count_or_form_scope() -> None:

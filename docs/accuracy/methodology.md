@@ -86,7 +86,7 @@ These are honest engineering decisions, not metric-gaming. Every loosening choic
 
 ## 4. Reproducing the measurement
 
-### 4.1 Free path (sample tier — 5-year large-cap US benchmark window)
+### 4.1 Free path (sample tier — 5-year S&P 500 window)
 
 The sample tier needs no token and no signup. (The free Benchmark token at [valuein.biz/signup/free](https://valuein.biz/signup/free) adds the full 1993–present history of the same universe.)
 
@@ -96,7 +96,7 @@ The sample tier needs no token and no signup. (The free Benchmark token at [valu
 duckdb -c "LOAD httpfs" -c ".read scripts/accuracy/accuracy_check.sql"
 ```
 
-You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year large-cap US benchmark window, so its headline differs from `baseline.json`, which grades the full 1993–present universe.
+You'll see all 7 result sets — headline accuracy, per-identity pass rate, 80/20 Pareto, top violators, sector breakdown, era split, coverage gaps. Same SQL we run internally; the dataset is a 5-year S&P 500 window, so its headline differs from `baseline.json`, which grades the full 1993–present universe.
 
 ### 4.2 Pro / Institutional path
 
@@ -196,3 +196,5 @@ When the SEC releases new XBRL taxonomy or a filer changes tagging convention, t
 ## License
 
 This document and the accompanying SQL / JSON are Apache 2.0. Use them, audit them, fork them, run them against your own pipeline. The whole point is that the number is publicly defensible.
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._

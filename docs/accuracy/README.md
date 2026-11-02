@@ -41,3 +41,5 @@ Prefer zero third-party trust? Save the four tables the script reads (`fact`, `f
 * **Where can I run this against the full universe?** With a Pro or Institutional token from valuein.biz, set `valuein_bucket_base` to your tier's bucket prefix and re-run the same script.
 
 * **What if I disagree with a tolerance?** Fork [`identities.json`](identities.json), tighten the values you care about, re-run the script. You'll see how much of the measured accuracy in [`baseline.json`](baseline.json) survives your stricter rules. That's the whole point of publishing the file.
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._
