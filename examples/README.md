@@ -88,3 +88,5 @@ and how to run it. Most pair with a notebook.
 ## Contributing
 
 See [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+
+_Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider._

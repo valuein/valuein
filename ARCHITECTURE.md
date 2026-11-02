@@ -103,7 +103,7 @@ All three are runnable by hand via `workflow_dispatch`.
 - Examples: scripts `snake_case.py`, notebooks `NN_snake_case.ipynb`; scripts under 150 lines, one concept per file, standalone on the sample tier, no hardcoded API keys, bucket names or internal URLs; a script and its paired notebook change in the same PR.
 - No CUSIPs anywhere (licensing risk) — use FIGI and LEI; `concept_mapping` is internal and never shown.
 - Always `uv run python …`, never bare `python`; run `ruff` check + format on `examples/` and `scripts/` before a PR.
-- Third-party index trademarks (S&P 500®, Russell®, Nasdaq-100®): keep the keys (`SP500`, tier `sp500`); never brand a plan, headline or listing with an index name (the free tier is "Benchmark"); descriptive use only, with the non-affiliation notice on that page; never claim data from or a licence with an index provider — membership is reconstructed from public SEC filings and fund disclosures. New copy naming an index needs founder review.
+- Third-party index trademarks (founder 2026-11-02): keep the keys (`SP500`, tier `sp500`); plain-text descriptive mentions of an index are allowed (membership dates are facts), but never an index name as a plan, product or listing name (the free tier is "Benchmark"), no logos, no implied endorsement or licence, never claim data from an index provider; the notice appears once per page naming an index; name SEC sources concretely (N-PORT / N-CSR, 8-Ks, Form 25 / 15), never a list website or a comparison against a provider's lists.
 
 ## Fragile edges
 

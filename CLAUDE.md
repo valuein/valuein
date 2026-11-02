@@ -83,10 +83,13 @@ External-agent-facing product document, not Claude instructions: `cloudflare:wor
 
 ## Third-party index trademarks
 
+Founder 2026-11-02: membership dates are facts, and naming an index in plain words is nominative fair use.
+
 - Data values and API keys keep the index names (`index_name='SP500'`, tier key `sp500`, `/v1/sp500/`, env vars, SDK `index="SP500"`); they identify facts, never rename them.
-- Never brand with an index name: plan/tier display names, headlines, pricing bullets, directory listings. The free tier is "Benchmark" ("large-cap US benchmark universe"). Descriptive plain-word use is fine: no logo, no implied endorsement.
-- Every surface naming an index carries the notice (README "Trademarks", verbatim) or the short form: "Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider." `tests/test_trademark_notice.py` pins the README and the docs that name an index.
-- Never say we use, license or receive data from an index provider; membership is reconstructed from public information (SEC filings, holdings disclosed by funds that track each index, publicly available constituent lists, public reports of index changes): describe it only by those categories, never name a website, and never publish how it is graded against an index provider's own lists. Never scrape index-provider sites.
+- Allowed: plain-text descriptive mentions anywhere (README, docs, examples), e.g. "every S&P 500 member since 1996, including former members, so backtests are survivorship-bias-free". Prefer that over euphemisms such as "large-cap US benchmark universe".
+- Never: an index name as a plan, tier, product or directory-listing NAME (the free tier is "Benchmark"; `server.json` and registry titles carry no index name). No logos, no implied endorsement or licence, never claim data from an index provider.
+- The notice appears ONCE per page that names an index (README "Trademarks", verbatim; other pages the short form: "Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider."), never repeated within a page. `tests/test_trademark_notice.py` pins it.
+- Sources: name SEC sources concretely (index funds' N-PORT and N-CSR portfolio filings, issuers' 8-Ks, Form 25 / Form 15); keep "publicly available constituent lists" and "public reports of index changes" generic; never name a list website, never say we check against a provider's own lists or announcements, never scrape provider sites.
 
 ## Docs & git
 

@@ -108,8 +108,8 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 
 | Plan | Universe | History | Get it |
 |---|---|---|---|
-| **Sample** | Large-cap US benchmark universe | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
-| **Benchmark** | Large-cap US benchmark universe | Full history | **Free**, [register](https://valuein.biz/signup/free) |
+| **Sample** | Every S&P 500 member since 1996, former members included | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
+| **Benchmark** | Every S&P 500 member since 1996, former members included | Full history | **Free**, [register](https://valuein.biz/signup/free) |
 | **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | Organisations and teams, by Enterprise Agreement: the whole dataset, multi-seat · display in your own products and client deliverables, with attribution, where the Order Form says so · dedicated infrastructure · negotiated scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
@@ -454,7 +454,7 @@ Valuein ships a remote, protocol-native Model Context Protocol server so any MCP
 ### Tools
 
 <!-- GEN:mcp-summary -->
-The server exposes **109 live tools**, plus **30 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — the free Sample (no token, from 2020) and Benchmark (the large-cap US benchmark universe, current constituents, from 1993) tiers see their slices; Pro sees the full universe of 28,000+ active and delisted companies with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), Form ADV, unlimited history back to 1993 and filing-event webhooks, for single-seat internal use. Enterprise (an Enterprise Agreement for organisations and teams) adds multi-seat use and, where the Order Form says so, display in your own products and client deliverables with attribution. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
+The server exposes **109 live tools**, plus **30 agentic SOP prompts** (two flagship cross-persona briefs — `equity_research_brief` and `screen_and_shortlist` — plus specialised chains for analyst, PM, quant, ratio, smart-money, and workflow personas) and **3 data resources** (`schema://{table}`, `reference://sp500`, `pricing://current`). Tier gating happens at the data layer — the free Sample (no token, from 2020) and Benchmark (every S&P 500 member since 1996, former members included, history from 1993) tiers see their slices; Pro sees the full universe of 28,000+ active and delisted companies with a 15-year point-in-time window (2011 → present); Institutional unlocks the smart-money tools (insider transactions on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / 13D / 13G), Form ADV, unlimited history back to 1993 and filing-event webhooks, for single-seat internal use. Enterprise (an Enterprise Agreement for organisations and teams) adds multi-seat use and, where the Order Form says so, display in your own products and client deliverables with attribution. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
 <!-- /GEN:mcp-summary -->
 
 **Discovery & schema**
@@ -644,7 +644,7 @@ Contributions — examples, notebook improvements, documentation fixes, query re
 
 ## Trademarks
 
-S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently by Valuein from public information: SEC filings, the portfolio holdings disclosed by funds that track each index, publicly available constituent lists and public reports of index changes; never from an index provider's licensed constituent data.
+S&P 500® is a registered trademark of Standard & Poor's Financial Services LLC; Russell® indexes are trademarks of FTSE Russell; Nasdaq-100® is a trademark of Nasdaq, Inc. Valuein is not affiliated with, sponsored, endorsed or licensed by any index provider. Index membership is reconstructed independently by Valuein from public information: SEC filings (N-PORT and N-CSR portfolio filings of index funds, issuers' 8-Ks, Form 25 and Form 15), publicly available constituent lists and public reports of index changes; never from an index provider's licensed constituent data.
 
 ## License & disclosure
 
