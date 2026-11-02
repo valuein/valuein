@@ -7,7 +7,7 @@ README and pricing page. Three files, all citable, all runnable:
 |---|---|
 | [`methodology.md`](methodology.md) | Narrative — definitions, the identity rules, how we calibrate up from the raw baseline, limitations |
 | [`identities.json`](identities.json) | Machine-readable catalog of every identity (formula, tolerance, severity, citation) — generated from the engine's catalogue; its error-severity rules are the set `baseline.json` was graded against |
-| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot (S&P 500 universe, evaluable filings only, "clean" = passes every error-severity identity): 91.46 % modern-era (≥ 2010), 93.31 % overall, 18,385 annual filings. Regenerated from a production run; the exact filing counts and figures are always in the file itself. |
+| [`baseline.json`](baseline.json) | **The measured source of truth.** Latest snapshot (S&P 500 universe, evaluable filings only, "clean" = passes every error-severity identity): 91.53 % modern-era (≥ 2010), 93.30 % overall, 19,296 annual filings. Regenerated from a production run; the exact filing counts and figures are always in the file itself. |
 | [`../../scripts/accuracy/accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql) | Self-contained DuckDB script that reproduces the measurement — defaults to the free sample tier |
 
 ## TL;DR for customers
@@ -34,7 +34,7 @@ Prefer zero third-party trust? Save the four tables the script reads (`fact`, `f
 
 > **`identities.json` is generated.** `scripts/generate_identities.py` builds it from the QA engine's identity catalogue (`scripts/QA/identities.sql` upstream), active identities only. Its error-severity rules and tolerances equal `baseline.json` `identity_set` (pinned by `tests/test_generate_identities.py`), so the published copy is the set the headline figure was graded against.
 
-* **How should I read the headline?** As the share of evaluable S&P 500-universe annual filings that pass every error-severity identity (91.46 % modern-era, 93.31 % overall at the 2026-10-24 measurement), never as a claim about the full universe of 28,000+ companies. The identities use the NCI-inclusive equity concept (`StockholdersEquityIncludingNCI`), as consolidated statements are prepared. The failing identities are ranked in `baseline.json` `top_remaining_pareto`. The current figure is always in [`baseline.json`](baseline.json); re-derive it yourself with the SQL.
+* **How should I read the headline?** As the share of evaluable S&P 500-universe annual filings that pass every error-severity identity (91.53 % modern-era, 93.30 % overall at the 2026-10-31 measurement), never as a claim about the full universe of 28,000+ companies. The identities use the NCI-inclusive equity concept (`StockholdersEquityIncludingNCI`), as consolidated statements are prepared. The failing identities are ranked in `baseline.json` `top_remaining_pareto`. The current figure is always in [`baseline.json`](baseline.json); re-derive it yourself with the SQL.
 
 * **Why isn't unstandardized accuracy higher?** Because there are still us-gaap tag aliases (`SalesRevenueNet`, `CashAndCashEquivalentsPeriodIncreaseDecrease`, etc.) that should be in our catalog but aren't yet, plus genuine long-tail XBRL disclosures. The current mapping-gap rate is reported in [`baseline.json`](baseline.json) (`unstandardized_facts`); closing it is ongoing pipeline work.
 

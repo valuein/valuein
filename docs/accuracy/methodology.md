@@ -2,14 +2,14 @@
 
 Valuein is built on a simple promise: **every fact you read can be mathematically verified against SEC's own canonical data.** This document describes how, and how you can reproduce the measurement yourself.
 
-The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Snapshot measured 2026-10-24 (S&P 500 universe, evaluable filings only; "clean" = passes every active error-severity identity):
+The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Snapshot measured 2026-10-31 (S&P 500 universe, evaluable filings only; "clean" = passes every active error-severity identity):
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 10,637 | **91.46 %** |
-| Standardized facts — overall (all eras, evaluable filings) | 18,385 | **93.31 %** |
-| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | 7,748 | see `baseline.json` |
-| **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | 23.0 M | **64.35 %** |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | 10,738 | **91.53 %** |
+| Standardized facts — overall (all eras, evaluable filings) | 19,296 | **93.30 %** |
+| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | 8,558 | see `baseline.json` |
+| **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | 23.1 M | **64.30 %** |
 
 ⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts; filings with no testable facts are excluded from the denominators above (`filings` vs `filings_in_universe` in `baseline.json`). **Use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
 

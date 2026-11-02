@@ -1924,7 +1924,7 @@ Most tools are callable from the Sample tier up, and **what changes is the data 
 | Tier | Data the agent sees |
 |---|---|
 | Sample (anonymous) | Curated sample slice · recent years |
-| Benchmark (free, registered) | Large-cap US benchmark universe · 1993 – present |
+| Benchmark (free, registered) | Every S&P 500 member since 1996, former members included · 1993 – present |
 | Pro | Full active + delisted US universe · rolling point-in-time window · no smart-money dataset |
 | Institutional | Full universe · 1993 – present (unlimited) · **smart-money dataset unlocked** (Forms 3/4/5/144 + 13F/13D/13G) · 4h priority + filing-event webhooks · single-seat internal use, no redistribution (Redistribution Licence only) |
 | Enterprise | Organisations and teams, by Enterprise Agreement · multi-seat · display in your own products and client deliverables, with attribution, where the Order Form says so · negotiated scope · sub-minute real-time 8-K push · dedicated infrastructure · zero-retention option · redistribution, resale and white-label: separate Redistribution Licence |
