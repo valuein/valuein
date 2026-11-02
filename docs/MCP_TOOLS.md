@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.16.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.16.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -425,7 +425,7 @@ Get ratio-based peer comparison for a company and its closest competitors. Peers
 
 **Point-in-Time Universe** · min plan `sample` · read-only · paging: offset
 
-Use this tool to answer questions about historical index membership — e.g. "Was Company X in the S&P 500 on date Y?" or "Which companies were in the Russell 2000 on 2010-01-01?" Use this INSTEAD OF `search_companies` when the question involves a specific historical date or whe...
+Use this tool to answer questions about historical index membership — e.g. "Was Company X in the S&P 500 on date Y?" (S&P 500 members on a date, including former members, from 1996) or "Which companies were in the Russell 2000 on 2010-01-01?" Use this INSTEAD OF `search_compan...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1861,7 +1861,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.16.0); 30 prompts._
+_Generated from the MCP server manifest (v3.16.1); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1904,7 +1904,7 @@ _Generated from the MCP server manifest (v3.16.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.16.0); 3 resources._
+_Generated from the MCP server manifest (v3.16.1); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
