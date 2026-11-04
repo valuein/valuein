@@ -660,7 +660,7 @@
       }
     },
     "standard_concept": {
-      "description": "Valuein's curated gold-standard concept catalog (~292 rows) — the dictionary for the ``fact.standard_concept`` column.  Each row is one L1/L2 concept (Revenue, GrossProfit, LongTermDebt, …) with its statement/category, definition, default unit, and Bloomberg/FactSet field equivalents.  Distinct from ``taxonomy_guide`` (the ~12,000-row raw SEC us-gaap tag reference for the ``fact.concept`` column): join ``fact.standard_concept = standard_concept.standard_concept`` for the curated label, ``fact.concept = taxonomy_guide.standard_concept`` for the raw tag.  The 'Other' catch-all row is included.",
+      "description": "Valuein's curated gold-standard concept catalog (~292 rows) — the dictionary for the ``fact.standard_concept`` column.  Each row is one L1/L2 concept (Revenue, GrossProfit, LongTermDebt, …) with its statement/category, definition, default unit, and Bloomberg/FactSet field equivalents.  Distinct from ``taxonomy_guide`` (the ~11,966-row raw SEC us-gaap tag reference for the ``fact.concept`` column): join ``fact.standard_concept = standard_concept.standard_concept`` for the curated label, ``fact.concept = taxonomy_guide.standard_concept`` for the raw tag.  The 'Other' catch-all row is included.",
       "columns": {
         "standard_concept": {
           "type": "VARCHAR",

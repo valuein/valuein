@@ -50,7 +50,7 @@ The `data_quality` field on each fact distinguishes the original disclosure from
 
 ## 4. Standardization logic
 
-Thousands of unique raw XBRL tags (live count: the `taxonomy_guide` table) are mapped to 350+ canonical `standard_concept` values using a waterfall approach. Each concept resolves in priority order — if a direct tag is unavailable, calculated alternatives are attempted.
+11,966 unique raw XBRL tags are mapped to 350+ canonical `standard_concept` values using a waterfall approach. Each concept resolves in priority order — if a direct tag is unavailable, calculated alternatives are attempted.
 
 Both the raw and canonical names are on every fact row:
 
