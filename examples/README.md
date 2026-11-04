@@ -19,6 +19,8 @@ S&P 500 companies (including the ones that later left the index), last five year
 prices. With `VALUEIN_API_KEY` in the environment (or a `.env` file found upward from the working directory) the same code reads your plan's data; `ValueinClient(api_key="")` forces the sample whatever the environment holds.
 Plans: [valuein.biz/pricing](https://valuein.biz/pricing).
 
+The no-token sample is limited per IP (60 requests/minute, 600/hour), and multi-company scripts fetch one file per company, so a long loop can exhaust it and be asked to wait. For larger runs, register a [free Benchmark token](https://valuein.biz/signup/free) and set `VALUEIN_API_KEY`.
+
 ## The learning path
 
 | # | Notebook | What you learn | For | Plan |

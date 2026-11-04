@@ -2,7 +2,7 @@
 
 [![PyPI version](https://img.shields.io/pypi/v/valuein-sdk?cacheSeconds=300)](https://pypi.org/project/valuein-sdk/)
 [![PyPI downloads](https://img.shields.io/pypi/dm/valuein-sdk?label=pypi%20downloads&cacheSeconds=3600)](https://pypi.org/project/valuein-sdk/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://pypi.org/project/valuein-sdk/)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)](https://pypi.org/project/valuein-sdk/)
 [![License: Apache 2.0](https://img.shields.io/badge/license-Apache%202.0-green)](LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/valuein/valuein?style=flat&cacheSeconds=3600)](https://github.com/valuein/valuein/stargazers)
 [![MCP Registry](https://img.shields.io/badge/MCP-registry.modelcontextprotocol.io-blue)](https://registry.modelcontextprotocol.io)
@@ -108,9 +108,9 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 
 | Plan | Universe | History | Get it |
 |---|---|---|---|
-| **Sample** | Every S&P 500 member since 1996, former members included | Recent years | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
+| **Sample** | Every S&P 500 member since 1996, former members included | 5 calendar years + YTD | **Free**, no signup: `pip install "valuein-sdk>=7.1.0"` |
 | **Benchmark** | Every S&P 500 member since 1996, former members included | Full history | **Free**, [register](https://valuein.biz/signup/free) |
-| **Pro** | Full active + delisted US universe, fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
+| **Pro** | Full active + delisted universe incl. foreign issuers (20-F, 40-F), fundamentals dataset | Rolling point-in-time window | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | Organisations and teams, by Enterprise Agreement: the whole dataset, multi-seat · display in your own products and client deliverables, with attribution, where the Order Form says so · dedicated infrastructure · negotiated scope | Custom | [sales@valuein.biz](mailto:sales@valuein.biz) |
 
