@@ -1,5 +1,5 @@
 {
-  "version": "4.5.0",
+  "version": "5.2.1",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
@@ -509,7 +509,7 @@
       }
     },
     "index_membership": {
-      "description": "Index constituents keyed on ``cik``.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window (half-open ``[)`` semantics).  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides — see migration 0015 for the rationale.\n\nHISTORICAL DEPTH AND PROVENANCE DIFFER BY INDEX — read this before using the table for point-in-time work.  The ``source`` and ``confidence`` columns are the discriminators, and they are the ones to branch on.\n* **SP500 — from 1996-01-02, ``high`` confidence.**  1,014 entry/exit spells over 968 CIKs, 510 of them closed, including companies long delisted, with ``removal_date`` and ``removal_reason`` populated.  ``source`` is ``historical_seed`` / ``public_constituent_list`` / ``succession_config``.\n* **RUSSELL1000 / RUSSELL2000 / RUSSELL3000 — from 2000-09-30, ``medium`` confidence, ``source='fund_holdings'``.**  3,051 / 10,130 / 11,025 spells, of which 2,059 / 8,214 / 8,117 are closed.  Reconstructed from the publicly disclosed portfolio holdings of large funds tracking each index, NOT from the index provider's own constituent lists, which are licensed IP we do not redistribute.\n\nThree bounds follow from that derivation and must be carried into any conclusion drawn from the Russell rows.  (1) OBSERVATION SPACING VARIES — roughly one to four observations a year from 2000 through 2006, monthly from 2007 on — so a join or leave date is only as precise as the interval between observations, and is never exact to the day in the early years.  (2) A tracking fund only PROXIES its index — a few holdings sit outside it and a sampled fund can miss members — so these are our derived membership, not the index.  (3) There is NO Russell data before 2000-09-30; an earlier date returns zero rows because we do not carry it, which is not a statement that the index was empty.  Confidence is therefore ``medium`` and never ``high``, which correctly leaves the MCP's ``pit_safe`` false.\n\nKNOWN GAP — no holdings observation exists anywhere between 2016-12-30 and 2017-07-31, a 213-day window, for any fund read.  Russell membership cannot be observed there, so departures collapse onto 2016-12-31 and arrivals onto 2017-07-31, and the June 2017 reconstitution therefore appears to happen on 31 July.  A year-end 2016 point-in-time query returns 2,623 RUSSELL3000 members rather than ~2,900 for this reason alone.  SP500 is unaffected.\n\nSP500 pre-2007 coverage rises 1996 ≈341 members → 2006 ≈454 against a real ~500.  That shortfall is a CIK RESOLUTION ceiling, not the index's size: pre-XBRL delisted members were never ingested into ``entity``, and this table's ``cik`` is an FK to it.",
+      "description": "Index constituents keyed on ``cik``.  Always JOIN ``references.cik = index_membership.cik`` to attach company metadata (name, sector, ticker).  Filter by ``index_name`` for the index, by ``effective_date`` / ``removal_date`` for the as-of window (half-open ``[)`` semantics).  Note: ``cik`` is named ``cik`` here (NOT ``entity_id`` like security/filing/fact) so the JOIN with ``references`` uses the same column name on both sides — see migration 0015 for the rationale.\n\nHISTORICAL DEPTH AND PROVENANCE DIFFER BY INDEX — read this before using the table for point-in-time work.  The ``source`` and ``confidence`` columns are the discriminators, and they are the ones to branch on.\n* **SP500 — from 1996-01-02; two builds, told apart by ``date_precision``.**  (a) Rows with ``date_precision`` set come from the fund-filing build (schema 5.1.0).  WHO was a member is the union of the full portfolios seven registered index funds tracking the index file with the SEC (N-30D, N-CSR, N-CSRS and N-Q schedules of investments 1995-2019, Form NPORT-P from 2019), each fund line resolved to a CIK by its era-checked name or CUSIP, never by ticker: about 500 members at every year end from 1996.  WHEN a change happened is the day a publicly available constituent list states for it, used only when that day falls inside the bracket of the two fund filings around the change (``source='public_list'``, ``date_precision='day'``); otherwise the day an issuer's forward 8-K names (from 2019), else the measured window around a day a filing states (a trading stop, a closing, a Form 25 / 15, a succession), else the bracket between the two fund filings with the CONSERVATIVE point (the latest plausible join day, the earliest plausible exit day).  A ``window`` row keeps both bounds in ``*_earliest`` / ``*_latest``.  The public list states few days before 2007, so most changes before 2007 are windows.  A change dated after the newest fund filing is ``status='provisional'`` until a fund filing confirms it (60-150 days).  ``source`` is ``public_list`` / ``fund_filings`` / ``event_filing`` / ``succession_config``.  (b) Rows with ``date_precision`` NULL come from the earlier build (public constituent lists, a public dated-snapshot history and SEC succession filings, ``source`` ``historical_seed`` / ``public_constituent_list`` / ``succession_config``): it under-counts the index before about 2006 (roughly 77 % of the members at the end of 1996), so grade it by ``confidence``; the fund-filing build replaces it whole.\n* **RUSSELL1000 / RUSSELL2000 / RUSSELL3000 — from 2000-09-30, ``medium`` confidence, ``source='fund_holdings'``.**  3,051 / 10,130 / 11,025 spells, of which 2,059 / 8,214 / 8,117 are closed.  Reconstructed from the publicly disclosed portfolio holdings of large funds tracking each index, NOT from the index provider's own constituent lists, which are licensed IP we do not redistribute.\n\nThree bounds follow from that derivation and must be carried into any conclusion drawn from the Russell rows.  (1) OBSERVATION SPACING VARIES — roughly one to four observations a year from 2000 through 2006, monthly from 2007 on — so a join or leave date is only as precise as the interval between observations, and is never exact to the day in the early years.  (2) A tracking fund only PROXIES its index — a few holdings sit outside it and a sampled fund can miss members — so these are our derived membership, not the index.  (3) There is NO Russell data before 2000-09-30; an earlier date returns zero rows because we do not carry it, which is not a statement that the index was empty.  Confidence is therefore ``medium`` and never ``high``, which correctly leaves the MCP's ``pit_safe`` false.\n\nKNOWN GAP — no holdings observation exists anywhere between 2016-12-30 and 2017-07-31, a 213-day window, for any fund read.  Russell membership cannot be observed there, so departures collapse onto 2016-12-31 and arrivals onto 2017-07-31, and the June 2017 reconstitution therefore appears to happen on 31 July.  A year-end 2016 point-in-time query returns 2,623 RUSSELL3000 members rather than ~2,900 for this reason alone.  SP500 is unaffected.\n\nFund-filing SP500 rows sit at ~500 at every year end from 1996: a fund-filing name that cannot be tied to a CIK is left out, never guessed.\n\nIndex membership is reconstructed independently by Valuein from public information: SEC filings (index funds' N-PORT, N-CSR, N-30D and N-Q schedules; issuers' 8-Ks, Form 25 / 15, 8-K12B), publicly available constituent lists and public reports of index changes; never from an index provider's licensed constituent data. Index names are trademarks of their owners; Valuein is not affiliated with or endorsed by any index provider.",
       "columns": {
         "id": {
           "type": "INTEGER",
@@ -525,7 +525,7 @@
         },
         "effective_date": {
           "type": "DATE",
-          "description": "First trading day the company traded as a member."
+          "description": "First trading day the company traded as a member (the day the change took effect at market open, not the announcement date) when that day is known (date_precision 'day').  When it is not, the point estimate: for a row bounded only by fund filings the latest plausible join day (conservative: never a member before it could have joined), for a filing-anchored window the stated day; the bracket is effective_date_earliest / effective_date_latest.  On rows the fund-filing build did not write (date_precision NULL) a confidence below 'high' means the day may be approximate.  Never the day a snapshot happened to observe the change."
         },
         "removal_date": {
           "type": "DATE",
@@ -533,22 +533,23 @@
         },
         "removal_reason": {
           "type": "VARCHAR",
-          "description": "merger | acquisition | bankruptcy | criteria | spinoff | other.  NULL when removal_date IS NULL."
+          "description": "merger | acquisition | bankruptcy | criteria | spinoff | reorganization | other.  reorganization: the company moved to a new SEC registrant (holding company, redomicile, inversion) and successor_cik took the seat on the same day.  NULL when removal_date IS NULL."
         },
         "successor_cik": {
           "type": "VARCHAR",
-          "description": "Acquirer CIK when removal_reason in {merger, acquisition}. Essential for backtests crossing M&A — without it, a stock disappearing looks indistinguishable from a delisting."
+          "description": "Acquirer CIK when removal_reason in {merger, acquisition}; the new registrant when removal_reason = reorganization. Essential for backtests crossing M&A — without it, a stock disappearing looks indistinguishable from a delisting."
         },
         "source": {
           "type": "VARCHAR",
-          "description": "Provenance — the column to branch on for how far a row can be trusted.  Every value names the MECHANISM that produced the row, never a firm or a website; that is a deliberate naming rule, so do not read a value as an attribution.  Live values with row counts (2026-09-17): ``fund_holdings`` 24,206 — publicly disclosed portfolio holdings of funds tracking each index, sole source of RUSSELL1000 / RUSSELL2000 / RUSSELL3000, always confidence='medium'; ``historical_seed`` 528 — curated S&P 500 spells 1996+; ``public_constituent_list`` 484 — current S&P 500 members, from a publicly maintained list of the index's constituents; ``succession_config`` 2 — curated reorg predecessor spells.  Valid but currently EMPTY: ``fund_snapshot``, ``manual``.  ⚠️ SUPERSEDED VALUES a cached older snapshot may still carry: earlier releases named the fund, list or publisher a row was read from instead of the mechanism.  Those values were renamed between 2026-09-15 and 2026-09-17 onto the mechanism names above — ``fund_holdings`` / ``fund_snapshot`` for the holdings-derived lanes, ``public_constituent_list`` for the current-members lane — and one belonged to a layer that was removed on 2026-09-17 having never written a row.  Treat any value not in the live list above as a stale snapshot, not as a fifth lane."
+          "description": "What fixed the row's dates (a MECHANISM, never a firm): ``public_list`` — the public constituent list stated the change's day and it falls inside the fund-filing bracket (SP500); ``fund_filings`` — bracketed only by two SEC-filed fund portfolios, a date window (SP500); ``event_filing`` — dated by the issuer's or exchange's own filing (Form 25, Form 15, 8-K, 8-K12B) or by the replacement it pairs with (SP500); ``rule_calendar`` — the quarterly rebalance date inside the fund-filing bracket (SP500); ``succession_config`` — a declared predecessor -> successor registrant; ``fund_holdings`` — publicly disclosed portfolio holdings of funds tracking each Russell index, always confidence='medium'; ``manual``.  SP500 rows of the earlier build (``date_precision`` NULL) carry ``historical_seed`` / ``public_constituent_list`` / ``succession_config``; the fund-filing build replaces them whole."
         },
         "confidence": {
           "type": "VARCHAR",
-          "description": "high | medium | low.  Drives get_pit_universe's ``pit_safe`` flag, which is true only when EVERY matched row is 'high'.  In practice: all RUSSELL rows are 'medium' (fund-derived, observed at varying intervals), so any Russell query is pit_safe=false by construction; curated S&P 500 spells are 'high', dropping to 'low' for pre-2001 dates where the seed is least certain."
+          "description": "high | medium | low (redefined in 5.1.0).  Fund-filing SP500 rows: ``high`` = day-level dates (or the coverage floor / an open end) AND seen by two or more fund filings or dated by the public list or an event filing; ``medium`` = a date window of at most one quarter, a single fund filing, or ``status='provisional'``; ``low`` = a window longer than a quarter, or a single fund filing with nothing else.  Earlier-build SP500 rows (``date_precision`` NULL) are graded by how certain their source is, ``low`` for most pre-2001 dates.  Russell rows are always ``medium``.  Drives get_pit_universe's ``pit_safe`` flag (true only when EVERY matched row is ``high``)."
         },
         "notes": {
-          "type": "VARCHAR"
+          "type": "VARCHAR",
+          "description": "Always NULL (from schema 5.1.0): build notes are internal.  Kept so existing readers do not break."
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
@@ -566,7 +567,31 @@
         },
         "avg_weight_pct": {
           "type": "DOUBLE",
-          "description": "Panel metadata — average index weight (%) over the observed window.  Populated on 18,658 of the 24,206 ``fund_holdings`` rows — the dated holdings files carry weights, the earlier SEC-filed schedules do not; NULL elsewhere, including ``public_constituent_list``, which carries no weights."
+          "description": "Panel metadata — average weight (%) in the tracking funds over the observed window (SP500 fund-filing rows: every row a fund filing names; Russell: the rows whose holdings files carry weights)."
+        },
+        "effective_date_earliest": {
+          "type": "DATE",
+          "description": "Earliest plausible join day (the fund-filing bracket's open end).  Equal to effective_date when date_precision is 'day'; NULL at the coverage floor (a member on the first fund filing, join date before the data) and on rows the fund-filing build did not write."
+        },
+        "effective_date_latest": {
+          "type": "DATE",
+          "description": "Latest plausible join day.  For a row bounded only by fund filings effective_date is this bound (conservative: never a member before it could have joined); for a filing-anchored window it is the stated day.  NULL on rows the fund-filing build did not write."
+        },
+        "removal_date_earliest": {
+          "type": "DATE",
+          "description": "Earliest plausible first day NOT a member.  For a row bounded only by fund filings removal_date is this bound (conservative); for a filing-anchored window removal_date is the stated day.  NULL while a member and on rows the fund-filing build did not write."
+        },
+        "removal_date_latest": {
+          "type": "DATE",
+          "description": "Latest plausible first day NOT a member (the next fund filing that no longer holds it).  NULL while a member and on rows the fund-filing build did not write."
+        },
+        "date_precision": {
+          "type": "VARCHAR",
+          "description": "day | window | NULL.  'day' when every dated end has one day: the public constituent list's day for the change inside the fund-filing bracket, an issuer's forward 8-K naming the index change day (from 2019), or a bracket that leaves a single possible day; 'window' otherwise, including ends anchored on a filing-stated event day (trading stop, closing, Form 25 / 15, succession) and rows starting at the coverage floor.  NULL = a row the earlier SP500 build or a Russell panel wrote, not graded."
+        },
+        "status": {
+          "type": "VARCHAR",
+          "description": "confirmed | provisional | NULL.  'provisional' = the change is known from the public constituent list or an issuer's 8-K but no fund filing brackets it yet (included in current-members queries; a point-in-time query that matches it is not pit_safe; the next fund filing confirms or closes it).  NULL on rows the fund-filing build did not write (the earlier SP500 build, the Russell panels)."
         }
       }
     },
@@ -610,7 +635,7 @@
         },
         "valid_from": {
           "type": "TIMESTAMPTZ",
-          "description": "Acceptance instant of the first filing showing this SIC (see valid_from_basis)."
+          "description": "Acceptance instant (UTC) of the first filing showing this SIC.  For valid_from_basis 'sec_acceptance' it is EDGAR's own acceptance instant: the SGML header ACCEPTANCE-DATETIME (New York time) converted to UTC.  Every published acceptance timestamp is UTC."
         },
         "valid_to": {
           "type": "TIMESTAMPTZ",
@@ -618,11 +643,11 @@
         },
         "first_accession_id": {
           "type": "VARCHAR",
-          "description": "Accession of the first filing in the spell (NULL if only observed)."
+          "description": "SEC accession number of the first evidence filing in the spell (NULL if only observed).  Provenance, not a foreign key: it may name a form the filing table does not carry (10-KSB, 10-QSB, 8-K12B, 8-K12G3, ...)."
         },
         "last_accession_id": {
           "type": "VARCHAR",
-          "description": "Accession of the last filing in the spell (NULL if only observed)."
+          "description": "SEC accession number of the last evidence filing in the spell (NULL if only observed).  Provenance, not a foreign key: it may name a form the filing table does not carry."
         },
         "evidence_count": {
           "type": "INTEGER",

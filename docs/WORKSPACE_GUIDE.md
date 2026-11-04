@@ -213,8 +213,8 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | | **Sample** | **Benchmark** (free) | **Pro** | **Institutional** | **Enterprise** |
 |---|---|---|---|---|---|
 | **Price** | Free, no signup | Free, register | Paid | Paid | Custom |
-| **Universe** | S&P 500 members, former included | S&P 500 members, former included | **Full US, delisted included** | Full US + foreign issuers | Contract |
-| **History** | Recent years | 1993→ | Rolling window | 1993→ | Contract |
+| **Universe** | S&P 500 members, former included | S&P 500 members, former included | **Full US + foreign issuers (20-F, 40-F), delisted included** | Full US + foreign issuers | Contract |
+| **History** | 5 calendar years + YTD | 1993→ | Rolling window | 1993→ | Contract |
 | **Workspace + playbooks** | — | ✓ | ✓ | ✓ | ✓ |
 | **AI chat (Valuein AI or your own key)** | — | ✓ | ✓ | ✓ | ✓ |
 | **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
