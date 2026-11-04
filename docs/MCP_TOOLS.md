@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.16.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.16.3) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1526,7 +1526,7 @@ Forward discounted-cash-flow valuation (two-stage Gordon-growth model): caller p
 | `stage1_years` | integer | no | default `5` | Number of explicit high-growth projection years before the terminal stage (3–15). Defaults to 5. |
 | `fcf_base_override` | number | no | — | Override the auto-pulled FCF base (USD). Leave unset to use R2-derived. |
 | `shares_override` | number | no | — | Override shares outstanding. Leave unset to use R2-derived. |
-| `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) for the auto-pulled inputs. Fundamentals are filtered by SEC accepted_at (strict PIT); valuation.parquet inputs are best-effort PIT (filtered by created_at, its accepted_at proxy — no SEC acceptance timestamp exists for pipeline-computed valuations). Omit to use the latest knowable inputs. |
+| `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) for the auto-pulled inputs. Fundamentals are filtered by SEC accepted_at (strict PIT). Omit to use the latest knowable inputs. |
 | `fcf_source` | enum | no | one of `trend`, `three_statement`; default `trend` | "trend" (default): compound fcf_base by stage1_growth_rate every year (unchanged original behavior). "three_statement": derive the FCF stream from a full linked 3-statement projection instead — see the tool description for details. |
 | `three_statement_assumptions` | object | no | — | Only used when fcf_source is "three_statement". Overrides for the underlying projection; unset fields use project_three_statement's defaults. |
 
@@ -1861,7 +1861,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.16.2); 30 prompts._
+_Generated from the MCP server manifest (v3.16.3); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1904,7 +1904,7 @@ _Generated from the MCP server manifest (v3.16.2); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.16.2); 3 resources._
+_Generated from the MCP server manifest (v3.16.3); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
