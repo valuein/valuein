@@ -102,7 +102,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.16.4) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.16.6) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -308,7 +308,7 @@ Get direct links to original SEC EDGAR filings for any US public company. Return
 | `event_types` | array | no | — | 8-K item codes to filter by. E.g. ['1.01'] for material agreements, ['2.01'] for asset acquisitions, ['5.02'] for director/officer changes. Only relevant when form_types includes '8-K'. |
 | `limit` | integer | no | default `10` | Maximum number of filings to return (1–50). Defaults to 10. |
 
-**Output fields:** `ticker`, `filings_returned`, `filings`
+**Output fields:** `ticker`, `resolved_cik`, `other_ciks_for_ticker`, `filings_returned`, `filings`
 
 ### `list_filing_forms`
 
@@ -1861,7 +1861,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.16.4); 30 prompts._
+_Generated from the MCP server manifest (v3.16.6); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1904,7 +1904,7 @@ _Generated from the MCP server manifest (v3.16.4); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.16.4); 3 resources._
+_Generated from the MCP server manifest (v3.16.6); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
