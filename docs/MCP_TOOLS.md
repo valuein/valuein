@@ -102,9 +102,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.16.10) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.17.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**111 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -137,6 +137,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`screen_universe`](#screen_universe) | Screen Universe by Factor Scores | `sample` | read-only | offset |
 | [`get_earnings_signals`](#get_earnings_signals) | Earnings Signals | `sample` | read-only | none |
 | [`list_restatements`](#list_restatements) | Restatement Radar Feed | `sample` | read-only | cursor |
+| [`explain_restatement`](#explain_restatement) | Explain a Restatement | `sample` | read-only | none |
 | [`submit_feedback`](#submit_feedback) | Submit Feedback | `sample` | writes | none |
 | [`submit_artifact_feedback`](#submit_artifact_feedback) | Submit Artifact Feedback | `sample` | writes | none |
 | [`get_insider_transactions`](#get_insider_transactions) | Insider Transactions | `full` | read-only | none |
@@ -195,6 +196,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`run_agent`](#run_agent) | Run Agent | `sp500` | writes | none |
 | [`create_report`](#create_report) | Create Research Report | `sp500` | writes | none |
 | [`get_report`](#get_report) | Get Research Report | `sp500` | read-only | none |
+| [`check_report_figures_current`](#check_report_figures_current) | Check Report Figures Are Current | `sp500` | read-only | none |
 | [`list_my_reports`](#list_my_reports) | List My Research Reports | `sp500` | read-only | cursor |
 | [`delete_report`](#delete_report) | Delete (Soft) Research Report | `sp500` | destructive | none |
 | [`publish_report`](#publish_report) | Publish Report (free) | `sp500` | writes | none |
@@ -611,10 +613,26 @@ List financial-statement restatements — facts a later SEC filing materially ch
 | `filed_since` | string | no | — | Only restatements FILED on or after this date — the 'what changed recently' window. |
 | `as_of_date` | string | no | — | Point-in-time filter: only restatements whose restating filing was accepted (last_filed_at) on or before this day, inclusive. Results are point-in-time ONLY when this is passed — omit it and later restatements are included. Use for backtests and dated analyses to avoid look-ahead bias. |
 | `sort` | enum | no | one of `recent`, `significance`; default `recent` | 'recent' = newest restating filing first (a market-wide radar). 'significance' = importance tier, then swing size (one company's history). |
-| `limit` | integer | no | default `25` | Page size (1-100, default 25). |
+| `limit` | integer | no | default `25` | Page size (1-100, default 25). With include_cause it is clamped to 25. |
+| `include_cause` | boolean | no | default `false` | Add `cause`, `cause_quote` and `cause_state` to each event, read from the restating filing. Reads one filing per event, so the page is clamped to 25. Default false. |
+| `cause` | array | no | — | Only with include_cause: keep events of these causes (error \| merger \| reclass \| none) from THIS PAGE. It filters the page returned, not the whole feed; `filtered_out` counts the rows dropped. |
 | `cursor` | string | no | — | Opaque pagination cursor from a prior response's next_cursor. |
 
-**Output fields:** `events`, `total`, `next_cursor`, `note`
+**Output fields:** `events`, `total`, `filtered_out`, `next_cursor`, `note`
+
+### `explain_restatement`
+
+**Explain a Restatement** · min plan `sample` · read-only · paging: none
+
+Why did a restating filing change a number? Reads the RESTATING filing itself (the `current_accession` of a `list_restatements` event) and returns the sentence in which the company states the cause, with the section it sits in. `cause` is `error` (an error correction), `merger...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `cik` | string | yes | — | The restating filing's filer, from the event's `cik`. Padded to 10 digits. |
+| `accession` | string | yes | — | The RESTATING filing's accession (the event's `current_accession`). |
+| `disclosure_class` | enum | yes | one of `non_reliance`, `amended`, `undisclosed` | The event's `disclosure_class`. `non_reliance` makes the cause `error` by definition. |
+
+**Output fields:** `state`, `cause`, `cause_quote`, `section`, `filing_url`
 
 ### `submit_feedback`
 
@@ -1438,6 +1456,19 @@ Fetch the current HEAD of a report by id. `format=markdown` returns the rendered
 
 **Output fields:** `report`, `format`, `markdown`, `sections`, `citations`, `structured`
 
+### `check_report_figures_current`
+
+**Check Report Figures Are Current** · min plan `sp500` · read-only · paging: none
+
+Which figures a report cites were REVISED by a later filing? Resolves the report's cited facts to their filing, then matches each against the Restatement Radar feed (same raw XBRL tag, same reporting window, a different restating filing filed after the report was signed; an un...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `report_id` | string | yes | — | Id from `create_report` or `list_my_reports`. |
+| `include_cause` | boolean | no | default `false` | Also read WHY each figure was revised from the restating filing (adds one filing read per revised figure). Default false. |
+
+**Output fields:** `report_id`, `basis`, `checked`, `degraded`, `revised`
+
 ### `list_my_reports`
 
 **List My Research Reports** · min plan `sp500` · read-only · paging: cursor
@@ -1861,7 +1892,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.16.10); 30 prompts._
+_Generated from the MCP server manifest (v3.17.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1904,7 +1935,7 @@ _Generated from the MCP server manifest (v3.16.10); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.16.10); 3 resources._
+_Generated from the MCP server manifest (v3.17.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
