@@ -105,7 +105,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.22.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.23.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -267,7 +267,7 @@ Retrieve standardized SEC EDGAR fundamental financial metrics for a US public co
 
 **Valuation Metrics** · min plan `sample` · read-only · paging: none
 
-Get the valuation multiples of a US public company, precomputed at each fiscal period end, plus two parameter-free reference points. This is NOT an opinion of intrinsic worth — for that, call `compute_dcf` with assumptions you state explicitly, and present the result as a scen...
+Get the profitability, cash-flow and leverage metrics of a US public company, plus two parameter-free reference points. No price-based multiple is published, so none is returned and you must never compute one; if the user needs a price, ask for it and label it user-supplied. T...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -288,7 +288,7 @@ Get pipeline-computed financial ratios from ratio.parquet. Served categories: pr
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
-| `categories` | array | no | — | Ratio categories to include (see the enum). Omit to return every category this ticker has. `valuation` (pe_ratio, pb_ratio, ev_ebitda, market_cap, dividend_yield) are precomputed at each fiscal period end. Availability is per-ticker (the envelope lists this ticker's available_categories). |
+| `categories` | array | no | — | Ratio categories to include (see the enum). Omit to return every category this ticker has. `valuation` (graham_number, ncav_per_share) are precomputed at each fiscal period end. Availability is per-ticker (the envelope lists this ticker's available_categories). |
 | `fiscal_period` | enum | no | one of `FY`, `TTM`, `Q1`, `Q2`, `Q3`, `Q4` | Filter to a specific fiscal period type. Use 'TTM' for trailing twelve months. Omit to return both annual (FY) and TTM rows. |
 | `as_of_date` | string | no | — | Historical cutoff (canonical cross-tool date param). PIT by SEC accepted_at when the ratio data carries it (latest value knowable on/before the date, zero look-ahead, _meta.pit_safe=true), else by ratio.period_end (pit_safe=false). For guaranteed accepted_at PIT use get_company_fundamentals. |
 | `period_end_before` | string | no | — | Alias of as_of_date (as_of_date preferred — the canonical name). Returns ratios with period_end on or before this date. |
@@ -420,7 +420,7 @@ Get ratio-based peer comparison for a company and its closest competitors. Peers
 | `as_of_date` | string | no | — | Historical date (canonical cross-tool date param). Peers are the companies listed on this date, including ones delisted since, ranked by S&P 500 membership on this date. Figures are point-in-time by SEC acceptance time when the ratio data carries it (_meta.pit_safe=true), else limited to periods ending on or before this date (_meta.pit_safe=false). |
 | `period_end_before` | string | no | — | Alias of as_of_date (as_of_date preferred — the canonical name). Only include ratios with period_end on or before this date. |
 | `limit` | integer | no | default `5` | Maximum number of peers to return alongside the subject company (1–10). Defaults to 5. |
-| `peer_universe` | enum | no | one of `sic`, `sp500_sector` | Where peers come from: 'sic' (default) matches SIC industry codes; 'sp500_sector' uses S&P 500 members in the subject's own sector, largest market cap first. |
+| `peer_universe` | enum | no | one of `sic`, `sp500_sector` | Where peers come from: 'sic' (default) matches SIC industry codes; 'sp500_sector' uses S&P 500 members in the subject's own sector, in ticker order. |
 
 **Output fields:** `subject`, `categories`, `as_of_date`, `period_end_before`, `peers_returned`, `peers_omitted_no_data`, `note`, `data`, `subject_ratios`, `lineage`
 
@@ -1580,14 +1580,14 @@ Deterministic forensic-accounting scores for a single ticker: partial Beneish M-
 
 **Point-in-Time Valuation Ratios** · min plan `pro` · read-only · paging: none
 
-Current and historical valuation multiples for a company. Omit `as_of_date` and it returns the latest P/E, P/S, P/B, EV/EBITDA, EV/Revenue, market cap and dividend yield, precomputed at each fiscal period end (each with its period_end), beside the latest TTM financials. Use it...
+Point-in-time TTM financials for a company, safe for backtesting. No price-based valuation multiple is published, so this tool returns none, and you must never derive one yourself — that is exactly the arithmetic the provenance contract forbids. If the user needs a price, ask ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
 | `as_of_date` | string | yes | — | The historical date for the valuation snapshot (YYYY-MM-DD). Each multiple is the latest precomputed (fiscal-period-end) value accepted on or before this date. All financials are PIT-filtered to filings accepted on or before this date. Use a date in the recent past (within the last year) to get current-ish multiples; use any historical date back to 1993 (subject to your plan's history window) to get the multiples as they would have been observable on that date. |
 
-**Output fields:** `ticker`, `cik`, `company_name`, `as_of_date`, `multiples_period_end`, `reporting_currency`, `ttm_period_end`, `financials_accepted_at`, `ttm_revenue`, `ttm_gross_profit`, `ttm_operating_income`, `ttm_ebitda`, `ttm_net_income`, `ttm_ocf`, `ttm_capex`, `ttm_fcf`, `shares_diluted`, `cash`, `total_debt`, `net_debt`, `book_equity`, `market_cap`, `enterprise_value`, `pe_ratio`, `ps_ratio`, `pb_ratio`, `ev_ebitda`, `ev_revenue`, `fcf_yield_pct`, `dividend_yield`, `gross_margin_pct`, `operating_margin_pct`, `net_margin_pct`, `note`
+**Output fields:** `ticker`, `cik`, `company_name`, `as_of_date`, `reporting_currency`, `ttm_period_end`, `financials_accepted_at`, `ttm_revenue`, `ttm_gross_profit`, `ttm_operating_income`, `ttm_ebitda`, `ttm_net_income`, `ttm_ocf`, `ttm_capex`, `ttm_fcf`, `shares_diluted`, `cash`, `total_debt`, `net_debt`, `book_equity`, `gross_margin_pct`, `operating_margin_pct`, `net_margin_pct`, `note`
 
 ### `run_backtest`
 
@@ -1598,8 +1598,8 @@ A SMALL, BOUNDED, in-Worker sanity-check backtest — NOT a full-universe backte
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `tickers` | array | yes | — | 1-10 stock ticker symbols, e.g. ["AAPL","MSFT"]. |
-| `rebalance_dates` | array | yes | — | 1-12 historical dates (YYYY-MM-DD) to snapshot valuation multiples on. Order does not matter — the tool sorts them chronologically. Forward return is computed from each date to the NEXT one in the sorted list. |
-| `factors` | array | no | — | Which of get_pit_valuation_ratios's own output fields to include as factor_values. One or more of: pe_ratio, ps_ratio, pb_ratio, ev_ebitda, ev_revenue, fcf_yield_pct, gross_margin_pct, operating_margin_pct, net_margin_pct. Omit to include all of them. |
+| `rebalance_dates` | array | yes | — | 1-12 historical dates (YYYY-MM-DD) to snapshot TTM margins on. Order does not matter — the tool sorts them chronologically. Forward return is computed from each date to the NEXT one in the sorted list. |
+| `factors` | array | no | — | Which of get_pit_valuation_ratios's own output fields to include as factor_values. One or more of: gross_margin_pct, operating_margin_pct, net_margin_pct. Omit to include all of them. |
 
 **Output fields:** `method`, `grid_cells`, `cells_computed`, `pit_safe`, `capped`, `source_tools_used`, `caveats`, `tickers`, `rebalance_dates`, `factors`, `dropped`, `cells`, `summary`, `streams`, `next_step`, `note`
 
@@ -1865,7 +1865,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.22.2); 30 prompts._
+_Generated from the MCP server manifest (v3.23.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1908,7 +1908,7 @@ _Generated from the MCP server manifest (v3.22.2); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.22.2); 3 resources._
+_Generated from the MCP server manifest (v3.23.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
