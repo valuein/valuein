@@ -1,5 +1,5 @@
 {
-  "version": "6.3.1",
+  "version": "7.1.3",
   "project": "Valuein SEC Data Warehouse",
   "tables": {
     "references": {
@@ -568,7 +568,7 @@
         },
         "avg_weight_pct": {
           "type": "DOUBLE",
-          "description": "Average weight (%) of the company in the tracking funds over the observed window.  NULL where weights are not available."
+          "description": "Average weight (%) of the company in the index over the observed window.  NULL where weights are not available."
         },
         "effective_date_earliest": {
           "type": "DATE",
@@ -797,7 +797,7 @@
         },
         "category": {
           "type": "VARCHAR",
-          "description": "Groups ratios for filtering.  Values: profitability | per_share | liquidity | leverage | efficiency | forensic | growth | owner_earnings | valuation.  `valuation` holds only observed or parameter-free measures (price multiples such as pe_ratio and pb_ratio, dividend_yield, market_cap, graham_number, ncav_per_share).  It carries no intrinsic-value estimate: that depends on the caller's own assumptions, so it is computed on demand (MCP `compute_dcf`) and never published as a fact."
+          "description": "Groups ratios for filtering.  Values: profitability | per_share | liquidity | leverage | efficiency | forensic | growth | owner_earnings | valuation.  `valuation` holds only parameter-free measures built from filings: graham_number and ncav_per_share.  The price-based multiples (price-to-earnings, price-to-book, price-to-sales, EV multiples, dividend yield, market cap) were withdrawn on 2026-11-11 and are not published; no share-price series is published.  It carries no intrinsic-value estimate: that depends on the caller's own assumptions, so it is computed on demand (MCP `compute_dcf`) and never published as a fact."
         },
         "value": {
           "type": "DOUBLE"
@@ -2030,6 +2030,211 @@
         },
         "ingested_at": {
           "type": "TIMESTAMPTZ"
+        }
+      }
+    },
+    "corporate_action": {
+      "description": "Corporate actions read from SEC filings: name and ticker changes, delistings, bankruptcies, completed mergers (target side), splits, cash dividends and spin-offs.  One row per event.  `cik` is the company the event happened to (a spin-off sits on the parent; `child_cik` links the child).  Point-in-time: filter `first_known_at <= as_of` (the SEC acceptance time of the evidence filing).  `event_date` is the one date to window on.  Rows whose accuracy is below our precision bar are published with `is_uncertain` = TRUE and a 0-1 `confidence`.  `evidence_text` and `accession_id` let a reader check any row against the filing.  SEC-only: no vendor data, no CUSIP/CINS/ISIN.",
+      "columns": {
+        "corporate_action_id": {
+          "type": "VARCHAR",
+          "primary_key": true,
+          "description": "Stable identifier of the event."
+        },
+        "cik": {
+          "type": "VARCHAR",
+          "references": "entity.cik",
+          "description": "The company the event happened to (10-digit CIK); the PARENT for a spin-off."
+        },
+        "action_type": {
+          "type": "VARCHAR",
+          "description": "name_change | ticker_change | delisting | bankruptcy | merger_completed | split | cash_dividend | spin_off."
+        },
+        "action_subtype": {
+          "type": "VARCHAR",
+          "description": "forward_split / reverse_split, regular / special, bankruptcy stage, delisting scope, merger consideration (target_completed_cash / _stock / _stock_and_cash), and similar."
+        },
+        "security_class": {
+          "type": "VARCHAR",
+          "description": "Share class as filed (Common Stock, Series B Preferred); NULL when the filing does not name it (the row is then per company)."
+        },
+        "event_date": {
+          "type": "DATE",
+          "description": "Effective date, else ex-date, payable, record or declared date, else the evidence filing's date. The rolling-window column."
+        },
+        "declared_date": {
+          "type": "DATE",
+          "description": "Board declaration date, when stated."
+        },
+        "effective_date": {
+          "type": "DATE",
+          "description": "Effective date (split, merger, bankruptcy stage, name change), when stated."
+        },
+        "record_date": {
+          "type": "DATE",
+          "description": "Record date, when stated."
+        },
+        "ex_date": {
+          "type": "DATE",
+          "description": "Ex-dividend date: stated, or derived (see ex_date_basis)."
+        },
+        "payable_date": {
+          "type": "DATE",
+          "description": "Payment date, when stated."
+        },
+        "declared_date_source": {
+          "type": "VARCHAR",
+          "description": "Dividends: board (the filing says the board declared on that date) or release (the date of the press release or 8-K); NULL otherwise."
+        },
+        "ex_date_basis": {
+          "type": "VARCHAR",
+          "description": "stated, or derived_t1 / derived_t2 ...; NULL when there is no ex-date."
+        },
+        "date_precision": {
+          "type": "VARCHAR",
+          "description": "day or month when the filing gave less than a full date; NULL means day."
+        },
+        "ratio_new": {
+          "type": "DOUBLE",
+          "description": "Splits: shares after per ratio_old before. Spin-offs: child shares per ratio_old parent shares. Mergers: acquirer shares received per ratio_old (1) target share."
+        },
+        "ratio_old": {
+          "type": "DOUBLE",
+          "description": "See ratio_new."
+        },
+        "amount": {
+          "type": "DOUBLE",
+          "description": "Cash dividends: cash per share. Mergers: cash paid per target share. In currency."
+        },
+        "currency": {
+          "type": "VARCHAR",
+          "description": "ISO currency of amount (USD unless the filing says otherwise)."
+        },
+        "old_value": {
+          "type": "VARCHAR",
+          "description": "Name or ticker before the change."
+        },
+        "new_value": {
+          "type": "VARCHAR",
+          "description": "Name or ticker after the change."
+        },
+        "counterparty": {
+          "type": "VARCHAR",
+          "description": "Acquirer (merger) or spin-off child, as named in the filing."
+        },
+        "child_cik": {
+          "type": "VARCHAR",
+          "references": "entity.cik",
+          "description": "Spin-offs: the child's CIK when the child's name resolves to exactly one entity; NULL otherwise."
+        },
+        "first_known_at": {
+          "type": "TIMESTAMPTZ",
+          "description": "PIT clock: SEC acceptance time of the earliest filing that states the event. Never the load time."
+        },
+        "accession_id": {
+          "type": "VARCHAR",
+          "description": "Evidence filing (the one first_known_at comes from)."
+        },
+        "form_type": {
+          "type": "VARCHAR",
+          "description": "Form type of the evidence filing."
+        },
+        "source_item": {
+          "type": "VARCHAR",
+          "description": "8-K item of the evidence, when the form has items."
+        },
+        "corroborated_by": {
+          "type": "VARCHAR[]",
+          "description": "Other accessions (or key names) that independently state the event."
+        },
+        "method": {
+          "type": "VARCHAR",
+          "description": "Identifier of the rule that read the row from the filing."
+        },
+        "extractor_version": {
+          "type": "VARCHAR",
+          "description": "Version of the reading rules that produced the row."
+        },
+        "evidence_text": {
+          "type": "VARCHAR",
+          "description": "The filing sentence the row was read from (at most 400 characters, identifiers removed)."
+        },
+        "evidence_element": {
+          "type": "VARCHAR",
+          "description": "XBRL element the value was keyed to, when one was used; NULL for prose-only rows."
+        },
+        "confidence": {
+          "type": "DOUBLE",
+          "description": "0-1 share of graded rows of this kind that were right (event, company and every stated value).  NULL when not measured yet; such rows are is_uncertain."
+        },
+        "is_uncertain": {
+          "type": "BOOLEAN",
+          "description": "TRUE when confidence is below our precision bar or NULL (not measured)."
+        }
+      }
+    },
+    "fact_quarterly": {
+      "description": "Discrete quarters: one row per company, concept, fiscal year, quarter and filing: Q1-Q4 of every fiscal year, with the 10-K year split into Q4, for TTM sums and seasonality.  Every filing that carries a quarter keeps its own row (point in time); `is_latest` marks the most recently accepted version of each quarter.  Flows carry the discrete-quarter value; balance-sheet rows carry the quarter-end value as filed.  `fiscal_quarter` follows the company's own fiscal calendar, not the `fiscal_period` label.  A quarter the filings do not support is absent, not estimated: EPS and other per-share or share-count flows have no Q4.",
+      "columns": {
+        "fact_id": {
+          "type": "VARCHAR",
+          "description": "The source `fact` row's fact_id: the lineage key to its filing."
+        },
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "standard_concept": {
+          "type": "VARCHAR"
+        },
+        "fiscal_year": {
+          "type": "INTEGER",
+          "description": "Fiscal year of the quarter (the year of the company's fiscal close), as in `fact`."
+        },
+        "fiscal_quarter": {
+          "type": "SMALLINT",
+          "description": "1-4, the quarter's position in the company's fiscal year."
+        },
+        "period_start": {
+          "type": "DATE",
+          "description": "First day of the quarter: the filer's own start for `method = 'reported'`; for a derived quarter the day after the previous quarter ended, NULL when unknown.  NULL for `instant`."
+        },
+        "period_end": {
+          "type": "DATE",
+          "description": "Last day of the quarter (the balance date for `instant`)."
+        },
+        "unit": {
+          "type": "VARCHAR"
+        },
+        "value": {
+          "type": "DOUBLE",
+          "description": "The discrete-quarter value (flows) or the quarter-end value (instants)."
+        },
+        "method": {
+          "type": "VARCHAR",
+          "description": "How `value` was obtained: 'reported' (the filer printed the 3-month figure), 'ytd_subtraction' (a year-to-date total minus the prior one), 'fy_minus_9m' or 'fy_minus_quarters' (a Q4 derived from the fiscal year), 'instant' (a balance-sheet value at the quarter end)."
+        },
+        "is_uncertain": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the derivation was flagged (`fact.derivation_uncertain`): a prior year-to-date that does not reconcile, or a negative result for a concept that cannot be negative.  Always FALSE for 'reported' and 'instant'."
+        },
+        "accession_id": {
+          "type": "VARCHAR",
+          "references": "filing.accession_id"
+        },
+        "accepted_at": {
+          "type": "TIMESTAMPTZ"
+        },
+        "is_latest": {
+          "type": "BOOLEAN",
+          "description": "TRUE on the most recently accepted version of this (entity_id, standard_concept, fiscal_year, fiscal_quarter); FALSE on earlier ones.  Filter `is_latest` for the current value, or `accepted_at <= T` for a point-in-time view."
+        },
+        "statement_type": {
+          "type": "VARCHAR"
+        },
+        "data_quality": {
+          "type": "VARCHAR",
+          "description": "`fact.data_quality` of the source row ('standard' = XBRL-tagged by the filer)."
         }
       }
     }
