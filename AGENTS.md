@@ -151,6 +151,11 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `FIGURES_UNVERIFIED` | 409 | Report contains contradicted figures |
 | `PRICE_UNDATED` | 409 | Report holds an undated share price |
 | `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
+| `PRICE_SHEET_DISABLED` | 404 | Price sheet is not available |
+| `PRICE_SHEET_SIGN_IN_REQUIRED` | 401 | Sign in to use your price sheet |
+| `PRICE_SHEET_CAP_EXCEEDED` | 409 | Price sheet is full |
+| `PRICE_SHEET_IMPORT_RATE_LIMITED` | 429 | Too many price imports |
+| `PRICE_SHEET_CSV_REFUSED` | 422 | Price file refused |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
