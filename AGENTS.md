@@ -149,6 +149,8 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `FILE_TOO_LARGE` | 413 | Partition exceeds Worker memory limit |
 | `NOT_FOUND` | 404 | Resource not found |
 | `FIGURES_UNVERIFIED` | 409 | Report contains contradicted figures |
+| `PRICE_UNDATED` | 409 | Report holds an undated share price |
+| `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 

@@ -90,6 +90,8 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `FILE_TOO_LARGE` | 413 | Partition exceeds Worker memory limit |
 | `NOT_FOUND` | 404 | Resource not found |
 | `FIGURES_UNVERIFIED` | 409 | Report contains contradicted figures |
+| `PRICE_UNDATED` | 409 | Report holds an undated share price |
+| `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
@@ -105,9 +107,9 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.23.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.24.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**110 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -212,6 +214,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`project_three_statement`](#project_three_statement) | Project Linked Three-Statement Model | `sp500` | read-only | none |
 | [`compute_lbo`](#compute_lbo) | Compute LBO Returns (IRR + MOIC) | `sp500` | read-only | none |
 | [`compute_accretion_dilution`](#compute_accretion_dilution) | Compute M&A Accretion/Dilution | `sp500` | read-only | none |
+| [`compute_price_multiples`](#compute_price_multiples) | Compute Multiples on Your Price | `sp500` | read-only | none |
 | [`update_report`](#update_report) | Update Report Sections | `sp500` | writes | none |
 | [`list_report_versions`](#list_report_versions) | List Report Versions | `sample` | read-only | cursor |
 | [`get_report_version`](#get_report_version) | Get Report Version | `sample` | read-only | none |
@@ -1559,6 +1562,7 @@ Forward discounted-cash-flow valuation (two-stage Gordon-growth model): caller p
 | `fcf_base_override` | number | no | — | Override the auto-pulled FCF base (USD). Leave unset to use R2-derived. |
 | `shares_override` | number | no | — | Override shares outstanding. Leave unset to use R2-derived. |
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) for the auto-pulled inputs. Fundamentals are filtered by SEC accepted_at (strict PIT). Omit to use the latest knowable inputs. |
+| `share_price` | object | no | — | Optional share price YOU supply (never from memory) for the company valued, same fields as a `compute_price_multiples` row (cik optional, ticker not used). Adds `result.upside_pct`: the DCF value per share against your price, with the price and its date in the figure's `derived_id`. Call it your price, user-supplied, with its date. |
 | `fcf_source` | enum | no | one of `trend`, `three_statement`; default `trend` | "trend" (default): compound fcf_base by stage1_growth_rate every year (unchanged original behavior). "three_statement": derive the FCF stream from a full linked 3-statement projection instead — see the tool description for details. |
 | `three_statement_assumptions` | object | no | — | Only used when fcf_source is "three_statement". Overrides for the underlying projection; unset fields use project_three_statement's defaults. |
 
@@ -1655,7 +1659,7 @@ Leveraged buyout returns analysis: caller provides entry/exit multiples, leverag
 
 **Compute M&A Accretion/Dilution** · min plan `sp500` · read-only · paging: none
 
-M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a proposed acquisition adds to (accretive) or subtracts from (dilutive) the acquirer's EPS in the first pro-forma year. Pulls net income + shares outstanding for both companies. There is no current ...
+M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a proposed acquisition adds to (accretive) or subtracts from (dilutive) the acquirer's EPS in the first pro-forma year. Pulls net income + shares outstanding for both companies. A share price is nev...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1672,6 +1676,19 @@ M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) for both companies' fundamentals. Omit to use the latest knowable data. |
 
 **Output fields:** `acquirer_ticker`, `target_ticker`, `result`
+
+### `compute_price_multiples`
+
+**Compute Multiples on Your Price** · min plan `sp500` · read-only · paging: none
+
+Market cap, P/E, P/B, P/S, EV/EBITDA, EV/revenue and dividend yield on a share price YOU supply (1 to 25 per call), joined to point-in-time SEC EDGAR filings. A share price is never a Valuein figure: pass one only when the user gave it to you, or a tool the user connected retu...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `prices` | array | yes | — | 1 to 25 prices, one per company and date. |
+| `as_of_date` | string | no | — | Optional cap, YYYY-MM-DD: only filings accepted before the end of this day are used, even when a price is later. |
+
+**Output fields:** `results`, `price_inputs_echo`, `warnings`
 
 ### `update_report`
 
@@ -1865,7 +1882,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.23.0); 30 prompts._
+_Generated from the MCP server manifest (v3.24.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1908,7 +1925,7 @@ _Generated from the MCP server manifest (v3.23.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.23.0); 3 resources._
+_Generated from the MCP server manifest (v3.24.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
