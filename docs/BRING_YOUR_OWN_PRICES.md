@@ -82,7 +82,7 @@ When an AI agent writes a figure that rests on your price, it states the price a
 - **Multi-class issuers.** A company with more than one listed share class gets no multiple from one class's price: every metric is null with the reason `multi_class_price_needed`. A filer's per-share figures can be stated for a different class than the one you priced.
 - **Currency.** `fx_rate` is the units of the filing's reporting currency per 1 unit of the price currency. A price in a different currency than the filing's returns `currency_mismatch` unless you pass your own `fx_rate`; the rate is yours and is labelled as such.
 - **Stale prices.** A price more than 5 weekdays (Monday to Friday) before the reference date (today, or your `as_of_date` / `reference_date`) warns `stale_price`. Holidays are ignored.
-- **`total_return` closes are refused.** Dividends are already inside a total-return series, so a multiple on it would count them twice. Send raw or split-adjusted closes.
+- **`total_return` closes are refused.** A total-return series is not a price the share traded at, so a multiple on it would be wrong. Send raw or split-adjusted closes.
 - **No forward-fill.** A missing price is never filled from an earlier day. In wide form, gaps are listed in `result.attrs["omitted"]` with the reason `missing_price`.
 - **Row errors** are named: `invalid_close`, `invalid_price_date`, `future_price_date`, `duplicate_price_row`, `adjusted_through_required`, `total_return_not_allowed`, `ambiguous_ticker`, `unknown_ticker_on_date`.
 - A price is always reported with its `price_date`, as the price you supplied.
