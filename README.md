@@ -312,6 +312,8 @@ print(client.restatements(ticker="MPWR").head())
 
 The same client builds point-in-time factor panels from as-filed, point-in-time or restated numbers, traces every cell to its filing, and mirrors or pins a data snapshot: [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md).
 
+Bring your own prices: join the closes you hold to point-in-time SEC EDGAR filings data, from the SDK or MCP, on any plan: [`docs/BRING_YOUR_OWN_PRICES.md`](docs/BRING_YOUR_OWN_PRICES.md).
+
 Reference: [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) (DuckDB recipes) · [`docs/data_catalog.md`](docs/data_catalog.md) (canonical concepts) · [PyPI README](https://pypi.org/project/valuein-sdk/) (SDK quickstart).
 
 ---
@@ -604,6 +606,7 @@ Everything in [`docs/`](docs/) is kept in sync with the production data and the 
 | [`docs/accuracy/`](docs/accuracy/) | **Accuracy proof** — measured source of truth is [`docs/accuracy/baseline.json`](docs/accuracy/baseline.json) (current snapshot: see baseline.json for the latest figure on modern-era ≥2010 S&P 500 FY filings), citable to FactSet PIT / FASB ASC / Penman, reproducible via `duckdb -c ".read scripts/accuracy/accuracy_check.sql"` |
 | [`docs/QUERY_COOKBOOK.md`](docs/QUERY_COOKBOOK.md) | Copy-pasteable DuckDB recipes — `LATERAL`, pivots, PIT, factor screens |
 | [`docs/SDK_USE_CASES.md`](docs/SDK_USE_CASES.md) | The most common SDK use cases, easiest → advanced, each linked to a notebook executed on the free tier |
+| [`docs/BRING_YOUR_OWN_PRICES.md`](docs/BRING_YOUR_OWN_PRICES.md) | Multiples on the prices you hold, joined to point-in-time SEC EDGAR filings data (SDK and MCP) |
 | [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md) | Reference for every MCP tool — inputs, output fields, tier gates, errors and paging (generated from the live manifest) |
 | [`docs/data_catalog.md`](docs/data_catalog.md) | Canonical `standard_concept` names and definitions |
 | [`docs/DATA_CATALOG.xlsx`](docs/DATA_CATALOG.xlsx) | Same catalog as a workbook — columns, types, sample values |

@@ -347,6 +347,7 @@ same read-only gate as `run_query`. `client.to_polars(sql)` goes straight from A
 
 ## See also
 
+- [`BRING_YOUR_OWN_PRICES.md`](BRING_YOUR_OWN_PRICES.md): multiples on the prices you hold, joined to point-in-time filings
 - [`QUERY_COOKBOOK.md`](QUERY_COOKBOOK.md): DuckDB recipes and anti-patterns
 - [`METHODOLOGY.md`](METHODOLOGY.md): how point-in-time data, restatements and XBRL
   normalization work
