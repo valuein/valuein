@@ -1,0 +1,109 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "biz.valuein/mcp",
+  "title": "Valuein — SEC EDGAR Fundamentals & Smart-Money Data",
+  "description": "Point-in-time, survivorship-free SEC EDGAR fundamentals + smart-money signals for AI agents.",
+  "version": "3.22.1",
+  "websiteUrl": "https://valuein.biz",
+  "icons": [
+    {
+      "src": "https://www.valuein.biz/valuein/colored_logo_no_bg.png",
+      "mimeType": "image/png",
+      "theme": "light"
+    },
+    {
+      "src": "https://www.valuein.biz/valuein/twitter-rounded.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "512x512"
+      ]
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/valuein/valuein",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.valuein.biz/mcp"
+    }
+  ],
+  "_meta": {
+    "biz.valuein/categories": [
+      "finance",
+      "data",
+      "research",
+      "developer-tools"
+    ],
+    "biz.valuein/keywords": [
+      "sec edgar",
+      "fundamentals",
+      "financial data",
+      "point in time",
+      "pit",
+      "survivorship bias",
+      "10-k",
+      "10-q",
+      "8-k",
+      "20-f",
+      "xbrl",
+      "us gaap",
+      "valuation",
+      "dcf",
+      "ddm",
+      "financial ratios",
+      "factor screen",
+      "backtesting",
+      "risk factors",
+      "mda",
+      "quant",
+      "fintech"
+    ],
+    "biz.valuein/audience": [
+      "quants",
+      "analysts",
+      "portfolio-managers",
+      "data-engineers",
+      "ai-agents"
+    ],
+    "biz.valuein/auth": {
+      "model": "bearer",
+      "header": "Authorization",
+      "obtain": "https://valuein.biz/pricing",
+      "free_tier": true,
+      "anonymous_sample": true,
+      "machine_payments": {
+        "protocol": "mpp.dev",
+        "protocol_version": "1",
+        "anonymous_pay_per_call": true,
+        "supported_currencies": [
+          "usd"
+        ],
+        "supported_networks": [
+          "link-card"
+        ],
+        "endpoints": {
+          "call": "https://api.valuein.biz/api/mpp/call",
+          "quote": "https://api.valuein.biz/api/mpp/quote",
+          "discovery": "https://api.valuein.biz/api/mpp/well-known"
+        }
+      }
+    },
+    "biz.valuein/tools_summary": {
+      "live": 109,
+      "stubs": 0,
+      "prompts": 30,
+      "resources": 3
+    },
+    "biz.valuein/surfaces": [
+      {
+        "url": "https://mcp.valuein.biz/mcp",
+        "audience": "Any MCP client",
+        "auth": "Bearer token; no token reads the sample dataset",
+        "tools": "Full catalog, by plan"
+      }
+    ],
+    "biz.valuein/docs": "https://github.com/valuein/valuein/blob/main/docs/MCP_TOOLS.md"
+  }
+}

@@ -1,0 +1,194 @@
+name: Doc integrity
+
+# Two gates protecting the public front-door docs:
+#
+#   (a) IP-leak gate — proprietary derived-signal tables/columns/tools must
+#       never reappear in the public schema, README, or MCP tool reference.
+#       (factor_scores / earnings_signals / composite_rank / eps_trend_est).
+#       The public academic metric `ratio.piotroski_f_score` is NOT matched.
+#
+#   (b) Accuracy-drift gate — docs/accuracy/baseline.json is the measured
+#       source of truth. Any hardcoded accuracy percentage in README.md or
+#       docs/accuracy/* that drifts more than 1.0 point from the baseline's
+#       honest modern-era figure fails the build, so the headline can never
+#       silently diverge from the JSON again (the root cause of VA25).
+#
+#   (c) Publish-guard + docs-rendering tests — scripts/sync_mcp_manifest.py
+#       refuses to sync or publish a manifest that exposes a hidden tool, and
+#       renders the generated MCP docs blocks; tests/ pins both.
+#
+#   (d) Generated-docs drift — `sync_mcp_manifest.py --check --base <base>`
+#       against the LIVE Worker manifest. server.json, the README summary, every
+#       GEN block in docs/MCP_TOOLS.md (agent contract, tool reference, prompts,
+#       resources) and the agent-contract block in AGENTS.md must equal what the
+#       manifest renders, byte for byte — when the change edits the generator
+#       (it must ship the output it renders, for review). Drift from an MCP
+#       deploy is not the change's: it is reported and passes, and
+#       sync-mcp-manifest.yml commits it. Exit 1 = stale (run the sync), 3 =
+#       publish guard refused, 4 = the live manifest lacks the agent-contract
+#       fields (3 and 4 fail whatever the base).
+#       Skipped on pushes to main: the same push starts sync-mcp-manifest.yml,
+#       which regenerates, and its failure is the alarm (closed-loop#1239 was
+#       this job reporting a drift the sync was about to fix).
+#
+# Triggers: every push + PR, plus manual workflow_dispatch for testing.
+# (a)-(c) use no external services — pure bash + the Python that ships with the
+# runner (the guard tests add pytest through uv); (d) reads the public manifest.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  doc-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: (a) IP-leak gate — no proprietary signals in public docs
+        run: |
+          set -uo pipefail
+          # `(?<!get_)` is load-bearing. `get_earnings_signals` is a PUBLISHED
+          # MCP tool name that appears legitimately in AGENTS.md,
+          # docs/AGENT_ECONOMY_RAIL.md and docs/WORKSPACE_GUIDE.md. The
+          # proprietary thing is the derived TABLE, not the tool that serves a
+          # slice of it. Matching the bare substring would fail the build on
+          # correct, already-published content — and a gate that cries wolf is
+          # a gate someone disables.
+          PATTERN='(?<!get_)(factor_scores|earnings_signals|composite_rank|eps_trend_est)'
+
+          # Scan EVERY tracked file, not a hardcoded list.
+          #
+          # This gate used to name three paths (docs/schema.json, README.md,
+          # docs/MCP_TOOLS.md). That made it useless against the way a leak
+          # actually happens: someone adds a NEW public doc or example. A draft
+          # of docs/SDK_USE_CASES.md featured composite_rank, and this workflow
+          # would have gone GREEN on it — the file simply was not in the list.
+          # An allowlist gate on a repo whose whole purpose is publishing new
+          # documents is a gate that gets weaker every time the repo grows.
+          #
+          # Excluded: this workflow itself (it must contain the pattern to test
+          # for it) and .git. Binary files are skipped by grep -I. Lines that
+          # merely QUOTE the denylist while documenting this gate (AGENTS.md,
+          # CLAUDE.md) are dropped by the second filter — they are a
+          # description of the rule, not a leak of the thing it protects.
+          echo "Scanning every tracked file (excluding this workflow)"
+          HITS=$(git ls-files -z \
+            | grep -zZv '^\.github/workflows/doc-integrity\.yml$' \
+            | xargs -0 grep -InP "$PATTERN" 2>/dev/null \
+            | grep -vF 'factor_scores|earnings_signals|composite_rank|eps_trend_est' \
+            || true)
+
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
+            echo ""
+            echo "::error::IP-leak gate FAILED — proprietary derived-signal names"
+            echo "::error::found in public files. Scrub them (see VA26). Do NOT"
+            echo "::error::regenerate docs/schema.json from parquet_schema.py"
+            echo "::error::until an upstream denylist exists."
+            exit 1
+          fi
+          echo "✓ IP-leak gate passed (0 hits across $(git ls-files | wc -l) tracked files)"
+
+      - name: (b) Accuracy-drift gate — README/docs match baseline.json
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, re, sys, pathlib
+
+          baseline = json.load(open("docs/accuracy/baseline.json"))
+          sf = baseline["standardized_facts"]
+          modern = sf["by_era"]["modern_2010_onward"]["accuracy_pct"]
+          overall = sf["overall"]["accuracy_pct"]
+          # Any accuracy_pct that actually appears in baseline.json is a real
+          # measured figure and is allowed to be cited verbatim in the docs
+          # (modern, overall, each by-era split, and the unstandardized rate).
+          # The gate only fails on percents that match NONE of them within tol
+          # — i.e. hallucinated / stale headlines like the old 99.58% / 97.21%.
+          # Allowed = the HONEST measured figures only. The legacy_pre_2010
+          # era is deliberately EXCLUDED: baseline.json's own _note says it
+          # trivially passes (pre-2010 XBRL was optional) and that modern-era
+          # is the honest measurement. Including it would let a near-100%
+          # legacy number shield a false ~99.x headline (exactly the VA25 bug).
+          allowed = {overall, modern}
+          if "accuracy_pct" in baseline.get("unstandardized_facts", {}):
+              allowed.add(baseline["unstandardized_facts"]["accuracy_pct"])
+          tol = 1.0
+          print(f"baseline modern={modern}  overall={overall}")
+          print(f"allowed (honest) figures: {sorted(allowed)}  tolerance=±{tol}")
+
+          targets = ["README.md"] + [
+              str(p) for p in pathlib.Path("docs/accuracy").glob("*")
+              if p.suffix in {".md", ".json"}
+          ]
+          # Matches "88.96 %", "93.55%", "99.58 %" etc.
+          pct_re = re.compile(r"(\d{2}\.\d{2})\s*%")
+
+          failures = []
+          for f in targets:
+              for n, line in enumerate(open(f, encoding="utf-8"), 1):
+                  for m in pct_re.finditer(line):
+                      val = float(m.group(1))
+                      # An accuracy claim is one that lands near a plausible
+                      # accuracy band (50–100%) AND is NOT within tolerance of
+                      # any current baseline figure.
+                      if not (50.0 <= val <= 100.0):
+                          continue
+                      if any(abs(val - a) <= tol for a in allowed):
+                          continue
+                      failures.append((f, n, val, line.strip()))
+
+          if failures:
+              print("\nAccuracy-drift gate FAILED — hardcoded percents that drift")
+              print(f">{tol} pt from baseline.json (modern={modern}, overall={overall}):\n")
+              for f, n, val, line in failures:
+                  print(f"  {f}:{n}  {val}%  ->  {line}")
+              print("\nFix: cite baseline.json, or update the number to the")
+              print("current measured figure. baseline.json is the source of truth.")
+              sys.exit(1)
+
+          print("✓ Accuracy-drift gate passed — no drifting percents")
+          PY
+
+  publish-guard-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      - name: (c) Publish-guard tests
+        run: uv run --with 'pytest>=8,<10' pytest tests -q
+
+  mcp-docs-in-sync:
+    # Pushes to main are the sync's (see (d) above); PRs, branch pushes and
+    # manual runs are checked here.
+    if: github.event_name != 'push' || github.ref != 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The merge base with main decides whether the change edited the
+          # generator (`generator_changed_since`).
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      # PRs and branch pushes: only drift this change owns fails. A manual
+      # run (workflow_dispatch) has no base and fails on any drift.
+      - name: (d) Generated MCP docs match the live manifest
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            uv run python scripts/sync_mcp_manifest.py --check
+          else
+            uv run python scripts/sync_mcp_manifest.py --check --base "origin/${BASE_REF:-main}"
+          fi
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json

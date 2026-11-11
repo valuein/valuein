@@ -1,0 +1,195 @@
+name: Sync MCP manifest
+
+# Keeps server.json, README.md, docs/MCP_TOOLS.md and AGENTS.md in lockstep
+# with the MCP server's authoritative manifest
+# (https://mcp.valuein.biz/manifest.json): registry counts + version, the README summary, the
+# generated tool reference / prompts / resources, and the agent contract.
+#
+# Triggers:
+#   - Nightly cron (catches manifest drift even when this repo is idle)
+#   - Manual workflow_dispatch
+#   - repository_dispatch type=mcp-manifest-updated (fired from the mcp repo
+#     after it commits a new manifest.json, for near-real-time sync)
+#   - push to main touching the generator or a file it writes: a merged change
+#     to scripts/sync_mcp_manifest.py (or a hand edit to a generated block) is
+#     regenerated at once. Before this trigger, valuein#85 merged a new
+#     generator with docs rendered from an older manifest and main stayed red
+#     (closed-loop#1239) until the next deploy or 03:00 run. The bot's own
+#     GITHUB_TOKEN push does not fire it again (no loop).
+#
+# Derived files are regenerated, never merged: a push rejected because main
+# moved mid-run resets to the new main and renders again.
+#
+# If anything diff'd, commit + push to main. Then, if the PUBLISHED registry
+# disagrees with the live Worker, CALL publish-mcp.yml directly to republish to
+# registry.modelcontextprotocol.io.
+#
+# Note the two conditions are separate on purpose. Committing is driven by a
+# repo diff; PUBLISHING is driven by the registry being stale. Tying the second
+# to the first is what let a single failed publish strand the registry forever
+# — see the long comment on the `publish` job below.
+#
+# The direct call is load-bearing, not a convenience. publish-mcp.yml also
+# triggers on `push` to server.json, and it is tempting to assume this job's
+# commit satisfies that. It does not: GitHub deliberately does not start
+# workflow runs from commits pushed with the default GITHUB_TOKEN (infinite-loop
+# protection), and that is the token this job pushes with. So the commit lands,
+# server.json is correct in the repo, and NOTHING republishes.
+#
+# That is exactly what happened: the public registry advertised 2.54.0
+# (2026-07-15) while prod served 2.60.1 and then 2.61.0, and it took a manual
+# workflow_dispatch to clear. Because server.json in the repo was correct the
+# whole time, reading the repo gave a false all-clear — the drift was only
+# visible by comparing the live registry against the live Worker.
+#
+# The alternative fix is pushing with a PAT (which DOES trigger workflows), but
+# that adds a long-lived credential to rotate. workflow_call needs none.
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [mcp-manifest-updated]
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/sync_mcp_manifest.py'
+      - 'server.json'
+      - 'README.md'
+      - 'docs/MCP_TOOLS.md'
+      - 'AGENTS.md'
+
+# One sync at a time: a deploy dispatch and a merge landing together queue,
+# and the second renders from the main the first pushed. Never cancelled
+# mid-run: the publish job may be in flight.
+concurrency:
+  group: sync-mcp-manifest
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      # 'true' ONLY after a commit was successfully pushed to main.
+      changed: ${{ steps.commit.outputs.changed }}
+      # The SHA that was pushed — handed to publish-mcp.yml so it checks out
+      # the synced commit rather than pre-sync main.
+      sha: ${{ steps.commit.outputs.sha }}
+      # 'true' | 'false' | 'unknown' — does the PUBLISHED registry disagree
+      # with the live Worker? This, not `changed`, is what gates the publish.
+      registry_stale: ${{ steps.registry.outputs.registry_stale }}
+      registry_version: ${{ steps.registry.outputs.registry_version }}
+      worker_version: ${{ steps.registry.outputs.worker_version }}
+    env:
+      MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      - name: Sync from MCP manifest
+        run: uv run python scripts/sync_mcp_manifest.py
+
+      - name: Commit + push if diff
+        id: commit
+        run: |
+          set -euo pipefail
+          if git diff --quiet; then
+            echo "✓ already in sync — nothing to commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          FILES="server.json README.md docs/MCP_TOOLS.md AGENTS.md"
+          for attempt in 1 2 3; do
+            git add $FILES
+            git commit -q -m "chore: sync MCP manifest (server.json, README counts, MCP docs)"
+            if git push origin HEAD:main; then
+              # Written only AFTER a successful push, so the publish job never
+              # runs against a commit that is not on main.
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            # main moved mid-run (a merge). Never rebase generated output:
+            # take the new main (its generator included) and render again.
+            echo "↻ push rejected (attempt $attempt): rendering again on the new main"
+            git fetch -q origin main
+            git reset --hard origin/main
+            uv run python scripts/sync_mcp_manifest.py
+            if git diff --quiet; then
+              echo "✓ the new main is already in sync — nothing to commit"
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              # The publish job (if the registry is stale) must read this main,
+              # not the commit that triggered the run.
+              echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          echo "::error title=MCP sync push failed::main kept moving after 3 attempts."
+          exit 1
+
+      # Asks the only question that actually matters to a customer: does
+      # registry.modelcontextprotocol.io advertise the version we are serving?
+      #
+      # Every other check in this pipeline compares a FILE to the Worker, and a
+      # file can be perfectly correct while the registry is months stale — that
+      # is precisely why the 2.54.0-vs-2.61.0 drift was invisible. Deliberately
+      # not `--check`: this step reports, the publish gate decides.
+      - name: Is the published registry stale?
+        id: registry
+        run: uv run python scripts/check_registry_sync.py --github-output
+
+  # Republish to the MCP registry — see the header comment for why this cannot
+  # rely on publish-mcp.yml's own `push` trigger.
+  #
+  # GATED ON THE REGISTRY, NOT ON A REPO DIFF. This used to read
+  # `needs.sync.outputs.changed == 'true'`, which is only correct if no publish
+  # ever fails. Trace what happened when one did:
+  #
+  #   night 1: sync rewrites server.json 2.67.0 -> 2.68.0, commits (changed=true)
+  #            publish runs, FAILS (registry 5xx / OIDC blip / network)
+  #   night 2: server.json already says 2.68.0 -> nothing diffs -> changed=false
+  #            -> this job is SKIPPED, and the workflow is GREEN
+  #   night 3+: identical, forever
+  #
+  # The repo was self-consistent, so the automation concluded there was nothing
+  # to do — while the registry advertised a version we had stopped serving. It
+  # took a human noticing and hand-running a workflow_dispatch to clear.
+  #
+  # Asking the registry instead makes the nightly run self-healing: a failed
+  # publish is simply retried the next night, because the condition is derived
+  # from reality rather than from a proxy for reality that a failed publish
+  # leaves pointing the wrong way.
+  #
+  # 'unknown' (registry unreachable) falls back to the old repo-diff signal
+  # rather than publishing blind — an outage on their side must not be read as
+  # drift on ours.
+  publish:
+    needs: sync
+    if: >-
+      needs.sync.outputs.registry_stale == 'true' ||
+      (needs.sync.outputs.registry_stale == 'unknown' && needs.sync.outputs.changed == 'true')
+    # A reusable workflow can only maintain or REDUCE the permissions its
+    # caller grants — it can never elevate them. publish-mcp.yml needs
+    # id-token:write (the GitHub OIDC login that deprecates the retired
+    # io.github name) and contents:read (checkout), so this job must grant
+    # both explicitly. Secrets are not inherited either: without
+    # `secrets: inherit` the DNS login sees an empty MCP_REGISTRY_PRIVATE_KEY
+    # and the publish fails.
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/publish-mcp.yml
+    secrets: inherit
+    with:
+      # Empty in the RECOVERY case (registry stale but nothing diffed, because
+      # a previous publish failed after the sync commit already landed). Empty
+      # is correct there: checkout falls back to its default, and main's
+      # server.json is ALREADY the version we need to publish — that is exactly
+      # why nothing diffed. A non-empty sha only exists when this run committed.
+      ref: ${{ needs.sync.outputs.sha }}

@@ -1,0 +1,175 @@
+name: Publish to MCP Registry
+
+on:
+  # Human path: a hand-authored server.json change merged to main.
+  push:
+    branches: [main]
+    paths: ['server.json']
+
+  # Operator path: republish on demand.
+  workflow_dispatch:
+
+  # Bot path: called directly by sync-mcp-manifest.yml.
+  #
+  # This is NOT redundant with the `push` trigger above.  GitHub deliberately
+  # does not start workflow runs from commits pushed with the default
+  # GITHUB_TOKEN (loop protection), and the sync workflow commits server.json
+  # with exactly that token.  So the sync's commit touches server.json and
+  # `push` above never fires.  That is how the public registry sat at 2.54.0
+  # while prod served 2.61.0 — server.json in the repo was correct the whole
+  # time, which is why inspecting the repo gave a false all-clear.
+  workflow_call:
+    inputs:
+      ref:
+        description: >-
+          Commit SHA to check out and publish.  The caller passes the SHA it
+          just pushed: with no ref, actions/checkout resolves to github.sha —
+          main as it stood when the CALLER was triggered, i.e. before the sync
+          commit existed — and this job would publish the pre-sync server.json.
+          Empty on push / workflow_dispatch, where checkout's default is
+          already the right commit.
+        type: string
+        required: false
+        default: ''
+
+# Registry versions are immutable: a second publish of an already-published
+# version is rejected, not ignored.  Serialise so two runs can never race on
+# the same version.
+concurrency:
+  group: publish-mcp-registry
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # A workflow_call caller cannot have these inherited implicitly — the
+    # caller job must grant them, and a called workflow can only maintain or
+    # REDUCE what it was granted, never elevate.  See the `publish` job in
+    # sync-mcp-manifest.yml, which declares the identical pair.
+    permissions:
+      id-token: write   # login github-oidc, only to deprecate the retired io.github name
+      contents: read    # actions/checkout
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Empty string on push / workflow_dispatch → checkout's own default.
+          ref: ${{ inputs.ref }}
+
+      - uses: astral-sh/setup-uv@v10.2.0
+
+      - name: Verify server.json + README counts match the published MCP manifest
+        run: uv run python scripts/sync_mcp_manifest.py --check
+        env:
+          # Pull the canonical manifest from the DEPLOYED Worker, which serves
+          # manifest.json publicly. The valuein/mcp GitHub repo is private, so
+          # the raw.githubusercontent.com URL 404s in CI (no token) — that was
+          # the cause of the 2026-05-20 publish failure. The Worker endpoint is
+          # also more honest: it reflects what's actually live, not just what's
+          # committed to mcp/main.
+          MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
+
+      - name: Validate server.json (pre-flight)
+        run: |
+          set -euo pipefail
+          # JSON well-formedness
+          python3 -m json.tool server.json > /dev/null
+
+          # The registry caps `description` at 100 chars.  This isn't surfaced
+          # in the published JSON Schema's maxLength, so the publish call
+          # would otherwise fail with HTTP 422 mid-job — catch it locally.
+          DESC_LEN=$(python3 -c "import json; print(len(json.load(open('server.json'))['description']))")
+          NAME=$(python3 -c "import json; print(json.load(open('server.json'))['name'])")
+          VERSION=$(python3 -c "import json; print(json.load(open('server.json'))['version'])")
+
+          if [ "$DESC_LEN" -gt 100 ]; then
+            echo "::error file=server.json::description is $DESC_LEN chars but registry caps at 100"
+            exit 1
+          fi
+
+          echo "Publishing $NAME @ $VERSION (description: $DESC_LEN chars)"
+
+      - name: Install mcp-publisher
+        run: |
+          set -euo pipefail
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" \
+            | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+          mcp-publisher --version || true
+
+      # The server is `biz.valuein/mcp` (founder, 2026-11-09): a domain
+      # namespace the registry grants only to whoever proves valuein.biz, the
+      # way Stripe publishes `com.stripe/mcp`. Proof is an Ed25519 key: its
+      # public half is the `v=MCPv1; k=ed25519; p=...` TXT record on the APEX
+      # of valuein.biz, its private half (64 hex chars) the repo secret
+      # MCP_REGISTRY_PRIVATE_KEY. Rotating it = a new pair, swap the TXT
+      # record (delete the old one: a stale record is tried first), update the
+      # secret. The domain is derived from server.json's name, so the two can
+      # never disagree.
+      - name: Login (DNS proof for valuein.biz, non-interactive)
+        env:
+          MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${MCP_REGISTRY_PRIVATE_KEY}" ]; then
+            echo "::error::MCP_REGISTRY_PRIVATE_KEY is not set (the private half of the valuein.biz TXT record)"
+            exit 1
+          fi
+          NAME=$(python3 -c "import json; print(json.load(open('server.json'))['name'])")
+          DOMAIN=$(python3 -c "import sys; ns = sys.argv[1].split('/')[0]; print('.'.join(reversed(ns.split('.'))))" "$NAME")
+          mcp-publisher login dns --domain "$DOMAIN" --private-key "$MCP_REGISTRY_PRIVATE_KEY"
+
+      # A re-run for a version the registry already has is a no-op, not a
+      # failure: the registry refuses the duplicate ("cannot publish duplicate
+      # version", the 2026-09-18 re-dispatch of v3.1.3), and the next step
+      # still proves the registry serves this version. Any other error fails.
+      - name: Publish
+        run: |
+          set -o pipefail
+          if ! mcp-publisher publish ./server.json 2>&1 | tee "$RUNNER_TEMP/publish.log"; then
+            grep -q "cannot publish duplicate version" "$RUNNER_TEMP/publish.log" || exit 1
+            echo "::notice::server.json's version is already published; verifying the registry serves it."
+          fi
+
+      # Close the loop: assert the registry actually serves what we just sent.
+      #
+      # `mcp-publisher publish` exiting 0 means the API accepted the request,
+      # which is not the same as the catalog answering with the new version.
+      # Without this step a publish that half-lands is indistinguishable from
+      # one that worked, and the next nightly run would find server.json
+      # already correct and skip — which is how a stale registry survives.
+      #
+      # Compared against the version in server.json (`--expect server.json`),
+      # NOT against the live Worker. Those differ for a few minutes whenever a
+      # newer Worker deploys while a publish is in flight; failing this job for
+      # that would be a red build reporting a race nobody needs to act on. The
+      # nightly gate is what watches Worker-vs-registry drift.
+      #
+      # --wait-for tolerates propagation lag: a mismatch inside the window is
+      # not yet a failure, only a not-yet.
+      - name: Verify the registry serves the published version
+        run: uv run python scripts/check_registry_sync.py --check --expect server.json --wait-for 180
+
+      # The server was published as `io.github.valuein/mcp-sec-edgar` until
+      # 3.20.1. Registry names cannot be renamed, so the old entry is marked
+      # DEPRECATED (kept, pointing here), never deleted. Idempotent: it only
+      # acts while the old name's latest version is still `active`, and only
+      # after the new name is verified above. That namespace is proven by
+      # GitHub OIDC (this repo belongs to the `valuein` org), hence the second
+      # login.
+      - name: Deprecate the retired name io.github.valuein/mcp-sec-edgar
+        run: |
+          set -euo pipefail
+          OLD=io.github.valuein/mcp-sec-edgar
+          STATUS=$(curl -fsS --get "https://registry.modelcontextprotocol.io/v0/servers" \
+              --data-urlencode "search=${OLD}" --data-urlencode "version=latest" \
+            | jq -r --arg n "$OLD" '[.servers[] | select(.server.name == $n)
+                | ._meta["io.modelcontextprotocol.registry/official"].status][0] // "absent"')
+          if [ "$STATUS" != "active" ]; then
+            echo "${OLD} is ${STATUS}; nothing to do."
+            exit 0
+          fi
+          NEW=$(python3 -c "import json; print(json.load(open('server.json'))['name'])")
+          mcp-publisher login github-oidc
+          mcp-publisher status --status deprecated --all-versions --yes \
+            --message "Renamed to ${NEW}: the same server at https://mcp.valuein.biz/mcp. Install ${NEW}." \
+            "$OLD"
