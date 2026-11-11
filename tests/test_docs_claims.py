@@ -76,24 +76,19 @@ def test_readme_data_model_names_every_public_table() -> None:
     assert not missing, missing
 
 
-#: How each doc discloses the one non-SEC input of the valuation multiples (provider type only).
-PRICE_SCOPE = {
-    "docs/COMPLIANCE_AND_DDQ.md": "taken from a commercial end-of-day provider",
-    "docs/METHODOLOGY.md": "comes from a commercial end-of-day provider (not SEC data",
-}
+#: Docs that carry the SEC-sourcing claim.
+SOURCING_DOCS = ("docs/COMPLIANCE_AND_DDQ.md", "docs/METHODOLOGY.md")
 
 
 def test_sourcing_claims_are_scoped_to_sec_filings() -> None:
-    """DDQ and methodology scope the SEC-sourcing claim to statements, ownership and insiders.
+    """DDQ and methodology state the SEC-sourcing claim and never inflate it to "100%".
 
-    The valuation multiples use a fiscal-year-end closing value from an end-of-day provider, so a
-    blanket "all data from EDGAR" claim is false while they are served.
+    Share-class identifiers (OpenFIGI) and logos are not SEC data, so the docs scope the claim.
     """
-    for rel, price_scope in PRICE_SCOPE.items():
+    for rel in SOURCING_DOCS:
         text = _read(rel)
         assert "100% of the data originates" not in text, rel
         assert "All financial statements, ownership and insider data come from SEC filings" in text, rel
-        assert price_scope in text, rel
 
 
 #: DDQ sentences the code and the Terms contradict (2026-10-29 accuracy review).
@@ -258,12 +253,10 @@ def test_membership_copy_is_not_exact(rel: str, claim: str) -> None:
     assert claim not in _read(rel), rel
 
 
-def test_ddq_service_levels_and_multiples_disclosure() -> None:
-    """The DDQ offers no uptime SLA, states one-business-day support and scopes the multiples' input."""
+def test_ddq_service_levels_and_sources() -> None:
+    """The DDQ offers no uptime SLA, states one-business-day support and names its non-SEC sources."""
     text = _read("docs/COMPLIANCE_AND_DDQ.md")
     assert "No uptime SLA is offered" in text
     assert "more than 3 days in a row" in text
     assert "4-hour response target in business hours" in text
-    assert "is not SEC data, is not served on its own and is not part of any Valuein data licence" in text
-    assert "Valuein serves no stock prices" in text
     assert "OpenFIGI" in text
