@@ -105,7 +105,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.22.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.22.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **109 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1655,7 +1655,7 @@ Leveraged buyout returns analysis: caller provides entry/exit multiples, leverag
 
 **Compute M&A Accretion/Dilution** · min plan `sp500` · read-only · paging: none
 
-M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a proposed acquisition adds to (accretive) or subtracts from (dilutive) the acquirer's EPS in the first pro-forma year. Pulls net income + shares outstanding for both companies, and each side. Value...
+M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a proposed acquisition adds to (accretive) or subtracts from (dilutive) the acquirer's EPS in the first pro-forma year. Pulls net income + shares outstanding for both companies. There is no current ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1667,7 +1667,7 @@ M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a
 | `cash_financing_source` | enum | no | one of `new_debt`, `balance_sheet_cash`; default `new_debt` | Where the cash consideration is funded from. "new_debt" (default) applies an after-tax interest drag; "balance_sheet_cash" applies none. |
 | `new_debt_interest_rate` | number | no | default `0.06` | Annual interest rate on new acquisition debt (only used when cash_financing_source is "new_debt"). Default 0.06. |
 | `tax_rate` | number | no | default `0.21` | Effective tax rate applied to synergies and the interest drag. Default 0.21. |
-| `acquirer_share_price_override` | number | no | — | The acquirer's share price in USD, supplied by you (Valuein serves no stock prices). Required when cash_pct &lt; 1. |
+| `acquirer_share_price_override` | number | no | — | The acquirer's share price in USD, supplied by you. Required when cash_pct &lt; 1. |
 | `target_share_price_override` | number | no | — | The target's share price in USD, supplied by you (used only for the disclosed premium). Leave unset to skip the premium. |
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) for both companies' fundamentals. Omit to use the latest knowable data. |
 
@@ -1865,7 +1865,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.22.1); 30 prompts._
+_Generated from the MCP server manifest (v3.22.2); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1908,7 +1908,7 @@ _Generated from the MCP server manifest (v3.22.1); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.22.1); 3 resources._
+_Generated from the MCP server manifest (v3.22.2); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
