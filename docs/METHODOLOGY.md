@@ -12,7 +12,7 @@ The data product covers every active and delisted US public company that files w
 2. **Validation.** Each filing's `accession_id` is verified against the EDGAR submission registry.
 3. **Parsing.** Facts are extracted using the US GAAP Taxonomy (2009 – 2026) and mapped to canonical `standard_concept` values before being written to the `fact` table.
 
-All financial statements, ownership and insider data come from SEC filings, through the U.S. Securities and Exchange Commission's EDGAR system: fundamentals, ratios, filings, insider transactions and institutional-ownership disclosures. `index_membership` is reconstructed from public SEC filings and fund disclosures. Valuein serves no stock prices. The valuation multiples in `ratio` (`pe_ratio`, `pb_ratio`, `market_cap`, `dividend_yield` and the like) combine SEC fundamentals with one fiscal-year-end closing value per company that comes from a commercial end-of-day provider (not SEC data, and not served on its own). We add no other alternative-data sources, no surveys, and no estimated overrides.
+All financial statements, ownership and insider data come from SEC filings, through the U.S. Securities and Exchange Commission's EDGAR system: fundamentals, ratios, filings, insider transactions and institutional-ownership disclosures. `index_membership` is reconstructed from public SEC filings and fund disclosures. We add no other alternative-data sources, no surveys, and no estimated overrides.
 
 ---
 
