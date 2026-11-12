@@ -159,6 +159,33 @@ When the first text block is not JSON, the protocol layer answered instead of th
 **Offset paging** (`get_pit_universe`, `screen_universe`): `limit` is the page size and `offset` is where the page starts. While rows remain, the result carries `truncation` with `next_offset`: call again with the same arguments and `offset` set to `truncation.next_offset`, until a result has no `truncation`.
 
 **Cursor paging** (`list_citation_overrides`, `list_my_reports`, `list_pending_approvals`, `list_report_versions`, `list_restatements`, `list_rules`, `list_scheduled_tasks`, `list_signal_inbox`, `list_signals`, `list_watchlists`, `search_reports`): Pass the `next_cursor` of one result as `cursor` on the next call, with the same other arguments. A null `next_cursor` is the last page.
+
+### The `_meta` envelope
+
+Every success result carries `structuredContent._meta`. Each tool's outputSchema declares it once as an open object; its fields are documented here, not per tool. Read `source`, `pit_safe` and `as_of_date` for provenance and `fundamentals_as_of` (not `last_updated`) for how current the statements are. A field may be absent on a surface that does not serve it.
+
+| Field | Always present | Meaning |
+|---|---|---|
+| `data_plan` | yes | Plan key the call ran on: sample (no sign-in), sp500 (Benchmark), pro (Pro), full (Institutional). |
+| `schema_version` | yes | Parquet schema version from manifest.json |
+| `snapshot` | yes | Snapshot directory name (e.g. snapshot_20260420) |
+| `last_updated` | yes | ISO timestamp when the snapshot was exported |
+| `fundamentals_as_of` | no | ISO timestamp when the FINANCIAL STATEMENTS were last rebuilt in bulk. Use THIS — not `last_updated` — when telling a user how current the cross-sectional fundamentals are. The snapshot can be republished while the statements are carried forward unchanged, so `last_updated` can be more recent than the numbers it sits next to. It is a floor for a single filer, not a ceiling: a filer with a live partition receives its filing, facts and ratios intraday (minutes after EDGAR dissemination), so an entity-scoped read may carry a filing newer than this; cross-sectional ranks (factor scores, earnings signals) refresh with the weekly bulk export. |
+| `source` | yes | Always "SEC EDGAR" for a tool that reads filings. |
+| `ticker` | no | The company the call was about, when it named one. |
+| `as_of_date` | no | The point-in-time cutoff applied, or null when none was asked for. |
+| `pit_safe` | yes | true iff a zero-look-ahead point-in-time cut was applied to every returned figure |
+| `result_count` | no | Rows in this result. |
+| `request_id` | no | Per-request correlation id (8-char) |
+| `latency_ms` | no | Wall-clock milliseconds this tool call took, measured server-side around the handler. |
+| `cost_usd` | no | Per-call cost transparency. Omitted for subscription-only and free tools, which have no MPP price. |
+| `rate_limit` | no | Caller's remaining budget |
+| `mpp_override` | no | Set when this single response was paid for over MPP: the payment's order was honoured for this call only, and the payment is captured only when this is present. |
+| `mpp_verification` | no | Verification tools only, when some figures are outside the caller's plan. Figures the plan covers are always verified free; a Valuein account also verifies its first figures free, once, figures outside its plan included (the verification trial, size in pricing://current). served_free = own-plan figures plus trial figures; trial_used / trial_remaining = this run's draw and what the account has left; needs_payment = figures still to pay for (the paid verification run). A guest has no trial: note says how to get it. |
+| `mpp_offer` | no | Present when figures still need payment: the MPP option (price, resource_url, request body) for the full run. |
+| `data_quality` | no | Server-side invariants run on this response |
+| `truncation` | no | Set when fewer rows were returned than requested — explains why and points to a remedy |
+| `limit_warnings` | no | Soft-warning array for partial fulfillment. Each entry carries a stable subcode + remediation.options[]. AI agents pattern-match on subcode. |
 <!-- /GEN:agent-contract -->
 
 ---

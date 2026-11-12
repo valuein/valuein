@@ -100,6 +100,33 @@ When the first text block is not JSON, the protocol layer answered instead of th
 **Offset paging** (`get_pit_universe`, `screen_universe`): `limit` is the page size and `offset` is where the page starts. While rows remain, the result carries `truncation` with `next_offset`: call again with the same arguments and `offset` set to `truncation.next_offset`, until a result has no `truncation`.
 
 **Cursor paging** (`list_citation_overrides`, `list_my_reports`, `list_pending_approvals`, `list_report_versions`, `list_restatements`, `list_rules`, `list_scheduled_tasks`, `list_signal_inbox`, `list_signals`, `list_watchlists`, `search_reports`): Pass the `next_cursor` of one result as `cursor` on the next call, with the same other arguments. A null `next_cursor` is the last page.
+
+### The `_meta` envelope
+
+Every success result carries `structuredContent._meta`. Each tool's outputSchema declares it once as an open object; its fields are documented here, not per tool. Read `source`, `pit_safe` and `as_of_date` for provenance and `fundamentals_as_of` (not `last_updated`) for how current the statements are. A field may be absent on a surface that does not serve it.
+
+| Field | Always present | Meaning |
+|---|---|---|
+| `data_plan` | yes | Plan key the call ran on: sample (no sign-in), sp500 (Benchmark), pro (Pro), full (Institutional). |
+| `schema_version` | yes | Parquet schema version from manifest.json |
+| `snapshot` | yes | Snapshot directory name (e.g. snapshot_20260420) |
+| `last_updated` | yes | ISO timestamp when the snapshot was exported |
+| `fundamentals_as_of` | no | ISO timestamp when the FINANCIAL STATEMENTS were last rebuilt in bulk. Use THIS — not `last_updated` — when telling a user how current the cross-sectional fundamentals are. The snapshot can be republished while the statements are carried forward unchanged, so `last_updated` can be more recent than the numbers it sits next to. It is a floor for a single filer, not a ceiling: a filer with a live partition receives its filing, facts and ratios intraday (minutes after EDGAR dissemination), so an entity-scoped read may carry a filing newer than this; cross-sectional ranks (factor scores, earnings signals) refresh with the weekly bulk export. |
+| `source` | yes | Always "SEC EDGAR" for a tool that reads filings. |
+| `ticker` | no | The company the call was about, when it named one. |
+| `as_of_date` | no | The point-in-time cutoff applied, or null when none was asked for. |
+| `pit_safe` | yes | true iff a zero-look-ahead point-in-time cut was applied to every returned figure |
+| `result_count` | no | Rows in this result. |
+| `request_id` | no | Per-request correlation id (8-char) |
+| `latency_ms` | no | Wall-clock milliseconds this tool call took, measured server-side around the handler. |
+| `cost_usd` | no | Per-call cost transparency. Omitted for subscription-only and free tools, which have no MPP price. |
+| `rate_limit` | no | Caller's remaining budget |
+| `mpp_override` | no | Set when this single response was paid for over MPP: the payment's order was honoured for this call only, and the payment is captured only when this is present. |
+| `mpp_verification` | no | Verification tools only, when some figures are outside the caller's plan. Figures the plan covers are always verified free; a Valuein account also verifies its first figures free, once, figures outside its plan included (the verification trial, size in pricing://current). served_free = own-plan figures plus trial figures; trial_used / trial_remaining = this run's draw and what the account has left; needs_payment = figures still to pay for (the paid verification run). A guest has no trial: note says how to get it. |
+| `mpp_offer` | no | Present when figures still need payment: the MPP option (price, resource_url, request body) for the full run. |
+| `data_quality` | no | Server-side invariants run on this response |
+| `truncation` | no | Set when fewer rows were returned than requested — explains why and points to a remedy |
+| `limit_warnings` | no | Soft-warning array for partial fulfillment. Each entry carries a stable subcode + remediation.options[]. AI agents pattern-match on subcode. |
 <!-- /GEN:agent-contract -->
 
 ---
@@ -107,7 +134,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.25.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.26.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **110 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -209,7 +236,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`search_reports`](#search_reports) | Search Published Reports | `sample` | read-only | cursor |
 | [`compute_dcf`](#compute_dcf) | Compute Forward DCF | `sp500` | read-only | none |
 | [`forensic_audit`](#forensic_audit) | Forensic Audit (Beneish + Sloan + Solvency) | `sp500` | read-only | none |
-| [`get_pit_valuation_ratios`](#get_pit_valuation_ratios) | Point-in-Time Valuation Ratios | `pro` | read-only | none |
+| [`get_pit_valuation_ratios`](#get_pit_valuation_ratios) | Point-in-Time TTM Financials | `pro` | read-only | none |
 | [`run_backtest`](#run_backtest) | Run Bounded Factor Backtest | `pro` | read-only | none |
 | [`project_three_statement`](#project_three_statement) | Project Linked Three-Statement Model | `sp500` | read-only | none |
 | [`compute_lbo`](#compute_lbo) | Compute LBO Returns (IRR + MOIC) | `sp500` | read-only | none |
@@ -286,16 +313,16 @@ Get the profitability, cash-flow and leverage metrics of a US public company, pl
 
 **Financial Ratios** · min plan `sample` · read-only · paging: none
 
-Get pipeline-computed financial ratios from ratio.parquet. Served categories: profitability (margins, ROE, ROA, ROIC), liquidity (current ratio, quick ratio), leverage (D/E, interest coverage, net debt/EBITDA), efficiency (asset turnover, inventory days), per_share (EPS, BVPS,...
+Financial ratios Valuein precomputes from each company's SEC filings. A bare call returns the ${DEFAULT_RATIO_PERIODS} most recent periods and every category except growth and rank (both large); pass `categories` (e.g. ["growth","rank"]) to get them and `limit` (up to 20) for ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
-| `categories` | array | no | — | Ratio categories to include (see the enum). Omit to return every category this ticker has. `valuation` (graham_number, ncav_per_share) are precomputed at each fiscal period end. Availability is per-ticker (the envelope lists this ticker's available_categories). |
+| `categories` | array | no | — | Ratio categories to include (see the enum). Omit to return every category this ticker has except growth and rank, which are returned only when named here. `valuation` (graham_number, ncav_per_share) are precomputed at each fiscal period end. Availability is per-ticker (the envelope lists this ticker's available_categories). |
 | `fiscal_period` | enum | no | one of `FY`, `TTM`, `Q1`, `Q2`, `Q3`, `Q4` | Filter to a specific fiscal period type. Use 'TTM' for trailing twelve months. Omit to return both annual (FY) and TTM rows. |
 | `as_of_date` | string | no | — | Historical cutoff (canonical cross-tool date param). PIT by SEC accepted_at when the ratio data carries it (latest value knowable on/before the date, zero look-ahead, _meta.pit_safe=true), else by ratio.period_end (pit_safe=false). For guaranteed accepted_at PIT use get_company_fundamentals. |
 | `period_end_before` | string | no | — | Alias of as_of_date (as_of_date preferred — the canonical name). Returns ratios with period_end on or before this date. |
-| `limit` | integer | no | default `5` | Number of distinct period_end dates to return (1–20). Defaults to 5. Within each period, all matching ratio_names are included. |
+| `limit` | integer | no | default `2` | Number of distinct period_end dates to return (1–20). Defaults to 2. Within each period, all matching ratio_names are included. |
 
 **Output fields:** `ticker`, `plan`, `note`, `periods_returned`, `data`, `lineage`
 
@@ -414,7 +441,7 @@ Get a multi-year capital allocation breakdown for a US public company. Shows how
 
 **Peer Comparables** · min plan `sample` · read-only · paging: none
 
-Get ratio-based peer comparison for a company and its closest competitors. Peers are selected by matching 2-digit SIC industry code. Returns pipeline-computed ratios from up to 10 peers alongside the subject company for direct benchmarking. Ratio categories: profitability, liq...
+Get ratio-based peer comparison for a company and its closest competitors by SIC industry code. Returns pipeline-computed ratios from up to 10 peers alongside the subject company for direct benchmarking. Ratio categories: profitability, liquidity, leverage, efficiency, per_sha...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -431,7 +458,7 @@ Get ratio-based peer comparison for a company and its closest competitors. Peers
 
 **Point-in-Time Universe** · min plan `sample` · read-only · paging: offset
 
-Use this tool to answer questions about historical index membership — e.g. "Was Company X in the S&P 500 on date Y?" (S&P 500 members on a date, including former members, from 1996) or "Which companies were in the Russell 2000 on 2010-01-01?" Use this INSTEAD OF `search_compan...
+Historical index membership, survivorship-free: who was in an index on `as_of_date` (companies that existed and belonged on that exact date, including ones delisted since; no hindsight). Use it INSTEAD OF `search_companies` for any past date ("Was X in the S&P 500 on Y?"); `se...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -463,13 +490,13 @@ Returns a short-lived (5-min) download URL for a bulk Parquet object that can be
 
 **Describe Data Schema** · min plan `sample` · read-only · paging: none
 
-Returns the Parquet schema for all tables in the Valuein SEC data warehouse. Includes table descriptions, column names, types, primary keys, and foreign-key references. Use this tool to understand the data model before querying with other tools. No data reads required — schema...
+Describes the Valuein SEC data warehouse. With no arguments it lists every table with a one-line description and its column count; pass `table` (e.g. 'fact') for that table's columns, types, primary keys and foreign-key references. Use this tool to understand the data model be...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `table` | string | no | — | Filter to a single table name (e.g. 'fact', 'entity', 'references'). Omit to return the full schema for all tables. |
+| `table` | string | no | — | A single table name (e.g. 'fact', 'entity', 'references') to return its full column definitions. Omit to list every table with a one-line description and column count. |
 
-**Output fields:** `schema_version`, `table`, `description`, `columns`, `project`, `tables`
+**Output fields:** `schema_version`, `table`, `description`, `columns`, `project`, `tables`, `note`
 
 ### `list_sops`
 
@@ -500,11 +527,11 @@ Load one expert research playbook by name (discover names with `list_sops`). Ret
 
 **Verify Fact Lineage** · min plan `sample` · read-only · paging: none
 
-Use this tool when the user asks BOTH what a financial figure is AND which filing reported it — e.g. "What was Apple's most recently reported revenue, and which 10-Q filed it?" or "Show me the accession ID for Tesla's latest net income." Returns a single fact plus its complete...
+Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or derived_ids → verify_facts; a number with no id → match_derived; a number quoted from filing text or insider/13F rows → verify_filing_figures; every number in a saved report → verify_report_figures; figur...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT, BRK.B — or a CIK (SEC identifier), e.g. '0000320193'. |
+| `ticker` | string | no | — | Stock ticker symbol, e.g. AAPL, MSFT, BRK.B — or a CIK (SEC identifier), e.g. '0000320193'. Required with `fact_id` or `concept`: a fact_id is unique within its company's filings, so pass the company it came from (every result that gives you a fact_id also names the company's CIK). Not needed with `derived_id`. |
 | `fact_id` | string | no | — | Deterministic fact identity hash: SHA-256(entity_id\|accession_id\|concept\|period_end\|unit). 64-char lowercase hex. Use this when you already have the hash from a previous query. Provide either fact_id OR concept (not both required, but at least one must be set). |
 | `concept` | enum | no | one of `TotalRevenue`, `CostOfRevenue`, `GrossProfit`, `OperatingIncome`, `OperatingExpenses`, `ResearchAndDevelopment`, `NetIncome`, `EPSDiluted`, `TotalAssets`, `TotalLiabilities`, `ParentEquity`, `TotalEquity`, `StockholdersEquity`, `StockholdersEquityIncludingNCI`, `CashAndEquivalents`, `TotalDebt`, `OperatingCashFlow`, `CAPEX`, `Dividends`, `ShareBuyback`, `DebtIssuance`, `DebtRepayment`, `Acquisitions`, `Divestitures` | Standard concept to look up the most recently known fact for (see the enum for the full fundamentals + capital-allocation set). Use this when you don't have a fact_id. Provide either concept OR fact_id. |
 | `period_end` | string | no | — | [DEPRECATED — pass `as_of_date` instead.] Filing-acceptance cutoff (YYYY-MM-DD) used with `concept`; despite the name it filters on filing accepted_at, not the returned fact's period_end. Kept one release for back-compat. |
@@ -517,7 +544,7 @@ Use this tool when the user asks BOTH what a financial figure is AND which filin
 
 **Verify Facts (batch)** · min plan `sample` · read-only · paging: none
 
-Resolve MANY cited facts to their SEC filings in ONE call — the batch form of `verify_fact_lineage`. Use this whenever you are checking a LIST of figures rather than a single number: reviewing a report's citations, auditing a thesis's evidence, or confirming every figure in a ...
+Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or derived_ids → verify_facts; a number with no id → match_derived; a number quoted from filing text or insider/13F rows → verify_filing_figures; every number in a saved report → verify_report_figures; figur...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -530,7 +557,7 @@ Resolve MANY cited facts to their SEC filings in ONE call — the batch form of 
 
 **Match Derived Figures** · min plan `sample` · read-only · paging: none
 
-Check whether figures a report STATES can be reproduced by the engine from the SEC facts the report cites. For each `{ token, ticker, fact_ids }` it tries every registered margin, growth, share-of, difference and ratio formula over those facts and compares the rendered result ...
+Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or derived_ids → verify_facts; a number with no id → match_derived; a number quoted from filing text or insider/13F rows → verify_filing_figures; every number in a saved report → verify_report_figures; figur...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -543,7 +570,7 @@ Check whether figures a report STATES can be reproduced by the engine from the S
 
 **Verify Filing Figures** · min plan `sample` · read-only · paging: none
 
-Check numbers a report STATES against the source it says it read them in. Per item `{ token, ticker, source, accession?, section?, period_end?, inputs? }`: `source: "text"` reads `section` of the 10-K / 10-Q / 8-K `accession` (omit `section` to search the whole filing; keys as...
+Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or derived_ids → verify_facts; a number with no id → match_derived; a number quoted from filing text or insider/13F rows → verify_filing_figures; every number in a saved report → verify_report_figures; figur...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -642,7 +669,7 @@ Why did a restating filing change a number? Reads the RESTATING filing itself (t
 
 **Submit Feedback** · min plan `sample` · writes · paging: none
 
-File product feedback to the Valuein team — a bug, feature request, experience note, or data-quality issue — directly from the agent surface. Available on EVERY tier including guest/sample (no token required), so an agent can report a rough edge in-band without the human leavi...
+File product feedback to the Valuein team — a bug, feature request, experience note, or data-quality issue — directly from the agent surface. Plan: every plan, including no sign-in (no token required), so an agent can report a rough edge in-band without the human leaving the c...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -836,7 +863,7 @@ Resolve a saved workflow by id and return a structured execution plan for a sing
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `workflow_id` | string | yes | — | Workflow id returned by the frontend workflow builder. |
+| `workflow_id` | string | yes | — | Workflow id from the user's Valuein Workspace (valuein.biz/workspace/workflows); ask the user for it. |
 | `ticker` | string | no | — | US-listed ticker the workflow should run against, e.g. 'AAPL'. Pass either `ticker` (single) or `tickers` (batch up to 50). Exactly one is required. |
 | `tickers` | array | no | — | Batch mode — array of US-listed tickers, up to 50. When provided, the response has `plans[]` (one plan per ticker) instead of `plan`. Parity with the frontend batch-runner so agents can request 'plan over my watchlist' in a single call. |
 
@@ -956,7 +983,7 @@ Request a Valuein compliance certificate for one of the caller's OWN reports —
 
 **Verify Report Figures** · min plan `sp500` · read-only · paging: none
 
-Check EVERY number in one of your own reports against the filing it cites, in one call. Returns a verdict per figure: `matches` (the prose quotes the filing's own rendered string), `differs` (positive evidence the filing says something else — the report is wrong), or `not_chec...
+Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or derived_ids → verify_facts; a number with no id → match_derived; a number quoted from filing text or insider/13F rows → verify_filing_figures; every number in a saved report → verify_report_figures; figur...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -983,7 +1010,7 @@ Upsert a named watchlist with a list of tickers. Replace semantics — the full 
 
 **List Watchlists** · min plan `sp500` · read-only · paging: cursor
 
-Paginated newest-first listing of the caller's watchlists (id, name, tickers, status, counts). Filter by `status` (active/archived/all). Returns metadata only — use get_watchlist for one list's full ticker set, or watchlist_diff for new filings across a list. Tier: sp500+ (sam...
+Paginated newest-first listing of the caller's watchlists (id, name, tickers, status, counts). Filter by `status` (active/archived/all). Returns metadata only — use get_watchlist for one list's full ticker set, or watchlist_diff for new filings across a list. Plan: Benchmark a...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -997,7 +1024,7 @@ Paginated newest-first listing of the caller's watchlists (id, name, tickers, st
 
 **Get Watchlist** · min plan `sp500` · read-only · paging: none
 
-Fetch a single watchlist (full ticker set + criteria) by its name, not an id (case-insensitive). NOT_FOUND if the name is unknown to this user. Tier: sp500+ (sample rejected).
+Fetch a single watchlist (full ticker set + criteria) by its name, not an id (case-insensitive). NOT_FOUND if the name is unknown to this user. Plan: Benchmark and above (a free account).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1009,7 +1036,7 @@ Fetch a single watchlist (full ticker set + criteria) by its name, not an id (ca
 
 **Archive Watchlist** · min plan `sp500` · destructive · paging: none
 
-Soft-delete a watchlist by its name (not id): status flips to `archived` (still readable via list_watchlists status=all/archived). The name is freed for reuse by a new save_watchlist. Idempotent. Tier: sp500+ (sample rejected).
+Soft-delete a watchlist by its name (not id): status flips to `archived` (still readable via list_watchlists status=all/archived). The name is freed for reuse by a new save_watchlist. Idempotent. Plan: Benchmark and above (a free account).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1074,7 +1101,7 @@ Return new SEC filings across a set of companies since a given date. Name the co
 
 **Create Signal** · min plan `sp500` · writes · paging: none
 
-Persist a signal and register it with the firing pipeline. Four condition shapes: * `filing_event` — fire when a ticker files a chosen form type (8-K, 10-K, etc.). * `ratio_threshold` — fire when a ticker's financial ratio crosses a threshold (e.g. interest_coverage &lt; 1.5). * ...
+Signals alert a person when a data condition holds; for a trigger → action automation use the *_rule tools. Persist a signal and register it with the firing pipeline. Four condition shapes: * `filing_event` — fire when a ticker files a chosen form type (8-K, 10-K, etc.). * `ra...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1105,7 +1132,7 @@ Edit an existing signal IN PLACE — rename it, change what it watches, or chang
 
 **List Signals** · min plan `sp500` · read-only · paging: cursor
 
-Paginated newest-first listing of the caller's signals (id, condition, channel, status, trigger_count, evaluator health). Filter by `status` (active/paused/deleted/all). Use the returned signal id with delete_signal or test_signal. Tier: sp500+ (sample rejected).
+Signals alert a person when a data condition holds; for a trigger → action automation use the *_rule tools. Paginated newest-first listing of the caller's signals (id, condition, channel, status, trigger_count, evaluator health). Filter by `status` (active/paused/deleted/all)....
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1119,7 +1146,7 @@ Paginated newest-first listing of the caller's signals (id, condition, channel, 
 
 **Delete Signal** · min plan `sp500` · destructive · paging: none
 
-Soft-delete a signal by its id (from create_signal/list_signals): status flips to `deleted` and it is removed from the cron evaluator index so it stops firing. Signals are immutable — to change one, delete then create_signal. Idempotent. Tier: sp500+ (sample rejected).
+Signals alert a person when a data condition holds; for a trigger → action automation use the *_rule tools. Soft-delete a signal by its id (from create_signal/list_signals): status flips to `deleted` and it is removed from the cron evaluator index so it stops firing. To change...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1131,7 +1158,7 @@ Soft-delete a signal by its id (from create_signal/list_signals): status flips t
 
 **Test Signal (synthetic fire)** · min plan `sp500` · writes · paging: none
 
-Fire a synthetic notification through EVERY channel the signal is configured with. Use this immediately after `create_signal` to verify the channels (email address valid / webhook URL reachable + HMAC verification on the receiver). The synthetic fire is logged with a `[TEST]` ...
+Signals alert a person when a data condition holds; for a trigger → action automation use the *_rule tools. Fire a synthetic notification through EVERY channel the signal is configured with. Use this immediately after `create_signal` to verify the channels (email address valid...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1196,7 +1223,7 @@ Propose an MCP tool call for human approval BEFORE running it. Call this — ins
 
 **List Pending Approvals** · min plan `sp500` · read-only · paging: cursor
 
-List the caller's own staged actions still awaiting a human decision (status='proposed'), newest-first. Use this to check what an autonomous run has queued up before you approve or reject it with `approve_staged_action` / `reject_staged_action`. Tier: sp500+ (sample rejected).
+List the caller's own staged actions still awaiting a human decision (status='proposed'), newest-first. Use this to check what an autonomous run has queued up before you approve or reject it with `approve_staged_action` / `reject_staged_action`. Plan: Benchmark and above (a fr...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1248,12 +1275,12 @@ Defer a follow-up task ("re-check AAPL margin compression in 30 days") for up to
 
 **List Scheduled Tasks** · min plan `sp500` · read-only · paging: cursor
 
-Paginated newest-first listing of the caller's own scheduled (deferred) tasks — transparency into what an agent has queued for the future. Filter by `status` (pending/completed/cancelled/cancelled_owner_inactive/all). Tier: sp500+ (sample rejected).
+Paginated newest-first listing of the caller's own scheduled (deferred) tasks — transparency into what an agent has queued for the future. Filter by `status` (pending/completed/cancelled/cancelled_owner_inactive/all). Plan: Benchmark and above (a free account).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `status` | enum | no | one of `pending`, `completed`, `cancelled`, `cancelled_owner_inactive`, `all`; default `pending` | Filter by lifecycle state; defaults to `pending`. |
-| `limit` | integer | no | default `20` | — |
+| `limit` | integer | no | default `20` | Tasks per page, 1 to 100; defaults to 20. |
 | `cursor` | integer | no | — | Pagination cursor from a previous response's next_cursor. |
 
 **Output fields:** `tasks`, `next_cursor`
@@ -1274,12 +1301,12 @@ Cancel a pending scheduled task by id (from schedule_task or list_scheduled_task
 
 **Create Rule** · min plan `sp500` · writes · paging: none
 
-Persist a trigger -> action rule and register it with the evaluator. Seven trigger types x six action types, with an optional single-comparison condition_expr evaluated against the trigger payload. Read the returned rule's trigger_wiring_status to see whether its trigger has a...
+Persist a trigger -> action automation rule (an alert to a person is create_signal). Live trigger types x five action types, with an optional single-comparison condition_expr evaluated against the trigger payload. Read the returned rule's trigger_wiring_status, and test_rule t...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `name` | string | yes | — | Human-readable label. |
-| `trigger` | object | yes | — | Discriminated union — which signal fires this rule. |
+| `trigger` | object | yes | — | Discriminated union — which live event fires this rule. |
 | `condition_expr` | string | no | — | Optional single comparison against the trigger payload, e.g. "ratio_value gt 5". Omit to fire on the trigger alone. |
 | `action` | object | yes | — | Discriminated union — what happens when the rule fires. |
 | `replaces_rule_id` | string | no | — | Optional. The id of a signal this call REPLACES — set it when saving an edit, which is stored as create-then-delete because neither engine has an update tool. A verified live record you own is discounted from the tier cap so an edit is cap-neutral; an unknown, deleted, or foreign id is ignored and the cap applies normally. |
@@ -1290,11 +1317,11 @@ Persist a trigger -> action rule and register it with the evaluator. Seven trigg
 
 **List Rules** · min plan `sp500` · read-only · paging: cursor
 
-Paginated newest-first listing of the caller's own rules. Tier: sp500+ (sample rejected).
+Rules automate (trigger → action); to alert a person when a data condition holds use the *_signal tools. Paginated newest-first listing of the caller's own rules. Plan: Benchmark and above (a free account).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `limit` | integer | no | default `20` | — |
+| `limit` | integer | no | default `20` | Rules per page, 1 to 100; defaults to 20. |
 | `cursor` | integer | no | — | Pagination cursor from a previous response's next_cursor. |
 
 **Output fields:** `rules`, `next_cursor`
@@ -1303,7 +1330,7 @@ Paginated newest-first listing of the caller's own rules. Tier: sp500+ (sample r
 
 **Delete Rule** · min plan `sp500` · destructive · paging: none
 
-Delete a rule by id (from create_rule/list_rules) — hides it from the catalog and removes it from the evaluator's scan index, so it stops firing immediately. UNDOABLE: restore_deleted with kind 'rule' brings it back and resumes evaluation (subject to the signal cap). Rules are...
+Rules automate (trigger → action); to alert a person when a data condition holds use the *_signal tools. Delete a rule by id (from create_rule/list_rules) — hides it from the catalog and removes it from the evaluator's scan index, so it stops firing immediately. UNDOABLE: rest...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1315,7 +1342,7 @@ Delete a rule by id (from create_rule/list_rules) — hides it from the catalog 
 
 **Test Rule (dry run)** · min plan `sp500` · read-only · paging: none
 
-Dry-run a rule's condition_expr against a SYNTHETIC trigger payload — reports whether it WOULD have fired, but NEVER dispatches the action (no report generated, no team run, no message sent, no inbox write). Use this immediately after create_rule to sanity-check the condition ...
+Rules automate (trigger → action); to alert a person when a data condition holds use the *_signal tools. Dry-run a rule's condition_expr against a SYNTHETIC trigger payload — reports whether it WOULD have fired, but NEVER dispatches the action (no report generated, no team run...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1399,7 +1426,7 @@ List the caller's own standing agents (id, name, goal, tickers, agent_type, trig
 
 **Get Agent** · min plan `sp500` · read-only · paging: none
 
-Fetch full detail for one of the caller's own standing agents by id (from save_agent/list_agents). Returns `found: false` (not an error) for an unknown id OR an id belonging to another customer — there is no distinguishing signal, by design, matching get_agent_run's posture. T...
+Fetch full detail for one of the caller's own standing agents by id (from save_agent/list_agents). Returns `found: false` (not an error) for an unknown id OR an id belonging to another customer — there is no distinguishing signal, by design, matching get_agent_run's posture. P...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1464,7 +1491,7 @@ Fetch the current HEAD of a report by id. `format=markdown` returns the rendered
 
 **Check Report Figures Are Current** · min plan `sp500` · read-only · paging: none
 
-Which figures a report cites were REVISED by a later filing? Resolves the report's cited facts to their filing, then matches each against the Restatement Radar feed (same raw XBRL tag, same reporting window, a different restating filing filed after the report was signed; an un...
+Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or derived_ids → verify_facts; a number with no id → match_derived; a number quoted from filing text or insider/13F rows → verify_filing_figures; every number in a saved report → verify_report_figures; figur...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1509,8 +1536,8 @@ Publish a report for FREE at `listed` or `unlisted` visibility to build your pub
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `report_id` | string | yes | — | — |
-| `visibility` | enum | no | one of `unlisted`, `listed`; default `listed` | — |
+| `report_id` | string | yes | — | Id of one of your reports, from `create_report`, `save_freeform_report` or `list_my_reports`. |
+| `visibility` | enum | no | one of `unlisted`, `listed`; default `listed` | `listed`: found by `search_reports`. `unlisted`: readable only by its link. Default `listed`. |
 | `price_cents` | integer | no | — | Currently must be omitted or 0 — all listings are free. A non-zero value is rejected until paid listings ship. |
 | `tier_required` | enum | no | one of `sample`, `sp500`, `pro`, `full` | Minimum subscriber tier to read the full body. Defaults to the author's plan. |
 
@@ -1520,11 +1547,11 @@ Publish a report for FREE at `listed` or `unlisted` visibility to build your pub
 
 **Unpublish Report (back to private)** · min plan `sp500` · destructive · paging: none
 
-Revert a published report (listed or unlisted) back to `private` visibility, removing it from the public catalog. Author-only. Idempotent.
+Revert a published report (listed or unlisted) back to `private` visibility, removing it from the public catalog. Author-only. Idempotent. Plan: Benchmark and above.
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `report_id` | string | yes | — | — |
+| `report_id` | string | yes | — | Id of your published report, from `list_my_reports`. |
 
 **Output fields:** `report`
 
@@ -1540,9 +1567,9 @@ Search the catalog of published research reports. All listings are free to read.
 | `ticker` | string | no | — | Filter to a single subject ticker. |
 | `report_type` | enum | no | one of `reverse_dcf` | Filter by report type. |
 | `price_max_cents` | integer | no | — | Reserved for future paid listings; currently ignored (all reports are free). |
-| `sort` | enum | no | one of `newest`, `oldest`; default `newest` | — |
-| `limit` | integer | no | default `20` | — |
-| `cursor` | string | no | — | — |
+| `sort` | enum | no | one of `newest`, `oldest`; default `newest` | Order by publish time. Default `newest`. |
+| `limit` | integer | no | default `20` | Reports per page (1–100). Default 20. |
+| `cursor` | string | no | — | `next_cursor` from the previous page; omit for the first page. |
 
 **Output fields:** `reports`, `next_cursor`
 
@@ -1550,7 +1577,7 @@ Search the catalog of published research reports. All listings are free to read.
 
 **Compute Forward DCF** · min plan `sp500` · read-only · paging: none
 
-Forward discounted-cash-flow valuation (two-stage Gordon-growth model): caller provides growth + WACC + terminal assumptions, returns per-share intrinsic value (`value_per_share_cents`, cents of `result.reporting_currency` — USD for US filers, the filer's own currency otherwis...
+Forward discounted-cash-flow valuation (two-stage Gordon-growth model) under YOUR assumptions: you give stage-1 growth, WACC, terminal growth and horizon; it returns the per-share intrinsic value (`value_per_share_cents`, cents of `result.reporting_currency`, never converted) ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1582,14 +1609,14 @@ Deterministic forensic-accounting scores for a single ticker: partial Beneish M-
 
 ### `get_pit_valuation_ratios`
 
-**Point-in-Time Valuation Ratios** · min plan `pro` · read-only · paging: none
+**Point-in-Time TTM Financials** · min plan `pro` · read-only · paging: none
 
-Point-in-time TTM financials for a company, safe for backtesting. No price-based valuation multiple is published, so this tool returns none, and you must never derive one yourself — that is exactly the arithmetic the provenance contract forbids. If the user needs a price, ask ...
+Point-in-time trailing-twelve-month (TTM) financials for a company on a historical date, safe for backtesting: every figure comes from SEC filings accepted on or before `as_of_date`, so no later information leaks in. TTM sums the four most recent standalone quarters (or uses t...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
-| `as_of_date` | string | yes | — | The historical date for the valuation snapshot (YYYY-MM-DD). Each multiple is the latest precomputed (fiscal-period-end) value accepted on or before this date. All financials are PIT-filtered to filings accepted on or before this date. Use a date in the recent past (within the last year) to get current-ish multiples; use any historical date back to 1993 (subject to your plan's history window) to get the multiples as they would have been observable on that date. |
+| `as_of_date` | string | yes | — | The historical date for the snapshot (YYYY-MM-DD). Only filings accepted on or before this date are read. Use a recent date for the latest figures, or any date back to 1993 (subject to your plan's history window) for the figures as they were observable then. |
 
 **Output fields:** `ticker`, `cik`, `company_name`, `as_of_date`, `reporting_currency`, `ttm_period_end`, `financials_accepted_at`, `ttm_revenue`, `ttm_gross_profit`, `ttm_operating_income`, `ttm_ebitda`, `ttm_net_income`, `ttm_ocf`, `ttm_capex`, `ttm_fcf`, `shares_diluted`, `cash`, `total_debt`, `net_debt`, `book_equity`, `gross_margin_pct`, `operating_margin_pct`, `net_margin_pct`, `note`
 
@@ -1784,7 +1811,7 @@ Read the extracted text of a file uploaded via POST /v1/uploads (a plain REST ro
 
 **List Uploaded Documents** · min plan `sp500` · read-only · paging: none
 
-List the caller's currently-active uploaded documents (filename, size, char count — no full text; call get_uploaded_document for that). Uploads expire 24h after upload.
+List the caller's currently-active uploaded documents (filename, size, char count — no full text; call get_uploaded_document for that). Uploads expire 24h after upload. Plan: Benchmark and above (a free account); a caller without sign-in is refused.
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1796,7 +1823,7 @@ List the caller's currently-active uploaded documents (filename, size, char coun
 
 **Delete an Uploaded Document** · min plan `sp500` · destructive · paging: none
 
-Delete an uploaded document before its 24h TTL. UNDOABLE: restore_deleted with kind 'uploaded_document' brings it back while it is still within its 24h TTL and its file exists. Deleting a missing/already-expired/foreign id returns deleted:false rather than an error.
+Delete an uploaded document before its 24h TTL. UNDOABLE: restore_deleted with kind 'uploaded_document' brings it back while it is still within its 24h TTL and its file exists. Deleting a missing/already-expired/foreign id returns deleted:false rather than an error. Plan: Benc...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1882,12 +1909,12 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.25.1); 30 prompts._
+_Generated from the MCP server manifest (v3.26.1); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
-| `margin_and_moat_teardown` | Margin & Moat Teardown | `sample` | Systematic 10-year analysis of a company's operational efficiency and competitive moat. Chains fundamentals → valuation metrics → peer comparables to produce a structured teardown covering revenue quality, margin trends, ROIC vs WACC spread, ROIC persistence (a moat is a traje... |
-| `peer_benchmarking_memo` | Peer Benchmarking Memo | `sample` | Produces a structured relative-value memo comparing a company to its closest peers. Chains search_companies → peer_comparables → valuation_metrics → financial_ratios to output an investment committee-ready comparison table with ROIC, valuation multiples, and capital efficiency. |
+| `margin_and_moat_teardown` | Margin & Moat Teardown | `sample` | Systematic 10-year analysis of a company's operational efficiency and competitive moat. Chains fundamentals → valuation metrics → peer comparables to produce a structured teardown covering revenue quality, margin trends, ROIC level and persistence (a moat is a trajectory, not ... |
+| `peer_benchmarking_memo` | Peer Benchmarking Memo | `sample` | Produces a structured benchmarking memo comparing a company to its closest peers. Chains search_companies → get_peer_comparables → get_valuation_metrics → get_financial_ratios to output an investment committee-ready comparison table of margins, ROIC, leverage and capital effic... |
 | `survivorship_free_backtest` | Survivorship-Free Backtest | `sample` | Sets up a bias-free quantitative backtest: survivorship-free universe (effective-date membership), a quick bounded in-Worker validation grid, then Parquet URLs for bulk out-of-core compute. Chains get_pit_universe → run_backtest (≤120-cell PIT sanity grid) → get_compute_ready_... |
 | `pit_factor_constructor` | Point-in-Time Factor Constructor | `sample` | Guides construction of a quantitative factor (Quality, Value, Momentum) across a sector universe using ratio.parquet data. Chains get_pit_universe → get_financial_ratios → get_compute_ready_stream to produce normalized factor scores. |
 | `quality_and_risk_audit` | Quality & Risk Audit | `sample` | Evaluates capital structure safety and dividend sustainability from the filed figures. Chains fundamentals → capital_allocation → valuation_metrics → financial_ratios (leverage/liquidity) to produce a structured risk scorecard. |
@@ -1902,12 +1929,12 @@ _Generated from the MCP server manifest (v3.25.1); 30 prompts._
 | `morning_briefing` | Morning Briefing | `sample` | Daily overnight digest: material SEC filings across the caller's watchlist since the last close. Ranks by likely impact (M-score change candidates, 8-K item types, amendment flags). |
 | `earnings_pulse` | Earnings Pulse | `sample` | Pre-earnings pulse for a single ticker. Pulls last 8 quarters of fundamentals + the existing get_earnings_signals trend + management-credibility cross-check (promise-vs-delivery on key segments). Output: 1-page pre-read for an analyst attending the call. |
 | `restatement_radar` | Restatement Radar | `sample` | Daily/weekly sweep for 10-K/A and 10-Q/A amendments across a watchlist (or the caller's full ticker set). Surfaces amendments that materially changed reported revenue, cash flow, or earnings — the highest-signal restatement events for a forensic analyst. |
-| `earnings_war_room` | Earnings-Day War Room | `sample` | The moment a company files (10-Q / 10-K / 8-K), grade every open claim and thesis you hold on that ticker against the fresh numbers and draft a cited 'what changed' memo — before the earnings call. Turns a filing into a cited record: what resolved, what surprised, what stays o... |
+| `earnings_war_room` | Earnings-Day War Room | `sample` | The moment a company files (10-Q / 10-K / 8-K), grade the expectations you hold on that ticker (agent memory, your reports) against the fresh numbers and draft a cited 'what changed' memo — before the earnings call. Turns a filing into a cited record: what resolved, what surpr... |
 | `screen_to_thesis` | Screen → Thesis Pipeline | `sample` | End-to-end idea-generation pipeline: screen → forensic audit → shortlist of the top N candidates. Wraps existing screen_universe + forensic_audit; ends in a saved watchlist of the survivors. |
-| `smart_money_pulse` | Smart-Money Pulse | `full` | PM digest: 13F + insider activity across the caller's watchlist. Surfaces top fund accumulators, recent insider clusters, and 13D/13G activist filings worth investigating. Institutional tier (full plan) only. |
-| `activist_radar` | Activist Radar | `full` | Detect new SC 13D / 13G filings across the watchlist and pull the activist's historical playbook stats. Surfaces 13G→13D conversions (the strongest 'going active' signal). Institutional tier. |
+| `smart_money_pulse` | Smart-Money Pulse | `full` | PM digest: 13F + insider activity across the caller's watchlist. Surfaces top fund accumulators, recent insider clusters, and 13D/13G activist filings worth investigating. Institutional plan only. |
+| `activist_radar` | Activist Radar | `full` | Detect new SC 13D / 13G filings across the watchlist and pull the activist's historical playbook stats. Surfaces 13G→13D conversions (the strongest 'going active' signal). Institutional plan only. |
 | `sector_overview_flow` | Sector Overview | `sample` | Comprehensive sector / industry landscape brief — market dynamics, top 5-10 players, competitive structure, valuation context, and investment debate. Distinct from `sector_ratio_screen` (which is just a screen) and `screen_and_shortlist` (single-theme idea generation) — this i... |
-| `dcf_build_flow` | DCF Build (Disciplined) | `sample` | Disciplined forward-DCF construction for a single ticker — pulls fundamentals, justifies each assumption against history + peers, calls `compute_dcf`, and renders the full per-share value + 5×5 sensitivity grid. Wraps Valuein's existing `compute_dcf` math tool with verify-at-e... |
+| `dcf_build_flow` | DCF Build (Disciplined) | `sample` | Disciplined forward-DCF construction for a single ticker — pulls reported history, justifies each assumption (growth, a WACC the user gives or you state, terminal growth) against history + peers, calls `compute_dcf`, and renders the full per-share value + 5×5 sensitivity grid.... |
 | `watchlist_and_signal_setup` | Watchlist & Signal Setup | `sample` | Operational monitoring setup for a PM/analyst: create a watchlist, attach signal rules, dry-run them, and confirm the inbox is wired. Chains save_watchlist → create_signal → test_signal → list_signals → list_signal_inbox. Tier: sp500+ (watchlists + signals are persisted user s... |
 | `review_and_signoff` | Review & Sign-off | `sp500` | Figure-level review coverage loop for one report. Chains verify_report_figures (the machine verdict on every figure in the prose — start here) → get_report (read citations) → list_figure_reviews (see what's already reviewed) → verify_facts (check every unreviewed figure agains... |
 | `multi_factor_signal` | Multi-Factor Signal | `sample` | Builds a point-in-time-disciplined composite signal across the cross-section. Chains get_pit_universe → get_compute_ready_stream → screen_universe → get_financial_ratios for per-name verification → run_backtest for a bounded forward-return sanity grid on the decile extremes. E... |
@@ -1925,7 +1952,7 @@ _Generated from the MCP server manifest (v3.25.1); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.25.1); 3 resources._
+_Generated from the MCP server manifest (v3.26.1); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
