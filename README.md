@@ -519,7 +519,7 @@ Research objects live server-side, keyed to your token — save from one AI clie
 | Reports | `create_report`, `render_report`, `save_freeform_report` | Durable, versioned research artifacts with branded md/docx export |
 | Deferral & rules | `schedule_task`, `create_rule`, `test_rule` | "Re-check AAPL margins in 30 days" → a real scheduled re-run; trigger→action rules (signal fired, inbox item, task wake, schedule tick) |
 | Approvals (HOTL) | `stage_action`, `list_pending_approvals`, `approve_staged_action` | Mutating/destructive actions stage for human approval with an immutable audit entry |
-| Backtesting | `run_backtest`, `get_pit_valuation_ratios` | Small, bounded point-in-time factor checks and point-in-time valuation multiples |
+| Backtesting | `run_backtest`, `get_pit_valuation_ratios` | Small, bounded point-in-time factor checks and point-in-time TTM financials (no price-based multiple) |
 | Briefing | `get_morning_brief`, `list_agent_runs` | Read your daily brief and managed-run history from any MCP client |
 
 **Public publishing — free reputation building (any signed-in plan)**
