@@ -7,15 +7,38 @@
   "websiteUrl": "https://valuein.biz",
   "icons": [
     {
-      "src": "https://www.valuein.biz/valuein/colored_logo_no_bg.png",
-      "mimeType": "image/png",
-      "theme": "light"
+      "src": "https://valuein.biz/valuein/logo-tile.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": [
+        "any"
+      ]
     },
     {
-      "src": "https://www.valuein.biz/valuein/twitter-rounded.png",
+      "src": "https://valuein.biz/favicons/favicon-512.png",
       "mimeType": "image/png",
       "sizes": [
         "512x512"
+      ]
+    },
+    {
+      "src": "https://valuein.biz/favicons/favicon-256.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "256x256"
+      ]
+    },
+    {
+      "src": "https://valuein.biz/favicons/favicon-128.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "128x128"
+      ]
+    },
+    {
+      "src": "https://valuein.biz/favicons/favicon-64.png",
+      "mimeType": "image/png",
+      "sizes": [
+        "64x64"
       ]
     }
   ],
