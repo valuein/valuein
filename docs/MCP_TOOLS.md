@@ -92,11 +92,6 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `FIGURES_UNVERIFIED` | 409 | Report contains contradicted figures |
 | `PRICE_UNDATED` | 409 | Report holds an undated share price |
 | `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
-| `PRICE_SHEET_DISABLED` | 404 | Price sheet is not available |
-| `PRICE_SHEET_SIGN_IN_REQUIRED` | 401 | Sign in to use your price sheet |
-| `PRICE_SHEET_CAP_EXCEEDED` | 409 | Price sheet is full |
-| `PRICE_SHEET_IMPORT_RATE_LIMITED` | 429 | Too many price imports |
-| `PRICE_SHEET_CSV_REFUSED` | 422 | Price file refused |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
@@ -112,7 +107,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.25.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.25.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **110 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1690,10 +1685,7 @@ Market cap, P/E, P/B, P/S, EV/EBITDA, EV/revenue and dividend yield on a share p
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `prices` | array | no | — | 1 to 25 prices, one per company and date. Omit when use_price_sheet is true. |
-| `use_price_sheet` | boolean | no | — | Use the latest price in YOUR price sheet (signed in) instead of sending prices; name the companies in ciks and/or tickers. |
-| `ciks` | array | no | — | With use_price_sheet: companies by CIK. |
-| `tickers` | array | no | — | With use_price_sheet: companies by ticker, resolved on the as_of_date (default today). |
+| `prices` | array | yes | — | 1 to 25 prices, one per company and date. |
 | `as_of_date` | string | no | — | Optional cap, YYYY-MM-DD: only filings accepted before the end of this day are used, even when a price is later. |
 
 **Output fields:** `results`, `price_inputs_echo`, `warnings`
@@ -1890,7 +1882,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.25.0); 30 prompts._
+_Generated from the MCP server manifest (v3.25.1); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1933,7 +1925,7 @@ _Generated from the MCP server manifest (v3.25.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.25.0); 3 resources._
+_Generated from the MCP server manifest (v3.25.1); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
