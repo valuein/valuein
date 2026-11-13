@@ -135,9 +135,9 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.28.2) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.29.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**113 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -241,6 +241,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`compute_dcf`](#compute_dcf) | Compute Forward DCF | `sp500` | read-only | none |
 | [`forensic_audit`](#forensic_audit) | Forensic Audit (Beneish + Sloan + Solvency) | `sp500` | read-only | none |
 | [`get_pit_valuation_ratios`](#get_pit_valuation_ratios) | Point-in-Time TTM Financials | `pro` | read-only | none |
+| [`get_price_history`](#get_price_history) | Daily Price History | `pro` | read-only | none |
 | [`run_backtest`](#run_backtest) | Run Bounded Factor Backtest | `pro` | read-only | none |
 | [`project_three_statement`](#project_three_statement) | Project Linked Three-Statement Model | `sp500` | read-only | none |
 | [`compute_lbo`](#compute_lbo) | Compute LBO Returns (IRR + MOIC) | `sp500` | read-only | none |
@@ -1666,6 +1667,23 @@ Point-in-time trailing-twelve-month (TTM) financials for a company on a historic
 
 **Output fields:** `ticker`, `cik`, `company_name`, `as_of_date`, `reporting_currency`, `ttm_period_end`, `financials_accepted_at`, `ttm_revenue`, `ttm_gross_profit`, `ttm_operating_income`, `ttm_ebitda`, `ttm_net_income`, `ttm_ocf`, `ttm_capex`, `ttm_fcf`, `shares_diluted`, `cash`, `total_debt`, `net_debt`, `book_equity`, `gross_margin_pct`, `operating_margin_pct`, `net_margin_pct`, `note`
 
+### `get_price_history`
+
+**Daily Price History** · min plan `pro` · read-only · paging: none
+
+Daily stock prices for a company over a date range, from free public sources: last regular-session sales published by IEX (from 2016-12-12) and the prior-day closes the SEC prints in its Fails-to-Deliver data (from 2007; OTC names are sparse). Each row: `symbol`, `price_date`,...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is canonical; a ticker is resolved to its current holder. |
+| `start_date` | string | no | — | Inclusive start of the price_date range, YYYY-MM-DD. Default: one year before end_date. |
+| `end_date` | string | no | — | Inclusive end of the price_date range, YYYY-MM-DD. Default: today. |
+| `min_grade` | enum | no | one of `A`, `B`, `C`; default `B` | Lowest close_grade to return: 'A' (A only), 'B' (A and B, the default) or 'C' (every row). |
+| `as_of_date` | string | no | — | Point-in-time cut, YYYY-MM-DD: only rows whose source file was published (known_at) on or before this date. |
+| `limit` | integer | no | default `500` | Maximum rows, 1 to 2,500 (default 500). When the range holds more, the most recent rows are kept and `truncated` is true. |
+
+**Output fields:** `status`, `message`, `ticker`, `cik`, `company_name`, `plan`, `start_date`, `end_date`, `min_grade`, `as_of_date`, `row_count`, `matching_rows`, `truncated`, `source_note`, `attribution`, `rows`
+
 ### `run_backtest`
 
 **Run Bounded Factor Backtest** · min plan `pro` · read-only · paging: none
@@ -1732,7 +1750,7 @@ Leveraged buyout returns analysis: caller provides entry/exit multiples, leverag
 
 **Compute M&A Accretion/Dilution** · min plan `sp500` · read-only · paging: none
 
-M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a proposed acquisition adds to (accretive) or subtracts from (dilutive) the acquirer's EPS in the first pro-forma year. Pulls net income + shares outstanding for both companies. A share price is nev...
+M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a proposed acquisition adds to (accretive) or subtracts from (dilutive) the acquirer's EPS in the first pro-forma year. Pulls net income + shares outstanding for both companies. A share price comes ...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1754,7 +1772,7 @@ M&A accretion/dilution: the standard sell-side/banker quick-screen for whether a
 
 **Compute Multiples on Your Price** · min plan `sp500` · read-only · paging: none
 
-Market cap, P/E, P/B, P/S, EV/EBITDA, EV/revenue and dividend yield on a share price YOU supply (1 to 25 per call), joined to point-in-time SEC EDGAR filings. A share price is never a Valuein figure: pass one only when the user gave it to you, or a tool the user connected retu...
+Market cap, P/E, P/B, P/S, EV/EBITDA, EV/revenue and dividend yield on a share price you pass (1 to 25 per call), joined to point-in-time SEC EDGAR filings. Pass a price only from `get_price_history` (a graded daily close; put its `close_source` and grade in `source_label`), o...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1955,7 +1973,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.28.2); 30 prompts._
+_Generated from the MCP server manifest (v3.29.0); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1998,7 +2016,7 @@ _Generated from the MCP server manifest (v3.28.2); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.28.2); 3 resources._
+_Generated from the MCP server manifest (v3.29.0); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
