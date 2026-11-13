@@ -152,6 +152,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `PRICE_UNDATED` | 409 | Report holds an undated share price |
 | `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
+| `APPROVAL_REQUIRED` | 409 | Waiting for a person's approval |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
 ### Paging

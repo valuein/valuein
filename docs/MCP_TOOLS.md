@@ -93,6 +93,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `PRICE_UNDATED` | 409 | Report holds an undated share price |
 | `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
+| `APPROVAL_REQUIRED` | 409 | Waiting for a person's approval |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
 ### Paging
@@ -134,9 +135,9 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.26.3) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.28.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**110 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**113 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -168,6 +169,8 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`compare_periods`](#compare_periods) | Compare Financial Periods | `sample` | read-only | none |
 | [`screen_universe`](#screen_universe) | Screen Universe by Factor Scores | `sample` | read-only | offset |
 | [`get_earnings_signals`](#get_earnings_signals) | Earnings Signals | `sample` | read-only | none |
+| [`get_filing_review_pack`](#get_filing_review_pack) | Filing Review Pack | `sample` | read-only | none |
+| [`get_company_brief_pack`](#get_company_brief_pack) | Company Brief Pack | `sample` | read-only | none |
 | [`list_restatements`](#list_restatements) | Restatement Radar Feed | `sample` | read-only | cursor |
 | [`explain_restatement`](#explain_restatement) | Explain a Restatement | `sample` | read-only | none |
 | [`submit_feedback`](#submit_feedback) | Submit Feedback | `sample` | writes | none |
@@ -179,6 +182,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`get_insider_sentiment`](#get_insider_sentiment) | Insider Sentiment (composite) | `full` | read-only | none |
 | [`get_top_holders`](#get_top_holders) | Top Holders (composite, classified) | `full` | read-only | none |
 | [`get_smart_money_flow`](#get_smart_money_flow) | Smart Money Flow (composite) | `full` | read-only | none |
+| [`get_ownership_pack`](#get_ownership_pack) | Ownership Pack | `full` | read-only | none |
 | [`restore_deleted`](#restore_deleted) | Restore a Deleted Item | `sp500` | writes | none |
 | [`undo_change`](#undo_change) | Undo a Change | `sp500` | writes | none |
 | [`run_workflow`](#run_workflow) | Run Saved Workflow | `sp500` | read-only | none |
@@ -521,7 +525,7 @@ Load one expert research playbook by name (discover names with `list_sops`). Ret
 | `name` | string | yes | — | SOP slug from list_sops, e.g. 'equity_research_brief'. |
 | `args` | object | no | — | Playbook arguments as string values, e.g. { ticker: 'AAPL', depth: 'full' }. Omit to read the generic template with {{ARG}} placeholders. |
 
-**Output fields:** `content_type`, `name`, `title`, `description`, `args`, `instantiated`, `placeholder_args`, `body`
+**Output fields:** `content_type`, `name`, `title`, `description`, `args`, `instantiated`, `placeholder_args`, `body`, `retired`, `replacement`
 
 ### `verify_fact_lineage`
 
@@ -624,6 +628,34 @@ Reported earnings results and a model-derived earnings-trend signal for a compan
 | `limit` | integer | no | default `8` | Maximum number of periods to return (1–40), most recent first. Defaults to 8 — covers 2 years of quarterly signals plus their TTM equivalents. [withheld] currently emits one row per (entity, period_end); older rows surface here as more historical periods are published. |
 
 **Output fields:** `ticker`, `plan`, `as_of_date`, `periods_returned`, `note`, `estimate_basis`, `data`
+
+### `get_filing_review_pack`
+
+**Filing Review Pack** · min plan `sample` · read-only · paging: none
+
+Everything for a 10-K / 10-Q case in ONE call, already cited: the company and the filing (form, accession, period, filed date), this period against the prior comparable period (`compare_periods`, with `derived_id`s), key ratios, earnings signals, forensic flags (`forensic_audi...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Company ticker or CIK (SEC identifier), e.g. 'AAPL' or '0000320193'. A CIK is the stable identifier. |
+| `accession` | string | no | — | A specific 10-K / 10-Q to review. Omit for the latest. |
+| `period` | string | no | default `latest` | 'latest', 'FY2024' or 'Q3-2024'. Ignored when `accession` is given. |
+| `as_of_date` | string | no | — | Point-in-time cutoff: every section reads only what the SEC had accepted by this date. A section that cannot honour it is not run and says so. |
+
+**Output fields:** `pack`, `company`, `as_of_date`, `degraded`, `note`, `filing`, `sections`, `reading_list`
+
+### `get_company_brief_pack`
+
+**Company Brief Pack** · min plan `sample` · read-only · paging: none
+
+The starting bundle for a company case in ONE call, already cited: latest annual and latest quarterly fundamentals, peers (by SIC) with their ratios, and valuation metrics. Each section is the underlying tool's output unchanged (`value`, `fact_id`, `availability`, `metrics_dis...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Company ticker or CIK (SEC identifier), e.g. 'AAPL' or '0000320193'. A CIK is the stable identifier. |
+| `as_of_date` | string | no | — | Point-in-time cutoff: every section reads only what the SEC had accepted by this date. A section that cannot honour it is not run and says so. |
+
+**Output fields:** `pack`, `company`, `as_of_date`, `degraded`, `note`, `sections`
 
 ### `list_restatements`
 
@@ -829,6 +861,20 @@ Composite flow score on [-100, +100] aggregating insider transactions, 13F insti
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) applied to all three legs (institutional, insider, blockholder) via SEC accepted_at — filings accepted after this date are excluded so the composite is computed with zero look-ahead. Omit for the latest knowable signal. |
 
 **Output fields:** `ticker`, `cik`, `company_name`, `period_end`, `as_of_date`, `composite_score`, `insider_component`, `institutional_component`, `blockholder_component`, `weights`, `components`, `coverage`, `metrics_display`
+
+### `get_ownership_pack`
+
+**Ownership Pack** · min plan `full` · read-only · paging: none
+
+Who owns the company and who is moving, in ONE call, already cited: top holders (13F, insiders, 13D/13G), recent insider transactions and insider sentiment, blockholders including 13G to 13D flips (`going_active`), and the smart-money flow composite. Each section is the underl...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `ticker` | string | yes | — | Company ticker or CIK (SEC identifier), e.g. 'AAPL' or '0000320193'. A CIK is the stable identifier. |
+| `lookback_days` | integer | no | default `180` | Window for insider transactions and flow. Default 180. Ignored for insiders when `as_of_date` is set. |
+| `as_of_date` | string | no | — | Point-in-time cutoff: every section reads only what the SEC had accepted by this date. A section that cannot honour it is not run and says so. |
+
+**Output fields:** `pack`, `company`, `as_of_date`, `degraded`, `note`, `sections`
 
 ### `restore_deleted`
 
@@ -1909,7 +1955,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.26.3); 30 prompts._
+_Generated from the MCP server manifest (v3.28.1); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1952,7 +1998,7 @@ _Generated from the MCP server manifest (v3.26.3); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.26.3); 3 resources._
+_Generated from the MCP server manifest (v3.28.1); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
