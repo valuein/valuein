@@ -2237,6 +2237,67 @@
           "description": "`fact.data_quality` of the source row ('standard' = XBRL-tagged by the filer)."
         }
       }
+    },
+    "price_daily": {
+      "description": "Daily prices of stocks, ETFs and funds from free public sources, as traded (unadjusted): one row per SEC registrant (`entity_id`), ticker (`symbol`) and trading day (`price_date`).  For an ETF or fund `entity_id` is the trust that files for it (one trust can hold many ETFs, so join on `symbol` too).  Every close is graded A, B or C; filter `close_grade IN ('A','B')` for backtests.  Coverage: IEX last sales for 2016-12-12 and from 2023-10-23 to 2026-11-11 (a few days missing; every other day is SEC-only) and SEC Fails-to-Deliver closes from 2007-04 (a security appears on days it had fails); a row's company is the one SEC's own dated ticker evidence says held the ticker that day, and a ticker-day that evidence contradicts or leaves ambiguous is left out, never guessed; OTC names are sparse and the table does not claim to be survivorship-free.  A split is never adjusted for: `split_suspect` only flags it.  Use `known_at` for point-in-time work: a close is not known before that date.  Data provided for free by IEX. By accessing or using IEX Historical Data, you agree to the IEX Historical Data Terms of Use. Terms: https://www.iex.io/legal/hist-data-terms  IEX data is a reference point and not a basis for trading decisions.  Prices taken from SEC Fails-to-Deliver files are as reported to the SEC; the SEC does not guarantee the accuracy of the Fails-to-Deliver data.",
+      "columns": {
+        "entity_id": {
+          "type": "VARCHAR",
+          "references": "entity.cik"
+        },
+        "symbol": {
+          "type": "VARCHAR",
+          "description": "Ticker the price was reported under on `price_date`; tickers are reused, join on `entity_id`."
+        },
+        "price_date": {
+          "type": "DATE",
+          "description": "The trading day the prices describe."
+        },
+        "open": {
+          "type": "DOUBLE",
+          "description": "Opening price, as traded.  NULL unless `open_grade` is 'A' or 'B'."
+        },
+        "high": {
+          "type": "DOUBLE",
+          "description": "Day high, as traded.  NULL unless `high_grade` is 'A' or 'B'."
+        },
+        "low": {
+          "type": "DOUBLE",
+          "description": "Day low, as traded.  NULL unless `low_grade` is 'A' or 'B'."
+        },
+        "close": {
+          "type": "DOUBLE",
+          "description": "Closing price, as traded (unadjusted for splits and dividends).  Always positive."
+        },
+        "close_source": {
+          "type": "VARCHAR",
+          "description": "'iex_last_sale' = the last regular-session sale on IEX (not the consolidated official close); 'sec_ftd' = the prior-day closing price the SEC prints in its Fails-to-Deliver files."
+        },
+        "close_grade": {
+          "type": "VARCHAR",
+          "description": "A = calibrated: 98%+ of days within 0.5% of the official close; B = 95%+ within 2%; C = neither.  Filter `close_grade IN ('A','B')` for backtests."
+        },
+        "open_grade": {
+          "type": "VARCHAR",
+          "description": "'A' or 'B' (same scale as `close_grade`); NULL when `open` is NULL."
+        },
+        "high_grade": {
+          "type": "VARCHAR",
+          "description": "'A' or 'B' (same scale as `close_grade`); NULL when `high` is NULL."
+        },
+        "low_grade": {
+          "type": "VARCHAR",
+          "description": "'A' or 'B' (same scale as `close_grade`); NULL when `low` is NULL."
+        },
+        "known_at": {
+          "type": "DATE",
+          "description": "Date the source file carrying this close was published: the next trading day for IEX, the file's own date for SEC Fails-to-Deliver (typically 2-6 weeks after `price_date`).  Filter `known_at <= T` for a point-in-time view."
+        },
+        "split_suspect": {
+          "type": "BOOLEAN",
+          "description": "TRUE when the ratio of this close to the previous one is near a split factor.  A flag only: prices are never adjusted."
+        }
+      }
     }
   }
 }
