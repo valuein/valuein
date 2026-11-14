@@ -16,6 +16,7 @@ Public hub of Valuein: docs, examples, notebooks, MCP-registry manifest; no SDK,
 ## Stack & layout
 
 - Docs, examples and CI only: no pyproject, no app code; `tests/` holds only the publish guard and the generated-docs rendering tests.
+- `examples/proof/` is the self-serve proof kit (look-ahead audit, survivorship check, lineage; `tests/test_proof_kit.py` pins it; the marketing repo mirrors its logic in `src/marketing_os/proof/`, change both together).
 - `README.md` · `AGENTS.md` · `CONTRIBUTING.md` · `docs/` (guides, `schema.json`, data catalog, `accuracy/`) · `examples/python/` + `examples/notebooks/` · `scripts/` · `server.json`.
 - Four channels, one Bearer token: SDK (PyPI `valuein-sdk`), MCP, Bulk Data API, web dashboard (no Excel/Power Query channel). Plans, prices, limits: `cloudflare:shared/plans.ts`, live `https://data.valuein.biz/v1/plans`; never copy them.
 
@@ -24,7 +25,7 @@ Public hub of Valuein: docs, examples, notebooks, MCP-registry manifest; no SDK,
 ```bash
 # always uv run, never bare python; no ruff config is checked in, so pass the line length (CONTRIBUTING.md: 100)
 uv run ruff check examples/ scripts/ --fix --line-length 100 && uv run ruff format examples/ scripts/ --line-length 100
-uv run --with 'pytest>=8,<10' pytest tests -q            # publish guard, as in CI
+uv run --with 'pytest>=8,<10' --with pandas pytest tests -q            # publish guard, as in CI
 uv run python scripts/generate_catalog.py                # network; rewrites docs/data_catalog.{md,json} + DATA_CATALOG.xlsx
 uv run python scripts/sync_mcp_manifest.py --check       # exit 1 stale, 3 publish guard refused, 4 manifest lacks agent contract
 MCP_MANIFEST_PATH=/path/to/manifest.json uv run python scripts/sync_mcp_manifest.py   # render from an explicit file (beats the sibling + URL)
