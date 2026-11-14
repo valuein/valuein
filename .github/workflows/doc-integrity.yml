@@ -161,7 +161,7 @@ jobs:
       - uses: astral-sh/setup-uv@v10.2.0
 
       - name: (c) Publish-guard tests
-        run: uv run --with 'pytest>=8,<10' pytest tests -q
+        run: uv run --with 'pytest>=8,<10' --with pandas pytest tests -q
 
   mcp-docs-in-sync:
     # Pushes to main are the sync's (see (d) above); PRs, branch pushes and

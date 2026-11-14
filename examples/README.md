@@ -58,6 +58,7 @@ and how to run it. Most pair with a notebook.
 | [`restatement_radar.py`](python/restatement_radar.py) | Disclosure mix, one verified revision, recent Item 4.02 revisions | 06 | none |
 | [`smart_money_screen.py`](python/smart_money_screen.py) | Insider trades, 13F holders, blockholders, a manager's portfolio | 07 | **Institutional** |
 | [`filing_provenance.py`](python/filing_provenance.py) | A number, its recomputed `fact_id`, and the links to its filing | 08 | none |
+| [`proof/`](proof/README.md) | Proof kit: look-ahead audit, survivorship check, fact_id lineage on your own universe | none | none |
 | [`agent_buys_its_own_data.py`](python/agent_buys_its_own_data.py) | An agent discovers the payment rail and reads a live quote for a data pass | 09 | none (paying needs a budget or wallet) |
 | [`dcf_inputs.py`](python/dcf_inputs.py) | `client.dcf()` with traced inputs and value per share | 10 | none |
 | [`production_service.py`](python/production_service.py) | A scheduled point-in-time extract to Parquet with limits, logging and exit codes | | none |
