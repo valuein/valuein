@@ -2,14 +2,14 @@
 
 Valuein is built on a simple promise: **every fact you read can be mathematically verified against SEC's own canonical data.** This document describes how, and how you can reproduce the measurement yourself.
 
-The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Snapshot measured <!-- accuracy:measured_at:date -->2026-11-07<!-- /accuracy --> (S&P 500 universe, evaluable filings only; "clean" = passes every active error-severity identity):
+The measured source of truth is [`baseline.json`](baseline.json) — re-derive it any time with the SQL in [`accuracy_check.sql`](../../scripts/accuracy/accuracy_check.sql). Snapshot measured <!-- accuracy:measured_at:date -->2026-11-14<!-- /accuracy --> (S&P 500 universe, evaluable filings only; "clean" = passes every active error-severity identity):
 
 | Bucket | Filings | Accuracy |
 |---|---:|---:|
-| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | <!-- accuracy:standardized_facts.by_era.modern_2010_onward.filings:count -->11,042<!-- /accuracy --> | **<!-- accuracy:standardized_facts.by_era.modern_2010_onward.accuracy_pct:pct -->91.13 %<!-- /accuracy -->** |
-| Standardized facts — overall (all eras, evaluable filings) | <!-- accuracy:standardized_facts.overall.filings:count -->19,668<!-- /accuracy --> | **<!-- accuracy:standardized_facts.overall.accuracy_pct:pct -->92.97 %<!-- /accuracy -->** |
-| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | <!-- accuracy:standardized_facts.by_era.legacy_pre_2010.filings:count -->8,626<!-- /accuracy --> | see `baseline.json` |
-| **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | <!-- accuracy:unstandardized_facts.facts_with_standard_concept_other:millions -->23.1 M<!-- /accuracy --> | **<!-- accuracy:unstandardized_facts.accuracy_pct:pct -->64.40 %<!-- /accuracy -->** |
+| **Standardized facts — modern era (≥ 2010 XBRL)** — *the honest figure* | <!-- accuracy:standardized_facts.by_era.modern_2010_onward.filings:count -->11,050<!-- /accuracy --> | **<!-- accuracy:standardized_facts.by_era.modern_2010_onward.accuracy_pct:pct -->91.14 %<!-- /accuracy -->** |
+| Standardized facts — overall (all eras, evaluable filings) | <!-- accuracy:standardized_facts.overall.filings:count -->19,614<!-- /accuracy --> | **<!-- accuracy:standardized_facts.overall.accuracy_pct:pct -->93.14 %<!-- /accuracy -->** |
+| Standardized facts — legacy era (< 2010), evaluable filings only — *do not cite* ⚠️ | <!-- accuracy:standardized_facts.by_era.legacy_pre_2010.filings:count -->8,564<!-- /accuracy --> | see `baseline.json` |
+| **Unstandardized facts** (correctly left as `'Other'`; share of `Other` facts) | <!-- accuracy:unstandardized_facts.facts_with_standard_concept_other:millions -->23.1 M<!-- /accuracy --> | **<!-- accuracy:unstandardized_facts.accuracy_pct:pct -->64.29 %<!-- /accuracy -->** |
 
 ⚠️ Pre-2010 XBRL was optional, so most legacy filings carry no facts; filings with no testable facts are excluded from the denominators above (`filings` vs `filings_in_universe` in `baseline.json`). **Use modern-era (≥ 2010) as the honest measurement**, per the `_note` in `baseline.json`. The numbers above are a snapshot; [`baseline.json`](baseline.json) is always the live source of truth.
 
@@ -169,7 +169,7 @@ When the SEC releases new XBRL taxonomy or a filer changes tagging convention, t
 
 ## 6. Limitations & honest caveats
 
-* **Legacy era (pre-2010)** XBRL was optional, so most pre-2010 filings have no facts in our database — they trivially pass every identity check and inflate the all-era figure. **Read the modern-era (≥ 2010) number as the honest one** (<!-- accuracy:standardized_facts.by_era.modern_2010_onward.filings:count -->11,042<!-- /accuracy --> of <!-- accuracy:standardized_facts.overall.filings:count -->19,668<!-- /accuracy --> filings in the latest [`baseline.json`](baseline.json) snapshot).
+* **Legacy era (pre-2010)** XBRL was optional, so most pre-2010 filings have no facts in our database — they trivially pass every identity check and inflate the all-era figure. **Read the modern-era (≥ 2010) number as the honest one** (<!-- accuracy:standardized_facts.by_era.modern_2010_onward.filings:count -->11,050<!-- /accuracy --> of <!-- accuracy:standardized_facts.overall.filings:count -->19,614<!-- /accuracy --> filings in the latest [`baseline.json`](baseline.json) snapshot).
 
 * **Sector convention is real**. We don't apply balance-sheet identities to REIT operating-partnership filings the same way we apply them to a tech megacap. The structural-skip thresholds are documented in [`identities.json`](identities.json); analysts who disagree with our skip threshold can filter `qa_violation` directly.
 
