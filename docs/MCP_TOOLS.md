@@ -135,7 +135,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.31.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.31.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -241,7 +241,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`compute_dcf`](#compute_dcf) | Compute Forward DCF | `sp500` | read-only | none |
 | [`forensic_audit`](#forensic_audit) | Forensic Audit (Beneish + Sloan + Solvency) | `sp500` | read-only | none |
 | [`get_pit_valuation_ratios`](#get_pit_valuation_ratios) | Point-in-Time TTM Financials | `pro` | read-only | none |
-| [`get_price_history`](#get_price_history) | Daily Price History | `pro` | read-only | none |
+| [`get_price_history`](#get_price_history) | Daily Price History | `sp500` | read-only | none |
 | [`run_backtest`](#run_backtest) | Run Bounded Factor Backtest | `pro` | read-only | none |
 | [`project_three_statement`](#project_three_statement) | Project Linked Three-Statement Model | `sp500` | read-only | none |
 | [`compute_lbo`](#compute_lbo) | Compute LBO Returns (IRR + MOIC) | `sp500` | read-only | none |
@@ -1669,7 +1669,7 @@ Point-in-time trailing-twelve-month (TTM) financials for a company on a historic
 
 ### `get_price_history`
 
-**Daily Price History** · min plan `pro` · read-only · paging: none
+**Daily Price History** · min plan `sp500` · read-only · paging: none
 
 Daily stock prices for a company over a date range, from free public sources: last regular-session sales published by IEX (from 2016-12-12) and the prior-day closes the SEC prints in its Fails-to-Deliver data (from 2007; OTC names are sparse). Each row: `symbol`, `price_date`,...
 
@@ -1973,7 +1973,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.31.0); 30 prompts._
+_Generated from the MCP server manifest (v3.31.1); 30 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2016,7 +2016,7 @@ _Generated from the MCP server manifest (v3.31.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.31.0); 3 resources._
+_Generated from the MCP server manifest (v3.31.1); 3 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
