@@ -135,7 +135,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.32.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.33.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -340,7 +340,7 @@ Get direct links to original SEC EDGAR filings for any US public company. Return
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
-| `form_types` | array | no | default `["10-K", "10-Q"]` | Filing form types to include. Defaults to 10-K and 10-Q. |
+| `form_types` | array | no | default `["10-K", "10-Q"]` | EDGAR form codes to include (any form). Defaults to 10-K and 10-Q. |
 | `start_date` | string | no | — | Inclusive lower bound on filing_date (YYYY-MM-DD). E.g. '2023-01-01'. |
 | `end_date` | string | no | — | Inclusive upper bound on filing_date (YYYY-MM-DD). E.g. '2023-12-31'. |
 | `event_types` | array | no | — | 8-K item codes to filter by. E.g. ['1.01'] for material agreements, ['2.01'] for asset acquisitions, ['5.02'] for director/officer changes. Only relevant when form_types includes '8-K'. |
@@ -378,12 +378,12 @@ The newest SEC filing per company per form, for up to 50 companies in ONE call: 
 
 **List Filing Sections** · min plan `sample` · read-only · paging: none
 
-Table of contents of a 10-K / 10-Q / 8-K (or 10-K/A, 10-Q/A, 8-K/A) so an agent can read the filing's WORDS: returns the form, filing/period/acceptance dates, the primary-document URL, and every section found with its `key`, `title`, `char_count` and a short `first_line`. 10-K...
+Table of contents of any SEC filing (10-K / 10-Q / 8-K and amendments by Item; 20-F, 40-F, 6-K, S-1, F-1, S-3, S-4, F-4, POS AM and every other form as the whole `document`, a 6-K with its EX-99 exhibits) so an agent can read the filing's WORDS: returns the form, filing/period...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
-| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q / 8-K, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `accession` | string | yes | — | EDGAR accession number of any filing (10-K, 10-Q, 8-K, 20-F, 40-F, 6-K, S-1, F-1, S-3, S-4, F-4, POS AM, ...), e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
 
 **Output fields:** `ticker`, `accession_id`, `form_type`, `filing_date`, `report_date`, `accepted_at`, `source_url`, `sec_url`, `total_chars`, `sections`, `notes`, `unread_documents`, `provenance_note`
@@ -392,12 +392,12 @@ Table of contents of a 10-K / 10-Q / 8-K (or 10-K/A, 10-Q/A, 8-K/A) so an agent 
 
 **Read Filing Section** · min plan `sample` · read-only · paging: none
 
-Read one section of a 10-K / 10-Q / 8-K (or amendment) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), an 8-K Item (`2.02`, `5.02`) or its press-release exhibit (`ex-99.1`), or the wh...
+Read one section of any SEC filing (a form without Items is read as `document`, paged) as plain text: MD&A (10-K `7`, 10-Q `I-2`), Risk Factors (`1A`, `II-1A`), Legal Proceedings, Controls, a financial-statement note (`note-3`), an 8-K Item (`2.02`, `5.02`) or its press-releas...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
-| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q / 8-K, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `accession` | string | yes | — | EDGAR accession number of any filing (10-K, 10-Q, 8-K, 20-F, 40-F, 6-K, S-1, F-1, S-3, S-4, F-4, POS AM, ...), e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
 | `key` | string | yes | — | Section key from list_filing_sections: '7', '1A', 'I-2', 'II-1A', 'note-3', 'explanatory-note', '2.02', 'ex-99.1', 'document'. |
 | `offset` | integer | no | default `0` | Character offset to start from; use the previous page's next_offset. |
@@ -409,12 +409,12 @@ Read one section of a 10-K / 10-Q / 8-K (or amendment) as plain text: MD&A (10-K
 
 **Find in Filing** · min plan `sample` · read-only · paging: none
 
-Find a statement, note, heading or phrase inside a 10-K / 10-Q / 8-K (or amendment; an 8-K's EX-99 exhibits included) and get where to read it, like grep over the filing: 'Consolidated Balance Sheets', 'goodwill impairment', 'Note 7', 'Risk Factors'. Searches the same text rea...
+Find a statement, note, heading or phrase inside any SEC filing (an 8-K's or 6-K's EX-99 exhibits included) and get where to read it, like grep over the filing: 'Consolidated Balance Sheets', 'goodwill impairment', 'Note 7', 'Risk Factors'. Searches the same text read_filing_s...
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker, e.g. AAPL — or a CIK (SEC identifier), e.g. '0000320193'. A CIK is the stable identifier. |
-| `accession` | string | yes | — | EDGAR accession number of the 10-K / 10-Q / 8-K, e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
+| `accession` | string | yes | — | EDGAR accession number of any filing (10-K, 10-Q, 8-K, 20-F, 40-F, 6-K, S-1, F-1, S-3, S-4, F-4, POS AM, ...), e.g. '0000320193-19-000119'. Take it from get_sec_filing_links. |
 | `as_of_date` | string | no | — | Point-in-time guard (YYYY-MM-DD). A filing is its own as-of: if it was accepted by the SEC after this date the call is refused rather than reading text that did not exist yet. |
 | `query` | string | yes | — | Words or a phrase to find, e.g. 'Consolidated Balance Sheets', 'Note 7', 'goodwill impairment'. Separate alternatives with '\|'. |
 | `match` | enum | no | one of `phrase`, `all_words`; default `phrase` | 'phrase' (default): the words in order. 'all_words': every word within 300 characters, any order. |
@@ -1140,7 +1140,7 @@ Return new SEC filings across a set of companies since a given date. Name the co
 | `names` | array | no | — | Names of saved watchlists to scan together; their companies are de-duplicated. A name that is not found is skipped and listed in `watchlists_not_found`. Pass exactly one of `name`, `names`, `tickers`. |
 | `tickers` | array | no | — | Tickers or CIKs to scan, passed directly. Use this for an ad-hoc question — do NOT create a watchlist in order to ask one, since that writes a durable record into the user's account. Pass exactly one of `name`, `names`, `tickers`. |
 | `since` | string | yes | — | Cutoff date (YYYY-MM-DD); the diff returns SEC filings whose filing_date is on or after this date. |
-| `form_types` | array | no | — | Filing forms to include. Defaults to 10-K + 10-Q + 8-K. |
+| `form_types` | array | no | — | EDGAR form codes to include (any form: 10-K, 8-K, 20-F, 6-K, S-1, ...). Defaults to 10-K + 10-Q + 8-K. |
 
 **Output fields:** `watchlist_name`, `watchlists_not_found`, `since`, `tickers_scanned`, `tickers_requested`, `truncated`, `tickers_failed`, `filings`
 
@@ -1973,7 +1973,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.32.0); 30 prompts._
+_Generated from the MCP server manifest (v3.33.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1986,6 +1986,7 @@ _Generated from the MCP server manifest (v3.32.0); 30 prompts._
 | `ratio_deep_dive` | Ratio Deep Dive | `sample` | Comprehensive ratio profile for a single company spanning all 7 ratio categories (profitability, liquidity, leverage, efficiency, per_share, owner_earnings, valuation). Includes TTM and 5-year annual history with trend analysis. |
 | `sector_ratio_screen` | Sector Ratio Screen | `sample` | Cross-sectional ratio ranking across a sector to surface the highest-quality or best-value companies. Chains get_pit_universe → get_compute_ready_stream to screen the full sector using pipeline-computed ratios. |
 | `equity_research_brief` | Equity Research Brief | `sample` | Single-ticker end-to-end research brief in markdown — fundamentals, valuation, ratios, capital allocation, peer comparison, recent catalysts, and SEC lineage. Three depth modes: 'quick' (3 tools, snapshot), 'full' (8 tools, default — institutional brief), 'forensic' (adds rest... |
+| `valuein_analyst` | Valuein Analyst | `sample` | The one Valuein Analyst: reading plan, report standard and figure rules for ANY SEC filing (10-K, 10-Q, 8-K, 20-F, 40-F, 6-K, Form 4, 13F, SC 13D/G, S-1, S-4, proxy and more), the same design the Valuein Workspace runs. Routes the form to its case, adds a sector lens from the ... |
 | `screen_and_shortlist` | Screen and Shortlist | `sample` | PM idea-generation workflow: build a PIT universe, factor-rank it, QC the leaders with a period-over-period change check, and hand off the top-ranked names to equity_research_brief for full write-ups. Survivorship-free via get_pit_universe; renders as a markdown shortlist arti... |
 | `smart_money_brief` | Smart Money Brief | `full` | Single-ticker smart-money brief: composite flow score, top holders (classified), 13F deltas, activist blockholders, and insider sentiment overlay. Three depth modes: 'quick' (3 composites only), 'standard' (default, + 13F + blockholders), 'deep' (+ insider transactions + compa... |
 | `activist_surveillance` | Activist Surveillance | `full` | Event-driven surveillance for activist target / takeover candidates. Surfaces filers flipping 13G → 13D within the lookback window (the strongest activist signal in the dataset), then cross-references defensive insider activity and 8-K item 1.01 filings to check whether a corp... |
@@ -2016,13 +2017,17 @@ _Generated from the MCP server manifest (v3.32.0); 30 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.32.0); 3 resources._
+_Generated from the MCP server manifest (v3.33.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
 | `schema` | Parquet table schema | `sample` | Column-level contract for every R2 Parquet table the server reads (types, primary keys, foreign-key references). Read schema://{table} to learn the exact columns and types before writing a query — e.g. schema://fact (raw observations), schema://ratio (derived ratios), schema:/... |
 | `sp500-universe` | S&P 500 universe | `sample` | Current S&P 500 members as a single JSON roster — ticker, CIK, company name, sector, industry, and primary exchange for every active constituent. Reads as the latest membership snapshot from the references table; for survivorship-free historical universes use the get_pit_unive... |
 | `pricing-current` | Pricing & plan tiers | `sample` | Full tier ladder (Sample → Benchmark (free) → Pro → Institutional → Enterprise) with prices, (a subscription buys data; a separate balance pays for AI compute, with no run limits), Stripe SKUs, breadth/depth coverage, filing types, and feature flags. Plus the MPP price book (c... |
+| `analyst-report-standard` | Analyst report standard | `sample` | What every Valuein Analyst report must contain: thesis first, business model, lifecycle, split risks, valuation assumptions, sources. |
+| `analyst-figure-rules` | Analyst figure rules | `sample` | The three receipts a number may carry, and the market-price rule (a dated price from get_price_history, or none). |
+| `analyst-cases` | Analyst cases | `sample` | Every case the Analyst routes a form to (periodic review, event, insider, ownership, offering, merger, general): forms, sections and checklist. |
+| `analyst-lenses` | Analyst sector lenses | `sample` | The sector lenses (banks, insurance, REITs, software, semiconductors, ... general): KPIs, statement quirks, risks, valuation approach, accounting traps. |
 <!-- /GEN:mcp-resources -->
 
 The URIs are `schema://{table}`, `reference://sp500` and `pricing://current`. A signed-in caller also gets `valuein://signals/feed`, its own signal inbox, so an agent can read and triage fired signals.

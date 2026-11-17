@@ -3,7 +3,7 @@
   "name": "biz.valuein/mcp",
   "title": "Valuein — SEC EDGAR Fundamentals & Smart-Money Data",
   "description": "Point-in-time, survivorship-free SEC EDGAR fundamentals + smart-money signals for AI agents.",
-  "version": "3.32.0",
+  "version": "3.33.0",
   "websiteUrl": "https://valuein.biz",
   "icons": [
     {
@@ -116,8 +116,8 @@
     "biz.valuein/tools_summary": {
       "live": 114,
       "stubs": 0,
-      "prompts": 30,
-      "resources": 3
+      "prompts": 31,
+      "resources": 7
     },
     "biz.valuein/surfaces": [
       {
