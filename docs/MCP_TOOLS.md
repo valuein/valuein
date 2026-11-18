@@ -135,7 +135,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.33.9) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.33.10) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -595,7 +595,7 @@ Compare a company's core financial metrics across two fiscal periods side-by-sid
 | `period_a` | string | yes | — | Earlier fiscal period. Format: 'FY2023' for annual or 'Q1-2023' for quarterly. |
 | `period_b` | string | yes | — | Later fiscal period. Format: 'FY2024' for annual or 'Q1-2024' for quarterly. |
 | `as_of_date` | string | no | — | Point-in-time date (YYYY-MM-DD). Only returns facts with accepted_at on or before this date — eliminates look-ahead bias for backtesting. |
-| `statement` | enum | no | one of `cash_flow` | Omit for the 15 core metrics. 'cash_flow' returns the cash-flow statement lines instead; read each line's `sign_note` for what a positive figure means. |
+| `statement` | enum | no | one of `cash_flow` | Omit for the 15 core metrics. 'cash_flow' returns the cash-flow statement lines instead; quote each line's `period_x_statement_display` with its `period_x_statement_id`; `sign_note` explains the stored sign. |
 
 **Output fields:** `ticker`, `company_name`, `period_a`, `period_b`, `as_of_date`, `swapped`, `total_metrics`, `material_changes`, `changes`
 
@@ -1974,7 +1974,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.33.9); 31 prompts._
+_Generated from the MCP server manifest (v3.33.10); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2018,7 +2018,7 @@ _Generated from the MCP server manifest (v3.33.9); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.33.9); 7 resources._
+_Generated from the MCP server manifest (v3.33.10); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
