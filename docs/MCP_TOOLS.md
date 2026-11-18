@@ -135,7 +135,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.33.10) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.33.11) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1037,7 +1037,7 @@ Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or deriv
 |---|---|---|---|---|
 | `report_id` | string | yes | — | Identifier of the report to verify, as returned by create_report / list_my_reports / save_freeform_report. Must be authored by the calling customer. |
 
-**Output fields:** `report_id`, `version`, `figures`, `coverage`, `summary`, `lineage`, `statements`
+**Output fields:** `report_id`, `version`, `figures`, `coverage`, `summary`, `lineage`, `fixes`, `statements`
 
 ### `save_watchlist`
 
@@ -1974,7 +1974,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.33.10); 31 prompts._
+_Generated from the MCP server manifest (v3.33.11); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2018,7 +2018,7 @@ _Generated from the MCP server manifest (v3.33.10); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.33.10); 7 resources._
+_Generated from the MCP server manifest (v3.33.11); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
