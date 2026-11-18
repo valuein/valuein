@@ -94,6 +94,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
 | `APPROVAL_REQUIRED` | 409 | Waiting for a person's approval |
+| `METHOD_NOT_APPLICABLE` | 422 | Method does not apply to this company |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
 ### Paging
@@ -135,7 +136,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.33.12) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.34.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -543,7 +544,7 @@ Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or deriv
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) used with `concept` — returns the latest fact whose 10-K/10-Q was accepted by SEC on or before this date (true PIT, no lookahead; any calendar date works). Canonical name across the suite; supersedes the legacy `period_end`. |
 | `derived_id` | string | no | — | Citation id of a computed figure (`drv1:...`), exactly as a tool result gave it to you. Re-derived from its input facts; `as_of_date` applies the point-in-time cut to every input. |
 
-**Output fields:** `verified`, `lookup_by`, `lineage`, `derived`, `error`
+**Output fields:** `verified`, `lookup_by`, `lineage`, `derived`, `error`, `verdict`, `see_instead`
 
 ### `verify_facts`
 
@@ -1974,7 +1975,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.33.12); 31 prompts._
+_Generated from the MCP server manifest (v3.34.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2018,7 +2019,7 @@ _Generated from the MCP server manifest (v3.33.12); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.33.12); 7 resources._
+_Generated from the MCP server manifest (v3.34.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
