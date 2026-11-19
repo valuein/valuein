@@ -136,7 +136,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.35.6) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.36.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -537,8 +537,8 @@ Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or deriv
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `ticker` | string | no | — | Stock ticker symbol, e.g. AAPL, MSFT, BRK.B — or a CIK (SEC identifier), e.g. '0000320193'. Required with `fact_id` or `concept`: a fact_id is unique within its company's filings, so pass the company it came from (every result that gives you a fact_id also names the company's CIK). Not needed with `derived_id`. |
-| `fact_id` | string | no | — | Deterministic fact identity hash: SHA-256(entity_id\|accession_id\|concept\|period_end\|unit). 64-char lowercase hex. Use this when you already have the hash from a previous query. Provide either fact_id OR concept (not both required, but at least one must be set). |
+| `ticker` | string | no | — | Stock ticker symbol, e.g. AAPL, MSFT, BRK.B — or a CIK (SEC identifier), e.g. '0000320193'. Required with a bare 64-hex `fact_id` or with `concept`: a fact_id is unique within its company's filings, so pass the company it came from (every result that gives you a fact_id also names the company's CIK). Not needed with a fact reference (`<CIK>-<fact_id>`) or with `derived_id`. |
+| `fact_id` | string | no | — | The fact to trace, in either form: a fact reference `<CIK 10 digits>-<fact_id>` (e.g. 0000320193-97960097ffc0ea39388b21822abea04be91df63698bec0422f8e4327b0a5247b), which needs no `ticker`; or the bare 64-hex fact_id (SHA-256(entity_id\|accession_id\|concept\|period_end\|unit)) together with `ticker`. Whitespace and capitals are tolerated; a shorter CIK is zero-padded. Copy it exactly as a tool result gave it to you. Provide either fact_id OR concept. |
 | `concept` | enum | no | one of `TotalRevenue`, `CostOfRevenue`, `GrossProfit`, `OperatingIncome`, `OperatingExpenses`, `ResearchAndDevelopment`, `NetIncome`, `EPSDiluted`, `TotalAssets`, `TotalLiabilities`, `ParentEquity`, `TotalEquity`, `StockholdersEquity`, `StockholdersEquityIncludingNCI`, `CashAndEquivalents`, `TotalDebt`, `OperatingCashFlow`, `CAPEX`, `Dividends`, `ShareBuyback`, `DebtIssuance`, `DebtRepayment`, `Acquisitions`, `Divestitures` | Standard concept to look up the most recently known fact for (see the enum for the full fundamentals + capital-allocation set). Use this when you don't have a fact_id. Provide either concept OR fact_id. |
 | `period_end` | string | no | — | [DEPRECATED — pass `as_of_date` instead.] Filing-acceptance cutoff (YYYY-MM-DD) used with `concept`; despite the name it filters on filing accepted_at, not the returned fact's period_end. Kept one release for back-compat. |
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) used with `concept` — returns the latest fact whose 10-K/10-Q was accepted by SEC on or before this date (true PIT, no lookahead; any calendar date works). Canonical name across the suite; supersedes the legacy `period_end`. |
@@ -1794,7 +1794,7 @@ Replace one or more sections of an existing report owned by the caller. Useful f
 | `report_id` | string | yes | — | Identifier of the report to update, as returned by create_report or list_my_reports. |
 | `title` | string | no | — | Optional new title. |
 | `abstract` | string | no | — | Optional new abstract. |
-| `sections` | array | yes | — | Sections to replace. Sections not listed are preserved — to DELETE one, name it in `remove_section_ids`. Section ids must match the existing payload. |
+| `sections` | array | yes | — | Sections to replace. Sections not listed are preserved — to DELETE one, name it in `remove_section_ids`. Section ids must match the existing payload. Headings stay unique: an edit giving a section the heading another section already has is refused (`duplicate_heading`, nothing written) because it means the wrong id was sent; edit the section that has that heading instead. |
 | `remove_section_ids` | array | no | — | Section ids to DELETE outright. Without this, a merge-only update cannot express a deletion: an editor that drops a section simply omits it, the omitted section is preserved, and the caller sees a bumped version with the deleted content still there — a save that reports success and changed nothing. Ids must exist, and the last remaining section cannot be removed (a report with no sections is unreadable); remove the report instead with delete_report. |
 | `citations` | array | no | — | Lineage for figures in the edited sections. MERGED into the report's existing citations (first claim wins), never replacing them — so an editor autosave that sends none preserves every citation the report already had. |
 | `expected_version` | integer | no | — | Optimistic concurrency check. If supplied and the current HEAD version is different, the call returns a `version_conflict` error WITHOUT writing. Pass the version you loaded so a concurrent agent edit produces a 'conflict — review' UX instead of silently overwriting (eng review A3A). |
@@ -1975,7 +1975,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.35.6); 31 prompts._
+_Generated from the MCP server manifest (v3.36.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2019,7 +2019,7 @@ _Generated from the MCP server manifest (v3.35.6); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.35.6); 7 resources._
+_Generated from the MCP server manifest (v3.36.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
