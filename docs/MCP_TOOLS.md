@@ -136,7 +136,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.35.3) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.35.4) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -438,7 +438,7 @@ Get a multi-year capital allocation breakdown for a US public company. Shows how
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
-| `lookback_years` | integer | no | default `5` | Number of fiscal years to look back from the most recent filing (1–20). Defaults to 5 years for a full capital allocation cycle. |
+| `lookback_years` | integer | no | default `3` | Number of fiscal years to look back from the most recent filing (1–20). Defaults to 3 so a bare call stays compact (NVDA's 5-year reply was ~30k tokens, too large for most clients); pass 5 or more for a full capital allocation cycle. |
 | `as_of_date` | string | no | — | Point-in-time date (YYYY-MM-DD). Only returns facts with accepted_at on or before this date — eliminates look-ahead bias. |
 
 **Output fields:** `ticker`, `lookback_years`, `as_of_date`, `periods_returned`, `note`, `data`
@@ -1975,7 +1975,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.35.3); 31 prompts._
+_Generated from the MCP server manifest (v3.35.4); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2019,7 +2019,7 @@ _Generated from the MCP server manifest (v3.35.3); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.35.3); 7 resources._
+_Generated from the MCP server manifest (v3.35.4); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
