@@ -1,0 +1,131 @@
+name: Execute playbook notebooks
+
+# The six notebooks in examples/playbooks/ are committed WITH outputs. Executed without a key
+# they only show the free sample; two of them (backtest 2008 fundamentals, smart money) have
+# cells that need a key. This workflow re-executes them with the repo secret VALUEIN_API_KEY
+# (an Institutional key) and commits the refreshed outputs to main as github-actions[bot], the
+# same way sync-mcp-manifest.yml commits its generated files.
+#
+#   - scripts/check_notebook_scope.py runs BEFORE execution (plan tags, restricted data,
+#     S&P 500 scope: a notebook tagged `benchmark` must stay reproducible by a free reader)
+#     and AFTER it, over the new outputs, once a scrub has redacted paths and keys
+#     (no local path, no key, no bearer token may reach a public file).
+#   - An empty secret FAILS the job: a missing secret must never silently publish
+#     sample-tier outputs over the real ones.
+#
+# Triggers: push to main touching the notebooks, the checker or this file; manual dispatch
+# (optionally one notebook). NEVER pull_request: a PR run would hand the secret to a fork.
+# The bot's GITHUB_TOKEN push does not start this workflow again (no loop).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'examples/playbooks/**'
+      - 'scripts/check_notebook_scope.py'
+      - '.github/workflows/execute-notebooks.yml'
+  workflow_dispatch:
+    inputs:
+      notebooks:
+        description: 'Notebook glob (default: all six)'
+        required: false
+        default: 'examples/playbooks/*.ipynb'
+
+# One refresh at a time; a second run queues and executes the newer main. Never cancelled
+# mid-run: it may be pushing.
+concurrency:
+  group: execute-notebooks
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install valuein-sdk nbclient nbconvert matplotlib ipykernel
+          python -m ipykernel install --user --name python3
+
+      - name: Select notebooks
+        id: select
+        env:
+          PATTERN: ${{ github.event_name == 'workflow_dispatch' && inputs.notebooks || 'examples/playbooks/*.ipynb' }}
+        run: |
+          set -euo pipefail
+          if ! printf '%s' "$PATTERN" | grep -Eq '^examples/playbooks/[A-Za-z0-9_*?.-]+\.ipynb$'; then
+            echo "::error::notebook glob must look like examples/playbooks/<name>.ipynb"
+            exit 1
+          fi
+          shopt -s nullglob
+          # shellcheck disable=SC2206
+          FILES=($PATTERN)
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "::error::no notebook matches $PATTERN"
+            exit 1
+          fi
+          printf '%s\n' "${FILES[@]}" > "$RUNNER_TEMP/notebooks.txt"
+          echo "Notebooks: ${FILES[*]}"
+
+      # Static half first: tags, restricted data, S&P 500 scope, committed outputs.
+      - name: Scope check (before execution)
+        env:
+          VALUEIN_API_KEY: ''   # the checker never needs a key; membership is read on the free sample
+        run: xargs -a "$RUNNER_TEMP/notebooks.txt" python scripts/check_notebook_scope.py
+
+      - name: Require the API key
+        env:
+          VALUEIN_API_KEY: ${{ secrets.VALUEIN_API_KEY }}
+        run: |
+          if [ -z "$VALUEIN_API_KEY" ]; then
+            echo "::error title=VALUEIN_API_KEY is empty::Add the repo Actions secret; refusing to refresh outputs from the free sample."
+            exit 1
+          fi
+
+      - name: Execute notebooks
+        env:
+          VALUEIN_API_KEY: ${{ secrets.VALUEIN_API_KEY }}
+          MPLBACKEND: Agg
+        run: |
+          set -euo pipefail
+          while read -r NB; do
+            echo "::group::$NB"
+            # cwd = the notebook's folder, as a reader opening it would have
+            jupyter nbconvert --to notebook --execute --inplace \
+              --ExecutePreprocessor.timeout=900 --ExecutePreprocessor.kernel_name=python3 "$NB"
+            echo "::endgroup::"
+          done < "$RUNNER_TEMP/notebooks.txt"
+
+      - name: Stamp, scrub, scope check (over the new outputs)
+        env:
+          VALUEIN_API_KEY: ${{ secrets.VALUEIN_API_KEY }}
+        run: xargs -a "$RUNNER_TEMP/notebooks.txt" python scripts/check_notebook_scope.py --stamp --scrub
+
+      - name: Commit + push if changed
+        run: |
+          set -euo pipefail
+          git add -- $(cat "$RUNNER_TEMP/notebooks.txt")
+          if git diff --cached --quiet; then
+            echo "no notebook changed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "chore(examples): refresh playbook notebook outputs"
+          if git push origin HEAD:main; then
+            exit 0
+          fi
+          # main moved mid-run: rebase once (only these notebooks changed here), never force.
+          echo "push rejected: rebasing once"
+          git pull --rebase origin main
+          git push origin HEAD:main

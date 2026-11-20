@@ -43,6 +43,19 @@ Research workflows built on the path:
 | 15 | [Capital allocation](notebooks/15_capital_allocation.ipynb) | Capex, acquisitions, buybacks, dividends as a share of operating cash flow | none |
 | 16 | [Filing delay](notebooks/16_filing_delay.ipynb) | Reporting lag, late-against-own-history filers, after-close acceptances | none |
 
+## Playbooks
+
+Job-shaped paths with numbered steps, each executed on the free sample ([`playbooks/`](playbooks/README.md)).
+
+| Playbook | For | Plan |
+|---|---|---|
+| [Backtest without bias](playbooks/backtest-without-bias.ipynb) | quants | none |
+| [Smart money, point in time](playbooks/smart-money-point-in-time.ipynb) | PMs, analysts | **Institutional** (prints a skip otherwise) |
+| [Connect your AI agent](playbooks/connect-your-agent.ipynb) | AI builders | none |
+| [Cover a company](playbooks/cover-a-company.ipynb) | analysts, investors | none |
+| [Answer the AI question in a DDQ](playbooks/ddq-ai-question.ipynb) | compliance, operations | none |
+| [Free S&P 500 statements](playbooks/free-sp500-statements.ipynb) | students, builders | none, no key |
+
 ## Scripts
 
 Standalone, typed scripts with a `main()`; each docstring says what it does, the plan it needs
