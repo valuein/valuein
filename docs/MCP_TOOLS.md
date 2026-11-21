@@ -136,9 +136,9 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.34.4) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.38.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**115 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -249,6 +249,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`compute_accretion_dilution`](#compute_accretion_dilution) | Compute M&A Accretion/Dilution | `sp500` | read-only | none |
 | [`compute_price_multiples`](#compute_price_multiples) | Compute Multiples on Your Price | `sp500` | read-only | none |
 | [`update_report`](#update_report) | Update Report Sections | `sp500` | writes | none |
+| [`edit_report`](#edit_report) | Edit Report Draft (Anchored) | `sp500` | writes | none |
 | [`list_report_versions`](#list_report_versions) | List Report Versions | `sample` | read-only | cursor |
 | [`get_report_version`](#get_report_version) | Get Report Version | `sample` | read-only | none |
 | [`render_report`](#render_report) | Render Report Download URL | `sample` | writes | none |
@@ -438,7 +439,7 @@ Get a multi-year capital allocation breakdown for a US public company. Shows how
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `ticker` | string | yes | — | Stock ticker symbol, e.g. AAPL, MSFT — or a CIK (SEC identifier), e.g. '0000320193'. |
-| `lookback_years` | integer | no | default `5` | Number of fiscal years to look back from the most recent filing (1–20). Defaults to 5 years for a full capital allocation cycle. |
+| `lookback_years` | integer | no | default `3` | Number of fiscal years to look back from the most recent filing (1–20). Defaults to 3 so a bare call stays compact (NVDA's 5-year reply was ~30k tokens, too large for most clients); pass 5 or more for a full capital allocation cycle. |
 | `as_of_date` | string | no | — | Point-in-time date (YYYY-MM-DD). Only returns facts with accepted_at on or before this date — eliminates look-ahead bias. |
 
 **Output fields:** `ticker`, `lookback_years`, `as_of_date`, `periods_returned`, `note`, `data`
@@ -537,8 +538,8 @@ Which verifier: one fact_id → verify_fact_lineage; a list of fact_ids or deriv
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
-| `ticker` | string | no | — | Stock ticker symbol, e.g. AAPL, MSFT, BRK.B — or a CIK (SEC identifier), e.g. '0000320193'. Required with `fact_id` or `concept`: a fact_id is unique within its company's filings, so pass the company it came from (every result that gives you a fact_id also names the company's CIK). Not needed with `derived_id`. |
-| `fact_id` | string | no | — | Deterministic fact identity hash: SHA-256(entity_id\|accession_id\|concept\|period_end\|unit). 64-char lowercase hex. Use this when you already have the hash from a previous query. Provide either fact_id OR concept (not both required, but at least one must be set). |
+| `ticker` | string | no | — | Stock ticker symbol, e.g. AAPL, MSFT, BRK.B — or a CIK (SEC identifier), e.g. '0000320193'. Required with a bare 64-hex `fact_id` or with `concept`: a fact_id is unique within its company's filings, so pass the company it came from (every result that gives you a fact_id also names the company's CIK). Not needed with a fact reference (`<CIK>-<fact_id>`) or with `derived_id`. |
+| `fact_id` | string | no | — | The fact to trace, in either form: a fact reference `<CIK 10 digits>-<fact_id>` (e.g. 0000320193-97960097ffc0ea39388b21822abea04be91df63698bec0422f8e4327b0a5247b), which needs no `ticker`; or the bare 64-hex fact_id (SHA-256(entity_id\|accession_id\|concept\|period_end\|unit)) together with `ticker`. Whitespace and capitals are tolerated; a shorter CIK is zero-padded. Copy it exactly as a tool result gave it to you. Provide either fact_id OR concept. |
 | `concept` | enum | no | one of `TotalRevenue`, `CostOfRevenue`, `GrossProfit`, `OperatingIncome`, `OperatingExpenses`, `ResearchAndDevelopment`, `NetIncome`, `EPSDiluted`, `TotalAssets`, `TotalLiabilities`, `ParentEquity`, `TotalEquity`, `StockholdersEquity`, `StockholdersEquityIncludingNCI`, `CashAndEquivalents`, `TotalDebt`, `OperatingCashFlow`, `CAPEX`, `Dividends`, `ShareBuyback`, `DebtIssuance`, `DebtRepayment`, `Acquisitions`, `Divestitures` | Standard concept to look up the most recently known fact for (see the enum for the full fundamentals + capital-allocation set). Use this when you don't have a fact_id. Provide either concept OR fact_id. |
 | `period_end` | string | no | — | [DEPRECATED — pass `as_of_date` instead.] Filing-acceptance cutoff (YYYY-MM-DD) used with `concept`; despite the name it filters on filing accepted_at, not the returned fact's period_end. Kept one release for back-compat. |
 | `as_of_date` | string | no | — | Point-in-time cutoff (YYYY-MM-DD) used with `concept` — returns the latest fact whose 10-K/10-Q was accepted by SEC on or before this date (true PIT, no lookahead; any calendar date works). Canonical name across the suite; supersedes the legacy `period_end`. |
@@ -596,7 +597,7 @@ Compare a company's core financial metrics across two fiscal periods side-by-sid
 | `period_a` | string | yes | — | Earlier fiscal period. Format: 'FY2023' for annual or 'Q1-2023' for quarterly. |
 | `period_b` | string | yes | — | Later fiscal period. Format: 'FY2024' for annual or 'Q1-2024' for quarterly. |
 | `as_of_date` | string | no | — | Point-in-time date (YYYY-MM-DD). Only returns facts with accepted_at on or before this date — eliminates look-ahead bias for backtesting. |
-| `statement` | enum | no | one of `cash_flow` | Omit for the 15 core metrics. 'cash_flow' returns the cash-flow statement lines instead; quote each line's `period_x_statement_display` with its `period_x_statement_id`; `sign_note` explains the stored sign. |
+| `statement` | enum | no | one of `cash_flow` | Omit for the 15 core metrics plus free cash flow. 'cash_flow' returns the cash-flow statement lines (and free cash flow) instead; quote each line's `period_x_statement_display` with its `period_x_statement_id`; `sign_note` explains the stored sign. |
 
 **Output fields:** `ticker`, `company_name`, `period_a`, `period_b`, `as_of_date`, `swapped`, `total_metrics`, `material_changes`, `changes`
 
@@ -959,7 +960,7 @@ Remove a user-authored citation correction by fact_id. Idempotent — deleting a
 |---|---|---|---|---|
 | `fact_id` | string | yes | — | Fact identifier whose citation override should be removed, as returned by save_citation_override or list_citation_overrides. |
 
-**Output fields:** `fact_id`, `deleted`
+**Output fields:** `fact_id`, `deleted`, `fact_ref`
 
 ### `save_figure_review`
 
@@ -1695,10 +1696,10 @@ A SMALL, BOUNDED, in-Worker sanity-check backtest — NOT a full-universe backte
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `tickers` | array | yes | — | 1-10 stock ticker symbols, e.g. ["AAPL","MSFT"]. |
-| `rebalance_dates` | array | yes | — | 1-12 historical dates (YYYY-MM-DD) to snapshot TTM margins on. Order does not matter — the tool sorts them chronologically. Forward return is computed from each date to the NEXT one in the sorted list. |
+| `rebalance_dates` | array | yes | — | 1-12 historical dates (YYYY-MM-DD) to snapshot TTM margins on. Order does not matter — the tool sorts them chronologically. Each cell also reports the factors as the NEXT date in the sorted list shows them (filings only, no returns). |
 | `factors` | array | no | — | Which of get_pit_valuation_ratios's own output fields to include as factor_values. One or more of: gross_margin_pct, operating_margin_pct, net_margin_pct. Omit to include all of them. |
 
-**Output fields:** `method`, `grid_cells`, `cells_computed`, `pit_safe`, `capped`, `source_tools_used`, `caveats`, `tickers`, `rebalance_dates`, `factors`, `dropped`, `cells`, `summary`, `streams`, `next_step`, `note`
+**Output fields:** `method`, `grid_cells`, `cells_computed`, `pit_safe`, `capped`, `source_tools_used`, `caveats`, `tickers`, `rebalance_dates`, `factors`, `dropped`, `cells`, `summary`, `streams`, `next_step`, `note`, `prices_note`
 
 ### `project_three_statement`
 
@@ -1794,13 +1795,30 @@ Replace one or more sections of an existing report owned by the caller. Useful f
 | `report_id` | string | yes | — | Identifier of the report to update, as returned by create_report or list_my_reports. |
 | `title` | string | no | — | Optional new title. |
 | `abstract` | string | no | — | Optional new abstract. |
-| `sections` | array | yes | — | Sections to replace. Sections not listed are preserved — to DELETE one, name it in `remove_section_ids`. Section ids must match the existing payload. |
+| `sections` | array | yes | — | Sections to replace. Sections not listed are preserved — to DELETE one, name it in `remove_section_ids`. Section ids must match the existing payload. Headings stay unique: an edit giving a section the heading another section already has is refused (`duplicate_heading`, nothing written) because it means the wrong id was sent; edit the section that has that heading instead. |
 | `remove_section_ids` | array | no | — | Section ids to DELETE outright. Without this, a merge-only update cannot express a deletion: an editor that drops a section simply omits it, the omitted section is preserved, and the caller sees a bumped version with the deleted content still there — a save that reports success and changed nothing. Ids must exist, and the last remaining section cannot be removed (a report with no sections is unreadable); remove the report instead with delete_report. |
 | `citations` | array | no | — | Lineage for figures in the edited sections. MERGED into the report's existing citations (first claim wins), never replacing them — so an editor autosave that sends none preserves every citation the report already had. |
 | `expected_version` | integer | no | — | Optimistic concurrency check. If supplied and the current HEAD version is different, the call returns a `version_conflict` error WITHOUT writing. Pass the version you loaded so a concurrent agent edit produces a 'conflict — review' UX instead of silently overwriting (eng review A3A). |
 | `drafts_only` | boolean | no | — | Pass true when editing a private draft: the call is refused with `not_a_draft` (nothing written) unless the report is private, never published and not signed off. Lets a client run the edit without asking, because a draft edit is undoable and reaches no reader. |
 
 **Output fields:** `report`, `version`, `previous_version`, `archived`, `undo`
+
+### `edit_report`
+
+**Edit Report Draft (Anchored)** · min plan `sp500` · writes · paging: none
+
+Make targeted, anchored edits to your own private, unsigned DRAFT report: insert, replace (a block, or one quoted span that must match exactly once), delete, or comment on blocks addressed by stable block id (`block_ids` on each section of get_report format json). Never a whol...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `report_id` | string | yes | — | The draft to edit, as returned by create_report, save_freeform_report or list_my_reports. |
+| `expected_version` | integer | yes | — | The version you read. If HEAD moved, the call is refused with `version_conflict` and nothing is written. |
+| `ops` | array | yes | — | Operations applied in order, all or none (at most 50). May be empty only with `accept_changes`. |
+| `citations` | array | no | — | Lineage for figures in inserted or replaced text. MERGED into the report's existing citations (first claim wins), never replacing them. |
+| `rebase` | boolean | no | default `false` | When `expected_version` is stale, replay the ops onto HEAD if every block they address or anchor on is byte-identical to its state in `expected_version`; otherwise the call is refused `version_conflict` and lists `conflicting_block_ids`. Default false: a stale version is always refused. |
+| `accept_changes` | string\|array | no | — | Accept tracked changes: 'all' or the turn numbers. Their marks are dropped to keep the spec small; the text stays. Comments are kept. |
+
+**Output fields:** `report`, `version`, `previous_version`, `turn`, `summary`, `changed_block_ids`, `results`, `accepted_marks`, `rebased_from`, `undo`
 
 ### `list_report_versions`
 
@@ -1838,7 +1856,7 @@ Return a 15-minute presigned download URL for a report in the requested binary f
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `report_id` | string | yes | — | Id from create_report or list_my_reports. |
-| `format` | enum | yes | one of `md`, `docx`, `pdf` | md = raw markdown (the same body the editor renders). docx = branded Word document; pdf = the same branded research-note design as a shareable PDF (Geist faces embedded, clickable citation links). |
+| `format` | enum | yes | one of `md`, `docx`, `pdf`, `xlsx` | md = raw markdown (the same body the editor renders). docx = branded Word document; pdf = the same branded research-note design as a shareable PDF (Geist faces embedded, clickable citation links); xlsx = Excel workbook with a Report sheet (every block, with its block id) and a Citations sheet (claim, fact ids, accession, form, period, EDGAR link), so each figure keeps its source. |
 | `force_regenerate` | boolean | no | default `false` | If true, ignore the cached DOCX/PDF and re-render. No effect on md (markdown is canonical). |
 | `author_name` | string | no | — | Display name of the report's author, shown as a named byline ('By {name}') on the masthead — the way a real research note credits an analyst. Omit to show 'Valuein Research'. Only affects the binary formats; ignored on a cache hit (the cached file keeps whatever byline was baked in on first render — pass `force_regenerate: true` to refresh it). |
 
@@ -1975,7 +1993,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.34.4); 31 prompts._
+_Generated from the MCP server manifest (v3.38.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2019,7 +2037,7 @@ _Generated from the MCP server manifest (v3.34.4); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.34.4); 7 resources._
+_Generated from the MCP server manifest (v3.38.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|

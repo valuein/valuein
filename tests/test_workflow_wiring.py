@@ -97,3 +97,23 @@ def test_the_retired_name_is_deprecated_never_deleted() -> None:
 def test_the_sync_hands_its_secrets_to_the_reusable_publish() -> None:
     block = SYNC[SYNC.index("uses: ./.github/workflows/publish-mcp.yml") :]
     assert re.match(r"uses: \./\.github/workflows/publish-mcp\.yml\n\s+secrets: inherit\n", block)
+
+
+EXECUTE = (WORKFLOWS / "execute-notebooks.yml").read_text()
+
+
+def test_execute_notebooks_never_runs_on_pull_requests() -> None:
+    """The workflow holds a secret: no ``pull_request`` trigger, write access only to contents."""
+    on_block = EXECUTE.split("jobs:")[0]
+    assert not re.search(r"^\s*pull_request(_target)?:", on_block, re.MULTILINE)
+    assert re.search(r"^permissions:\n  contents: write\n\n", EXECUTE, re.MULTILINE)
+    assert re.search(r"cancel-in-progress: false", EXECUTE)
+    assert "workflow_dispatch:" in EXECUTE
+
+
+def test_execute_notebooks_fails_on_an_empty_secret_and_checks_before_and_after() -> None:
+    """An empty key aborts; the scope check runs before and after execution; no force push."""
+    assert '[ -z "$VALUEIN_API_KEY" ]' in EXECUTE
+    first = EXECUTE.index("check_notebook_scope.py")
+    assert first < EXECUTE.index("nbconvert") < EXECUTE.rindex("check_notebook_scope.py")
+    assert "--force" not in EXECUTE and "-f origin" not in EXECUTE
