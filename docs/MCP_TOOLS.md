@@ -136,7 +136,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.37.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.38.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **115 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -1696,10 +1696,10 @@ A SMALL, BOUNDED, in-Worker sanity-check backtest — NOT a full-universe backte
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `tickers` | array | yes | — | 1-10 stock ticker symbols, e.g. ["AAPL","MSFT"]. |
-| `rebalance_dates` | array | yes | — | 1-12 historical dates (YYYY-MM-DD) to snapshot TTM margins on. Order does not matter — the tool sorts them chronologically. Forward return is computed from each date to the NEXT one in the sorted list. |
+| `rebalance_dates` | array | yes | — | 1-12 historical dates (YYYY-MM-DD) to snapshot TTM margins on. Order does not matter — the tool sorts them chronologically. Each cell also reports the factors as the NEXT date in the sorted list shows them (filings only, no returns). |
 | `factors` | array | no | — | Which of get_pit_valuation_ratios's own output fields to include as factor_values. One or more of: gross_margin_pct, operating_margin_pct, net_margin_pct. Omit to include all of them. |
 
-**Output fields:** `method`, `grid_cells`, `cells_computed`, `pit_safe`, `capped`, `source_tools_used`, `caveats`, `tickers`, `rebalance_dates`, `factors`, `dropped`, `cells`, `summary`, `streams`, `next_step`, `note`
+**Output fields:** `method`, `grid_cells`, `cells_computed`, `pit_safe`, `capped`, `source_tools_used`, `caveats`, `tickers`, `rebalance_dates`, `factors`, `dropped`, `cells`, `summary`, `streams`, `next_step`, `note`, `prices_note`
 
 ### `project_three_statement`
 
@@ -1815,9 +1815,10 @@ Make targeted, anchored edits to your own private, unsigned DRAFT report: insert
 | `expected_version` | integer | yes | — | The version you read. If HEAD moved, the call is refused with `version_conflict` and nothing is written. |
 | `ops` | array | yes | — | Operations applied in order, all or none (at most 50). May be empty only with `accept_changes`. |
 | `citations` | array | no | — | Lineage for figures in inserted or replaced text. MERGED into the report's existing citations (first claim wins), never replacing them. |
+| `rebase` | boolean | no | default `false` | When `expected_version` is stale, replay the ops onto HEAD if every block they address or anchor on is byte-identical to its state in `expected_version`; otherwise the call is refused `version_conflict` and lists `conflicting_block_ids`. Default false: a stale version is always refused. |
 | `accept_changes` | string\|array | no | — | Accept tracked changes: 'all' or the turn numbers. Their marks are dropped to keep the spec small; the text stays. Comments are kept. |
 
-**Output fields:** `report`, `version`, `previous_version`, `turn`, `summary`, `changed_block_ids`, `results`, `accepted_marks`, `undo`
+**Output fields:** `report`, `version`, `previous_version`, `turn`, `summary`, `changed_block_ids`, `results`, `accepted_marks`, `rebased_from`, `undo`
 
 ### `list_report_versions`
 
@@ -1855,7 +1856,7 @@ Return a 15-minute presigned download URL for a report in the requested binary f
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
 | `report_id` | string | yes | — | Id from create_report or list_my_reports. |
-| `format` | enum | yes | one of `md`, `docx`, `pdf` | md = raw markdown (the same body the editor renders). docx = branded Word document; pdf = the same branded research-note design as a shareable PDF (Geist faces embedded, clickable citation links). |
+| `format` | enum | yes | one of `md`, `docx`, `pdf`, `xlsx` | md = raw markdown (the same body the editor renders). docx = branded Word document; pdf = the same branded research-note design as a shareable PDF (Geist faces embedded, clickable citation links); xlsx = Excel workbook with a Report sheet (every block, with its block id) and a Citations sheet (claim, fact ids, accession, form, period, EDGAR link), so each figure keeps its source. |
 | `force_regenerate` | boolean | no | default `false` | If true, ignore the cached DOCX/PDF and re-render. No effect on md (markdown is canonical). |
 | `author_name` | string | no | — | Display name of the report's author, shown as a named byline ('By {name}') on the masthead — the way a real research note credits an analyst. Omit to show 'Valuein Research'. Only affects the binary formats; ignored on a cache hit (the cached file keeps whatever byline was baked in on first render — pass `force_regenerate: true` to refresh it). |
 
@@ -1992,7 +1993,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.37.0); 31 prompts._
+_Generated from the MCP server manifest (v3.38.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2036,7 +2037,7 @@ _Generated from the MCP server manifest (v3.37.0); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.37.0); 7 resources._
+_Generated from the MCP server manifest (v3.38.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
