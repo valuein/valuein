@@ -1,7 +1,7 @@
 # Valuein Data Catalog
 
-> **Last updated**: 2026-10-28  
-> **Standardized concepts**: 353  
+> **Last updated**: 2026-11-21  
+> **Standardized concepts**: 358  
 > **Historical coverage**: fundamentals from 1993 (EDGAR floor) – present
 
 ---
@@ -127,6 +127,12 @@ Cash, demand deposits, and highly liquid investments with original maturities �
 **Unit:** USD  ·  **Category:** liquidity  ·  **Flow:** no
 
 Cash, cash equivalents, AND restricted cash — the ASU 2016-18 cash-flow-statement reconciliation total. Articulates: CashAndEquivalents + RestrictedCash.
+
+### `CommonEquity`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Common shareholders' equity: parent equity less preferred.
 
 ### `CommonSharesAuthorized`
 
@@ -479,11 +485,11 @@ Long-term debt INCLUDING current maturities (the us-gaap:LongTermDebt total). Ar
 
 Non-current investment securities.
 
-### `MinorityInterest`
+### `NoncontrollingInterest`
 
-**Unit:** USD  ·  **Category:** non_operating  ·  **Flow:** no
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
 
-IFRS non-controlling (minority) interests in equity.
+Outsiders' share of consolidated subsidiaries' permanent equity (minority interest).
 
 ### `NoncurrentAssets`
 
@@ -582,6 +588,12 @@ Non-current liabilities not classified elsewhere.
 
 Receivables other than trade accounts receivable.
 
+### `ParentEquity`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Parent shareholders' equity: common plus preferred, excluding non-controlling interest.
+
 ### `PatentsCarryingValue`
 
 **Unit:** USD  ·  **Category:** pharma  ·  **Flow:** no
@@ -620,6 +632,18 @@ PP&E at historical cost before accumulated depreciation.
 
 IFRS net PP&E.
 
+### `PreferredEquity`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Preferred stock as filed (carrying value where reported; par-only filings are labelled by the equity bridge). Part of ParentEquity.
+
+### `PreferredLiquidationValue`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Preferred stock liquidation preference. Memo item, in no balance-sheet equation.
+
 ### `PreferredSharesAuthorized`
 
 **Unit:** shares  ·  **Category:** equity  ·  **Flow:** no
@@ -643,12 +667,6 @@ Preferred shares currently outstanding (issued minus any held in treasury).
 **Unit:** USD/share  ·  **Category:** equity  ·  **Flow:** no
 
 Par or stated value per preferred share.
-
-### `PreferredStockValue`
-
-**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
-
-Total value of preferred shares issued.
 
 ### `PrepaidExpenses`
 
@@ -733,18 +751,6 @@ IFRS short-term borrowings.
 
 Marketable securities and short-term investment holdings.
 
-### `StockholdersEquity`
-
-**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
-
-Parent-only stockholders' equity (excludes non-controlling interest).
-
-### `StockholdersEquityIncludingNCI`
-
-**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
-
-Total stockholders' equity including non-controlling interest — institutional total book value.
-
 ### `TaxPayable`
 
 **Unit:** USD  ·  **Category:** tax  ·  **Flow:** no
@@ -755,7 +761,25 @@ Current income taxes owed to tax authorities.
 
 **Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
 
-Mezzanine/temporary equity — redeemable equity between debt and equity.
+Mezzanine (temporary) equity total: redeemable equity between liabilities and permanent equity. Never inside TotalEquity.
+
+### `TemporaryNoncontrollingInterest`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Redeemable non-controlling interest (mezzanine). Presented between liabilities and equity, so Assets = Liabilities + Temporary + Total equity only closes with it (Federal Realty FY2018 0000034903-19-000013).
+
+### `TemporaryParentEquity`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Temporary equity attributable to the parent (redeemable preferred plus redeemable common).
+
+### `TemporaryPreferredEquity`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Redeemable (mandatory) preferred stock presented as temporary equity.
 
 ### `TotalAssets`
 
@@ -774,6 +798,12 @@ Total current liabilities.
 **Unit:** USD  ·  **Category:** leverage  ·  **Flow:** no
 
 The filer's own debt total including current maturities (DebtAndCapitalLeaseObligations may exclude short-term borrowings, e.g. ABBV FY2025).
+
+### `TotalEquity`
+
+**Unit:** USD  ·  **Category:** equity  ·  **Flow:** no
+
+Permanent equity including non-controlling interest (whole-company book value). Never includes temporary (mezzanine) equity.
 
 ### `TotalLiabilities`
 
@@ -2249,17 +2279,17 @@ Amounts reclassified out of AOCI into net income this period.
 
 ## Financial Ratios
 
-The pipeline also derives **164 financial ratios** per company into the `ratio` table (exported as `ratio.parquet`), spanning profitability, per-share, liquidity, efficiency, leverage, forensic, growth/CAGR, and sector-percentile ranks.
+The pipeline also derives **165 financial ratios** per company into the `ratio` table (exported as `ratio.parquet`), spanning profitability, per-share, liquidity, efficiency, leverage, forensic, growth/CAGR, and sector-percentile ranks.
 
 ### Annual (FY) vs Trailing-Twelve-Month (TTM)
 
 The `ratio` table holds BOTH annual (`fiscal_period = 'FY'`, `is_ttm = false`) and trailing-twelve-month (`fiscal_period = 'TTM'`, `is_ttm = true`) rows per company. TTM is the sum/normalization of the latest four reported quarters, dated at the entity's most recent quarter close, so it is the most-current read; FY rows are dated at fiscal-year close. TTM rows exist ONLY for the profitability, per_share, liquidity, efficiency, and leverage categories — forensic, growth (CAGR), and sector-percentile ranks are annual-only. Always filter on a single period (e.g. `WHERE is_ttm = FALSE`, or `WHERE fiscal_period = 'FY'`); a raw `read_table('ratio')` query that does NOT filter `is_ttm` / `fiscal_period` returns FY + TTM rows for the same metric and DOUBLE-COUNTS companies in a screen. The SDK SQL templates already filter by a single fiscal_period, so they are safe — this warning is for raw DuckDB queries.
 
-Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`, `period_end`, `fiscal_year`, `fiscal_period` (`'FY'` | `'TTM'`), `is_ttm` (bool), `confidence_score`, `accepted_at`, `computed_at`, `ingested_at`. Of the 164 ratios, 77 are materialized for both FY and TTM; the remaining 87 are annual-only. `ratio` is append-on-restatement: `accepted_at` is the PIT vintage (max(accepted_at) of the input facts). Filter `accepted_at <= as_of` then take the latest vintage to avoid look-ahead bias, mirroring `fact.accepted_at`; NULL for cross-sectional `*_sector_pctile` rank rows.
+Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`, `period_end`, `fiscal_year`, `fiscal_period` (`'FY'` | `'TTM'`), `is_ttm` (bool), `confidence_score`, `accepted_at`, `computed_at`, `ingested_at`. Of the 165 ratios, 78 are materialized for both FY and TTM; the remaining 87 are annual-only. `ratio` is append-on-restatement: `accepted_at` is the PIT vintage (max(accepted_at) of the input facts). Filter `accepted_at <= as_of` then take the latest vintage to avoid look-ahead bias, mirroring `fact.accepted_at`; NULL for cross-sectional `*_sector_pctile` rank rows.
 
 ### Profitability
 
-*32 ratios · TTM available*
+*33 ratios · TTM available*
 
 | Ratio | Unit | TTM | Description |
 |-------|------|-----|-------------|
@@ -2271,7 +2301,8 @@ Each `ratio` row carries: `entity_id`, `ratio_name`, `category`, `value`, `unit`
 | `opex_margin` | ratio | yes | Operating expenses divided by revenue. |
 | `da_margin` | ratio | yes | Depreciation & amortization divided by revenue. |
 | `interest_expense_margin` | ratio | yes | Interest expense divided by revenue. |
-| `net_interest_margin` | ratio | yes | Net interest income divided by revenue (financials). |
+| `net_interest_income_to_revenue` | ratio | yes | Net interest income divided by revenue. |
+| `net_interest_margin` | ratio | yes | Bank years only: net interest income divided by average total assets (the spread). |
 | `sga_margin` | ratio | yes | Selling, general & administrative expense divided by revenue. |
 | `total_expense_margin` | ratio | yes | Total expenses divided by revenue. |
 | `rd_margin` | ratio | yes | Research & development expense divided by revenue. |
