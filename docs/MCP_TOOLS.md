@@ -136,9 +136,9 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.36.3) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.37.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**114 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**115 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -249,6 +249,7 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`compute_accretion_dilution`](#compute_accretion_dilution) | Compute M&A Accretion/Dilution | `sp500` | read-only | none |
 | [`compute_price_multiples`](#compute_price_multiples) | Compute Multiples on Your Price | `sp500` | read-only | none |
 | [`update_report`](#update_report) | Update Report Sections | `sp500` | writes | none |
+| [`edit_report`](#edit_report) | Edit Report Draft (Anchored) | `sp500` | writes | none |
 | [`list_report_versions`](#list_report_versions) | List Report Versions | `sample` | read-only | cursor |
 | [`get_report_version`](#get_report_version) | Get Report Version | `sample` | read-only | none |
 | [`render_report`](#render_report) | Render Report Download URL | `sample` | writes | none |
@@ -1802,6 +1803,22 @@ Replace one or more sections of an existing report owned by the caller. Useful f
 
 **Output fields:** `report`, `version`, `previous_version`, `archived`, `undo`
 
+### `edit_report`
+
+**Edit Report Draft (Anchored)** · min plan `sp500` · writes · paging: none
+
+Make targeted, anchored edits to your own private, unsigned DRAFT report: insert, replace (a block, or one quoted span that must match exactly once), delete, or comment on blocks addressed by stable block id (`block_ids` on each section of get_report format json). Never a whol...
+
+| Input | Type | Required | Values | Description |
+|---|---|---|---|---|
+| `report_id` | string | yes | — | The draft to edit, as returned by create_report, save_freeform_report or list_my_reports. |
+| `expected_version` | integer | yes | — | The version you read. If HEAD moved, the call is refused with `version_conflict` and nothing is written. |
+| `ops` | array | yes | — | Operations applied in order, all or none (at most 50). May be empty only with `accept_changes`. |
+| `citations` | array | no | — | Lineage for figures in inserted or replaced text. MERGED into the report's existing citations (first claim wins), never replacing them. |
+| `accept_changes` | string\|array | no | — | Accept tracked changes: 'all' or the turn numbers. Their marks are dropped to keep the spec small; the text stays. Comments are kept. |
+
+**Output fields:** `report`, `version`, `previous_version`, `turn`, `summary`, `changed_block_ids`, `results`, `accepted_marks`, `undo`
+
 ### `list_report_versions`
 
 **List Report Versions** · min plan `sample` · read-only · paging: cursor
@@ -1975,7 +1992,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.36.3); 31 prompts._
+_Generated from the MCP server manifest (v3.37.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2019,7 +2036,7 @@ _Generated from the MCP server manifest (v3.36.3); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.36.3); 7 resources._
+_Generated from the MCP server manifest (v3.37.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
