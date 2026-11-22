@@ -136,9 +136,9 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.38.1) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.39.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
-**115 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
+**108 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
 Plan keys: `sample` = Sample · `sp500` = Benchmark (free) · `pro` = Pro · `full` = Institutional.
 
@@ -187,14 +187,9 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`restore_deleted`](#restore_deleted) | Restore a Deleted Item | `sp500` | writes | none |
 | [`undo_change`](#undo_change) | Undo a Change | `sp500` | writes | none |
 | [`run_workflow`](#run_workflow) | Run Saved Workflow | `sp500` | read-only | none |
-| [`save_citation_override`](#save_citation_override) | Save Citation Override | `sp500` | writes | none |
 | [`list_citation_overrides`](#list_citation_overrides) | List Citation Overrides | `sp500` | read-only | cursor |
-| [`delete_citation_override`](#delete_citation_override) | Delete Citation Override | `sp500` | destructive | none |
-| [`save_figure_review`](#save_figure_review) | Save Figure Review | `sp500` | writes | none |
 | [`list_figure_reviews`](#list_figure_reviews) | List Figure Reviews | `sp500` | read-only | none |
-| [`delete_figure_review`](#delete_figure_review) | Delete Figure Review | `sp500` | destructive | none |
 | [`get_research_file`](#get_research_file) | Get Auditable Research File | `sp500` | read-only | none |
-| [`sign_off_report`](#sign_off_report) | Sign Off Report | `sp500` | destructive | none |
 | [`verify_report_figures`](#verify_report_figures) | Verify Report Figures | `sp500` | read-only | none |
 | [`save_watchlist`](#save_watchlist) | Save Watchlist | `sp500` | writes | none |
 | [`list_watchlists`](#list_watchlists) | List Watchlists | `sp500` | read-only | cursor |
@@ -214,8 +209,6 @@ Identifiers shown as `[withheld]` name internal datasets and are left out of thi
 | [`dismiss_inbox_item`](#dismiss_inbox_item) | Dismiss Inbox Item | `sp500` | destructive | none |
 | [`stage_action`](#stage_action) | Stage Action | `sp500` | writes | none |
 | [`list_pending_approvals`](#list_pending_approvals) | List Pending Approvals | `sp500` | read-only | cursor |
-| [`approve_staged_action`](#approve_staged_action) | Approve Staged Action | `sp500` | destructive | none |
-| [`reject_staged_action`](#reject_staged_action) | Reject Staged Action | `sp500` | writes | none |
 | [`schedule_task`](#schedule_task) | Schedule Task | `sp500` | writes | none |
 | [`list_scheduled_tasks`](#list_scheduled_tasks) | List Scheduled Tasks | `sp500` | read-only | cursor |
 | [`cancel_scheduled_task`](#cancel_scheduled_task) | Cancel Scheduled Task | `sp500` | destructive | none |
@@ -919,22 +912,6 @@ Resolve a saved workflow by id and return a structured execution plan for a sing
 
 **Output fields:** `meta`, `workflow`, `ticker`, `plan`, `plans`, `instructions`
 
-### `save_citation_override`
-
-**Save Citation Override** · min plan `sp500` · writes · paging: none
-
-Persist a correction of a citation value. The correction is keyed on the canonical `fact_id` (a stable hash of CIK + accession + concept + period) so it applies to every report that references that same fact — including agent-regenerated reports. Re-saving the same fact_id rep...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `fact_id` | string | yes | — | Canonical fact identifier — usually returned in a citation's `fact_ids` array by get_report or any compute tool. Stable across report regenerations. Verified against live SEC data (scoped to `ticker`) before persistence — a fabricated or unresolvable fact_id is rejected. |
-| `corrected_value` | string | yes | — | User-corrected value, stringified. The frontend interprets it based on the fact's known datatype (number, string, ISO date). |
-| `ticker` | string | yes | — | Ticker the fact belongs to (REQUIRED) — scopes fact_id resolution against live SEC data and denormalises the row for fast filtering (the workspace UI's 'my corrections on AAPL' view). |
-| `source_report_id` | string | no | — | Optional report id the user was viewing when they applied the correction (provenance). |
-| `notes` | string | no | — | Optional free-form rationale, ≤500 chars. |
-
-**Output fields:** `override`, `created`, `capacity`
-
 ### `list_citation_overrides`
 
 **List Citation Overrides** · min plan `sp500` · read-only · paging: cursor
@@ -950,34 +927,6 @@ Author-only newest-first listing of the caller's citation corrections. Filterabl
 
 **Output fields:** `overrides`, `next_cursor`, `total_count`
 
-### `delete_citation_override`
-
-**Delete Citation Override** · min plan `sp500` · destructive · paging: none
-
-Remove a user-authored citation correction by fact_id. Idempotent — deleting a missing override returns deleted=false without error. UNDOABLE: restore_deleted with kind 'citation_override' brings it back (unless a new save for the same fact_id replaced it). Once deleted, repor...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `fact_id` | string | yes | — | Fact identifier whose citation override should be removed, as returned by save_citation_override or list_citation_overrides. |
-
-**Output fields:** `fact_id`, `deleted`, `fact_ref`
-
-### `save_figure_review`
-
-**Save Figure Review** · min plan `sp500` · writes · paging: none
-
-Record (or update) the review state of ONE figure inside a report — the durable answer to 'has a human traced this number back to its filing?' Upsert keyed on (report_id, figure_key): re-reviewing a figure REPLACES its prior mark, it never appends, so this is always the figure...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `report_id` | string | yes | — | Identifier of the report the figure belongs to, as returned by create_report / list_my_reports / save_freeform_report. |
-| `figure_key` | string | yes | — | Opaque id you mint for one figure inside the report. Never parsed or validated beyond length — use the exact same key to update this figure's review later. Shape for a dataset-backed figure: 'fact:{fact_id}#{figure}', the figure lowercased and whitespace-collapsed as the report writes it ('fact:f_rev#$402.83b'); the Workspace mints 'raw:{hash}' for a figure with no fact, which only it can compute. |
-| `state` | enum | yes | one of `verified`, `corrected`, `external`, `rejected` | verified = traced to its filing and correct. corrected = wrong (supply corrected_value). external = legitimately not from Valuein data (analyst's own source). rejected = unsupported, should be removed from the report. |
-| `note` | string | no | — | Optional free-text reviewer note (e.g. what was checked, or why it was rejected). |
-| `corrected_value` | string | no | — | The correct value. REQUIRED when state='corrected'; must be omitted for every other state (a corrected_value on a non-corrected review is rejected). |
-
-**Output fields:** `ok`, `review`
-
 ### `list_figure_reviews`
 
 **List Figure Reviews** · min plan `sp500` · read-only · paging: none
@@ -989,19 +938,6 @@ List every figure review recorded for one report, plus a state-count summary —
 | `report_id` | string | yes | — | Identifier of the report to list figure reviews for. |
 
 **Output fields:** `report_id`, `reviews`, `summary`
-
-### `delete_figure_review`
-
-**Delete Figure Review** · min plan `sp500` · destructive · paging: none
-
-Remove your own review mark for ONE figure in a report (Undo for save_figure_review), so the figure needs review again. Keyed on (report_id, figure_key). Idempotent: `deleted` is false when no mark existed. Owner-scoped — only your own marks are reachable; a report you do not ...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `report_id` | string | yes | — | Identifier of the report the figure belongs to. |
-| `figure_key` | string | yes | — | The exact figure_key the review was saved under. |
-
-**Output fields:** `deleted`, `report_id`, `figure_key`
 
 ### `get_research_file`
 
@@ -1016,18 +952,6 @@ Fetch the Auditable Research File behind one of the caller's own agent runs — 
 | `format` | enum | no | one of `json`, `pdf`; default `json` | json (default) = the assembled file inline. pdf = a presigned download URL for the branded compliance PDF — the human-facing artifact; rendered fresh on every call, never cached. |
 
 **Output fields:** `found`, `run_id`, `file`, `url`, `filename`, `content_type`, `size_bytes`, `expires_in_seconds`, `expires_at`
-
-### `sign_off_report`
-
-**Sign Off Report** · min plan `sp500` · destructive · paging: none
-
-Request a Valuein compliance certificate for one of the caller's OWN reports — a signed, publicly verifiable attestation at valuein.biz/verify/{id} that every fact the report cited was knowable at the time it was used (absence of lookahead bias). It attests provenance ONLY: it...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `report_id` | string | yes | — | Identifier of the report to certify, as returned by create_report / list_my_reports / save_freeform_report. Must be authored by the calling customer. |
-
-**Output fields:** `ok`, `code`, `message`, `coverage`, `verdict`, `reason`, `certificate`
 
 ### `verify_report_figures`
 
@@ -1273,7 +1197,7 @@ Propose an MCP tool call for human approval BEFORE running it. Call this — ins
 
 **List Pending Approvals** · min plan `sp500` · read-only · paging: cursor
 
-List the caller's own staged actions still awaiting a human decision (status='proposed'), newest-first. Use this to check what an autonomous run has queued up before you approve or reject it with `approve_staged_action` / `reject_staged_action`. Plan: Benchmark and above (a fr...
+List the caller's own staged actions still awaiting a human decision (status='proposed'), newest-first. Use this to check what an autonomous run has queued up before a person approves or rejects it in Control room. Plan: Benchmark and above (a free account).
 
 | Input | Type | Required | Values | Description |
 |---|---|---|---|---|
@@ -1281,31 +1205,6 @@ List the caller's own staged actions still awaiting a human decision (status='pr
 | `cursor` | string | no | — | Pagination cursor from a previous page's next_cursor. |
 
 **Output fields:** `staged_actions`, `next_cursor`, `total_count`
-
-### `approve_staged_action`
-
-**Approve Staged Action** · min plan `sp500` · destructive · paging: none
-
-Approve a staged action by id and RUN the underlying tool call it proposed, using the caller's own current credentials — never the original proposer's. Idempotent and race-safe: an action already decided (approved by a concurrent call, rejected, executed, or failed) is NEVER r...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `staged_action_id` | string | yes | — | Id of the staged action to approve, from stage_action or list_pending_approvals. |
-
-**Output fields:** `staged_action`, `executed_now`, `tool_result`
-
-### `reject_staged_action`
-
-**Reject Staged Action** · min plan `sp500` · writes · paging: none
-
-Reject a staged action by id. Terminal — the underlying tool is NEVER called, and a rejected (or otherwise already-decided) action can never be flipped back by a later approve/reject call; `transitioned` tells you whether THIS call is what moved it to 'rejected' or whether it ...
-
-| Input | Type | Required | Values | Description |
-|---|---|---|---|---|
-| `staged_action_id` | string | yes | — | Id of the staged action to reject. |
-| `reason` | string | no | — | Optional free-text reason recorded on the staged action. |
-
-**Output fields:** `staged_action`, `transitioned`
 
 ### `schedule_task`
 
@@ -1589,7 +1488,7 @@ Publish a report for FREE at `listed` or `unlisted` visibility to build your pub
 | `report_id` | string | yes | — | Id of one of your reports, from `create_report`, `save_freeform_report` or `list_my_reports`. |
 | `visibility` | enum | no | one of `unlisted`, `listed`; default `listed` | `listed`: found by `search_reports`. `unlisted`: readable only by its link. Default `listed`. |
 | `price_cents` | integer | no | — | Currently must be omitted or 0 — all listings are free. A non-zero value is rejected until paid listings ship. |
-| `tier_required` | enum | no | one of `sample`, `sp500`, `pro`, `full` | Minimum subscriber tier to read the full body. Defaults to the author's plan. |
+| `tier_required` | enum | no | one of `sample`, `sp500`, `pro`, `full`, `enterprise` | Minimum subscriber tier to read the full body. Defaults to the author's plan. |
 
 **Output fields:** `report`
 
@@ -1993,7 +1892,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.38.1); 31 prompts._
+_Generated from the MCP server manifest (v3.39.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -2037,7 +1936,7 @@ _Generated from the MCP server manifest (v3.38.1); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.38.1); 7 resources._
+_Generated from the MCP server manifest (v3.39.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|
