@@ -148,7 +148,7 @@ Walk-through: [`examples/notebooks/10_dcf_valuation.ipynb`](../examples/notebook
 | **Filings** | 10-K, 10-Q, 8-K, 20-F, 40-F (Canadian MJDS annuals), 6-K (foreign private issuer reports), the registration statements (S-1, S-3, S-4, S-11, F-1, F-3, F-4, POS AM) and the retired periodic forms (10-K405, 10-KSB, 10-QSB, 10-KT, 10-QT), each with its amendments. Most 6-K filings carry no XBRL, so they add filing rows more often than facts. |
 | **Facts** | Standardized financial data points: every fact of every filing above, under its canonical `standard_concept` ([`data_catalog.md`](data_catalog.md)) |
 | **XBRL coverage** | Facts that cannot be mapped to a canonical `standard_concept` are exposed under `'Other'` rather than dropped or imputed. The current measured mapping-gap rate is published in [`accuracy/baseline.json`](accuracy/baseline.json) (`unstandardized_facts`) and re-derivable with the open DuckDB script |
-| **Update frequency** | Fundamentals snapshot weekly (Saturday); 4-hour priority freshness + filing-event webhooks for Institutional; sub-minute real-time 8-K signals for Enterprise (custom contract) |
+| **Update frequency** | Fundamentals snapshot weekly (Saturday); 4-hour priority freshness + filing-event webhooks for Institutional; Enterprise gets the same freshness as Institutional |
 | **Latency** | Filings appear in our pipeline within ~60 seconds of SEC acceptance; snapshot publication timing is a target, not an SLA (see the DDQ) |
 
 ---

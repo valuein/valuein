@@ -185,6 +185,26 @@ def test_enterprise_rows_name_the_redistribution_licence_as_separate() -> None:
     assert row.rstrip(" |").endswith("— (separate Redistribution Licence)")
 
 
+ENTERPRISE_RETIRED_CLAIMS = (
+    "dedicated infra",  # no dedicated infrastructure is delivered or contracted
+    "zero-retention option",  # no Enterprise zero-data-retention arrangement (BYO-key strict mode is separate)
+    "sub-minute",  # Enterprise freshness equals Institutional
+    "bespoke SLA",  # service levels live in the Order Form
+    "multi-seat",  # Enterprise is a firm licence with analyst seats, not per-seat multi-seat
+)
+
+
+def test_enterprise_promises_match_the_firm_licence() -> None:
+    """Founder decision 2026-11-22: Enterprise is a firm licence (analyst seats included, agents unlimited).
+
+    Public docs must not promise what the Order Form does not deliver.
+    """
+    for rel in (*LICENCE_DOCS, "docs/METHODOLOGY.md"):
+        text = _read(rel).lower()
+        found = [claim for claim in ENTERPRISE_RETIRED_CLAIMS if claim.lower() in text]
+        assert not found, f"{rel}: {found}"
+
+
 def test_generated_mcp_summary_matches_plans() -> None:
     """The README's generated MCP summary sells no redistribution and names no stale universe count.
 

@@ -36,7 +36,7 @@ Email the right inbox — public issues are not appropriate for these:
 | Billing, refunds, invoicing | billing@valuein.biz |
 | DPAs, security questionnaires, vendor due diligence | compliance@valuein.biz |
 | Institutional ($499/mo) — smart-money dataset, webhooks, internal-use licence (one seat) | sales@valuein.biz |
-| Enterprise (organisations and teams, Enterprise Agreement) — multi-seat, dedicated infrastructure, zero-retention, service levels set in the agreement | sales@valuein.biz |
+| Enterprise (a firm licence by Enterprise Agreement: analyst seats included, unlimited agents) — firm-wide use, look-ahead audit, service levels set in the Order Form | sales@valuein.biz |
 | Redistribution Licence (data vendors and platforms) — redistribution, resale, white-label | sales@valuein.biz |
 | Security vulnerabilities (see [`SECURITY.md`](SECURITY.md)) | security@valuein.biz |
 | Code-of-conduct concerns (see [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md)) | conduct@valuein.biz |
