@@ -2,12 +2,12 @@
   "$schema": "https://valuein.biz/schemas/accuracy_baseline.v1.json",
   "_about": "Quantitative accuracy proof for the Valuein SEC fact dataset, regenerated nightly from production by .github/workflows/publish-accuracy-baseline.yml.  Re-derive locally: scripts/accuracy/accuracy_check.sql.",
   "version": "1.0.0",
-  "measured_at": "2026-11-22T11:29:04Z",
+  "measured_at": "2026-11-25T15:32:44Z",
   "universe": {
     "name": "sp500",
     "as_of_date": "latest",
     "entities": 1291,
-    "filings": 19948,
+    "filings": 19949,
     "form_types": [
       "10-K",
       "20-F",
@@ -20,9 +20,9 @@
   "standardized_facts": {
     "_definition": "A filing is 'clean' when it passes every active error-severity accounting identity in identities.json. Only EVALUABLE filings count \u2014 those carrying at least one standardized numeric fact, so some identity actually had inputs to test. Filings with no testable facts are excluded from the denominator rather than scored as passes.",
     "overall": {
-      "filings": 19948,
+      "filings": 19949,
       "filings_in_universe": 22995,
-      "clean_filings": 18601,
+      "clean_filings": 18602,
       "filings_with_errors": 1347,
       "accuracy_pct": 93.25
     },
@@ -35,9 +35,9 @@
         "accuracy_pct": 91.23
       },
       "legacy_pre_2010": {
-        "filings": 8800,
+        "filings": 8801,
         "filings_in_universe": 11274,
-        "clean_filings": 8431,
+        "clean_filings": 8432,
         "filings_with_errors": 369,
         "accuracy_pct": 95.81,
         "_note": "Pre-2010 XBRL was optional, so most pre-2010 filings carry no facts. They are now EXCLUDED from this denominator (filings vs filings_in_universe shows how many); previously they were counted as passes, which inflated the legacy and overall figures."
