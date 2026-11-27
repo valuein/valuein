@@ -46,7 +46,7 @@ pip install "valuein-sdk>=1.0.0" # data for code
 
 Survivorship-bias-free, point-in-time US fundamentals sourced directly from SEC EDGAR.
 
-- **Every SEC-reporting US public company since 1993** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments, for active and delisted companies alike: every bankruptcy, merger, and delisting stays in
+- **Every SEC-reporting US public company, across the full EDGAR history** — 10-K, 10-Q, 8-K, 20-F, 40-F, and amendments, for active and delisted companies alike: every bankruptcy, merger, and delisting stays in
 - **Raw XBRL tags normalized to canonical `standard_concept` names** plus materialized financial ratios (FY + TTM); unmapped tags are exposed under `'Other'` rather than dropped
 - **Parquet tables** — fundamentals, ratios, index membership, restatement events, plus the smart-money and Form ADV adviser tables on the Institutional tier
 - **Cloud Parquet** on Cloudflare R2 — stream with DuckDB; no database setup, no local downloads
@@ -106,6 +106,7 @@ A single Stripe-issued token unlocks every channel at your tier — no per-chann
 
 Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuein.biz/pricing) — the website is the source of truth and our checkout flow routes to the correct Stripe product.
 
+<!-- GEN:plan-table -->
 | Plan | Universe | History | Get it |
 |---|---|---|---|
 | **Sample** | Every S&P 500 member since 1996, former members included | 5 calendar years + YTD | **Free**, no signup: `pip install "valuein-sdk>=1.0.0"` |
@@ -113,6 +114,7 @@ Pricing and feature scope are mirrored from [valuein.biz/pricing](https://valuei
 | **Pro** | Full active + delisted universe incl. foreign issuers (20-F, 40-F), fundamentals dataset | Rolling 15 years (from 2011 today) | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |
 | **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to 1993 | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |
 | **Enterprise** | A firm licence by Enterprise Agreement, priced by firm size (AUM or staff, whichever is larger) with analyst seats included: you pay for your analysts, not their agents · the whole dataset · unlimited agents for the firm's internal use · signed Order Form, look-ahead audit, bulk Parquet delivery, named contact · display in your own products and client deliverables, with attribution, where the Order Form says so | Full history back to 1993 | [Pricing](https://valuein.biz/pricing) · [sales@valuein.biz](mailto:sales@valuein.biz) |
+<!-- /GEN:plan-table -->
 
 Redistribution, resale and white-label are not part of any plan, Enterprise included: data vendors and platforms sign a separate **Redistribution Licence** ([sales@valuein.biz](mailto:sales@valuein.biz)).
 
@@ -123,7 +125,7 @@ curl -s https://data.valuein.biz/v1/plans \
   | jq '.plans[] | {displayName, priceUsd, universeSize, earliestYear, perMinute, perHour}'
 ```
 
-Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history back to 1993, filing-event webhooks, and a single-seat internal-use licence (no redistribution); Enterprise is a firm licence for organisations: you pay for your analysts, not their agents. An Enterprise Agreement prices it by firm size with analyst seats included, and adds unlimited agents for internal use, a look-ahead audit, service levels set in the Order Form and, where the Order Form says so, display in your own products and client deliverables with attribution. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
+Each tier removes a *different* buyer objection — Pro removes the universe + history limits on the fundamentals dataset; Institutional adds the smart-money dataset (insider transactions + institutional ownership), unlimited history, filing-event webhooks, and a single-seat internal-use licence (no redistribution); Enterprise is a firm licence for organisations: you pay for your analysts, not their agents. An Enterprise Agreement prices it by firm size with analyst seats included, and adds unlimited agents for internal use, a look-ahead audit, service levels set in the Order Form and, where the Order Form says so, display in your own products and client deliverables with attribution. Redistribution, resale and white-label need a separate Redistribution Licence, which no plan includes.
 
 ### How you pay: three parts, no run limits
 
@@ -141,8 +143,10 @@ Autonomous AI agents that need data outside their plan can pay by **card** over 
 
 | What you buy | Price | With any Valuein token |
 |---|---|---|
+<!-- GEN:mpp-passes -->
 | Company pass, `pro` level: one company, every company-data tool, Pro history (from 2011), 24 hours | $2.00 | $1.00 |
 | Company pass, `full` level: the same with history back to 1993, plus the smart-money tools, 24 hours | $5.00 | $2.50 |
+<!-- /GEN:mpp-passes -->
 | Compute run (`compute_dcf`, `forensic_audit`, document generation, …), plus a pass for each company it reads | $2.00 per run | $1.00 |
 | Verification run (figure-checking tools, up to 50 figures), plus a pass for each company outside your plan | $2.00 per run | $1.00 |
 | Universe run (`screen_universe`, `get_pit_universe`, `run_backtest`) | $5.00 per run | $2.50 |
@@ -173,7 +177,7 @@ uv venv && source .venv/bin/activate
 uv pip install "valuein-sdk>=1.0.0"
 ```
 
-> **Zero-friction by design.** No `VALUEIN_API_KEY`? No problem. The SDK detects the missing token and falls back to the SAMPLE dataset (S&P 500, last 5 years); the edge gateway does the same — `GET /v1/{sp500,pro,full}/:table` with no `Authorization` header automatically 302-redirects to `/v1/sample/:table`. The snippet below runs as-is.
+> **Zero-friction by design.** No `VALUEIN_API_KEY`? No problem. The SDK detects the missing token and falls back to the SAMPLE dataset (S&P 500, the Sample tier's recent fiscal years); the edge gateway does the same — `GET /v1/{sp500,pro,full}/:table` with no `Authorization` header automatically 302-redirects to `/v1/sample/:table`. The snippet below runs as-is.
 
 ```python
 from valuein_sdk import ValueinClient

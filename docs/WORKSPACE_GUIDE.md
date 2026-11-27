@@ -8,7 +8,7 @@
 
 **Your SEC research desk, run by an AI analyst.**
 
-Point-in-time financial facts · every SEC-reporting US company, active and delisted · 1993→present · zero survivorship bias
+Point-in-time financial facts · every SEC-reporting US company, active and delisted · full EDGAR history · zero survivorship bias
 
 [![Open the Workspace](https://img.shields.io/badge/Open-valuein.biz%2Fworkspace-2563EB?style=flat)](https://valuein.biz/workspace)
 [![Read online](https://img.shields.io/badge/Read_online-valuein.biz%2Ftry--workspace-7C3AED?style=flat)](https://valuein.biz/try-workspace)
@@ -23,7 +23,7 @@ Point-in-time financial facts · every SEC-reporting US company, active and deli
 
 ---
 
-> **Point-in-time financial facts for every SEC-reporting US company (1993→present, zero survivorship bias) — wired into a chat-first workspace with the full Valuein MCP tool set and ready-to-run analyst playbooks.**
+> **Point-in-time financial facts for every SEC-reporting US company (full EDGAR history, zero survivorship bias) — wired into a chat-first workspace with the full Valuein MCP tool set and ready-to-run analyst playbooks.**
 
 This is a simple, cadence-based setup so the Workspace earns its keep in your *daily, weekly, and monthly* routine within the first week.
 
@@ -208,7 +208,7 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 |---|---|---|---|---|---|
 | **Price** | Free, no signup | Free, register | Paid | Paid | Custom |
 | **Universe** | S&P 500 members, former included | S&P 500 members, former included | **Full US + foreign issuers (20-F, 40-F), delisted included** | Full US + foreign issuers | Contract |
-| **History** | 5 calendar years + YTD | 1993→ | Rolling window | 1993→ | Contract |
+| **History** | Recent fiscal years + YTD | Full history | Rolling window | Full history | Contract |
 | **Workspace + playbooks** | — | ✓ | ✓ | ✓ | ✓ |
 | **AI chat (Valuein AI or your own key)** | — | ✓ | ✓ | ✓ | ✓ |
 | **Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
