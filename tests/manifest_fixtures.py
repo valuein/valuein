@@ -7,6 +7,7 @@ files lives in ``conftest.py``. Nothing here touches the network.
 from __future__ import annotations
 
 import copy
+import json
 from pathlib import Path
 from typing import Any
 
@@ -104,7 +105,13 @@ def assert_untouched(repo: dict[str, Path]) -> None:
     assert repo["agents"].read_text() == AGENTS_TEXT
 
 
+def load_figures_fixture() -> dict[str, Any]:
+    """Return the figures.json captured from the live site (tests/fixtures/figures.json)."""
+    return json.loads((Path(__file__).parent / "fixtures" / "figures.json").read_text())
+
+
 def run_main(monkeypatch: pytest.MonkeyPatch, manifest: Any, argv: list[str]) -> int:
     """Run ``main`` against an in-memory manifest instead of the network."""
     monkeypatch.setattr(sync, "load_manifest", lambda: manifest)
+    monkeypatch.setattr(sync, "load_figures", lambda: load_figures_fixture())
     return sync.main(argv)

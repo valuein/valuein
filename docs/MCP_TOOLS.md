@@ -95,6 +95,7 @@ When the first text block is not JSON, the protocol layer answered instead of th
 | `PRICE_SERIES_NOT_ALLOWED` | 409 | Report holds a price series |
 | `VERIFICATION_UNAVAILABLE` | 503 | Verification service unavailable |
 | `APPROVAL_REQUIRED` | 409 | Waiting for a person's approval |
+| `AMBIGUOUS_COMPANY` | 409 | More than one company matches |
 | `METHOD_NOT_APPLICABLE` | 422 | Method does not apply to this company |
 | `INTERNAL_ERROR` | 500 | Internal server error |
 
@@ -137,7 +138,7 @@ Every success result carries `structuredContent._meta`. Each tool's outputSchema
 ## Tools
 
 <!-- GEN:mcp-tool-reference -->
-_Generated from the MCP server manifest (v3.40.5) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
+_Generated from the MCP server manifest (v3.41.0) by `scripts/sync_mcp_manifest.py`. Do not edit by hand: the next sync overwrites it._
 
 **108 tools**, in the server's registration order. Effect comes from each tool's MCP annotations (`readOnlyHint`, `destructiveHint`); paging is explained in the agent contract above. Descriptions are the manifest's summaries: the live `tools/list` response carries each tool's full description and JSON Schema.
 
@@ -271,8 +272,9 @@ Search for US public companies by name, ticker symbol, CIK (SEC identifier), or 
 | `is_sp500` | boolean | no | — | Filter to current S&P 500 members only. |
 | `include_inactive` | boolean | no | default `true` | Whether delisted / superseded listings may appear in results. Defaults to true — this is a survivorship-free product, so a search must not silently hide dead companies by default. Set to false to restrict to currently-active listings only (equivalent to `is_active: true`, but as a search-scope toggle rather than a hard filter). If `is_active` is also supplied, `is_active` wins. |
 | `limit` | integer | no | default `25` | Maximum number of results to return (1–50). Defaults to 25. |
+| `as_of_date` | string | no | — | Point-in-time day for `resolution`: a reused ticker resolves to the company that held it that day, and former names in use that day are preferred. Does not filter `companies`. |
 
-**Output fields:** `query`, `results_returned`, `companies`
+**Output fields:** `query`, `results_returned`, `companies`, `resolution`
 
 ### `get_company_fundamentals`
 
@@ -1893,7 +1895,7 @@ These are pre-written multi-step instructions an MCP-aware agent can invoke as a
 Invoke a prompt the same way as a tool — most clients surface them in the same picker.
 
 <!-- GEN:mcp-prompts -->
-_Generated from the MCP server manifest (v3.40.5); 31 prompts._
+_Generated from the MCP server manifest (v3.41.0); 31 prompts._
 
 | Prompt | Title | Min plan | Summary |
 |---|---|---|---|
@@ -1937,7 +1939,7 @@ _Generated from the MCP server manifest (v3.40.5); 31 prompts._
 Read-only reference resources for grounding the agent. Resources are cheaper to read than tool calls — agents that just need schema or a ticker list should pull from these.
 
 <!-- GEN:mcp-resources -->
-_Generated from the MCP server manifest (v3.40.5); 7 resources._
+_Generated from the MCP server manifest (v3.41.0); 7 resources._
 
 | Resource | Title | Min plan | Summary |
 |---|---|---|---|

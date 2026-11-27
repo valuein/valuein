@@ -84,6 +84,7 @@ MCP_TOOLS_DOC = REPO_ROOT / "docs" / "MCP_TOOLS.md"
 AGENTS_DOC = REPO_ROOT / "AGENTS.md"
 
 DEFAULT_MANIFEST_URL = "https://mcp.valuein.biz/manifest.json"
+DEFAULT_FIGURES_URL = "https://valuein.biz/figures.json"
 
 # Tools that are deliberately hidden until the paid report marketplace launches.
 # The publish guard refuses any manifest that lists one of these, whatever its
@@ -98,6 +99,7 @@ EXIT_GUARD_REFUSED = 3
 # Exit code when the manifest predates the agent contract (no `agent_contract`,
 # or a tool without `inputs` / `output_fields` / `paging`).
 EXIT_CONTRACT_MISSING = 4
+EXIT_FIGURES_MISSING = 5
 
 # The doc-integrity IP-leak denylist, as the exact alternation that workflow greps
 # for. Keep this line byte-identical to the gate's pattern: the gate exempts lines
@@ -134,6 +136,61 @@ def load_manifest() -> dict:
     req = Request(url, headers={"User-Agent": "valuein-sync-mcp-manifest/1.0"})
     with urlopen(req, timeout=30) as resp:
         return json.loads(resp.read())
+
+
+# Every figures.json key the README summary reads: (section, dotted key, expected type).
+FIGURES_KEYS: tuple[tuple[str, str, type], ...] = (
+    ("dataset", "entityCount", str),
+    ("dataset", "historyStart", int),
+    ("filerMix", "labels.pro_companies", str),
+    ("plans", "proHistoryYears", int),
+    ("plans", "proHistoryStart", int),
+    ("plans", "indexMembershipStart", int),
+    ("plans", "sampleHistoryYears", int),
+    ("plans", "benchmarkHistoryStart", int),
+)
+
+
+def validate_figures(figures: object) -> dict:
+    """Return `figures` if it carries every key the summary renders, else raise.
+
+    Raises:
+        ValueError: Naming each missing or wrongly typed key. There is no
+            fallback to typed numbers: a summary that cannot be rendered from
+            the site's figures is not published.
+    """
+    if not isinstance(figures, dict):
+        raise ValueError("figures.json is not a JSON object")
+    problems: list[str] = []
+    for section, key, kind in FIGURES_KEYS:
+        node: Any = figures.get(section)
+        for part in key.split("."):
+            node = node.get(part) if isinstance(node, dict) else None
+        if isinstance(node, bool) or not isinstance(node, kind) or node == "":
+            problems.append(f"{section}.{key}")
+    if problems:
+        raise ValueError("figures.json lacks or mistypes: " + ", ".join(problems))
+    return figures
+
+
+def load_figures() -> dict:
+    """Fetch and validate the website's published figures file.
+
+    The URL is `FIGURES_URL` (env) or `DEFAULT_FIGURES_URL`.
+
+    Raises:
+        RuntimeError: When the file is unreachable, not JSON, or lacks a key
+            the summary uses. Never falls back to typed numbers.
+    """
+    url = os.environ.get("FIGURES_URL", "").strip() or DEFAULT_FIGURES_URL
+    print(f"  figures: {url}")
+    req = Request(url, headers={"User-Agent": "valuein-sync-mcp-manifest/1.0"})
+    try:
+        with urlopen(req, timeout=30) as resp:
+            raw = json.loads(resp.read())
+        return validate_figures(raw)
+    except (OSError, ValueError) as exc:
+        raise RuntimeError(f"cannot read figures from {url}: {exc}") from exc
 
 
 def _guard_manifest_problems(manifest: object) -> list[str]:
@@ -257,19 +314,20 @@ def update_server_json(manifest: dict) -> tuple[str, str]:
 
 README_SUMMARY_TEMPLATE = (
     "The server exposes **{live} live tools{stub_clause}**, "
-    "plus **{prompts} agentic SOP prompts** "
+    "plus **{prompts} guided prompts** "
     "(two flagship cross-persona briefs — `equity_research_brief` and "
     "`screen_and_shortlist` — plus specialised chains for analyst, PM, "
     "quant, ratio, smart-money, and workflow personas) and **{resources} "
     "data resources** (`schema://{{table}}`, `reference://sp500`, "
     "`pricing://current`). Tier gating happens at the data layer — the "
-    "free Sample (no token, from 2020) and Benchmark (every S&P 500 "
-    "member since 1996, former members included, history from 1993) tiers see their "
-    "slices; Pro sees the full universe of 28,000+ active and delisted "
-    "companies with a 15-year point-in-time window (2011 → present); "
+    "free Sample (no token, the most recent {sample_years} fiscal years) and "
+    "Benchmark (every S&P 500 member since {index_start}, former members included, "
+    "history from {benchmark_start}) tiers see their slices; Pro sees "
+    "{pro_companies} active and delisted companies with statements in a "
+    "{pro_years}-year point-in-time window ({pro_start} → present); "
     "Institutional unlocks the smart-money tools (insider transactions "
     "on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / "
-    "13D / 13G), Form ADV, unlimited history back to 1993 and "
+    "13D / 13G), Form ADV, unlimited history back to {history_start} across {entity_count} companies and "
     "filing-event webhooks, for single-seat internal use. Enterprise (a firm "
     "licence by Enterprise Agreement, with analyst seats included and "
     "unlimited agents for internal use) adds firm-wide use "
@@ -289,13 +347,16 @@ STALE_PARAGRAPH_RE = re.compile(
 )
 
 
-def render_summary(manifest: dict) -> str:
+def render_summary(manifest: dict, figures: dict) -> str:
     """Render the README summary block with marker fence.
 
     The stub clause is suppressed entirely when the manifest reports zero
     stub tools — "72 live tools" reads cleanly, while "72 live tools + 0 stub"
-    would be a confusing artifact for public visitors.
+    would be a confusing artifact for public visitors. Every dataset and plan
+    figure comes from `figures` (the site's figures.json), never from typed text.
     """
+    figures = validate_figures(figures)
+    plans = figures["plans"]
     counts = manifest["counts"]
     stubs = counts["tools_stub"]
     if stubs:
@@ -308,14 +369,22 @@ def render_summary(manifest: dict) -> str:
         stub_clause=stub_clause,
         prompts=counts["prompts"],
         resources=counts["resources"],
+        sample_years=plans["sampleHistoryYears"],
+        index_start=plans["indexMembershipStart"],
+        benchmark_start=plans["benchmarkHistoryStart"],
+        pro_companies=figures["filerMix"]["labels"]["pro_companies"],
+        pro_years=plans["proHistoryYears"],
+        pro_start=plans["proHistoryStart"],
+        history_start=figures["dataset"]["historyStart"],
+        entity_count=figures["dataset"]["entityCount"],
     )
     return f"<!-- GEN:mcp-summary -->\n{body}\n<!-- /GEN:mcp-summary -->"
 
 
-def update_readme(manifest: dict) -> tuple[str, str]:
+def update_readme(manifest: dict, figures: dict) -> tuple[str, str]:
     """Return (current_text, target_text) for README.md."""
     current = README.read_text()
-    rendered = render_summary(manifest)
+    rendered = render_summary(manifest, figures)
     if MARKER_RE.search(current):
         target = MARKER_RE.sub(rendered, current)
     elif STALE_PARAGRAPH_RE.search(current):
@@ -859,6 +928,11 @@ def main(argv: list[str] | None = None) -> int:
     check_mode = args.check
     print("Sync MCP manifest → public hub:")
     manifest = load_manifest()
+    try:
+        figures = load_figures()
+    except RuntimeError as exc:
+        print(f"\n✗ {exc}", file=sys.stderr)
+        return EXIT_FIGURES_MISSING
 
     # Publish guard: runs in both modes, before anything is read further or written.
     problems = guard_problems(manifest, SERVER_JSON.read_text())
@@ -894,7 +968,7 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     server_current, server_target = update_server_json(manifest)
-    readme_current, readme_target = update_readme(manifest)
+    readme_current, readme_target = update_readme(manifest, figures)
     docs = update_docs(blocks)
     for path, _current, target in docs:
         if path == MCP_TOOLS_DOC and _names_in_text(target):
