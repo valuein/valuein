@@ -349,3 +349,13 @@ def test_update_readme_fills_plan_blocks(repo: dict[str, Path]) -> None:
     sync.README.write_text("<!-- GEN:mcp-summary -->\nx\n<!-- /GEN:mcp-summary -->\n")
     with pytest.raises(RuntimeError, match="plan-table"):
         sync.update_readme(clean_manifest(), load_figures_fixture())
+
+
+def test_taxonomy_spans_move_with_figures() -> None:
+    """The METHODOLOGY / DDQ taxonomy counts are filled from figures.json."""
+    figures = load_figures_fixture()
+    figures["dataset"]["tableCounts"]["taxonomy_guide"] = "99,999"
+    figures["dataset"]["conceptCount"] = "777+"
+    for _path, _cur, target in sync.update_figure_docs(figures):
+        assert "<!-- GEN:taxonomy-tags -->99,999<!-- /GEN:taxonomy-tags -->" in target
+        assert "<!-- GEN:taxonomy-concepts -->777+<!-- /GEN:taxonomy-concepts -->" in target

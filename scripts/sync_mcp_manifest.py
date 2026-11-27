@@ -148,6 +148,8 @@ FIGURES_KEYS: tuple[tuple[str, str, type], ...] = (
     ("plans", "indexMembershipStart", int),
     ("plans", "sampleHistoryYears", int),
     ("plans", "benchmarkHistoryStart", int),
+    ("dataset", "conceptCount", str),
+    ("dataset", "tableCounts.taxonomy_guide", str),
 )
 
 
@@ -371,7 +373,38 @@ def figure_slots(figures: dict) -> dict[str, Any]:
         "pro_start": plans["proHistoryStart"],
         "history_start": figures["dataset"]["historyStart"],
         "entity_count": figures["dataset"]["entityCount"],
+        "concept_count": figures["dataset"]["conceptCount"],
+        "taxonomy_tags": figures["dataset"]["tableCounts"]["taxonomy_guide"],
     }
+
+
+# Inline GEN spans in docs: {repo-relative path: {block name: template}}. The span's
+# whole text is replaced, so the figure is never typed outside figures.json.
+FIGURE_DOC_BLOCKS: dict[str, dict[str, str]] = {
+    "docs/METHODOLOGY.md": {"taxonomy-tags": "{taxonomy_tags}", "taxonomy-concepts": "{concept_count}"},
+    "docs/COMPLIANCE_AND_DDQ.md": {"taxonomy-tags": "{taxonomy_tags}", "taxonomy-concepts": "{concept_count}"},
+}
+
+
+def update_figure_docs(figures: dict) -> list[tuple[Path, str, str]]:
+    """Return (path, current, target) for each doc carrying inline figure spans.
+
+    Raises:
+        RuntimeError: When a doc lacks one of its marker pairs (never a guess).
+    """
+    slots = figure_slots(figures)
+    out: list[tuple[Path, str, str]] = []
+    for rel, blocks in FIGURE_DOC_BLOCKS.items():
+        path = REPO_ROOT / rel
+        current = path.read_text()
+        target = current
+        for name, tpl in blocks.items():
+            pattern = re.compile(rf"(<!-- GEN:{name} -->).*?(<!-- /GEN:{name} -->)", re.DOTALL)
+            if not pattern.search(target):
+                raise RuntimeError(f"{rel} lacks the <!-- GEN:{name} --> marker pair")
+            target = pattern.sub(lambda m, t=tpl.format(**slots): m.group(1) + t + m.group(2), target)
+        out.append((path, current, target))
+    return out
 
 
 def render_plan_blocks(figures: dict) -> dict[str, str]:
@@ -868,7 +901,14 @@ def _refuse(problems: list[str], code: int, headline: str) -> int:
 
 # Every file this script writes, repo-relative; `change_owns_drift` compares
 # their generated regions (`_generated_regions`) with the change's base.
-GENERATED_FILES = ("server.json", "README.md", "docs/MCP_TOOLS.md", "AGENTS.md")
+GENERATED_FILES = (
+    "server.json",
+    "README.md",
+    "docs/MCP_TOOLS.md",
+    "AGENTS.md",
+    "docs/METHODOLOGY.md",
+    "docs/COMPLIANCE_AND_DDQ.md",
+)
 _GEN_SPAN = re.compile(r"<!-- GEN:([\w-]+) -->.*?<!-- /GEN:\1 -->", re.DOTALL)
 
 
@@ -1022,7 +1062,7 @@ def main(argv: list[str] | None = None) -> int:
 
     server_current, server_target = update_server_json(manifest)
     readme_current, readme_target = update_readme(manifest, figures)
-    docs = update_docs(blocks)
+    docs = update_docs(blocks) + update_figure_docs(figures)
     for path, _current, target in docs:
         if path == MCP_TOOLS_DOC and _names_in_text(target):
             return _refuse(

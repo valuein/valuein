@@ -59,6 +59,8 @@ on:
       - 'README.md'
       - 'docs/MCP_TOOLS.md'
       - 'AGENTS.md'
+      - 'docs/METHODOLOGY.md'
+      - 'docs/COMPLIANCE_AND_DDQ.md'
 
 # One sync at a time: a deploy dispatch and a merge landing together queue,
 # and the second renders from the main the first pushed. Never cancelled
@@ -105,7 +107,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          FILES="server.json README.md docs/MCP_TOOLS.md AGENTS.md"
+          FILES="server.json README.md docs/MCP_TOOLS.md AGENTS.md docs/METHODOLOGY.md docs/COMPLIANCE_AND_DDQ.md"
           for attempt in 1 2 3; do
             git add $FILES
             git commit -q -m "chore: sync MCP manifest (server.json, README counts, MCP docs)"

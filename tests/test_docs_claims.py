@@ -242,7 +242,13 @@ def test_raw_tag_count_agrees_across_docs() -> None:
     """The catalog generator and the methodology quote the same raw-tag count (taxonomy_guide: 11,966)."""
     assert "15,000+" not in _read("scripts/generate_catalog.py")
     assert "15,000+" not in _read("docs/data_catalog.md")
-    assert "11,966 unique raw XBRL tags" in _read("docs/METHODOLOGY.md")
+    figures = json.loads((Path(__file__).parent / "fixtures" / "figures.json").read_text())
+    tags = figures["dataset"]["tableCounts"]["taxonomy_guide"]
+    concepts = figures["dataset"]["conceptCount"]
+    for rel in ("docs/METHODOLOGY.md", "docs/COMPLIANCE_AND_DDQ.md"):
+        text = _read(rel)
+        assert f"<!-- GEN:taxonomy-tags -->{tags}<!-- /GEN:taxonomy-tags -->" in text, rel
+        assert f"<!-- GEN:taxonomy-concepts -->{concepts}<!-- /GEN:taxonomy-concepts -->" in text, rel
 
 
 def test_sql_blocks_do_not_name_a_cte_with_a_duckdb_keyword() -> None:
