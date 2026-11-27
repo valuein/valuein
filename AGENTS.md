@@ -103,7 +103,7 @@ Discovery: `https://valuein.biz/.well-known/mcp.json`
 
 To add Valuein as a tool to Claude, Copilot, ChatGPT, Cursor, or any MCP-capable agent client, register `https://mcp.valuein.biz/mcp` as a custom MCP server. The same Stripe Bearer token authenticates the SDK and the MCP server — no per-channel billing.
 
-Live tool, prompt (SOP) and resource counts: `server.json` `_meta["biz.valuein/tools_summary"]`, or `curl -s https://mcp.valuein.biz/manifest.json | jq .counts`. Research state is protocol-native and agent-agnostic: theses, claims, watchlists, signals, reports, scheduled tasks, and rules persist server-side keyed to the token — save a thesis from Claude, list it from Cursor. Mutating/destructive actions go through a staged-action approval ledger (`stage_action` → human `approve_staged_action`, immutable audit entry). Publishing is free: `publish_report` / `unpublish_report` / `search_reports` (keyword catalog search, no semantic search yet) plus the matching `publish_thesis` / `unpublish_thesis` and `publish_claim` / `unpublish_claim` build a public `@handle` profile and reputation. Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md); the live manifest is authoritative.
+Live tool, prompt (SOP) and resource counts: `server.json` `_meta["biz.valuein/tools_summary"]`, or `curl -s https://mcp.valuein.biz/manifest.json | jq .counts`. Research state is protocol-native and agent-agnostic: watchlists, signals, reports, agents, scheduled tasks, and rules persist server-side keyed to the token — save a watchlist from Claude, list it from Cursor. Mutating/destructive actions go through a staged-action approval ledger (`stage_action` → a person approves it in the Valuein Workspace, immutable audit entry; no MCP client can approve a staged action). Publishing is free: `publish_report` / `unpublish_report` / `search_reports` (keyword catalog search, no semantic search yet) build a public `@handle` profile and reputation. Full reference: [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md); the live manifest is authoritative.
 
 <!-- GEN:agent-contract -->
 ## Reading tool results: errors and paging
@@ -223,10 +223,11 @@ The paywall is advertised **on the resource**. Ask for the data; if payment is r
    → 402 Payment Required
      WWW-Authenticate: Payment id="…", realm="api.valuein.biz", method="stripe",
                        intent="charge", expires="…", opaque="…", request="…"
-       request = base64url({"amount":"100","currency":"usd",
+       request = base64url({"amount":"200","currency":"usd",
                             "methodDetails":{"networkId":"profile_…",
                                              "paymentMethodTypes":["card"]}})
-       NOTE: `amount` is a STRING of CENTS ("100" = $1.00).
+       NOTE: `amount` is a STRING of CENTS ("200" = $2.00, one pro-level company pass;
+             "100" when you present a Valuein token).
 
 2. Retry the SAME request with the credential:
      Authorization: Payment <base64url({
@@ -288,16 +289,16 @@ Never guess whether you paid. A dropped connection after payment is the one case
 
 | What you buy | Price | Tools |
 |---|---|---|
-| Company pass, `pro` level | **$1.00** per company, 24 h | Pro data (history from 2011) in every company-data tool (`get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_peer_comparables`, …) |
-| Company pass, `full` level | **$5.00** per company, 24 h | Institutional data: history back to 1993, plus the smart-money tools and `verify_filing_figures` (`get_insider_transactions`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`, …) |
-| Compute run | **$1.00** per run, plus a pass for each company it reads | `compute_dcf`, `project_three_statement`, `compute_accretion_dilution`, `compute_lbo`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx`, … |
-| Verification run | **$1.00** per run of up to 50 figures, plus a pass for each company outside your plan | `verify_facts`, `verify_report_figures`, `verify_filing_figures`, `check_report_figures_current` |
-| Universe run | **$5.00** per run (no passes) | `screen_universe`, `get_pit_universe`, `run_backtest` |
+| Company pass, `pro` level | **$2.00** per company, 24 h ($1.00 with any Valuein token) | Pro data (history from 2011) in every company-data tool (`get_company_fundamentals`, `get_financial_ratios`, `get_valuation_metrics`, `get_peer_comparables`, …) |
+| Company pass, `full` level | **$5.00** per company, 24 h ($2.50 with any Valuein token) | Institutional data: history back to 1993, plus the smart-money tools and `verify_filing_figures` (`get_insider_transactions`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`, …) |
+| Compute run | **$2.00** per run ($1.00 with a token), plus a pass for each company it reads | `compute_dcf`, `project_three_statement`, `compute_accretion_dilution`, `compute_lbo`, `forensic_audit`, `generate_dcf_xlsx`, `generate_research_brief_docx`, `generate_comps_xlsx`, … |
+| Verification run | **$2.00** per run of up to 50 figures ($1.00 with a token), plus a pass for each company outside your plan | `verify_facts`, `verify_report_figures`, `verify_filing_figures`, `check_report_figures_current` |
+| Universe run | **$5.00** per run ($2.50 with a token; no passes) | `screen_universe`, `get_pit_universe`, `run_backtest` |
 | Free | **$0** | `search_companies`, `get_sec_filing_links`, `list_filing_forms`, `latest_filings`, `describe_schema`, `verify_fact_lineage`, `list_restatements`, … |
 
-A run that reads companies buys a pass for each one it does not already cover (`compute_dcf` on AAPL as a guest: $1.00 run + $1.00 pass = **$2.00**); a pass you already hold, or your own plan, covers that company for free. One order covers up to 50 companies.
+A run that reads companies buys a pass for each one it does not already cover (`compute_dcf` on AAPL as a guest: $2.00 run + $2.00 pass = **$4.00**, or $2.00 with any Valuein token); a pass you already hold, or your own plan, covers that company for free. One order covers up to 50 companies.
 
-Any valid Valuein token pays **50% less**, the free Benchmark token included (smallest possible charge: $0.50). Every account verifies its first **100 figures** free, once (a whole-report check is all or nothing, and the first one is free in full); a paid verification run covers only the figures your own plan does not already include. A guest has no trial.
+Any valid Valuein token pays **50% less**, the free Benchmark token included (smallest possible charge: $1.00, a `pro` pass or a compute or verification run with a token; there is no minimum beyond the price of the call). Every account verifies its first **100 figures** free, once (a whole-report check is all or nothing, and the first one is free in full); a paid verification run covers only the figures your own plan does not already include. A guest has no trial.
 
 **Not sold per call:** the Workspace tools (watchlists, signals, agents and their memory, reports, citation overrides, figure reviews, undo/restore) and bulk Parquet streaming (`get_compute_ready_stream`) come with a subscription. `verify_report_figures` and `check_report_figures_current` need an account, so a guest is asked to sign up before any payment offer.
 

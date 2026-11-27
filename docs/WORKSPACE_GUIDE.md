@@ -37,19 +37,18 @@ Read the **15-minute setup** first. Then jump to the **one persona that matches 
 
 The Workspace is the authenticated product at **[valuein.biz/workspace](https://valuein.biz/workspace)**. It is *chat-first* — you talk to Valuein AI (paid from your balance) or to your own LLM key (Claude or GPT, zero retention) and it has Valuein's entire data layer wired in behind it.
 
-Five things live here, and they reinforce each other:
+Four things live here, and they reinforce each other:
 
 | Building block | What it is | The job it does for you |
 |---|---|---|
-| **Chat** | Valuein AI or your own LLM key, with 118 SEC data tools + 39 playbooks | Ask anything about any US public company; get cited, point-in-time answers |
+| **Chat** | Valuein AI or your own LLM key, with the full Valuein tool catalog and its playbooks | Ask anything about any US public company; get cited, point-in-time answers |
 | **Watchlists** | Named ticker lists (≤500 tickers + a criteria note) | The universe everything else points at — coverage, portfolio, pipeline |
-| **Theses** | Time-stamped bull/bear/neutral calls (conviction 1–5, horizon) | Record what you thought *and when*; auto-graded against fundamentals |
 | **Signals → Inbox** | Rules on filings, ratios, or watchlist changes | Passive monitoring so you never miss an 8-K or a covenant trip |
 | **Reports** | Editable research artifacts → shareable at `/r/[slug]` | Your deliverable + your public, SEO-indexed credibility |
 
 Plus four data channels behind **one Bearer token**: the in-app chat, the **MCP server** (Claude Desktop / Cursor / Codex), the **Python SDK**, and the **Bulk Data API**. Connect once, use everywhere.
 
-> **Mental model:** Watchlists define *what* you watch. Theses record *what you believe*. Signals tell you *when something changed*. Chat + Playbooks do *the analysis*. Reports are *what you ship*. Publishing reports builds *reputation*.
+> **Mental model:** Watchlists define *what* you watch. Signals tell you *when something changed*. Chat + Playbooks do *the analysis*. Reports are *what you ship*. Publishing reports builds *reputation*.
 
 ---
 
@@ -64,10 +63,9 @@ A checklist that takes you from zero to first real value. Tick these in order.
   This invokes the `equity_research_brief` playbook at `quick` depth. You'll see cited, point-in-time data come back in ~30s.
 - [ ] **4. Create your first watchlist** (`/workspace/watchlists/new`). Paste 5–20 tickers you actually care about. Add a one-line criteria note (e.g. *"core coverage — quality compounders"*). This becomes the spine of your daily routine.
 - [ ] **5. Set one signal** (`/workspace/signals/new`). Pick **Watchlist change** → your new watchlist → **Dashboard** channel. Now any 8-K/10-Q/10-K from those names lands in your Inbox. Hit **Send test fire** to confirm it works.
-- [ ] **6. Record one thesis** (`/workspace/theses/new`). Take your highest-conviction name, set bull/bear/neutral, conviction, and horizon. This is the seed of your track record.
-- [ ] **7. Connect your desktop AI** (`/account/settings/api`). Copy the Claude Desktop / Cursor / Codex config (your token is pre-filled), paste it, restart the app, hit **Test connection**. Now Valuein is in the tool you already use all day.
+- [ ] **6. Connect your desktop AI** (`/account/settings/api`). Copy the Claude Desktop / Cursor / Codex config (your token is pre-filled), paste it, restart the app, hit **Test connection**. Now Valuein is in the tool you already use all day.
 
-**You're live.** Steps 1–3 are the "aha" (cited data in your chat). Steps 4–6 turn it into a *system* that works while you sleep. Step 7 meets you where you already work.
+**You're live.** Steps 1–3 are the "aha" (cited data in your chat). Steps 4–5 turn it into a *system* that works while you sleep. Step 6 meets you where you already work.
 
 ---
 
@@ -85,11 +83,10 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - Watchlist **"Coverage"** — every name you cover (criteria: *"active coverage list"*).
 - Watchlist **"Earnings — this quarter"** — names reporting in the next ~6 weeks.
 - Signal: **Filing event** on Coverage tickers, form types `8-K, 10-Q, 10-K` → **Dashboard** (and **Email** for your top 5 names).
-- A **thesis** for each covered name so your view is on record and self-grades.
 
 **Daily (5–10 min)**
 - Check the **Inbox** — new filings on your coverage.
-- For anything that moved: *"Summarize the 8-K [TICKER] just filed and tell me if it changes the thesis."*
+- For anything that moved: *"Summarize the 8-K [TICKER] just filed and tell me what changed versus its last filing."*
 - Quick fundamental pulls in chat as questions come up — every answer is cited to the filing.
 
 **Weekly (30–60 min)**
@@ -102,9 +99,8 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - **`margin_and_moat_teardown`** — 5-year operating-efficiency + moat read on a core holding.
 - **`capital_allocation_review`** — is management actually creating value with retained earnings?
 - **`restatement_radar`** across Coverage (`since` = last month) — catch quiet 10-K/A and 10-Q/A amendments.
-- Re-score theses: *"Score all my theses past their horizon and tell me which broke."* (`score_due_theses`).
 
-**Upgrade path:** DCF, three-statement projection, LBO and forensic audit already run on the free Benchmark tier. **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500), your public analyst profile + reputation, and one-click **XLSX/DOCX deliverables** (DCF, comps and LBO workbooks; Word research briefs) for client and IC work. **Institutional** adds the smart-money layer, filing-event webhooks and full history back to 1993.
+**Upgrade path:** DCF, three-statement projection, LBO and forensic audit already run on the free Benchmark tier. **Pro** unlocks the full active + delisted US universe (cover anything, not just S&P 500), your public analyst profile, and one-click **XLSX/DOCX deliverables** (DCF, comps and LBO workbooks; Word research briefs) for client and IC work. **Institutional** adds the smart-money layer, filing-event webhooks and full history back to 1993.
 
 ---
 
@@ -116,7 +112,6 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - Watchlist **"Portfolio"** — current positions (criteria: *"live book"*).
 - Watchlist **"Pipeline"** — researched candidates not yet sized.
 - Signals: **Watchlist change** on Portfolio → Dashboard; plus **Ratio threshold** signals on your levered names (e.g. `net_debt_to_ebitda > 4`, `interest_coverage < 2`) → Email.
-- A **thesis per position** with conviction + horizon — this *is* your book's memory.
 
 **Daily (5 min)**
 - **`morning_briefing`** → *"Run morning_briefing on my Portfolio watchlist since yesterday — rank by likely impact."* Material filings, ranked, before the open.
@@ -128,7 +123,6 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - *(Institutional)* **`smart_money_pulse`** on Portfolio → who's accumulating, insider clusters, activist filings.
 
 **Monthly**
-- **`portfolio_health_check`** → which theses are on track vs broken, top-3 issues.
 - **`capital_allocation_review`** on the names you're adding to.
 - Trim/rotate the **Pipeline** watchlist and refresh convictions.
 
@@ -149,7 +143,7 @@ Find the persona closest to you and follow its **Setup → Daily → Weekly → 
 - **`pit_factor_constructor`** → build Quality / Value / Momentum factor scores cross-sectionally, point-in-time correct.
 - **`get_pit_universe`** → reconstructed index/sector membership on any historical date (no lookahead); its `pit_safe` flag says whether every matched date is high confidence.
 - **`get_compute_ready_stream`** → presigned Parquet URLs for `fact`, `ratio`, `filing`, `references`, `index_membership` → stream into the SDK's out-of-core DuckDB.
-- **`screen_to_thesis`** → screen → forensic audit → auto-save theses on the top names (closes the loop from signal to tracked call).
+- **`screen_to_thesis`** → screen → forensic audit → a shortlist of the top N candidates, ready for a research brief.
 
 **Why it matters here:** every PIT-tabled value is filtered at `as_of` — no survivorship bias, no restatement leakage. That's the difference between a backtest you can trust and one you can't.
 
@@ -168,16 +162,16 @@ This is the highest-leverage path — your published work becomes an SEO/AEO-ind
 - Decide your beat (a sector, a style, a theme) and build a watchlist for it.
 
 **The publishing flywheel (weekly rhythm)**
-1. **Form a view** → record a **public thesis** (bull/bear/neutral + conviction + horizon). Set visibility = **Public** so it counts toward your reputation.
+1. **Pick the question** → a name on your beat and the question your audience is asking about it.
 2. **Build the case** → run `equity_research_brief` in chat → save as a **Report**.
 3. **Polish** → edit in the report editor (`/workspace/reports/[id]`), autosave on.
 4. **Publish** → **Share** → visibility **Public** → set your byline display name → you get `valuein.biz/r/[slug]` with Article JSON-LD + clickable SEC EDGAR citations baked in.
 5. **Distribute** → drop the link on LinkedIn/X/Substack. Every citation is verifiable, which is the whole pitch.
-6. **Compound** → as your public theses get auto-graded, your **reputation score** (`correct / (correct+wrong)`, shown once you have ≥5 graded) becomes your credibility moat.
+6. **Compound** → every published report stays on your `@handle` profile with its citations, so your record of work builds up in one public place.
 
-**Why creators win here:** the reputation is *earned and provable* (graded against real fundamentals, not vibes), and every report is a citation-rich page that AI search engines (Perplexity, SearchGPT, Claude) can cite. Your distribution becomes your top-of-funnel, and Valuein's data becomes your credibility.
+**Why creators win here:** every figure in a published report links to its SEC filing, so a reader can check your work, and every report is a citation-rich page that AI search engines (Perplexity, SearchGPT, Claude) can cite. Your distribution becomes your top-of-funnel, and Valuein's data becomes your credibility.
 
-**Upgrade path:** **Pro** unlocks the public profile + reputation scoring and the full universe to cover anything your audience asks about.
+**Upgrade path:** **Pro** unlocks the public profile and the full universe to cover anything your audience asks about.
 
 ---
 
@@ -186,10 +180,10 @@ This is the highest-leverage path — your published work becomes an SEO/AEO-ind
 Publishing isn't just for creators — it's how *any* user turns work into reputation, and it's the engine of the whole platform. The flow:
 
 ```
-Form a view → save thesis (public) → research it (Playbook → Report)
+Pick a question → research it (Playbook → Report)
    → edit → Share (public) → valuein.biz/r/[slug]  ──┐
                                                        │ SEO / AEO indexed
-   reputation builds as theses auto-grade  ◄───────────┘ citation-rich article
+   your profile collects every report  ◄───────────────┘ citation-rich article
                                                        │
    readers discover it via /research + your profile ◄──┘
 ```
@@ -217,8 +211,8 @@ Each tier is designed to remove a *different* buyer objection, not slide a "more
 | **History** | 5 calendar years + YTD | 1993→ | Rolling window | 1993→ | Contract |
 | **Workspace + playbooks** | — | ✓ | ✓ | ✓ | ✓ |
 | **AI chat (Valuein AI or your own key)** | — | ✓ | ✓ | ✓ | ✓ |
-| **Theses / Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
-| **Public profile + reputation** | — | — | ✓ | ✓ | ✓ |
+| **Watchlists / Signals / Reports** | — | ✓ | ✓ | ✓ | ✓ |
+| **Public profile** | — | — | ✓ | ✓ | ✓ |
 | **DCF · three-statement · LBO · forensic audit** | — | ✓ | ✓ | ✓ | ✓ |
 | **XLSX/DOCX deliverables (DCF, comps, LBO, research brief)** | — | — | ✓ | ✓ | ✓ |
 | **Smart-money (insider + 13F + 13D/G)** | — | — | — | ✓ | ✓ |
@@ -241,7 +235,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; 
 - **`screen_and_shortlist`** — PM idea generation: screen a universe by objective → QC top 3 → hand off to the brief.
 
 **Analyst** — `margin_and_moat_teardown` · `earnings_pulse` · `forensic_earnings_brief` · `sector_overview_flow` · `dcf_build_flow` · `restatement_radar`
-**Portfolio Manager** — `quality_and_risk_audit` · `capital_allocation_review` · `smart_money_pulse`* · `morning_briefing` · `portfolio_health_check`
+**Portfolio Manager** — `quality_and_risk_audit` · `capital_allocation_review` · `smart_money_pulse`* · `morning_briefing`
 **Quant** — `survivorship_free_backtest` · `pit_factor_constructor` · `screen_to_thesis`
 **Ratio specialist** — `ratio_deep_dive` · `sector_ratio_screen`
 **Smart money*** — `smart_money_brief` · `activist_surveillance` · `activist_radar` · `peer_benchmarking_memo`
@@ -255,7 +249,7 @@ See **[full pricing](https://valuein.biz/pricing)** for the complete breakdown; 
 - **Screening:** `screen_universe`, `get_peer_comparables`, `get_pit_universe`, `get_compute_ready_stream`
 - **Valuation (free Benchmark tier and up):** `compute_dcf`, `project_three_statement`, `compute_lbo`, `compute_accretion_dilution`, `forensic_audit`
 - **Smart money (Institutional):** `get_insider_transactions`, `get_insider_sentiment`, `get_institutional_holdings`, `get_manager_portfolio`, `get_blockholders`, `get_top_holders`, `get_smart_money_flow`
-- **State (CRUD):** theses, watchlists, signals, reports, inbox
+- **State (CRUD):** watchlists, signals, reports, agents, inbox
 - **Document generation (Pro):** `generate_dcf_xlsx` (Excel model + 5×5 sensitivity), `generate_comps_xlsx` (peer comps table), `generate_lbo_xlsx` (LBO model), `generate_research_brief_docx` (branded Word memo with citations); `render_report` (Markdown/DOCX download of a saved report) runs on every tier
 
 ### Connect once, use everywhere (`/account/settings/api`)
@@ -280,11 +274,10 @@ You'll know the Workspace is delivering when, by end of week one, you have:
 - [ ] A connected LLM key and your desktop AI wired to the MCP
 - [ ] At least one **watchlist** that mirrors your real attention
 - [ ] At least one **signal** firing into your Inbox
-- [ ] At least one **thesis** on record (so your track record has started)
 - [ ] One **research brief** run end-to-end and saved as a Report
 - [ ] One report **published** at `/r/[slug]` (your first credibility deposit)
 
-Five minutes a day on the Inbox, thirty minutes a week on a brief, and one published report a week. That's the whole habit — and it compounds into a research desk that runs itself and a reputation that sells for you.
+Five minutes a day on the Inbox, thirty minutes a week on a brief, and one published report a week. That's the whole habit — and it compounds into a research desk that runs itself and a public record of work that sells for you.
 
 ---
 

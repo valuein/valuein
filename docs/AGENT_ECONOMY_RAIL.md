@@ -105,20 +105,20 @@ tool error: the agent contract in [`MCP_TOOLS.md`](MCP_TOOLS.md#reading-tool-res
 
 - **Company pass.** One company (a CIK) at one data level for **24 hours**: every
   company-data tool for that company, as often as you like, until it expires.
-  Level `pro` (Pro data, history from 2011) is **$1.00**; level `full`
+  Level `pro` (Pro data, history from 2011) is **$2.00**; level `full`
   (Institutional data: history back to 1993, plus the smart-money tools and
-  `verify_filing_figures`) is **$5.00**. One order covers up to 50 companies. The payment returns your passes in the
+  `verify_filing_figures`) is **$5.00** (with any Valuein token: $1.00 and $2.50). One order covers up to 50 companies. The payment returns your passes in the
   `X-Valuein-Mpp-Pass` response header and in `_meta["valuein/mpp"].passes`.
 - **Pass reuse.** Send a pass back in the `x-valuein-mpp-pass` header on later
   `/mcp` calls and its company is served at its level, free of further charge,
   until it expires.
 - **Per-run fees** for work that is not one company's data: **compute**
   (`compute_dcf`, `compute_lbo`, `forensic_audit`, document generation, …)
-  **$1.00**, **verification** (the figure-checking tools, up to 50 figures a
-  run) **$1.00**, and **universe** scans (`screen_universe`, `get_pit_universe`,
-  `run_backtest`) **$5.00**. A compute or verification run also buys a pass for
+  **$2.00**, **verification** (the figure-checking tools, up to 50 figures a
+  run) **$2.00**, and **universe** scans (`screen_universe`, `get_pit_universe`,
+  `run_backtest`) **$5.00** (with a token: $1.00, $1.00 and $2.50). A compute or verification run also buys a pass for
   each company it reads that you do not already cover (a pass you hold or your
-  own plan): `compute_dcf` on AAPL as a guest is $1.00 + $1.00 = **$2.00**. A
+  own plan): `compute_dcf` on AAPL as a guest is $2.00 + $2.00 = **$4.00** ($2.00 with any Valuein token). A
   universe run buys no passes.
 - **Token holders pay 50%.** Any valid Valuein token halves every price, the
   free Benchmark token included. The
@@ -131,7 +131,7 @@ tool error: the agent contract in [`MCP_TOOLS.md`](MCP_TOOLS.md#reading-tool-res
   figures your own plan does not already include. A guest has no trial.
 - **Subscribers too.** A subscriber pays the same prices for data outside
   their plan.
-- **No minimum.** The price of the call is the whole charge.
+- **No minimum.** The price of the call is the whole charge; the smallest charge there can be is $1.00 (a `pro` pass or a compute or verification run, with a token).
 
 Tools that are free (`search_companies`, `describe_schema`, `verify_fact_lineage`,
 …) cost nothing and never reach the paywall. The Workspace tools (watchlists,
@@ -174,10 +174,11 @@ curl -i -X POST https://api.valuein.biz/api/mpp/call \
 # HTTP/2 402
 # WWW-Authenticate: Payment id="…", realm="api.valuein.biz", method="stripe",
 #                   intent="charge", expires="…", opaque="…", request="…"
-#   request = base64url({"amount":"100","currency":"usd",
+#   request = base64url({"amount":"200","currency":"usd",
 #                        "methodDetails":{"networkId":"profile_…",
 #                                         "paymentMethodTypes":["card"]}})
-#   NOTE: amount is a STRING of CENTS ("100" = $1.00, one pro-level company pass).
+#   NOTE: amount is a STRING of CENTS ("200" = $2.00, one pro-level company pass;
+#         "100" when you present a Valuein token).
 
 # 2. Pay and retry the SAME request. Stripe's reference client does both for you
 #    (npm install -g @stripe/link-cli):
