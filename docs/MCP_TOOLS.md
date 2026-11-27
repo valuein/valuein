@@ -21,24 +21,25 @@ Everything between `GEN` markers on this page is written by `scripts/sync_mcp_ma
 
 ## How to connect
 
-### Claude Desktop
+### Claude
 
-Add to `claude_desktop_config.json`:
+Customize → Connectors → **+ Add** → **Add custom connector**, paste `https://mcp.valuein.biz/mcp`, and sign in with your Valuein account. To use a token in Claude Desktop instead: its `claude_desktop_config.json` starts local servers only, so the `mcp-remote` bridge (needs Node.js) connects it to the hosted endpoint:
 
 ```json
 {
   "mcpServers": {
     "valuein": {
-      "url": "https://mcp.valuein.biz/mcp",
-      "headers": { "Authorization": "Bearer YOUR_VALUEIN_API_KEY" }
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.valuein.biz/mcp", "--header", "Authorization:${AUTH_HEADER}"],
+      "env": { "AUTH_HEADER": "Bearer YOUR_VALUEIN_API_KEY" }
     }
   }
 }
 ```
 
-### Cursor / Copilot / any Streamable-HTTP MCP client
+### Cursor / VS Code / Windsurf / LangChain / LlamaIndex / any Streamable-HTTP MCP client
 
-Same URL + Bearer token. The server advertises tool, prompt, and resource listings on the standard MCP discovery endpoints — no extra configuration needed.
+Same URL + Bearer token. One-click install links and a config snippet for each are in the [README](../README.md#install-in-your-client). The server advertises tool, prompt, and resource listings on the standard MCP discovery endpoints — no extra configuration needed.
 
 ### Sample token
 
@@ -1879,9 +1880,9 @@ Render an LBO result into a professional Excel workbook (Summary + year-by-year 
 
 ---
 
-## Public publishing — free reputation building (reports, theses, claims)
+## Public publishing — free reputation building (reports)
 
-The publishing tools cost nothing on any plan; they need a signed-in token (each tool's minimum plan is in the reference above). They let an agent (or a creator working through one) turn saved work into a public, citable research track record linked from the author's `@handle` profile. This is **publishing to build a public profile and reputation, not selling** — there is no charge to the author or the reader, and the agent never mints a number (every published figure keeps its `fact_id` lineage). Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (`search_reports`; there is no semantic search). Theses and claims get the same `publish` / `unpublish` visibility toggle (`publish_thesis` / `unpublish_thesis`, `publish_claim` / `unpublish_claim`), so a full public track record (report + supporting theses + scored claims) is built with one consistent pattern.
+The publishing tools cost nothing on any plan; they need a signed-in token (each tool's minimum plan is in the reference above). They let an agent (or a creator working through one) turn saved work into a public, citable research track record linked from the author's `@handle` profile. This is **publishing to build a public profile and reputation, not selling** — there is no charge to the author or the reader, and the agent never mints a number (every published figure keeps its `fact_id` lineage). Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (`search_reports`; there is no semantic search).
 
 ---
 
@@ -1981,7 +1982,7 @@ There is one paid route, `POST https://api.valuein.biz/api/mpp/call` (unpaid →
 
 ### Company passes and run fees
 
-The payment buys a **company pass**: one company at one level (`pro` $1.00, `full` $5.00) for 24 hours, returned in the `X-Valuein-Mpp-Pass` header. Send it as `x-valuein-mpp-pass` on later `/mcp` calls to read that company's data at that level until the pass expires. Compute runs (`compute_dcf`, document generation, …) and verification runs cost $1.00 each plus a pass for each company they read that you do not already cover; universe runs (`screen_universe`, `get_pit_universe`, `run_backtest`) cost $5.00. Any Valuein token, the free Benchmark one included, pays 50% less (send it in `X-Valuein-Authorization`), and each account verifies its first 100 figures free, once. Workspace tools and bulk streaming are not sold per call.
+The payment buys a **company pass**: one company at one level (`pro` $2.00, `full` $5.00) for 24 hours, returned in the `X-Valuein-Mpp-Pass` header. Send it as `x-valuein-mpp-pass` on later `/mcp` calls to read that company's data at that level until the pass expires. Compute runs (`compute_dcf`, document generation, …) and verification runs cost $2.00 each plus a pass for each company they read that you do not already cover (`compute_dcf` on AAPL as a guest: $2.00 + $2.00 = $4.00); universe runs (`screen_universe`, `get_pit_universe`, `run_backtest`) cost $5.00. Any Valuein token, the free Benchmark one included, pays 50% less, so the smallest charge is $1.00 (send it in `X-Valuein-Authorization`), and each account verifies its first 100 figures free, once. Workspace tools and bulk streaming are not sold per call.
 
 ### Prices
 

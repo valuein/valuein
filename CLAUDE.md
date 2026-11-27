@@ -81,7 +81,7 @@ Columns: `docs/schema.json` (public subset); query patterns: `docs/QUERY_COOKBOO
 
 ## AGENTS.md
 
-External-agent-facing product document, not Claude instructions: `cloudflare:workers/agent-pay/src/routes/discovery.ts` (`AGENTS_MD_URL`) links agents to its GitHub URL, so keep its path, purpose and audience. Sources: tiers, prices, rate card `cloudflare:shared/plans.ts` (`PLANS`, `PAYG_TOOL_PRICING`); payment behaviour `cloudflare:workers/agent-pay/src/routes/mpp-{call,receipt}.ts`; MCP tools `mcp:manifest.json`; SDK calls `sdk:valuein_sdk/client.py`. No hardcoded counts or versions, no internal repos. Never promise "not charged" beyond `mpp-call` (`PAYMENT_STATE_UNKNOWN`, receipt `unconfirmed`). It moves with `CONTRIBUTING.md`.
+External-agent-facing product document, not Claude instructions: `cloudflare:workers/agent-pay/src/routes/discovery.ts` (`AGENTS_MD_URL`) links agents to its GitHub URL, so keep its path, purpose and audience. Sources: tiers and subscription prices `cloudflare:shared/plans.ts` (`PLANS`); MPP prices, categories and the token discount `cloudflare:shared/mpp-pricing.ts` (the one price book; check a live quote at `https://api.valuein.biz/api/mpp/quote`); payment behaviour `cloudflare:workers/agent-pay/src/routes/mpp-{call,receipt}.ts`; MCP tools `mcp:manifest.json`; SDK calls `sdk:valuein_sdk/client.py`. No hardcoded counts or versions, no internal repos. Never promise "not charged" beyond `mpp-call` (`PAYMENT_STATE_UNKNOWN`, receipt `unconfirmed`). It moves with `CONTRIBUTING.md`.
 
 ## Third-party index trademarks
 

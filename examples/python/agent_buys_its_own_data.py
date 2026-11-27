@@ -24,8 +24,6 @@ OpenAI function, an MCP client).
 
 from __future__ import annotations
 
-import os
-
 import httpx
 
 from valuein_sdk import ValueinClient
@@ -75,17 +73,17 @@ def main() -> None:
             f"(unlock level: {quote.get('unlock_level')})."
         )
         print(f"   Passes this would buy: {quote.get('passes')}")
-        print("   (A free price lookup — nothing in it is redeemable; the 402 is the binding quote.)\n")
+        print("   (A free price lookup, nothing in it redeemable; the 402 is the binding quote.)\n")
 
         # ── Step 4: PAY + FINISH — canonical MPP. We PRINT the next call. ─
         print("④ Pay + finish — canonical MPP, a standard 402 any MPP client speaks:\n")
         print(f"     POST {API}/api/mpp/call")
         print(f'       {{"tool": "{TOOL}", "arguments": {{"ticker": "{TICKER}"}}}}')
         print('       → 402  WWW-Authenticate: Payment id=… realm=… method="stripe" …')
-        print('            request = base64url({"amount":"100","currency":"usd",')
+        print('            request = base64url({"amount":"200","currency":"usd",')
         print('                                 "methodDetails":{"networkId":"profile_…",')
         print('                                                  "paymentMethodTypes":["card"]}})')
-        print("            (amount is a STRING of CENTS)\n")
+        print("            (amount is a STRING of CENTS: 200 = $2.00; 100 with a token)\n")
         print("     Retry the SAME request, now carrying the credential:")
         print("       Authorization: Payment <base64url({")
         print('         "challenge": { …the challenge params, echoed verbatim… },')

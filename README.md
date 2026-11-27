@@ -78,10 +78,10 @@ Valuein is MCP-first and agent-agnostic: the same typed tool surface works in Cl
 | **Fact-level lineage** | Every figure a tool returns carries a `fact_id` and its source filing; `verify_fact_lineage` round-trips any `fact_id` back to the exact SEC filing URL in one call. |
 | **Zero look-ahead** | Every time-series tool accepts `as_of_date` and reconstructs the information set as of that date — the same PIT discipline the Parquet layer enforces for backtests. |
 | **Reproducible runs** | Deterministic, idempotent tools: same inputs, same output. No rolling windows, no hidden "latest". Agents can cache, retry, and replay; you can reproduce a run later. |
-| **Agent-agnostic state** | Theses, claims, watchlists, signals, and reports persist server-side across sessions *and across clients* — save a thesis from Claude today, list it from Cursor tomorrow. |
+| **Agent-agnostic state** | Watchlists, signals, reports, agents, scheduled tasks and rules persist server-side across sessions *and across clients* — save a watchlist from Claude today, list it from Cursor tomorrow. |
 | **Human-on-the-loop (HOTL)** | Mutating and outward-facing tool actions go through a staged-action approval ledger: the agent proposes, a human approves, and the decision lands in an immutable audit entry. Read-only tools never stage. |
 | **Governed managed runs** | Server-side managed agent runs execute at temperature 0 with a model allow-list and destructive-tool stripping — reproducible research, not improvisation. |
-| **Graded track records** | Saved theses and claims are scored against subsequent fundamentals; publishing builds a public, verifiable track record — your agent keeps score. |
+| **Public, checkable research** | A published report keeps every figure's `fact_id` and lives on the author's public `@handle` profile, so a reader can trace each number to its filing. |
 
 The full tool reference is in [`docs/MCP_TOOLS.md`](docs/MCP_TOOLS.md); agent-facing runtime instructions are in [`AGENTS.md`](AGENTS.md).
 
@@ -139,15 +139,17 @@ Autonomous AI agents that need data outside their plan can pay by **card** over 
 
 **Payment is card-only today.** Fetch `https://api.valuein.biz/api/mpp/well-known` to see which networks are live before paying.
 
-| What you buy | Price |
-|---|---|
-| Company pass, `pro` level: one company, every company-data tool, Pro history (from 2011), 24 hours | $1.00 |
-| Company pass, `full` level: the same with history back to 1993, plus the smart-money tools, 24 hours | $5.00 |
-| Compute run (`compute_dcf`, `forensic_audit`, document generation, …), plus a pass for each company it reads | $1.00 per run |
-| Verification run (figure-checking tools, up to 50 figures), plus a pass for each company outside your plan | $1.00 per run |
-| Universe run (`screen_universe`, `get_pit_universe`, `run_backtest`) | $5.00 per run |
+| What you buy | Price | With any Valuein token |
+|---|---|---|
+| Company pass, `pro` level: one company, every company-data tool, Pro history (from 2011), 24 hours | $2.00 | $1.00 |
+| Company pass, `full` level: the same with history back to 1993, plus the smart-money tools, 24 hours | $5.00 | $2.50 |
+| Compute run (`compute_dcf`, `forensic_audit`, document generation, …), plus a pass for each company it reads | $2.00 per run | $1.00 |
+| Verification run (figure-checking tools, up to 50 figures), plus a pass for each company outside your plan | $2.00 per run | $1.00 |
+| Universe run (`screen_universe`, `get_pit_universe`, `run_backtest`) | $5.00 per run | $2.50 |
 
-The payment returns your pass in the `X-Valuein-Mpp-Pass` header; send it as `x-valuein-mpp-pass` on later `/mcp` calls to reuse it for that company until it expires. Any Valuein token, the free Benchmark one included, pays 50% less (present it in `X-Valuein-Authorization`), and every account verifies its first 100 figures free, once. Search and provenance tools are free; Workspace tools (watchlists, signals, agents, reports) and bulk streaming are not sold per call. Live prices: `curl -s https://api.valuein.biz/api/mpp/tools`; a `402` quotes the exact amount before anything is authorized. If you pay repeatedly, a [Pro or Institutional subscription](https://valuein.biz/pricing) is cheaper. See [`AGENTS.md`](AGENTS.md) for the full flow.
+A compute run on one company you do not already cover is a run plus a pass: `compute_dcf` on AAPL as a guest is $2.00 + $2.00 = **$4.00** ($2.00 with any Valuein token). The smallest charge there can be is $1.00 (a `pro` pass or a compute or verification run, with a token); there is no minimum beyond the price of the call.
+
+The payment returns your pass in the `X-Valuein-Mpp-Pass` header; send it as `x-valuein-mpp-pass` on later `/mcp` calls to reuse it for that company until it expires. Any Valuein token, the free Benchmark one included, pays 50% less, the right-hand column (present it in `X-Valuein-Authorization`), and every account verifies its first 100 figures free, once. Search and provenance tools are free; Workspace tools (watchlists, signals, agents, reports) and bulk streaming are not sold per call. Live prices: `curl -s https://api.valuein.biz/api/mpp/tools`; a `402` quotes the exact amount before anything is authorized. If you pay repeatedly, a [Pro or Institutional subscription](https://valuein.biz/pricing) is cheaper. See [`AGENTS.md`](AGENTS.md) for the full flow.
 
 **The whole pattern — an agent that buys its own data, safely** — is written up as a reference implementation in **[`docs/AGENT_ECONOMY_RAIL.md`](docs/AGENT_ECONOMY_RAIL.md)**: the MPP hold-verify-capture flow, company passes, why it's the safe default, and a runnable demo — [`examples/python/agent_buys_its_own_data.py`](examples/python/agent_buys_its_own_data.py) — that discovers the rail and reads back a live quote for free.
 
@@ -519,38 +521,125 @@ Research objects live server-side, keyed to your token — save from one AI clie
 | Watchlists & signals | `save_watchlist`, `create_signal`, `list_signal_inbox` | Standing monitors on fundamental changes and filings — delivered to email, webhook, dashboard inbox, or an `agent_run` that fires a standing agent team |
 | Reports | `create_report`, `render_report`, `save_freeform_report` | Durable, versioned research artifacts with branded md/docx export |
 | Deferral & rules | `schedule_task`, `create_rule`, `test_rule` | "Re-check AAPL margins in 30 days" → a real scheduled re-run; trigger→action rules (signal fired, inbox item, task wake, schedule tick) |
-| Approvals (HOTL) | `stage_action`, `list_pending_approvals`, `approve_staged_action` | Mutating/destructive actions stage for human approval with an immutable audit entry |
+| Approvals (HOTL) | `stage_action`, `list_pending_approvals` | Mutating/destructive actions stage for a person's approval in the Valuein Workspace, with an immutable audit entry; no MCP client can approve one |
 | Backtesting | `run_backtest`, `get_pit_valuation_ratios` | Small, bounded point-in-time factor checks and point-in-time TTM financials (no price-based multiple) |
 | Briefing | `get_morning_brief`, `list_agent_runs` | Read your daily brief and managed-run history from any MCP client |
 
 **Public publishing — free reputation building (any signed-in plan)**
 
-Publish your saved research to a public `@handle` profile — free to build a public track record and reputation. Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (no semantic search yet); theses and claims get the same free `publish` / `unpublish` visibility toggle. This is publishing, not selling.
+Publish your saved research to a public `@handle` profile — free to build a public track record and reputation. Reports become a shareable `/r/[slug]` page discoverable via keyword catalog search (no semantic search yet). This is publishing, not selling.
 
 | Tool | What it does |
 |---|---|
 | `publish_report` | Publish a saved report to your public profile (`@handle`) as a shareable `/r/[slug]` page |
 | `unpublish_report` | Take a previously published report private again |
 | `search_reports` | Search the public report catalog by ticker, author, or keyword (keyword catalog search) |
-| `publish_thesis` / `unpublish_thesis` | Toggle a saved thesis public / private on your profile — parity with `publish_report` |
-| `publish_claim` / `unpublish_claim` | Toggle a saved claim public / private on your profile — parity with `publish_report` |
 
-### Configure in Claude Desktop
+### Install in your client
 
-Add to `claude_desktop_config.json`:
+Every snippet below points at the full endpoint, `https://mcp.valuein.biz/mcp`. With no token it serves the free sample; add your token (`Authorization: Bearer <token>`) to read your plan's data, or connect `https://mcp.valuein.biz/research/mcp` for the read-only research tools with optional sign-in.
+
+[![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/en/install-mcp?name=valuein&config=eyJ1cmwiOiJodHRwczovL21jcC52YWx1ZWluLmJpei9tY3AifQ%3D%3D)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Server-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522valuein%2522%252C%2522type%2522%253A%2522http%2522%252C%2522url%2522%253A%2522https%253A%252F%252Fmcp.valuein.biz%252Fmcp%2522%257D)
+
+**Claude (claude.ai and Claude Desktop).** Customize → Connectors → **+ Add** → **Add custom connector**, paste `https://mcp.valuein.biz/mcp` (or `/research/mcp`), and sign in with your Valuein account when asked. A free Claude plan gets one custom connector.
+
+**Claude Code.**
+
+```bash
+claude mcp add --transport http valuein https://mcp.valuein.biz/mcp
+# with your token:
+claude mcp add --transport http valuein https://mcp.valuein.biz/mcp \
+  --header "Authorization: Bearer $VALUEIN_API_KEY"
+```
+
+**Claude Desktop config file (to use a token instead of signing in).** The file starts local servers only, so the `mcp-remote` bridge (needs Node.js) connects it to the hosted endpoint. Settings → Developer → Edit Config opens `claude_desktop_config.json`; restart Claude Desktop after saving.
 
 ```json
 {
   "mcpServers": {
     "valuein": {
-      "url": "https://mcp.valuein.biz/mcp",
-      "headers": { "Authorization": "Bearer YOUR_VALUEIN_API_KEY" }
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://mcp.valuein.biz/mcp", "--header", "Authorization:${AUTH_HEADER}"],
+      "env": { "AUTH_HEADER": "Bearer YOUR_VALUEIN_API_KEY" }
     }
   }
 }
 ```
 
-Same URL + Bearer token works for any MCP client that supports Streamable HTTP remotes — Copilot, ChatGPT, Cursor, your own LangGraph / CrewAI agent.
+**Cursor.** The **Add to Cursor** button above, or open this deeplink (its `config` is the base64 of `{"url":"https://mcp.valuein.biz/mcp"}`):
+
+```text
+cursor://anysphere.cursor-deeplink/mcp/install?name=valuein&config=eyJ1cmwiOiJodHRwczovL21jcC52YWx1ZWluLmJpei9tY3AifQ==
+```
+
+**VS Code (GitHub Copilot).** The **Install in VS Code** button above, the install link `vscode:mcp/install?%7B%22name%22%3A%22valuein%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fmcp.valuein.biz%2Fmcp%22%7D`, or `.vscode/mcp.json`:
+
+```json
+{
+  "servers": {
+    "valuein": { "type": "http", "url": "https://mcp.valuein.biz/mcp" }
+  }
+}
+```
+
+**Windsurf.** Open `mcp_config.json` from Cascade's MCP settings (on most installs `~/.codeium/windsurf/mcp_config.json`) and add the server; leave out `headers` for the free sample:
+
+```json
+{
+  "mcpServers": {
+    "valuein": {
+      "serverUrl": "https://mcp.valuein.biz/mcp",
+      "headers": { "Authorization": "Bearer ${env:VALUEIN_API_KEY}" }
+    }
+  }
+}
+```
+
+**LangChain** (`pip install langchain-mcp-adapters`):
+
+```python
+import asyncio
+
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+
+async def main() -> None:
+    client = MultiServerMCPClient(
+        {
+            "valuein": {
+                "transport": "http",  # "streamable_http" is the same transport
+                "url": "https://mcp.valuein.biz/mcp",
+                # "headers": {"Authorization": "Bearer YOUR_VALUEIN_API_KEY"},
+            }
+        }
+    )
+    tools = await client.get_tools()
+    print([tool.name for tool in tools])
+
+
+asyncio.run(main())
+```
+
+**LlamaIndex** (`pip install llama-index-tools-mcp`):
+
+```python
+import asyncio
+
+from llama_index.tools.mcp import BasicMCPClient, McpToolSpec
+
+
+async def main() -> None:
+    # An http(s) URL that does not end in /sse is spoken to over Streamable HTTP.
+    client = BasicMCPClient("https://mcp.valuein.biz/mcp")
+    tools = await McpToolSpec(client=client).to_tool_list_async()
+    print([tool.metadata.name for tool in tools])
+
+
+asyncio.run(main())
+```
+
+The same URL and Bearer token work in any MCP client that speaks Streamable HTTP remotes, including ChatGPT and your own LangGraph or CrewAI agent.
 
 ---
 
