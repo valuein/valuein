@@ -105,8 +105,8 @@ tool error: the agent contract in [`MCP_TOOLS.md`](MCP_TOOLS.md#reading-tool-res
 
 - **Company pass.** One company (a CIK) at one data level for **24 hours**: every
   company-data tool for that company, as often as you like, until it expires.
-  Level `pro` (Pro data, history from 2011) is **$2.00**; level `full`
-  (Institutional data: history back to 1993, plus the smart-money tools and
+  Level `pro` (Pro data, the Pro history window) is **$2.00**; level `full`
+  (Institutional data: full history, plus the smart-money tools and
   `verify_filing_figures`) is **$5.00** (with any Valuein token: $1.00 and $2.50). One order covers up to 50 companies. The payment returns your passes in the
   `X-Valuein-Mpp-Pass` response header and in `_meta["valuein/mpp"].passes`.
 - **Pass reuse.** Send a pass back in the `x-valuein-mpp-pass` header on later

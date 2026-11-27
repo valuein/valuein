@@ -28,7 +28,11 @@ SERVER_JSON_TEXT = """{
 }
 """
 
-README_TEXT = "# Hub\n\n<!-- GEN:mcp-summary -->\nstale\n<!-- /GEN:mcp-summary -->\n"
+README_TEXT = (
+    "# Hub\n\n<!-- GEN:mcp-summary -->\nstale\n<!-- /GEN:mcp-summary -->\n\n"
+    "<!-- GEN:plan-table -->\nstale\n<!-- /GEN:plan-table -->\n\n"
+    "<!-- GEN:mpp-passes -->\nstale\n<!-- /GEN:mpp-passes -->\n"
+)
 
 MCP_TOOLS_TEXT = (
     "# Tools\n\n<!-- GEN:agent-contract -->\n<!-- /GEN:agent-contract -->\n\n"

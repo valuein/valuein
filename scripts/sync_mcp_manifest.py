@@ -337,6 +337,54 @@ README_SUMMARY_TEMPLATE = (
     "includes."
 )
 
+PLAN_TABLE_TEMPLATE = (
+    '| Plan | Universe | History | Get it |\n'
+    '|---|---|---|---|\n'
+    '| **Sample** | Every S&P 500 member since {index_start}, former members included | {sample_years} calendar years + YTD | **Free**, no signup: `pip install "valuein-sdk>=1.0.0"` |\n'
+    '| **Benchmark** | Every S&P 500 member since {index_start}, former members included | Full history | **Free**, [register](https://valuein.biz/signup/free) |\n'
+    '| **Pro** | Full active + delisted universe incl. foreign issuers (20-F, 40-F), fundamentals dataset | Rolling {pro_years} years (from {pro_start} today) | [Subscribe](https://valuein.biz/checkout?tier=pro&billing=monthly) |\n'
+    '| **Institutional** | Same universe + **smart-money dataset** (insider transactions on Forms 3/4/5/144 + institutional ownership on Forms 13F/13D/13G) | Full history back to {history_start} | [Subscribe](https://valuein.biz/checkout?tier=full&billing=monthly) |\n'
+    "| **Enterprise** | A firm licence by Enterprise Agreement, priced by firm size (AUM or staff, whichever is larger) with analyst seats included: you pay for your analysts, not their agents · the whole dataset · unlimited agents for the firm's internal use · signed Order Form, look-ahead audit, bulk Parquet delivery, named contact · display in your own products and client deliverables, with attribution, where the Order Form says so | Full history back to {history_start} | [Pricing](https://valuein.biz/pricing) · [sales@valuein.biz](mailto:sales@valuein.biz) |"
+)
+
+MPP_PASSES_TEMPLATE = (
+    '| Company pass, `pro` level: one company, every company-data tool, Pro history (from {pro_start}), 24 hours | $2.00 | $1.00 |\n'
+    '| Company pass, `full` level: the same with history back to {history_start}, plus the smart-money tools, 24 hours | $5.00 | $2.50 |'
+)
+
+PLAN_BLOCKS: tuple[tuple[str, str], ...] = (
+    ("plan-table", PLAN_TABLE_TEMPLATE),
+    ("mpp-passes", MPP_PASSES_TEMPLATE),
+)
+
+
+def figure_slots(figures: dict) -> dict[str, Any]:
+    """Return the figures.json values the generated README text slots in."""
+    figures = validate_figures(figures)
+    plans = figures["plans"]
+    return {
+        "sample_years": plans["sampleHistoryYears"],
+        "index_start": plans["indexMembershipStart"],
+        "benchmark_start": plans["benchmarkHistoryStart"],
+        "pro_companies": figures["filerMix"]["labels"]["pro_companies"],
+        "pro_years": plans["proHistoryYears"],
+        "pro_start": plans["proHistoryStart"],
+        "history_start": figures["dataset"]["historyStart"],
+        "entity_count": figures["dataset"]["entityCount"],
+    }
+
+
+def render_plan_blocks(figures: dict) -> dict[str, str]:
+    """Render the README plan table and company-pass rows from figures.json.
+
+    Prices stay typed in the templates: neither figures.json nor the MCP
+    manifest carries them (`pricing://current` is a live resource, not a
+    manifest field), and checkout/Stripe own them.
+    """
+    slots = figure_slots(figures)
+    return {name: tpl.format(**slots) for name, tpl in PLAN_BLOCKS}
+
+
 MARKER_RE = re.compile(
     r"<!-- GEN:mcp-summary -->.*?<!-- /GEN:mcp-summary -->",
     re.DOTALL,
@@ -396,6 +444,11 @@ def update_readme(manifest: dict, figures: dict) -> tuple[str, str]:
             "Could not locate the MCP summary in README.md. "
             "Add markers manually: <!-- GEN:mcp-summary --> ... <!-- /GEN:mcp-summary -->"
         )
+    for name, text in render_plan_blocks(figures).items():
+        pattern = re.compile(rf"(<!-- GEN:{name} -->\n).*?(\n<!-- /GEN:{name} -->)", re.DOTALL)
+        if not pattern.search(target):
+            raise RuntimeError(f"README.md lacks the <!-- GEN:{name} --> marker pair")
+        target = pattern.sub(lambda m, t=text: m.group(1) + t + m.group(2), target, count=1)
     return current, target
 
 

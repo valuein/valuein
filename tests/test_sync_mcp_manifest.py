@@ -312,3 +312,40 @@ def test_load_figures_fails_loud_when_unreadable(monkeypatch: pytest.MonkeyPatch
         sync.load_figures()
     monkeypatch.setattr(sync, "load_manifest", lambda: clean_manifest())
     assert sync.main([]) == sync.EXIT_FIGURES_MISSING
+
+
+# ── README plan table and company-pass rows ──────────────────────────────────
+
+import re as _re  # noqa: E402
+
+
+def test_plan_rows_move_with_figures() -> None:
+    """A figures change moves the tier table and the company-pass rows."""
+    figures = load_figures_fixture()
+    figures["plans"]["proHistoryStart"] = 2031
+    figures["plans"]["proHistoryYears"] = 77
+    figures["plans"]["sampleHistoryYears"] = 9
+    figures["dataset"]["historyStart"] = 1888
+    figures["plans"]["indexMembershipStart"] = 1777
+    blocks = sync.render_plan_blocks(figures)
+    table, passes = blocks["plan-table"], blocks["mpp-passes"]
+    assert "Rolling 77 years (from 2031 today)" in table
+    assert "9 calendar years" in table and "back to 1888" in table
+    assert "since 1777" in table
+    assert "from 2031" in passes and "back to 1888" in passes
+
+
+def test_plan_templates_type_no_history_year() -> None:
+    """No generated row types a four-digit year or a window length: all come from figures."""
+    for _name, template in sync.PLAN_BLOCKS:
+        assert not _re.search(r"\b(19|20)\d{2}\b", template)
+        assert not _re.search(r"\b\d+ (calendar )?years\b", template)
+
+
+def test_update_readme_fills_plan_blocks(repo: dict[str, Path]) -> None:
+    """update_readme writes both blocks and refuses a README without their markers."""
+    _current, target = sync.update_readme(clean_manifest(), load_figures_fixture())
+    assert "| **Pro** |" in target and "Company pass, `pro` level" in target
+    sync.README.write_text("<!-- GEN:mcp-summary -->\nx\n<!-- /GEN:mcp-summary -->\n")
+    with pytest.raises(RuntimeError, match="plan-table"):
+        sync.update_readme(clean_manifest(), load_figures_fixture())
