@@ -324,7 +324,7 @@ README_SUMMARY_TEMPLATE = (
     "Benchmark (every S&P 500 member since {index_start}, former members included, "
     "history from {benchmark_start}) tiers see their slices; Pro sees "
     "{pro_companies} active and delisted companies with statements in a "
-    "{pro_years}-year point-in-time window ({pro_start} → present); "
+    "{pro_years}-year point-in-time window ({pro_start} → present);\n"
     "Institutional unlocks the smart-money tools (insider transactions "
     "on Forms 3 / 4 / 5 / 144 + institutional ownership on Forms 13F / "
     "13D / 13G), Form ADV, unlimited history back to {history_start} across {entity_count} companies and "
