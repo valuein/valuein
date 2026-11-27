@@ -85,6 +85,7 @@ jobs:
       worker_version: ${{ steps.registry.outputs.worker_version }}
     env:
       MCP_MANIFEST_URL: https://mcp.valuein.biz/manifest.json
+      FIGURES_URL: https://valuein.biz/figures.json
     steps:
       - uses: actions/checkout@v7
 

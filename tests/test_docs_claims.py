@@ -215,7 +215,8 @@ def test_generated_mcp_summary_matches_plans() -> None:
     import sync_mcp_manifest as sync
 
     rendered = sync.render_summary(
-        {"counts": {"tools_live": 1, "tools_stub": 0, "tools": 1, "prompts": 1, "resources": 1}}
+        {"counts": {"tools_live": 1, "tools_stub": 0, "tools": 1, "prompts": 1, "resources": 1}},
+        json.loads((Path(__file__).parent / "fixtures" / "figures.json").read_text()),
     )
     assert "redistribution license" not in rendered
     assert RETIRED_LICENCE_NAMES.search(rendered) is None

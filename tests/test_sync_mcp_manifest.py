@@ -17,6 +17,7 @@ from typing import Any
 import pytest
 import sync_mcp_manifest as sync
 from manifest_fixtures import (
+    load_figures_fixture,
     HIDDEN,
     SERVER_JSON_TEXT,
     assert_untouched,
@@ -259,3 +260,55 @@ def test_main_check_mode_passes_once_in_sync(
 ) -> None:
     assert run_main(monkeypatch, clean_manifest(), []) == 0
     assert run_main(monkeypatch, clean_manifest(), ["--check"]) == 0
+
+
+# ── figures.json: the README summary reads the site's published figures ──────
+
+COUNTS_ONLY = {"counts": {"tools_live": 1, "tools_stub": 0, "tools": 1, "prompts": 1, "resources": 1}}
+
+
+def test_summary_pro_clause_carries_pro_count_not_headline() -> None:
+    """Pro's clause names the Pro-window count and window, never the full-history headline."""
+    figures = load_figures_fixture()
+    text = sync.render_summary(COUNTS_ONLY, figures)
+    pro = text.split("Pro sees ")[1].split(";")[0]
+    pro_companies = figures["filerMix"]["labels"]["pro_companies"]
+    headline = figures["dataset"]["entityCount"]
+    assert pro_companies in pro and headline not in pro
+    assert f"{figures['plans']['proHistoryYears']}-year" in pro
+    assert f"{figures['plans']['proHistoryStart']} → present" in pro
+    assert f"back to {figures['dataset']['historyStart']} across {headline} companies" in text
+    assert "guided prompts" in text and "SOP" not in text
+
+
+def test_summary_moves_with_figures() -> None:
+    """Changing a figure changes the rendered text: nothing is typed in the template."""
+    figures = load_figures_fixture()
+    figures["plans"]["proHistoryYears"] = 99
+    assert "99-year" in sync.render_summary(COUNTS_ONLY, figures)
+
+
+@pytest.mark.parametrize("section,key", [("dataset", "entityCount"), ("plans", "proHistoryStart")])
+def test_validate_figures_raises_on_missing_key(section: str, key: str) -> None:
+    """A figures file lacking a key the summary reads is refused, never defaulted."""
+    figures = load_figures_fixture()
+    del figures[section][key]
+    with pytest.raises(ValueError, match=key):
+        sync.validate_figures(figures)
+
+
+def test_validate_figures_raises_on_missing_label() -> None:
+    """The nested Pro label is checked too."""
+    figures = load_figures_fixture()
+    del figures["filerMix"]["labels"]["pro_companies"]
+    with pytest.raises(ValueError, match="pro_companies"):
+        sync.validate_figures(figures)
+
+
+def test_load_figures_fails_loud_when_unreadable(monkeypatch: pytest.MonkeyPatch) -> None:
+    """An unreachable figures URL raises RuntimeError; main exits EXIT_FIGURES_MISSING."""
+    monkeypatch.setenv("FIGURES_URL", "http://127.0.0.1:1/figures.json")
+    with pytest.raises(RuntimeError, match="cannot read figures"):
+        sync.load_figures()
+    monkeypatch.setattr(sync, "load_manifest", lambda: clean_manifest())
+    assert sync.main([]) == sync.EXIT_FIGURES_MISSING
